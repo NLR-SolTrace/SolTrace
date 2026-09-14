@@ -94,8 +94,6 @@ void AppData::load_session() {
 
     // Viewport
     auto* sim = m_view->sim();
-    sim->set_camera(static_cast<SimulationViewState::Camera>(
-        s.value("sim_camera", 1).toInt()));
     sim->set_perspective(static_cast<SimulationViewState::Perspective>(
         s.value("sim_perspective", 0).toInt()));
     sim->set_sun_viz(s.value("sim_sun_viz", true).toBool());
@@ -194,7 +192,6 @@ void AppData::save_session() {
 
     // Viewport
     auto* sim = m_view->sim();
-    s.setValue("sim_camera", static_cast<int>(sim->camera()));
     s.setValue("sim_perspective", static_cast<int>(sim->perspective()));
     s.setValue("sim_sun_viz", sim->sun_viz());
     s.setValue("sim_sun_viz_scale", sim->sun_viz_scale());
