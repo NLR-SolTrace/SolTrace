@@ -88,6 +88,47 @@ static std::optional<glm::vec3> barycentric_for_point(QPointF const& p,
     return glm::vec3(w, u, v);
 }
 
+static double edge_function(QPointF const& a,
+                            QPointF const& b,
+                            QPointF const& p) {
+    return (p.x() - a.x()) * (b.y() - a.y()) -
+           (p.y() - a.y()) * (b.x() - a.x());
+}
+
+static bool is_top_left_edge(QPointF const& a, QPointF const& b) {
+    auto const dx = b.x() - a.x();
+    auto const dy = b.y() - a.y();
+    return dy > 0.0 || (dy == 0.0 && dx < 0.0);
+}
+
+static bool contains_with_edge_ownership(QPointF const& p,
+                                         QPointF const& a,
+                                         QPointF const& b,
+                                         QPointF const& c) {
+    auto aa = a;
+    auto bb = b;
+    auto cc = c;
+
+    if (edge_function(aa, bb, cc) < 0.0) {
+        std::swap(bb, cc);
+    }
+
+    auto accepts_edge = [](double edge_value,
+                           QPointF const& edge_a,
+                           QPointF const& edge_b) {
+        constexpr double edge_epsilon = 1e-10;
+
+        if (edge_value > edge_epsilon) return true;
+        if (edge_value < -edge_epsilon) return false;
+
+        return is_top_left_edge(edge_a, edge_b);
+    };
+
+    return accepts_edge(edge_function(aa, bb, p), aa, bb) &&
+           accepts_edge(edge_function(bb, cc, p), bb, cc) &&
+           accepts_edge(edge_function(cc, aa, p), cc, aa);
+}
+
 /// For a given point, find the closest point on a triangle mesh.
 static std::optional<TriangleProjection>
 project_point_to_triangle(db::Mesh const&    mesh,
@@ -330,20 +371,33 @@ raster_vertex_flux(std::vector<TriangleFluxBin> const& triangles,
         int max_y = std::min(image_size.height() - 1,
                              int(std::ceil(std::max({ a.y(), b.y(), c.y() }))));
 
+        constexpr int   subpixel_samples_per_axis = 4;
+        constexpr float subpixel_sample_count =
+            subpixel_samples_per_axis * subpixel_samples_per_axis;
+
         for (int y = min_y; y <= max_y; ++y) {
             for (int x = min_x; x <= max_x; ++x) {
-                QPointF p(x + 0.5, y + 0.5);
+                float accumulated_flux = 0.0f;
 
-                auto bary = barycentric_for_point(p, a, b, c);
-                if (!bary.has_value()) continue;
+                for (int sy = 0; sy < subpixel_samples_per_axis; ++sy) {
+                    for (int sx = 0; sx < subpixel_samples_per_axis; ++sx) {
+                        QPointF p(
+                            x + (sx + 0.5f) / subpixel_samples_per_axis,
+                            y + (sy + 0.5f) / subpixel_samples_per_axis);
 
-                constexpr float eps = -1e-5f;
-                if (bary->x < eps || bary->y < eps || bary->z < eps) continue;
+                        if (!contains_with_edge_ownership(p, a, b, c)) continue;
 
-                raster(x, y) += interpolate(vertices[indices.x].flux,
-                                            vertices[indices.y].flux,
-                                            vertices[indices.z].flux,
-                                            *bary);
+                        auto bary = barycentric_for_point(p, a, b, c);
+                        if (!bary.has_value()) continue;
+                        accumulated_flux +=
+                            interpolate(vertices[indices.x].flux,
+                                        vertices[indices.y].flux,
+                                        vertices[indices.z].flux,
+                                        *bary);
+                    }
+                }
+
+                raster(x, y) += accumulated_flux / subpixel_sample_count;
             }
         }
 
@@ -360,6 +414,11 @@ static void colorize_raster(QImage&              image,
                             Grid2D<float> const& raster,
                             QImage const&        color_map,
                             float                max_density) {
+
+    QPainter painter(&image);
+
+    painter.setRenderHint(QPainter::Antialiasing);
+
     for (int x = 0; x < image.width(); ++x) {
         for (int y = 0; y < image.height(); ++y) {
             float normalized = 0.0f;
@@ -371,7 +430,8 @@ static void colorize_raster(QImage&              image,
             auto sample = QPoint(normalized * (color_map.width() - 1),
                                  color_map.height() / 2);
 
-            image.setPixelColor(x, y, color_map.pixelColor(sample));
+            painter.setPen(color_map.pixelColor(sample));
+            painter.drawPoint(QPoint(x, y));
         }
     }
 }
@@ -546,7 +606,7 @@ execute_map_generation_for(TaskControl&            control,
 
     qDebug() << Q_FUNC_INFO << "setup complete";
 
-    // Creating image
+    // Creating image. Use f32 formats for speed.
     auto img = QImage(
         opts.image_resolution.x, opts.image_resolution.y, QImage::Format_RGB32);
 
@@ -655,6 +715,7 @@ execute_map_generation_for(TaskControl&            control,
 
     {
         auto painter = QPainter(&img);
+        painter.setRenderHint(QPainter::Antialiasing);
         raster_mesh_overlay(painter, mesh, img.size(), opts.grid_line_color);
     }
 
@@ -668,6 +729,7 @@ execute_map_generation_for(TaskControl&            control,
 
     qDebug() << Q_FUNC_INFO << "complete";
 
+    // Convert to the more common format
     img = img.convertToFormat(QImage::Format_RGBA8888);
 
     control.setProgressValue(PROGRESS_COMPLETE);

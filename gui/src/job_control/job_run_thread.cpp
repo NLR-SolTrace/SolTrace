@@ -241,7 +241,10 @@ void execute_thread_runner(QPromise<SimResult>&      promise,
         SolTrace::Result::SimulationResult soltrace_result;
 
         SOLTRACE_SECTION(
-            report_simulation(&soltrace_result, 100), 90, "Report simulation");
+            report_simulation(&soltrace_result,
+                              SolTrace::Runner::RunnerStatistics::RAY_RECORDS),
+            90,
+            "Report simulation");
 
         qDebug() << Q_FUNC_INFO
                  << "Launched:" << current_runner->get_number_rays_launched();

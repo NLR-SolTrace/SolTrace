@@ -72,6 +72,9 @@ SimulationResult::convert(SimulationResultConversion const& opts) {
 
     ret->records.reserve(opts.result.get_number_of_records());
 
+    qDebug() << Q_FUNC_INFO << "Source has "
+             << opts.result.get_number_of_records();
+
     uint64_t id = 0;
 
     // Copy over all rays
