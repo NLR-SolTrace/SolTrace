@@ -31,6 +31,11 @@ Flickable {
                    + formatCoordinate(centroid.z) + ")"
     }
 
+    function formatStatistic(value, suffix = "") {
+        let suffix_part = suffix.length ? " " + suffix : ""
+        return Number(value).toLocaleString(Qt.locale(), 'G', 6) + suffix_part
+    }
+
     contentWidth: width
     contentHeight: content_column.implicitHeight
     clip: true
@@ -174,51 +179,61 @@ Flickable {
             }
 
             STFormRow {
-                label: "Plotted Power (W)"
+                label: "Plotted Power"
+
+                labelWidth: 180
 
                 Label {
                     Layout.fillWidth: true
-                    text: root.flux_module.current_flux_stats.plotted_power
+                    text: formatStatistic(root.flux_module.current_flux_stats.plotted_power, "W")
                     font.bold: true
                 }
             }
 
             STFormRow {
-                label: "Peak Flux (W/m^2)"
+                label: "Peak Flux"
+
+                labelWidth: 180
 
                 Label {
                     Layout.fillWidth: true
-                    text: root.flux_module.current_flux_stats.peak_flux
+                    text: formatStatistic(root.flux_module.current_flux_stats.peak_flux, "W/m^2")
                     font.bold: true
                 }
             }
 
             STFormRow {
-                label: "Min Flux (W/m^2)"
+                label: "Min Flux"
+
+                labelWidth: 180
 
                 Label {
                     Layout.fillWidth: true
-                    text: root.flux_module.current_flux_stats.min_flux
+                    text: formatStatistic(root.flux_module.current_flux_stats.min_flux, "W/m^2")
                     font.bold: true
                 }
             }
 
             STFormRow {
-                label: "Average Flux (W/m^2)"
+                label: "Average Flux"
+
+                labelWidth: 180
 
                 Label {
                     Layout.fillWidth: true
-                    text: root.flux_module.current_flux_stats.average_flux
+                    text: formatStatistic(root.flux_module.current_flux_stats.average_flux, "W/m^2")
                     font.bold: true
                 }
             }
 
             STFormRow {
-                label: "Sigma Flux (W/m^2)"
+                label: "Sigma Flux"
+
+                labelWidth: 180
 
                 Label {
                     Layout.fillWidth: true
-                    text: root.flux_module.current_flux_stats.sigma_flux
+                    text: formatStatistic(root.flux_module.current_flux_stats.sigma_flux, "W/m^2")
                     font.bold: true
                 }
             }
@@ -226,9 +241,11 @@ Flickable {
             STFormRow {
                 label: "Uniformity"
 
+                labelWidth: 180
+
                 Label {
                     Layout.fillWidth: true
-                    text: root.flux_module.current_flux_stats.uniformity
+                    text: formatStatistic(root.flux_module.current_flux_stats.uniformity)
                     font.bold: true
                 }
             }
@@ -236,9 +253,11 @@ Flickable {
             STFormRow {
                 label: "Peak Flux Uncert"
 
+                labelWidth: 180
+
                 Label {
                     Layout.fillWidth: true
-                    text: root.flux_module.current_flux_stats.peak_flux_uncertainty
+                    text: formatStatistic(root.flux_module.current_flux_stats.peak_flux_uncertainty)
                     font.bold: true
                 }
             }
@@ -246,15 +265,19 @@ Flickable {
             STFormRow {
                 label: "Average Flux Uncert"
 
+                labelWidth: 180
+
                 Label {
                     Layout.fillWidth: true
-                    text: root.flux_module.current_flux_stats.average_flux_uncertainty
+                    text: formatStatistic(root.flux_module.current_flux_stats.average_flux_uncertainty)
                     font.bold: true
                 }
             }
 
             STFormRow {
                 label: "Centroid"
+
+                labelWidth: 180
 
                 Label {
                     property vector3d cent: root.flux_module.current_flux_stats.centroid
