@@ -324,7 +324,7 @@ Flickable {
             }
 
             STFormRow {
-                label: "Solar DNI"
+                label: "Solar DNI (W/m^2)"
 
                 STDoubleSpinBox {
                     Layout.fillWidth: true
@@ -333,7 +333,6 @@ Flickable {
                     stepSize: 50.0
                     decimals: 1
                     value: AppData.flux.dni
-                    suffix: " W/m^2"
 
                     onValueModified: AppData.flux.dni = value
                 }

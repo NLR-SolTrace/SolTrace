@@ -160,6 +160,14 @@ SimulationModule::SimulationModule(QObject* parent)
             this,
             &SimulationModule::update_result_world);
 
+    // connect(this, &SimulationModule::ray_count_changed, this, [this]() {
+    //     qDebug() << "HERE" << this->ray_count();
+    // });
+
+    // connect(this, &SimulationModule::max_ray_count_changed, this, [this]() {
+    //     qDebug() << "HERE2" << this->max_ray_count();
+    // });
+
     qDebug() << Q_FUNC_INFO;
 }
 

@@ -15,7 +15,7 @@ QVector<SurfaceParameter> make_parameters_for(SD::SurfaceType type) {
     case SD::CONE:
         ret = {
             {
-                .name    = "Half angle",
+                .name    = "Half angle (deg)",
                 .content = M_PI / 4.0,
                 .min     = 0.0,
                 .max     = M_PI / 2.0,

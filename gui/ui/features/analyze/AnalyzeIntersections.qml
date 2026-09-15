@@ -225,28 +225,34 @@ Flickable {
                 onUpdated: AppData.view.ray_color = rayColorPicker.color
             }
 
-            STDoubleSpinBox {
-                from: 0.0
-                to: 100.0
-                value: root.ray_geom.show_percent
-                stepSize: 1.0
-                decimals: 0
-                Layout.fillWidth: true
-                onValueModified: {
-                    root.ray_geom.show_percent = value
+            STFormRow {
+                label: "Visible rays percent"
+
+                STDoubleSpinBox {
+                    from: 0.0
+                    to: 100.0
+                    value: root.ray_geom.show_percent
+                    stepSize: 1.0
+                    decimals: 0
+                    Layout.fillWidth: true
+                    onValueModified: {
+                        root.ray_geom.show_percent = value
+                    }
                 }
-                suffix: "%"
             }
 
-            STDoubleSpinBox {
-                from: 0.0
-                to: root.ray_geom.available_rays
-                value: root.visibleRayCount()
-                stepSize: 1000
-                decimals: 0
-                Layout.fillWidth: true
-                onValueModified: root.setVisibleRayCount(value)
-                suffix: "rays"
+            STFormRow {
+                label: "Visible rays"
+
+                STDoubleSpinBox {
+                    from: 0.0
+                    to: root.ray_geom.available_rays
+                    value: root.visibleRayCount()
+                    stepSize: 1000
+                    decimals: 0
+                    Layout.fillWidth: true
+                    onValueModified: root.setVisibleRayCount(value)
+                }
             }
 
             STFormRow {
@@ -264,7 +270,7 @@ Flickable {
             }
 
             STFormRow {
-                label: "Opacity"
+                label: "Opacity percent"
 
                 STDoubleSpinBox {
                     Layout.fillWidth: true
@@ -273,7 +279,6 @@ Flickable {
                     value: AppData.view.intersection_opacity * 100.0
                     stepSize: 5.0
                     decimals: 0
-                    suffix: "%"
                     onValueModified: {
                         AppData.view.intersection_opacity = value / 100.0
                     }
