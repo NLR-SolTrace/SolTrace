@@ -20,7 +20,11 @@ Window {
 
     Rectangle {
         anchors.fill: parent
-        color: "#40525e"
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: "#aaaaaa" }
+            GradientStop { position: 1.0; color: "#40525e" }
+        }
+        //color: "#40525e"
         radius: 10
 
         Image {

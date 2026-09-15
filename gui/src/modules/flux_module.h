@@ -50,8 +50,13 @@ class FluxModule : public QObject {
     // Hack
     Q_WRITABLE_PROPERTY(QString, current_image, { });
 
+    qint64           m_batch_max = 0;
+    QSet<db::Entity> m_batch_pending;
+
 private:
     void refresh_current_flux_stats();
+
+    void maybe_update_batch(db::Entity);
 
 private slots:
     void
@@ -82,10 +87,19 @@ public slots:
     /// Generate an isosurface mesh from the current volumetric raster.
     void start_generate_isosurface(float value);
 
+    /// Save a flux image to disk
     void save_image(QString requested_image, QUrl path);
+
+    /// Start a long running process batch generating everything
+    void start_generate_batch();
+
+    void cancel_batch();
 
 signals:
     void notify(ANotification);
+
+    void started_batch();
+    void batch_progress(qint64, qint64);
 };
 
 } // namespace SolTrace::GUI::App

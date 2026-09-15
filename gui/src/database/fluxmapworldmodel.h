@@ -90,11 +90,15 @@ public slots:
     /// Cancel the pending map generation for entity.
     void cancel_for(db::Entity);
 
+    void cancel_all();
+
 signals:
     /// A new flux map is ready, for an entity, from a given database
     void ready(db::Entity, analysis::BakedFluxMapPtr, db::Database const*);
-    void failed(QString);
+    void failed(db::Entity, QString);
     void cleared();
+
+    void all_done();
 };
 
 // ============================================================================

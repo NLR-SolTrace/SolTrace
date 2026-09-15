@@ -137,7 +137,11 @@ void PendingFluxMapModel::on_changed() {
 }
 
 void PendingFluxMapModel::on_ready(Entity e, analysis::BakedFluxMapPtr image) {
-    if (!m_host) return;
+    if (!m_host) {
+        // this really shouldnt happen
+        if (this->rowCount() == 0) { emit all_done(); }
+        return;
+    }
 
     {
         // super hazardous, but this is how we make sure modification of a
@@ -153,13 +157,17 @@ void PendingFluxMapModel::on_ready(Entity e, analysis::BakedFluxMapPtr image) {
     store_remove_by_predicate([e](auto& record) { return record.entity == e; });
 
     emit ready(e, image, m_host);
+
+    if (this->rowCount() == 0) { emit all_done(); }
 }
 
 void PendingFluxMapModel::on_failed(Entity e, QString reason) {
-    emit failed(reason);
+    emit failed(e, reason);
 
     this->store_remove_by_predicate(
         [e](FluxMappedPendingItem const& item) { return item.entity == e; });
+
+    if (this->rowCount() == 0) { emit all_done(); }
 }
 
 void PendingFluxMapModel::on_progress(Entity e, int progress) {
@@ -289,6 +297,9 @@ void PendingFluxMapModel::cancel_for(Entity entity) {
     m_compute->cancel_specific(entity);
 }
 
+void PendingFluxMapModel::cancel_all() {
+    m_compute->cancel_all();
+}
 
 FluxMapProvider* PendingFluxMapModel::make_new_provider() {
     auto ret = new FluxMapProvider();

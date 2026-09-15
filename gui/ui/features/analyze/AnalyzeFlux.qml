@@ -465,6 +465,96 @@ Flickable {
                 }
             }
 
+            STDangerousButton {
+                Layout.fillWidth: true
+
+                text: "Compute All Maps"
+                left_text_icon: "\uf252"
+
+                onClicked: batch_warn.open()
+
+                STDialog {
+                    id: batch_warn
+                    title: "Batch Compute All Maps"
+
+                    height: 256
+                    width: 320
+
+                    ColumnLayout {
+                        anchors.fill: parent
+                        Label {
+                            Layout.fillWidth: true
+                            text: "This will generate flux maps for ALL elements which have an interacting ray."
+                            wrapMode: Label.WrapAtWordBoundaryOrAnywhere
+                        }
+
+                        Label {
+                            Layout.fillWidth: true
+                            text: "Depending on the size of the scene, this operation could take a significant amount of time and compute resources."
+                            wrapMode: Label.WrapAtWordBoundaryOrAnywhere
+                        }
+                    }
+
+                    standardButtons: Dialog.Ok | Dialog.Cancel
+
+                    onAccepted: {
+                        AppData.flux.start_generate_batch()
+                    }
+                }
+
+                STPopup {
+                    id: batch_progress
+
+                    modal: true
+
+                    closePolicy: STPopup.NoAutoClose
+
+                    parent: Overlay.overlay
+                    anchors.centerIn: Overlay.overlay
+
+                    contentWidth: progress_view.implicitWidth
+                    contentHeight: progress_view.implicitHeight
+
+                    Connections {
+                        target: AppData.flux
+                        function onStarted_batch() {
+                            batch_progress.open()
+                        }
+                    }
+
+                    Connections {
+                        target: AppData.flux
+                        function onBatch_progress(value, max) {
+                            if (max <= 0) batch_progress.close()
+                            batch_progress_bar.from = 0
+                            batch_progress_bar.to = Math.max(max, value)
+                            batch_progress_bar.value = value
+                        }
+                    }
+
+                    ColumnLayout {
+                        id: progress_view
+                        anchors.fill: parent
+
+
+                        ProgressBar {
+                            Layout.fillWidth: true
+                            id: batch_progress_bar
+                            from: 0
+                            to: 0
+                            value: 0
+                        }
+
+                        STDangerousButton {
+                            id: cancel_batch_button
+
+                            text: "Cancel"
+
+                            onClicked: AppData.flux.cancel_batch()
+                        }
+                    }
+                }
+            }
 
         }
 

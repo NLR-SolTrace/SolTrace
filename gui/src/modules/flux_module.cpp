@@ -40,14 +40,23 @@ FluxModule::FluxModule(QQmlEngine* engine, QObject* parent)
             m_flux_map_world_model,
             &db::FluxMapWorldModel::on_reset);
 
-    connect(
-        m_pending_flux_maps,
-        &db::PendingFluxMapModel::failed,
-        [this](QString reason) { this->notify(ANotification::error(reason)); });
+    connect(m_pending_flux_maps,
+            &db::PendingFluxMapModel::failed,
+            [this](db::Entity entity, QString reason) {
+                // we record completion, batch or not
+                maybe_update_batch(entity);
+                this->notify(ANotification::error(reason));
+            });
 
     connect(m_pending_flux_maps, &db::PendingFluxMapModel::cleared, this, [this] {
         set_current_flux_stats({});
     });
+
+    connect(
+        m_pending_flux_maps, &db::PendingFluxMapModel::all_done, this, [this] {
+            m_batch_max = -1;
+            batch_progress(-1, -1);
+        });
 }
 
 void FluxModule::set_results(db::SimulationResultPtr p) {
@@ -70,6 +79,10 @@ void FluxModule::set_results(db::SimulationResultPtr p) {
     m_computed_maps_model->reset(mptr);
     m_pending_flux_maps->reset(p);
     m_ray_iso_volume->set_current_mesh({});
+
+    m_batch_max = 0;
+    m_batch_pending.clear();
+    emit batch_progress(-1, -1);
 
     // Default to the entity with the most ray hits.
     entt::entity largest = entt::null;
@@ -110,6 +123,19 @@ void FluxModule::select_entity(db::Entity entity) {
     refresh_current_flux_stats();
 }
 
+void FluxModule::maybe_update_batch(db::Entity entity) {
+    if (m_batch_max <= 0) return;
+
+    if (!m_batch_pending.contains(entity)) return;
+
+
+    m_batch_pending.remove(entity);
+
+    auto diff = m_batch_max - m_batch_pending.size();
+
+    emit this->batch_progress(diff, m_batch_max);
+}
+
 void FluxModule::refresh_current_flux_stats() {
     for (auto const& item : m_flux_map_world_model->vector()) {
         if (item.flux_entity == current_entity()) {
@@ -126,6 +152,9 @@ void FluxModule::refresh_current_flux_stats() {
 void FluxModule::flux_map_ready(db::Entity              entity,
                                 analysis::BakedFluxMapPtr,
                                 db::Database const*) {
+    // we record completion, batch or not
+    maybe_update_batch(entity);
+
     if (entity != current_entity()) return;
 
     refresh_current_flux_stats();
@@ -143,6 +172,13 @@ void FluxModule::start_generate() {
     if (!current_entity().is_valid()) {
         emit notify(ANotification::warning(
             "Select an element to generate a flux map."));
+        return;
+    }
+
+    if (m_batch_pending.size()) {
+        emit notify(
+            ANotification::warning("Please wait for a batch to complete before "
+                                   "generating a flux map."));
         return;
     }
 
@@ -229,6 +265,56 @@ void FluxModule::save_image(QString requested_image, QUrl path) {
                                          "unable to save image to given path"));
         return;
     }
+}
+
+void FluxModule::start_generate_batch() {
+    qDebug() << Q_FUNC_INFO << "Starting batch fluxmap generation";
+
+    if (!m_results) {
+        emit notify(ANotification::warning(
+            "Run a trace before generating a flux map."));
+        return;
+    }
+
+    if (m_pending_flux_maps->rowCount() != 0) {
+        emit notify(ANotification::error(
+            "Please wait until all fluxmaps have completed generation before "
+            "starting a batch."));
+        return;
+    }
+
+    m_pending_flux_maps->set_dni(dni());
+
+    m_batch_pending.clear();
+
+    // load em all up
+
+    for (auto const& entity_list : m_results->entity_to_ray_ids) {
+        auto entity = entity_list.first;
+
+        if (entity_list.second.empty()) continue;
+
+        bool ok = m_pending_flux_maps->start_generate_for(entity);
+
+        if (ok) { m_batch_pending.insert(entity); }
+    }
+
+    if (m_batch_pending.empty()) {
+        m_batch_max = -1;
+        return;
+    }
+
+    m_batch_max = m_batch_pending.size();
+
+    emit started_batch();
+
+    emit batch_progress(0, m_batch_pending.size());
+}
+
+void FluxModule::cancel_batch() {
+    qDebug() << Q_FUNC_INFO << "Cancelling batch...";
+
+    m_pending_flux_maps->cancel_all();
 }
 
 void FluxModule::flux_vol_ready(QUuid const&                  id,
