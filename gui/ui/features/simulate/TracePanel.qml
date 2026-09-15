@@ -70,7 +70,7 @@ ScrollView {
                     id: rayCountField
                     Layout.fillWidth: true
                     from: 1
-                    to: AppData.simulation.max_ray_count
+                    to: 1000000000
                     onValueModified: AppData.simulation.ray_count = value
 
                     Binding {
@@ -183,8 +183,19 @@ ScrollView {
                 Layout.fillWidth: true
                 text: "Start Trace"
                 left_text_icon: "\uf0da"
+                visible: !AppData.simulation.is_running
                 onClicked: {
                     AppData.simulation.run()
+                }
+            }
+
+            STDangerousButton {
+                Layout.fillWidth: true
+                text: "Cancel Trace"
+                left_text_icon: "\uf04d"
+                visible: AppData.simulation.is_running
+                onClicked: {
+                    AppData.simulation.cancel()
                 }
             }
 
