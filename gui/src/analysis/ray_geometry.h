@@ -23,10 +23,18 @@ struct EventTypeContainer {
     QStringList to_list() const;
 };
 
+/// A user-facing record of ray interaction.
 struct UIRayRecord {
-    bool      has_entity = false;
-    qint64    entity;
-    QString   interaction_type;
+    /// Did this interaction hit an entity?
+    bool has_entity = false;
+
+    /// If it hit an entity, which one?
+    qint64 entity = -1;
+
+    /// What is the interaction type?
+    QString interaction_type;
+
+    /// Where was the interaction?
     QVector3D location;
 
     RECORD_META(analysis::UIRayRecord,
@@ -36,6 +44,7 @@ struct UIRayRecord {
                 SM_EXPOSE_RO(location), );
 };
 
+/// A table of ray interactions
 struct RayInteractionTable : public StructTableModel<UIRayRecord> {
     using StructTableModel::StructTableModel;
 };
@@ -82,6 +91,7 @@ private:
     /// What is/is there a selected ray?
     Q_WRITABLE_PROPERTY(qint64, selected_ray_id, -1);
 
+    /// Interactions for the current ray
     QOBJECT_READONLY_PROPERTY(RayInteractionTable, selected_ray_interactions);
 
     /// Only show rays that interacted with this entity.
