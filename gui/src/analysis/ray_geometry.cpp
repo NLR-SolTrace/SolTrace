@@ -577,7 +577,50 @@ void RayGeometry::entity_filter_update() {
     rebuild_geometry();
 }
 
-RayGeometry::RayGeometry(QQuick3DObject* parent) : QQuick3DGeometry(parent) {
+void RayGeometry::selected_ray_change_update_table() {
+    if (!m_database || !m_database->database || m_selected_ray_id < 0) {
+        m_selected_ray_interactions->reset();
+        return;
+    }
+
+    if (m_selected_ray_id >= m_database->records.size()) {
+        m_selected_ray_interactions->reset();
+        return;
+    }
+
+    auto const& selected_ray = m_database->records[m_selected_ray_id];
+
+    QVector<UIRayRecord> new_records;
+
+    static auto names = []() {
+        QHash<db::RayEventType, QString> ret;
+
+        for (auto [value, name] :
+             magic_enum::enum_entries<db::RayEventType>()) {
+            auto str =
+                QString::fromLocal8Bit(name.data(), name.length()).toLower();
+            str[0]     = str[0].toTitleCase();
+            ret[value] = str;
+        }
+
+        return ret;
+    }();
+
+    for (auto const& event : selected_ray.events) {
+        new_records << UIRayRecord {
+            .has_entity       = m_database->database->valid(event.entity),
+            .entity           = entt::to_integral(event.entity),
+            .interaction_type = names[event.event],
+            .location         = convert(event.location),
+        };
+    }
+
+    m_selected_ray_interactions->reset(new_records);
+}
+
+RayGeometry::RayGeometry(QQuick3DObject* parent)
+    : QQuick3DGeometry(parent),
+      m_selected_ray_interactions(new RayInteractionTable(this)) {
 
     m_include_events = EventTypeContainer({
         db::RayEventType::ABSORB,
@@ -601,6 +644,11 @@ RayGeometry::RayGeometry(QQuick3DObject* parent) : QQuick3DGeometry(parent) {
             &RayGeometry::selected_ray_id_changed,
             this,
             &RayGeometry::rebuild_geometry);
+
+    connect(this,
+            &RayGeometry::selected_ray_id_changed,
+            this,
+            &RayGeometry::selected_ray_change_update_table);
 
     connect(this,
             &RayGeometry::entity_filter_changed,
@@ -627,6 +675,8 @@ void RayGeometry::set_results(db::SimulationResultPtr data) {
     qDebug() << Q_FUNC_INFO << "New ray geometry database";
     m_database = std::move(data);
     set_entity_filter({});
+    set_selected_ray_id(-1);
+    m_selected_ray_interactions->reset();
     const auto available =
         m_database ? static_cast<quint64>(m_database->records.size()) : 0;
     set_available_rays(available);
@@ -735,6 +785,7 @@ static RayCastRayResult check_distance(db::RayRecord const& record,
                                        glm::dvec3 const&    world_position,
                                        glm::dvec3 const&    world_direction,
                                        EventTypeContainer const& filter,
+                                       double filter_sphere,
                                        float angle_tolerance_rads_cos) {
     if (record.events.empty()) return RayCastRayResult { };
 
@@ -756,10 +807,19 @@ static RayCastRayResult check_distance(db::RayRecord const& record,
 
         glm::dvec3 segment_b = event.location;
 
+        QVector3D clipped_start = convert(segment_a);
+        QVector3D clipped_end   = convert(segment_b);
+
+        auto clipped = visible_segment(clipped_start, clipped_end, filter_sphere);
+        if (!clipped) {
+            segment_a = segment_b;
+            continue;
+        }
+
         glm::vec3 closest_segment_point;
 
-        dist_segment_ray_closest_points(segment_a,
-                                        segment_b,
+        dist_segment_ray_closest_points(convert(clipped->start),
+                                        convert(clipped->end),
                                         world_position,
                                         world_direction,
                                         closest_segment_point);
@@ -807,6 +867,8 @@ void RayGeometry::pick_ray(QVector3D world_position,
     // Get filter
 
     const auto event_filter = m_include_events;
+    const auto entity       = entity_filter();
+    const auto filter_sphere = max_ray_distance();
 
     // Build iteration over all rays, bounded by what we can see
 
@@ -820,10 +882,13 @@ void RayGeometry::pick_ray(QVector3D world_position,
         start_iter,
         end_iter,
         [=](db::RayRecord const& record) {
+            if (!includes_entity(record, entity)) return RayCastRayResult { };
+
             return check_distance(record,
                                   glm_world_pos,
                                   glm_world_dir,
                                   event_filter,
+                                  filter_sphere,
                                   angle_tolerance_rads_cos);
         },
         [=](RayCastRayResult& dest, RayCastRayResult const& next) {

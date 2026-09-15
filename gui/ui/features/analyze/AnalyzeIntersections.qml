@@ -61,6 +61,7 @@ Flickable {
     contentHeight: content_column.implicitHeight
     clip: true
     boundsBehavior: Flickable.StopAtBounds
+    ScrollBar.vertical: STScrollBar { }
 
 
 
@@ -284,7 +285,7 @@ Flickable {
             }
 
             STFormRow {
-                label: "Selected ID"
+                label: "Selected Ray ID"
                 visible: root.is_selected_ray_valid
 
                 RowLayout {
@@ -303,13 +304,116 @@ Flickable {
                 }
             }
 
+            ListView {
+                id: interaction_list_view
+                Layout.fillWidth: true
+                Layout.columnSpan: parent.columns
+                Layout.margins: 6
+
+                clip: true
+
+                spacing: 3
+
+                model: root.ray_geom.selected_ray_interactions
+
+                Layout.preferredHeight: count > 0
+                                        ? (headerItem ? headerItem.implicitHeight : 0)
+                                          + Math.min(count, 5) * delegate_height
+                                          + Math.max(0, Math.min(count, 5) - 1) * spacing
+                                        : 0
+
+                property int delegate_height: 42
+
+                ScrollBar.vertical: STScrollBar { }
+
+                header: Label {
+                    text: "Interactions"
+                }
+
+                delegate: Rectangle {
+                    id: id_root
+                    required property bool     has_entity
+                    required property var      entity
+                    required property string   interaction_type
+                    required property vector3d location
+
+                    radius: 6
+
+                    width: ListView.view.width
+                    height: interaction_content.implicitHeight + 12
+
+                    color: Material.dropShadowColor
+
+                    ColumnLayout {
+                        id: interaction_content
+                        anchors.fill: parent
+
+                        anchors.margins: 5
+
+                        Label {
+                            Layout.fillWidth: true
+                            text: id_root.interaction_type
+                            font.bold: true
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+
+                            Label {
+                                Layout.fillWidth: true
+                                Layout.horizontalStretchFactor: 0
+                                text: Number(id_root.location.x).toLocaleString(Qt.locale(), 'f', 3)
+                                color: Qt.tint(Material.foreground,
+                                               Qt.alpha(Material.color(Material.Red), 0.25))
+                            }
+
+                            Label {
+                                text: " "
+                            }
+
+                            Label {
+                                Layout.fillWidth: true
+                                Layout.horizontalStretchFactor: 0
+                                text: Number(id_root.location.y).toLocaleString(Qt.locale(), 'f', 3)
+                                color: Qt.tint(Material.foreground,
+                                               Qt.alpha(Material.color(Material.Green), 0.25))
+                            }
+
+                            Label {
+                                text: " "
+                            }
+
+                            Label {
+                                Layout.fillWidth: true
+                                Layout.horizontalStretchFactor: 0
+                                text: Number(id_root.location.z).toLocaleString(Qt.locale(), 'f', 3)
+                                color: Qt.tint(Material.foreground,
+                                               Qt.alpha(Material.color(Material.Blue), 0.25))
+                            }
+
+                            Item {
+                                Layout.fillWidth: true
+                                Layout.horizontalStretchFactor: 1
+                            }
+
+                            Label {
+                                Layout.fillWidth: true
+                                Layout.horizontalStretchFactor: 0
+                                horizontalAlignment: Qt.AlignRight
+                                visible: id_root.has_entity
+                                text: "@ Entity " + id_root.entity
+                            }
+                        }
+                    }
+                }
+            }
+
             STButton {
                 Layout.fillWidth: true
                 text: "Pick Ray From View"
                 left_text_icon: "\uf05b"
                 onClicked: App.view.mouse_mode = ViewModule.PickRay
             }
-
 
         }
     }

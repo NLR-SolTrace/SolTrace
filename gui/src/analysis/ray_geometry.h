@@ -23,6 +23,23 @@ struct EventTypeContainer {
     QStringList to_list() const;
 };
 
+struct UIRayRecord {
+    bool      has_entity = false;
+    qint64    entity;
+    QString   interaction_type;
+    QVector3D location;
+
+    RECORD_META(analysis::UIRayRecord,
+                SM_EXPOSE_RO(has_entity),
+                SM_EXPOSE_RO(entity),
+                SM_EXPOSE_RO(interaction_type),
+                SM_EXPOSE_RO(location), );
+};
+
+struct RayInteractionTable : public StructTableModel<UIRayRecord> {
+    using StructTableModel::StructTableModel;
+};
+
 /// Class that builds/rebuilds ray geometry for QML visualization
 ///
 /// TODO: make all deltas queued up for Concurrent off thread rebuilding of geom
@@ -65,6 +82,8 @@ private:
     /// What is/is there a selected ray?
     Q_WRITABLE_PROPERTY(qint64, selected_ray_id, -1);
 
+    QOBJECT_READONLY_PROPERTY(RayInteractionTable, selected_ray_interactions);
+
     /// Only show rays that interacted with this entity.
     Q_WRITABLE_PROPERTY(db::Entity, entity_filter, { });
 
@@ -77,6 +96,8 @@ private:
 private slots:
     void inclusion_list_update();
     void entity_filter_update();
+
+    void selected_ray_change_update_table();
 
 public:
     explicit RayGeometry(QQuick3DObject* parent = nullptr);
@@ -103,5 +124,6 @@ public slots:
     /// Clear entity filtering.
     void clear_entity_filter();
 };
+
 
 } // namespace analysis
