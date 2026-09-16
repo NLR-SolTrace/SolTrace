@@ -10,13 +10,20 @@ ScrollView {
     Layout.fillHeight: true
     contentWidth: availableWidth
 
+    function metadata(key, field) {
+        const value = App.docs.get(key, field)
+        return value.startsWith("Error:") ? "" : value
+    }
+
     function member(key) {
+        const docKey = "team." + key
+        const website = metadata(docKey, "website")
         return {
-            name: App.docs.get("team." + key, "name"),
-            role: App.docs.get("team." + key, "role"),
-            description: App.docs.get("team." + key),
-            website: App.docs.get("team." + key, "website"),
-            email: App.docs.get("team." + key, "email")
+            name: metadata(docKey, "name"),
+            role: metadata(docKey, "role"),
+            description: App.docs.get(docKey),
+            website: website.length > 0 ? website : metadata(docKey, "url"),
+            email: metadata(docKey, "email")
         }
     }
 
