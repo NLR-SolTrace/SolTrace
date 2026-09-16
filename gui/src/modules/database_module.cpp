@@ -1,7 +1,7 @@
 #include "database_module.h"
-#include "utilities/asynctask.h"
-#include "utilities/math_utility.h"
-#include "utilities/result.h"
+#include "support/asynctask.h"
+#include "support/math_utility.h"
+#include "support/result.h"
 
 #include <QCoreApplication>
 #include <QDir>
@@ -51,10 +51,10 @@ struct DirectTaskControl : TaskControl {
 } // namespace
 
 static ::Result<LoadedFile, LoadFileFailed>
-load_file(TaskControl& control, QString fname, db::Database* new_db) {
+load_file(TaskControl& control, QString fname, SolTrace::GUI::Data::Database* new_db) {
 
     // Take control of that free pointer...
-    std::unique_ptr<db::Database> destination(new_db);
+    std::unique_ptr<SolTrace::GUI::Data::Database> destination(new_db);
     QString                       stage = "starting";
 
     try {
@@ -186,7 +186,7 @@ void DatabaseModule::load_url(QUrl url, QString name_override) {
         if (name_override.isEmpty()) name_override = "Untitled";
 
         this->store_push_append(DatabaseRecord {
-            .database = new db::Database(name_override, this),
+            .database = new SolTrace::GUI::Data::Database(name_override, this),
         });
 
         return;
@@ -213,7 +213,7 @@ void DatabaseModule::load_url(QUrl url, QString name_override) {
     // unique pointer and send it off to the async task, which takes copies.
     // So we just do a raw new, NOT giving it a parent, and immediately send it
     // to the task, which then wraps it.
-    auto ptr = new db::Database(fname);
+    auto ptr = new SolTrace::GUI::Data::Database(fname);
 
 #if defined(Q_OS_WASM) && !defined(__EMSCRIPTEN_PTHREADS__)
     auto local_path = new_source.toLocalFile();
@@ -314,7 +314,7 @@ bool DatabaseModule::set_current(int index) {
     return true;
 }
 
-static bool save_common(db::Database&   source,
+static bool save_common(SolTrace::GUI::Data::Database&   source,
                         QString         path,
                         DatabaseModule& notification,
                         bool            emit_success = true) {
@@ -442,7 +442,7 @@ void DatabaseModule::delete_current() {
 
     auto index = std::distance(v.begin(), iter);
 
-    db::Database* curr_cache = m_current_database;
+    SolTrace::GUI::Data::Database* curr_cache = m_current_database;
 
     if (rowCount() == 1) {
         // this should mean that index == 0.
@@ -463,7 +463,7 @@ void DatabaseModule::append_new(QString new_name) {
     load_url({ }, new_name);
 }
 
-bool DatabaseModule::append_clone(db::SimulationResultPtr result) {
+bool DatabaseModule::append_clone(SolTrace::GUI::Data::SimulationResultPtr result) {
     if (!result || !result->database) {
         emit notify(ANotification::warning(
             "Select a simulation result before creating an editable copy."));

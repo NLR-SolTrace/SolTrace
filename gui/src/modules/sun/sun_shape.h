@@ -1,7 +1,7 @@
 #pragma once
 
 #include "modules/sun/sun_shape_model.h"
-#include "utilities/notification.h"
+#include "support/notification.h"
 
 #include "sun.hpp"
 

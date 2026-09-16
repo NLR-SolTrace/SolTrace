@@ -1,4 +1,4 @@
-#include "logging.h"
+#include "app/logging.h"
 
 #include <QApplication>
 #include <QFile>

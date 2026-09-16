@@ -1,16 +1,15 @@
 #pragma once
 
 
-#include "database/components.h"
-#include "database/database.h"
-#include "module_common.h"
+#include "data/components.h"
+#include "data/database.h"
 #include "modules/sun/solar_calculator_data.h"
 #include "modules/sun/solar_position_data.h"
 #include "modules/sun/sun_shape.h"
 #include "ray_source.hpp"
 #include "solar_position_calculator.hpp"
-#include "utilities/notification.h"
-#include "utilities/qt_helpers.h"
+#include "support/notification.h"
+#include "support/qt_helpers.h"
 
 #include <QDateTime>
 #include <QMetaObject>
@@ -31,7 +30,7 @@ private:
 
     // This should be const, but the library has non-const getters
     void load_from_ray_source(SD::RaySource&    ray_source,
-                              db::RaySourceType source_type);
+                              SolTrace::GUI::Data::RaySourceType source_type);
 
     void                                 write_shape_to_database();
     QString                              write_position_to_database();
@@ -46,8 +45,7 @@ private:
 public:
     explicit SunModule(QObject* parent = nullptr);
 
-    QOBJECT_READONLY_PROPERTY(StatusComponent, status);
-    QOBJECT_WRITABLE_PROPERTY(db::Database, current_database)
+    QOBJECT_WRITABLE_PROPERTY(SolTrace::GUI::Data::Database, current_database)
 
     QOBJECT_READONLY_PROPERTY(SunShape, shape)
 

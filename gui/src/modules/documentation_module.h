@@ -1,7 +1,6 @@
 #pragma once
-#include "module_common.h"
-#include "utilities/qt_file_helpers.h"
-#include "utilities/qt_helpers.h"
+#include "support/qt_file_helpers.h"
+#include "support/qt_helpers.h"
 #include <QObject>
 
 namespace SolTrace::GUI::App {
@@ -71,7 +70,6 @@ public:
      */
     DocumentationModule(QObject* parent = nullptr);
 
-    QOBJECT_READONLY_PROPERTY(StatusComponent, status)
     Q_WRITABLE_PROPERTY(QString, directory_path, "")
 
     enum class Locale { EN = 0, ES = 1 };

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "utilities/qt_helpers.h"
-#include "utilities/structmodel.h"
+#include "support/qt_helpers.h"
+#include "support/structmodel.h"
 
 #include <QObject>
 #include <QVariantList>
