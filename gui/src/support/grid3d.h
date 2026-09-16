@@ -12,7 +12,7 @@
 #include <glm/gtx/hash.hpp>
 #include <glm/vec3.hpp>
 
-namespace SolTrace::GUI::Analysis {
+namespace SolTrace::GUI::Support {
 
 /*!
  * \brief A 3D grid, with integral indicies.
@@ -380,4 +380,4 @@ public:
     }
 };
 
-} // namespace SolTrace::GUI::Analysis
+} // namespace SolTrace::GUI::Support

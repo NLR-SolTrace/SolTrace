@@ -94,7 +94,7 @@ private:
     QString                                          locale_string();
     QString                                          locale_name_string();
     QString                                          locale_directory();
-    QHash<Locale, QHash<QString, MarkdownDocument*>> m_docs;
+    QHash<Locale, QHash<QString, Support::MarkdownDocument*>> m_docs;
 };
 
 } // namespace SolTrace::GUI::App

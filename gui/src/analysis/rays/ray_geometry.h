@@ -45,7 +45,7 @@ struct UIRayRecord {
 };
 
 /// A table of ray interactions
-struct RayInteractionTable : public StructTableModel<UIRayRecord> {
+struct RayInteractionTable : public Support::StructTableModel<UIRayRecord> {
     using StructTableModel::StructTableModel;
 };
 

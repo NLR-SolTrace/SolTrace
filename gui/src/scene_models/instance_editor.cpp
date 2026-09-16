@@ -10,6 +10,8 @@
 
 #include <unordered_set>
 
+using namespace SolTrace::GUI::Support;
+
 namespace SolTrace::GUI::Data {
 
 namespace {

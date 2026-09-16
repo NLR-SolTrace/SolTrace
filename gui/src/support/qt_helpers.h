@@ -131,6 +131,8 @@ public:
 
 //─── Helper methods ───────────────────────────────────────────────────────────────────
 
+namespace SolTrace::GUI::Support {
+
 template<typename EnumType>
 inline QStringList enum_to_stringlist() {
     QMetaEnum metaEnum = QMetaEnum::fromType<EnumType>();
@@ -140,3 +142,4 @@ inline QStringList enum_to_stringlist() {
     }
     return result;
 }
+} // namespace SolTrace::GUI::Support

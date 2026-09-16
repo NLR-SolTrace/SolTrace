@@ -47,7 +47,8 @@ struct FluxMappedPendingItem {
 /// Tracks in-progress surface flux-map computations for one result set.
 ///
 /// Also owns the FluxMapComputer and creates the image provider used by QML.
-class PendingFluxMapModel : public StructModelAdapter<FluxMappedPendingItem> {
+class PendingFluxMapModel
+    : public Support::StructModelAdapter<FluxMappedPendingItem> {
     Q_OBJECT
     QPointer<Database const>            m_host;
     QPointer<SolTrace::GUI::Analysis::FluxMapComputer> m_compute;
@@ -124,7 +125,7 @@ struct FluxMappedItem {
 };
 
 /// Model of completed flux maps shown in the 3D result scene.
-class FluxMapWorldModel : public StructModelAdapter<FluxMappedItem> {
+class FluxMapWorldModel : public Support::StructModelAdapter<FluxMappedItem> {
     Q_OBJECT
 
 public:
@@ -172,7 +173,8 @@ public slots:
 // =============================================================================
 
 /// Model listing entities that already have computed flux maps.
-class AllComputedMapsModel : public StructModelAdapter<EntityNamePair> {
+class AllComputedMapsModel
+    : public Support::StructModelAdapter<EntityNamePair> {
     Q_OBJECT
 
     QPointer<Database> m_host;

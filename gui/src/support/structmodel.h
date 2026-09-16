@@ -6,6 +6,8 @@
 
 #include <span>
 
+namespace SolTrace::GUI::Support {
+
 
 template <class T>
 struct SMRecordMeta {
@@ -78,6 +80,7 @@ QVariant _sm_to_variant(QPointer<T> const& t) {
 
 #define RECORD_META(RT, ...)                                                   \
     inline static constexpr auto sm_meta_getter() {                            \
+        using namespace SolTrace::GUI::Support;                                \
         using Record              = RT;                                        \
         constexpr std::array meta = { __VA_ARGS__ };                           \
         return meta;                                                           \
@@ -123,6 +126,7 @@ constexpr int role_for_member_offset(size_t off) {
 
 #define ROLE_FOR_MEMBER(RT, MEM)                                               \
     [] {                                                                       \
+        using namespace SolTrace::GUI::Support;                                \
         constexpr auto role = role_for_member_offset<RT>(offsetof(RT, MEM));   \
         static_assert(role != -1, "Member is not exposed as a model role");    \
         return role;                                                           \
@@ -665,3 +669,5 @@ public:
         return &m_records[i];
     }
 };
+
+} // namespace SolTrace::GUI::Support

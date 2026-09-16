@@ -55,7 +55,7 @@ public slots:
     void export_current();
 
 signals:
-    void notify(ANotification);
+    void notify(Support::ANotification);
 };
 
 } // namespace SolTrace::GUI::App

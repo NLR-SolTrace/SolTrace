@@ -12,7 +12,7 @@
 namespace SolTrace::GUI::Data {
 
 /// A model providing the active material groups in a database.
-class MaterialGroupsModel : public StructModelAdapter<EntityNamePair> {
+class MaterialGroupsModel : public Support::StructModelAdapter<EntityNamePair> {
     Q_OBJECT
 
     QPointer<Database> m_host;
@@ -43,7 +43,7 @@ public slots:
 };
 
 /// A model providing the active geometry groups in a database.
-class GeometryGroupsModel : public StructModelAdapter<EntityNamePair> {
+class GeometryGroupsModel : public Support::StructModelAdapter<EntityNamePair> {
     Q_OBJECT
 
     QPointer<Database> m_host;
@@ -74,7 +74,7 @@ public slots:
 };
 
 /// A model providing the available tags in a database.
-class TagsModel : public StructModelAdapter<EntityNamePair> {
+class TagsModel : public Support::StructModelAdapter<EntityNamePair> {
     Q_OBJECT
     QPointer<Database> m_host;
 

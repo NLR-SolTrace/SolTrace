@@ -34,9 +34,10 @@ private:
 
     void                                 write_shape_to_database();
     QString                              write_position_to_database();
-    Data::SolarPositionCalculationMethod selected_calculation_method() const;
+    ::SolTrace::Data::SolarPositionCalculationMethod
+    selected_calculation_method() const;
 
-    Data::SolarPositionCalculator    m_calculator;
+    ::SolTrace::Data::SolarPositionCalculator m_calculator;
     QVector<QMetaObject::Connection> m_database_connections;
     bool                             m_loading_from_database        = false;
     bool                             m_writing_to_database          = false;
@@ -94,7 +95,7 @@ public slots:
     QString update_position();
 
 signals:
-    void notify(ANotification);
+    void notify(Support::ANotification);
 };
 
 } // namespace SolTrace::GUI::App

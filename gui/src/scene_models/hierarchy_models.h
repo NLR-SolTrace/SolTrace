@@ -10,7 +10,7 @@
 namespace SolTrace::GUI::Data {
 
 /// Get the hierarchy of an entity, walking the parent chain from root down.
-class BreadcrumbModel : public StructModelAdapter<EntityNamePair> {
+class BreadcrumbModel : public Support::StructModelAdapter<EntityNamePair> {
     Q_OBJECT
 
     QPointer<Database> m_host;
@@ -31,7 +31,7 @@ public:
 };
 
 /// A model providing all children of a given entity.
-class ChildModel : public StructModelAdapter<EntityNamePair> {
+class ChildModel : public Support::StructModelAdapter<EntityNamePair> {
     Q_OBJECT
     QPointer<Database> m_host;
 

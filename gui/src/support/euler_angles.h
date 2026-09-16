@@ -3,7 +3,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/vec3.hpp>
 
-namespace SolTrace::GUI::Data {
+namespace SolTrace::GUI::Support {
 
 /// Compose XYZ Euler angles in radians using Blender's XYZ convention.
 glm::dquat euler_xyz_to_quat(glm::dvec3 euler);
@@ -12,4 +12,4 @@ glm::dquat euler_xyz_to_quat(glm::dvec3 euler);
 glm::dvec3 compatible_euler_xyz_from_quat(glm::dquat quat,
                                           glm::dvec3 previous);
 
-} // namespace SolTrace::GUI::Data
+} // namespace SolTrace::GUI::Support

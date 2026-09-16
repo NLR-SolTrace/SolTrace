@@ -86,7 +86,7 @@ struct VisibleGroup {
 };
 
 /// Model of visible geometry groups and their Quick3D adapters.
-class WorldGeometryModel : public StructModelAdapter<VisibleGroup> {
+class WorldGeometryModel : public Support::StructModelAdapter<VisibleGroup> {
     Q_OBJECT
 
     QPointer<Database> m_host;

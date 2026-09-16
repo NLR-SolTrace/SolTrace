@@ -5,6 +5,8 @@
 #include <QLoggingCategory>
 #include <QVariantMap>
 
+using namespace SolTrace::GUI::Support;
+
 namespace SolTrace::GUI::App {
 
 Q_LOGGING_CATEGORY(simulationLog, "soltrace.gui.simulation")

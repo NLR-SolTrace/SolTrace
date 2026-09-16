@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <limits>
 
-namespace SolTrace::GUI::Analysis {
+namespace SolTrace::GUI::Support {
 
 namespace {
 
@@ -291,4 +291,4 @@ TriangleBvh::closest_on_triangle(size_t triangle_index, glm::vec3 point) const {
     };
 }
 
-} // namespace SolTrace::GUI::Analysis
+} // namespace SolTrace::GUI::Support

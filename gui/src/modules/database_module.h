@@ -29,10 +29,10 @@ struct LoadedFile {
 
 /// Failed database load result packaged as a user notification.
 struct LoadFileFailed {
-    ANotification notification;
+    Support::ANotification notification;
 
     LoadFileFailed(QString message)
-        : notification(ANotification::error(message)) { }
+        : notification(Support::ANotification::error(message)) { }
 };
 
 /// QML-facing controller for opening, saving, creating, and switching
@@ -40,7 +40,7 @@ struct LoadFileFailed {
 ///
 /// The model rows represent open databases. The module owns loaded database
 /// instances and exposes the selected one through current_database.
-class DatabaseModule : public StructModelAdapter<DatabaseRecord> {
+class DatabaseModule : public Support::StructModelAdapter<DatabaseRecord> {
     Q_OBJECT
     QML_ELEMENT
 
@@ -97,7 +97,7 @@ public slots:
     bool append_clone(SolTrace::GUI::Data::SimulationResultPtr);
 
 signals:
-    void notify(ANotification);
+    void notify(SolTrace::GUI::Support::ANotification);
     void cancel_current_load(QPrivateSignal);
 };
 

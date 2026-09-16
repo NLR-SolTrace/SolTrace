@@ -52,7 +52,7 @@ struct ScriptProperty {
                 SM_EXPOSE_RW(value));
 };
 
-class ScriptPropertyModel : public StructTableModel<ScriptProperty> {
+class ScriptPropertyModel : public Support::StructTableModel<ScriptProperty> {
     Q_OBJECT
 
 public:
@@ -251,7 +251,7 @@ public slots:
     QString api_markdown();
 
 signals:
-    void notify(ANotification);
+    void notify(Support::ANotification);
 
     void logged(int, QString);
 

@@ -5,7 +5,7 @@
 
 #include <QVector>
 
-namespace SolTrace::GUI::Analysis {
+namespace SolTrace::GUI::Support {
 
 /*!
  * \brief A 3D grid, with integral indicies.
@@ -162,4 +162,4 @@ public:
     T const* data() const { return m_data.data(); }
 };
 
-} // namespace SolTrace::GUI::Analysis
+} // namespace SolTrace::GUI::Support

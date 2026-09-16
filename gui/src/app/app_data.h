@@ -120,7 +120,7 @@ private:
     bool                 m_ui_translator_installed = false;
 
 signals:
-    void notification(ANotification);
+    void notification(Support::ANotification);
     void new_results(SolTrace::GUI::Data::SimulationResultPtr);
     void new_database(SolTrace::GUI::Data::Database*);
 };

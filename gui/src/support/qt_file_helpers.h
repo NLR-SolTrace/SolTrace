@@ -12,7 +12,7 @@
 #include <QStringList>
 #include <QTextStream>
 
-namespace SolTrace::GUI::App {
+namespace SolTrace::GUI::Support {
 
 QFile inline load_file(const QDir &dir, const QString &filename) {
   return QFile(dir.filePath(filename));
@@ -141,4 +141,4 @@ inline MarkdownDocument *parse_processed_doc_file(QFile &file) {
   return new MarkdownDocument(metadata, body_parts.join(""), blocks_json);
 };
 
-} // namespace SolTrace::GUI::App
+} // namespace SolTrace::GUI::Support

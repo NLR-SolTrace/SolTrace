@@ -17,6 +17,8 @@
 #include <limits>
 #include <numeric>
 
+using namespace SolTrace::GUI::Support;
+
 namespace SolTrace::GUI::App {
 
 namespace {

@@ -8,6 +8,8 @@
 #include <QQuaternion>
 #include <QVector3D>
 
+namespace SolTrace::GUI::Support {
+
 template <class... Ts>
 struct overloaded : Ts... {
     using Ts::operator()...;
@@ -63,3 +65,5 @@ inline QDebug operator<<(QDebug debug, glm::dquat const& type) {
                     << ", " << type.w << ")";
     return debug;
 }
+
+} // namespace SolTrace::GUI::Support

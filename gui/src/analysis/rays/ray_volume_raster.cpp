@@ -160,14 +160,14 @@ void compute_raster_chunk(QPromise<QVector<glm::ivec3>>& promise,
     promise.emplaceResult(grid);
 }
 
-Result<SolTrace::GUI::Analysis::SparseGrid3D<float>, QString>
-compute_ray_volume_raster(TaskControl&            promise,
-                          unsigned                resolution,
+Support::Result<Support::SparseGrid3D<float>, QString>
+compute_ray_volume_raster(Support::TaskControl&                    promise,
+                          unsigned                                 resolution,
                           SolTrace::GUI::Data::SimulationResultPtr results) {
     auto const extent = results->bounds_max - results->bounds_min;
 
     if (glm::any(glm::equal(extent, glm::dvec3(0)))) {
-        return SolTrace::GUI::Analysis::SparseGrid3D<float>();
+        return Support::SparseGrid3D<float>();
     }
 
     // Compute volume
@@ -209,7 +209,7 @@ compute_ray_volume_raster(TaskControl&            promise,
 
     // wait for all to be done
 
-    SolTrace::GUI::Analysis::SparseGrid3D<float> grid;
+    Support::SparseGrid3D<float> grid;
 
     glm::vec3 grid_transform_scale = grid_scale / glm::vec3(extent);
 
@@ -225,7 +225,7 @@ compute_ray_volume_raster(TaskControl&            promise,
                 chunk.cancel();
             }
 
-            return return_failure(QStringLiteral("Cancelled"));
+            return Support::return_failure(QStringLiteral("Cancelled"));
         }
 
         if (!chunks.back().isFinished()) {

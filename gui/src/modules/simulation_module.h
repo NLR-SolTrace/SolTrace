@@ -2,8 +2,8 @@
 
 #include "data/database.h"
 #include "data/simulationresult.h"
-#include "scene_models/world_geometry_model.h"
 #include "jobs/job_run.h"
+#include "scene_models/world_geometry_model.h"
 #include "support/notification.h"
 #include "support/qt_helpers.h"
 #include "support/structmodel.h"
@@ -33,11 +33,11 @@ class SimulationRunnerModel;
 class SimulationModule : public QObject {
     Q_OBJECT
 
-    QPointer<SolTrace::GUI::Jobs::RunningJob> m_running;
+    QPointer<Jobs::RunningJob> m_running;
 
-    SolTrace::GUI::Data::SimulationResultPtr m_current_result;
+    Data::SimulationResultPtr m_current_result;
 
-    QVector<std::shared_ptr<SolTrace::GUI::Data::SimulationResult>> m_completed_sims;
+    QVector<std::shared_ptr<Data::SimulationResult>> m_completed_sims;
 
     uint32_t m_running_requested_ray_count     = 0;
     uint32_t m_running_requested_max_ray_count = 0;
@@ -45,23 +45,23 @@ class SimulationModule : public QObject {
 private slots:
     void job_done();
     void job_failed(QString const& message);
-    void update_result_world(SolTrace::GUI::Data::SimulationResultPtr);
+    void update_result_world(Data::SimulationResultPtr);
 
 private:
-    SolTrace::GUI::Jobs::ThreadRunnerBackend selected_backend() const;
-    uint32_t            effective_thread_count() const;
-    ::Result<SolTrace::GUI::Jobs::SimDataPtr, QString> prepare_simulation_data();
-    void connect_running_job(SolTrace::GUI::Jobs::RunningJob* job);
-    void publish_completed_result(SolTrace::GUI::Data::SimulationResultPtr results);
+    Jobs::ThreadRunnerBackend                  selected_backend() const;
+    uint32_t                                   effective_thread_count() const;
+    Support::Result<Jobs::SimDataPtr, QString> prepare_simulation_data();
+    void connect_running_job(Jobs::RunningJob* job);
+    void publish_completed_result(Data::SimulationResultPtr results);
 
 public:
     explicit SimulationModule(QObject* parent = nullptr);
     ~SimulationModule();
 
-    QOBJECT_WRITABLE_PROPERTY(SolTrace::GUI::Data::Database, current_database)
+    QOBJECT_WRITABLE_PROPERTY(Data::Database, current_database)
     QOBJECT_READONLY_PROPERTY(SimulationRunnerModel, runners);
-    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::SimulationResultModel, results);
-    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::WorldGeometryModel, world_geometry_model);
+    QOBJECT_READONLY_PROPERTY(Data::SimulationResultModel, results);
+    QOBJECT_READONLY_PROPERTY(Data::WorldGeometryModel, world_geometry_model);
     Q_READONLY_PROPERTY(QVector3D, result_sun_position)
     Q_READONLY_PROPERTY(bool, result_sun_is_point_source)
 
@@ -114,7 +114,7 @@ public slots:
 signals:
     void new_results(SolTrace::GUI::Data::SimulationResultPtr);
     void edit_result_copy_requested(SolTrace::GUI::Data::SimulationResultPtr);
-    void notify(ANotification);
+    void notify(SolTrace::GUI::Support::ANotification);
 };
 
 struct SimulationRunnerRecord {
@@ -127,7 +127,7 @@ struct SimulationRunnerRecord {
 };
 
 class SimulationRunnerModel
-    : public StructModelAdapter<SimulationRunnerRecord> {
+    : public Support::StructModelAdapter<SimulationRunnerRecord> {
     Q_OBJECT
 
 public:

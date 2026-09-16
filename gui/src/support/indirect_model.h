@@ -2,6 +2,8 @@
 
 #include <QAbstractTableModel>
 
+namespace SolTrace::GUI::Support {
+
 struct IProperty {
     const char*                                display_name = "";
     std::function<QVariant(size_t index)>             getter;
@@ -64,3 +66,5 @@ public slots:
 
     void notify_update(int i);
 };
+
+} // namespace SolTrace::GUI::Support

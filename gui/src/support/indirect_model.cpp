@@ -1,5 +1,6 @@
 #include "indirect_model.h"
 
+namespace SolTrace::GUI::Support {
 
 IndirectTableModel::IndirectTableModel(QObject* parent)
     : QAbstractTableModel(parent) { }
@@ -165,3 +166,5 @@ void IndirectTableModel::notify_update(int i) {
 
     Q_EMIT dataChanged(left, right);
 }
+
+} // namespace SolTrace::GUI::Support

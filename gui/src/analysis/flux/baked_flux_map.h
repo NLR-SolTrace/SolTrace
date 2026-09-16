@@ -62,7 +62,7 @@ public:
 /// A computed flux map
 struct BakedFluxMap {
     /// Per-pixel flux values used with a color map to generate images.
-    Grid2D<float> counts;
+    Support::Grid2D<float> counts;
 
     /// Mesh used when projecting ray hits into the map.
     SolTrace::GUI::Data::Mesh mesh;

@@ -65,7 +65,7 @@ public slots:
 
 signals:
     void changed();
-    void notify(ANotification);
+    void notify(Support::ANotification);
 };
 
 } // namespace SolTrace::GUI::App

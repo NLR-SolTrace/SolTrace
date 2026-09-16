@@ -767,7 +767,7 @@ void Script::run() {
 }
 
 void Script::notify_error(QString message) {
-    emit notify(ANotification::error(std::move(message)));
+    emit notify(Support::ANotification::error(std::move(message)));
 }
 
 QString Script::api_markdown() {

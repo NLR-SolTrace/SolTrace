@@ -13,9 +13,9 @@ namespace SolTrace::GUI::Analysis {
 ///
 /// This is currently a work-in-progress analysis primitive used by the flux
 /// module for volume visualization.
-Result<SolTrace::GUI::Analysis::SparseGrid3D<float>, QString>
-compute_ray_volume_raster(TaskControl&            promise,
-                          unsigned                resolution,
+Support::Result<Support::SparseGrid3D<float>, QString>
+compute_ray_volume_raster(Support::TaskControl&                    promise,
+                          unsigned                                 resolution,
                           SolTrace::GUI::Data::SimulationResultPtr results);
 
 } // namespace SolTrace::GUI::Analysis

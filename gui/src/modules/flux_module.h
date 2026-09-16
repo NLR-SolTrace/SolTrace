@@ -58,10 +58,11 @@ private:
     void maybe_update_batch(SolTrace::GUI::Data::Entity);
 
 private slots:
-    void
-    flux_map_ready(SolTrace::GUI::Data::Entity, SolTrace::GUI::Analysis::BakedFluxMapPtr, SolTrace::GUI::Data::Database const*);
+    void flux_map_ready(Data::Entity,
+                        Analysis::BakedFluxMapPtr,
+                        Data::Database const*);
 
-    void flux_vol_ready(QUuid const&, SolTrace::GUI::Analysis::SparseGrid3D<float>);
+    void flux_vol_ready(QUuid const&, Support::SparseGrid3D<float>);
     void flux_vol_failed(QUuid const&, QString);
 
     void iso_surf_ready(QUuid const&, SolTrace::GUI::Data::Mesh);
@@ -72,10 +73,10 @@ public:
 
 public slots:
     /// Set the result set used for all flux computations and scene models.
-    void set_results(SolTrace::GUI::Data::SimulationResultPtr);
+    void set_results(Data::SimulationResultPtr);
 
     /// Select the entity whose flux map/statistics are shown in the UI.
-    void select_entity(SolTrace::GUI::Data::Entity);
+    void select_entity(Data::Entity);
 
     /// Generate a surface flux map for current_entity.
     void start_generate();
@@ -95,7 +96,7 @@ public slots:
     void cancel_batch();
 
 signals:
-    void notify(ANotification);
+    void notify(Support::ANotification);
 
     void started_batch();
     void batch_progress(qint64, qint64);

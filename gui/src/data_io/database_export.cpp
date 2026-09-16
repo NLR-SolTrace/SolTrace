@@ -47,7 +47,8 @@ with_optical_name(SD::OpticalPropertySet const& optics, QString const& name) {
     return SD::OpticalPropertySet(node);
 }
 
-Result<std::shared_ptr<DatabaseExport>, QString> Database::export_to_simdata() {
+Support::Result<std::shared_ptr<DatabaseExport>, QString>
+Database::export_to_simdata() {
     SD::SimulationData ret;
 
     auto param_ptr = simulation_parameters_resource.get();

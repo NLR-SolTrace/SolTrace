@@ -7,6 +7,8 @@
 
 #include <glm/common.hpp>
 
+using namespace SolTrace::GUI::Support;
+
 namespace SolTrace::GUI::Data {
 
 namespace {

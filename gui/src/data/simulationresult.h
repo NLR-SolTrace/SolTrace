@@ -73,7 +73,7 @@ public:
     quint64 sun_ray_count   = 0;
     double  ray_area_weight = 0.0;
 
-    SolTrace::GUI::Analysis::SparseGrid3D<float> ray_volume;
+    Support::SparseGrid3D<float> ray_volume;
 
     std::unordered_map<entt::entity, std::vector<uint64_t>> entity_to_ray_ids;
 
@@ -102,7 +102,7 @@ struct SimulationResultRecord {
 
 /// QML-facing list model of completed simulation results.
 class SimulationResultModel
-    : public StructModelAdapter<SimulationResultRecord> {
+    : public Support::StructModelAdapter<SimulationResultRecord> {
     Q_OBJECT
 
 public:

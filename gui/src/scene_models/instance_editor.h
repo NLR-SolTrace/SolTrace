@@ -213,7 +213,7 @@ signals:
     void tags_changed();
     void entity_name_changed();
 
-    void notify(ANotification);
+    void notify(Support::ANotification);
 };
 
 } // namespace SolTrace::GUI::Data

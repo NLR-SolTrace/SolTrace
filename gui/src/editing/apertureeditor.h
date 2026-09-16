@@ -41,8 +41,9 @@ struct ApertureParameter {
 };
 
 /// Model to present aperture parameters to QML
-class ApertureParameterModel : public StructTableModel<ApertureParameter>,
-                               public DatabaseObserver {
+class ApertureParameterModel
+    : public Support::StructTableModel<ApertureParameter>,
+      public DatabaseObserver {
     Q_OBJECT
 
     entt::entity m_current_group         = entt::null;

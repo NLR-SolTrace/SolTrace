@@ -1,5 +1,7 @@
 #include "asynctask.h"
 
+namespace SolTrace::GUI::Support {
+
 // anchor vtable
 TaskControl::TaskControl() = default;
 
@@ -10,3 +12,5 @@ AsyncTaskBase::~AsyncTaskBase() = default;
 void AsyncTaskBase::cancel() {
     emit internal_cancel(QPrivateSignal {});
 }
+
+} // namespace SolTrace::GUI::Support

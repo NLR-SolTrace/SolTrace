@@ -8,6 +8,8 @@
 #include <QLoggingCategory>
 #include <QUuid>
 
+using namespace SolTrace::GUI::Support;
+
 namespace SolTrace::GUI::App {
 
 Q_LOGGING_CATEGORY(fluxLog, "soltrace.gui.flux")
@@ -198,7 +200,7 @@ void FluxModule::start_generate_volume_flux(unsigned resolution) {
 
     qCDebug(fluxLog) << Q_FUNC_INFO << "Starting volume flux raster";
 
-    launch_async_task<SolTrace::GUI::Analysis::SparseGrid3D<float>, QString>(
+    launch_async_task<Support::SparseGrid3D<float>, QString>(
         QUuid::createUuid(),
         this,
         &FluxModule::flux_vol_ready,
@@ -312,8 +314,8 @@ void FluxModule::cancel_batch() {
     m_pending_flux_maps->cancel_all();
 }
 
-void FluxModule::flux_vol_ready(QUuid const&                  id,
-                                SolTrace::GUI::Analysis::SparseGrid3D<float> grid) {
+void FluxModule::flux_vol_ready(QUuid const&                 id,
+                                Support::SparseGrid3D<float> grid) {
     if (m_results) m_results->ray_volume = grid;
     set_ray_volume_flux_in_progress(false);
     emit notify(ANotification::info("Volume flux generation complete."));

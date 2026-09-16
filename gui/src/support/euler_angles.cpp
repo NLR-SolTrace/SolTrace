@@ -5,7 +5,7 @@
 
 #include <cmath>
 
-namespace SolTrace::GUI::Data {
+namespace SolTrace::GUI::Support {
 
 namespace {
 
@@ -144,4 +144,4 @@ glm::dvec3 compatible_euler_xyz_from_quat(glm::dquat quat,
     return d1 > d2 ? euler2 : euler1;
 }
 
-} // namespace SolTrace::GUI::Data
+} // namespace SolTrace::GUI::Support

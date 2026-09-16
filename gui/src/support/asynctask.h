@@ -9,6 +9,8 @@
 #include <functional>
 #include <type_traits>
 
+namespace SolTrace::GUI::Support {
+
 class AsyncTaskBase : public QObject {
     Q_OBJECT
 
@@ -232,11 +234,14 @@ launch_async_task(IdentityType   identity,
         std::forward<Args>(args)...);
 }
 
+} // namespace SolTrace::GUI::Support
+
 /// Helper macro
 #define ASYNC_TASK_SYNC_POINT(CONTROL)                                         \
     {                                                                          \
         CONTROL.suspendIfRequested();                                          \
         if (CONTROL.cancelRequested()) {                                       \
-            return return_failure(QStringLiteral("Cancelled"));                \
+            return SolTrace::GUI::Support::return_failure(                     \
+                QStringLiteral("Cancelled"));                                  \
         }                                                                      \
     }

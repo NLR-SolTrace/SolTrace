@@ -13,7 +13,7 @@ struct LogRecord {
     RECORD_META(LogRecord, SM_EXPOSE_RO(content));
 };
 
-class LogList : public StructTableModel<LogRecord> {
+class LogList : public Support::StructTableModel<LogRecord> {
     Q_OBJECT
 
     Q_WRITABLE_PROPERTY(quint32, max_line_count, 1000);

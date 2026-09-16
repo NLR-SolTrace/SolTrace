@@ -7,7 +7,7 @@
 namespace SolTrace::GUI::Data {
 
 /// A model providing all element entities that do not currently have a parent.
-class RootElementsModel : public StructModelAdapter<EntityNamePair> {
+class RootElementsModel : public Support::StructModelAdapter<EntityNamePair> {
     Q_OBJECT
 
     QPointer<Database> m_host;
@@ -31,7 +31,7 @@ public slots:
 };
 
 /// A model providing all element entities in a database.
-class AllElementsModel : public StructModelAdapter<EntityNamePair> {
+class AllElementsModel : public Support::StructModelAdapter<EntityNamePair> {
     Q_OBJECT
 
     QPointer<Database> m_host;

@@ -66,7 +66,8 @@ public:
     void import(SD::SimulationData&, bool legacy_import = false);
 
     /// Convert a database back into a Soltrace dataset
-    Result<std::shared_ptr<DatabaseExport>, QString> export_to_simdata();
+    Support::Result<std::shared_ptr<DatabaseExport>, QString>
+    export_to_simdata();
 
     QString name() const;
     void    set_name(QString);

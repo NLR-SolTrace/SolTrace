@@ -41,8 +41,9 @@ struct SurfaceParameter {
 
 
 /// Model that adapts SolTrace surface parameters to editable QML rows.
-class SurfaceParameterModel : public StructTableModel<SurfaceParameter>,
-                              public DatabaseObserver {
+class SurfaceParameterModel
+    : public Support::StructTableModel<SurfaceParameter>,
+      public DatabaseObserver {
     Q_OBJECT
 
     entt::entity m_current_group         = entt::null;

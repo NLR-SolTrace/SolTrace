@@ -18,6 +18,8 @@
 #include <glm/gtx/intersect.hpp>
 #include <glm/gtx/norm.hpp>
 
+using namespace SolTrace::GUI::Support;
+
 namespace SolTrace::GUI::Analysis {
 
 Q_LOGGING_CATEGORY(rayGeometryLog, "soltrace.gui.raygeometry")

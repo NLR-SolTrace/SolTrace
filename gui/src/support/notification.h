@@ -3,6 +3,8 @@
 #include <QObject>
 #include <utility>
 
+namespace SolTrace::GUI::Support {
+
 /// User-visible notification payload passed through Qt signals and QML.
 struct ANotification {
     Q_GADGET
@@ -36,4 +38,6 @@ public:
     }
 };
 
-Q_DECLARE_METATYPE(ANotification)
+} // namespace SolTrace::GUI::Support
+
+Q_DECLARE_METATYPE(SolTrace::GUI::Support::ANotification)

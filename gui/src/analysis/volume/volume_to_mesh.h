@@ -12,6 +12,8 @@ namespace SolTrace::GUI::Analysis {
 ///
 /// This is currently a work-in-progress marching-cubes style utility.
 /// TODO: Move to mc33
-Result<SolTrace::GUI::Data::Mesh, QString>
-volume_to_mesh(TaskControl& output, SparseGrid3D<float> volume, float isoval);
+Support::Result<SolTrace::GUI::Data::Mesh, QString>
+volume_to_mesh(Support::TaskControl&        output,
+               Support::SparseGrid3D<float> volume,
+               float                        isoval);
 } // namespace SolTrace::GUI::Analysis

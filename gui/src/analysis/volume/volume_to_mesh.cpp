@@ -19,8 +19,8 @@ struct InterpolatedVertex {
     glm::vec3 normal;
 };
 
-glm::vec3 gradient_at(SparseGrid3DLookupCache<float> const& volume,
-                      glm::ivec3                            p) {
+glm::vec3 gradient_at(Support::SparseGrid3DLookupCache<float> const& volume,
+                      glm::ivec3                                     p) {
     auto left  = p - 1;
     auto right = p + 1;
 
@@ -205,9 +205,10 @@ void polygonize_tetrahedron(SolTrace::GUI::Data::Mesh&                        me
 
 } // namespace
 
-Result<SolTrace::GUI::Data::Mesh, QString> volume_to_mesh(TaskControl&        output,
-                                         SparseGrid3D<float> input_volume,
-                                         float               isoval) {
+Support::Result<SolTrace::GUI::Data::Mesh, QString>
+volume_to_mesh(Support::TaskControl&        output,
+               Support::SparseGrid3D<float> input_volume,
+               float                        isoval) {
 
 
     qDebug() << Q_FUNC_INFO << "generating isosurf @" << isoval;
@@ -215,7 +216,7 @@ Result<SolTrace::GUI::Data::Mesh, QString> volume_to_mesh(TaskControl&        ou
     auto active_span = input_volume.active_span();
     auto grid_scale  = input_volume.scale();
 
-    auto reader = SparseGrid3DLookupCache(input_volume);
+    auto reader = Support::SparseGrid3DLookupCache(input_volume);
 
     if (active_span.x < 2 || active_span.y < 2 || active_span.z < 2 ||
         grid_scale.x == 0.0f || grid_scale.y == 0.0f ||

@@ -86,7 +86,7 @@ RunningJob::RunningJob(SimDataPtr          data,
         auto res = std::move(watcher->result());
 
         std::visit(
-            overloaded {
+            Support::overloaded {
                 [this](ResultPtr& ptr) {
                     // there should only be one, we are the only consumer
 

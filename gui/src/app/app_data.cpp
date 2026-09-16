@@ -36,7 +36,8 @@ static QString build_info_string() {
 void AppData::reset_all_settings() {
     AppSettings::clear_session();
     AppSettings::load_session(*this);
-    emit notification(ANotification::info("Settings reset to defaults."));
+    emit notification(
+        Support::ANotification::info("Settings reset to defaults."));
 }
 
 void AppData::apply_ui_locale(DocumentationModule::Locale locale) {
@@ -186,7 +187,8 @@ AppData::AppData(QObject*       parent,
 
 void AppData::copy_build_info_to_clipboard() {
     QGuiApplication::clipboard()->setText(current_build_info());
-    emit notification(ANotification::info("Copied build info to clipboard."));
+    emit notification(
+        Support::ANotification::info("Copied build info to clipboard."));
 }
 
 AppData::~AppData() {

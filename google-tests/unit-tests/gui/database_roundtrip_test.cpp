@@ -456,8 +456,11 @@ std::string sun_box_summary(SolTrace::Result::SimulationResult& actual,
     return out.str();
 }
 
-::testing::AssertionResult export_succeeded(
-    Result<std::shared_ptr<SolTrace::GUI::Data::DatabaseExport>, QString> const& result) {
+::testing::AssertionResult
+export_succeeded(SolTrace::GUI::Support::Result<
+                 std::shared_ptr<SolTrace::GUI::Data::DatabaseExport>,
+                 QString> const& result)
+{
     if (result) return ::testing::AssertionSuccess();
 
     return ::testing::AssertionFailure()

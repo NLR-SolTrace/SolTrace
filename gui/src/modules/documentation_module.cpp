@@ -87,7 +87,8 @@ void DocumentationModule::doc_walker(const QString& dir_path,
             new_key = key_prefix.isEmpty() ? name : key_prefix + "." + name;
         }
 
-        m_docs[m_locale].insert(new_key, parse_processed_doc_file(file));
+        m_docs[m_locale].insert(new_key,
+                                Support::parse_processed_doc_file(file));
     }
 
     QFileInfoList subdirs =

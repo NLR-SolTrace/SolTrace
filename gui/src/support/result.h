@@ -5,6 +5,8 @@
 #include <utility>
 #include <variant>
 
+namespace SolTrace::GUI::Support {
+
 namespace result_detail {
 template <class... Ts>
 struct overloaded : Ts... {
@@ -104,8 +106,9 @@ public:
     /*!
      * \brief Calls one of two functions while consuming the contained value.
      *
-     * This overload is rvalue-qualified. Use std::move(result).match_consume(...)
-     * when the handler should receive Success&& or Failure&&.
+     * This overload is rvalue-qualified. Use
+     * std::move(result).match_consume(...) when the handler should receive
+     * Success&& or Failure&&.
      */
     template <class SFunction, class FFunction>
     decltype(auto) match_consume(SFunction&& sf, FFunction&& ff) && {
@@ -211,3 +214,5 @@ private:
     Base const& base_ref() const { return static_cast<Base const&>(*this); }
     Base const* base_ptr() const { return &base_ref(); }
 };
+
+} // namespace SolTrace::GUI::Support

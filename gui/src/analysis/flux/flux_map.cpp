@@ -94,9 +94,9 @@ static std::optional<glm::vec3> barycentric_for_point(QPointF const& p,
 
 /// For a given point, find the closest point on a triangle mesh.
 static std::optional<TriangleProjection>
-project_point_to_triangle(SolTrace::GUI::Data::Mesh const&    mesh,
-                          TriangleBvh const& bvh,
-                          glm::vec3          p) {
+project_point_to_triangle(SolTrace::GUI::Data::Mesh const& mesh,
+                          Support::TriangleBvh const&      bvh,
+                          glm::vec3                        p) {
     auto closest = bvh.closest_point(p);
     if (!closest) return { };
 
@@ -206,7 +206,7 @@ extract_face_ray_counts(std::vector<TriangleFluxBin> const& triangles) {
     return face_ray_count;
 }
 
-static float max_raster_value(Grid2D<float> const& raster) {
+static float max_raster_value(Support::Grid2D<float> const& raster) {
     float max_value = 0.0f;
 
     for (unsigned i = 0; i < raster.size(); ++i) {
@@ -217,14 +217,14 @@ static float max_raster_value(Grid2D<float> const& raster) {
 }
 
 /// Using triangle bins, burn stats to a 2D grid
-[[maybe_unused]] static Grid2D<float>
+[[maybe_unused]] static Support::Grid2D<float>
 raster_triangle_flux(std::vector<TriangleFluxBin> const& triangles,
-                     SolTrace::GUI::Data::Mesh const&                     mesh,
+                     SolTrace::GUI::Data::Mesh const&    mesh,
                      QSize const&                        image_size,
-                     TaskControl&                        control,
+                     Support::TaskControl&               control,
                      int                                 progress_low,
                      int                                 progress_high) {
-    Grid2D<float> raster(image_size.width(), image_size.height());
+    Support::Grid2D<float> raster(image_size.width(), image_size.height());
     raster.fill(0.0f);
 
     auto report_progress = [&](int item, int max_item) {
@@ -285,15 +285,15 @@ raster_triangle_flux(std::vector<TriangleFluxBin> const& triangles,
 }
 
 /// Using vertex-averaged flux, burn smooth interpolated stats to a 2D grid.
-static Grid2D<float>
+static Support::Grid2D<float>
 raster_vertex_flux(std::vector<TriangleFluxBin> const& triangles,
                    std::vector<VertexFluxBin> const&   vertices,
-                   SolTrace::GUI::Data::Mesh const&                     mesh,
+                   SolTrace::GUI::Data::Mesh const&    mesh,
                    QSize const&                        image_size,
-                   TaskControl&                        control,
+                   Support::TaskControl&               control,
                    int                                 progress_low,
                    int                                 progress_high) {
-    Grid2D<float> raster(image_size.width(), image_size.height());
+    Support::Grid2D<float> raster(image_size.width(), image_size.height());
     raster.fill(0.0f);
 
     auto report_progress = [&](int item, int max_item) {
@@ -373,10 +373,10 @@ raster_vertex_flux(std::vector<TriangleFluxBin> const& triangles,
 }
 
 /// Take a raster bin and color map, and burn that to a QImage
-static void colorize_raster(QImage&              image,
-                            Grid2D<float> const& raster,
-                            QImage const&        color_map,
-                            float                max_density) {
+static void colorize_raster(QImage&                       image,
+                            Support::Grid2D<float> const& raster,
+                            QImage const&                 color_map,
+                            float                         max_density) {
 
     QPainter painter(&image);
 
@@ -466,7 +466,7 @@ static bool dump_interaction_points_csv(std::vector<glm::vec3> const& points,
 }
 
 static BakedFluxMapStats
-compute_flux_map_stats(Grid2D<float> const&                raster,
+compute_flux_map_stats(Support::Grid2D<float> const&       raster,
                        std::vector<TriangleFluxBin> const& triangles,
                        std::vector<glm::vec3> const&       interaction_points,
                        std::size_t                         source_ray_count,
@@ -535,10 +535,10 @@ compute_flux_map_stats(Grid2D<float> const&                raster,
 }
 
 /// Main fluxmap compute function
-Result<BakedFluxMapPtr, QString>
-execute_map_generation_for(TaskControl&            control,
-                           FluxMapBakeOptions      opts,
-                           entt::entity            entity,
+Support::Result<BakedFluxMapPtr, QString>
+execute_map_generation_for(Support::TaskControl&                    control,
+                           FluxMapBakeOptions                       opts,
+                           entt::entity                             entity,
                            SolTrace::GUI::Data::SimulationResultPtr results,
                            SolTrace::GUI::Data::Mesh                mesh) {
 
@@ -577,7 +577,7 @@ execute_map_generation_for(TaskControl&            control,
     auto triangles = make_triangle_bins(mesh);
 
     // Accell structure
-    auto triangle_bvh = TriangleBvh(mesh);
+    auto triangle_bvh = Support::TriangleBvh(mesh);
 
     qCDebug(fluxMapLog) << Q_FUNC_INFO << "ready triangle bins";
 
@@ -754,12 +754,16 @@ bool FluxMapComputer::start_generate_for(SolTrace::GUI::Data::Entity         e,
         m_database,
         mesh);
 
-    connect(task, &AsyncTaskBase::progress, this, [this, e](int progress) {
-        emit image_progress(e, progress);
-    });
+    connect(task,
+            &Support::AsyncTaskBase::progress,
+            this,
+            [this, e](int progress) { emit image_progress(e, progress); });
 
     // Set up cancelling
-    connect(this, &FluxMapComputer::cancel_all, task, &AsyncTaskBase::cancel);
+    connect(this,
+            &FluxMapComputer::cancel_all,
+            task,
+            &Support::AsyncTaskBase::cancel);
 
     // Set up targeted cancelling
     connect(this,

@@ -67,6 +67,6 @@ public slots:
     void delete_edited_element();
 
 signals:
-    void notify(ANotification);
+    void notify(Support::ANotification);
 };
 } // namespace SolTrace::GUI::App
