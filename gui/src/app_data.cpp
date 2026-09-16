@@ -74,8 +74,19 @@ void AppData::load_session() {
                     s.value("right_panel_inline_docs", false).toBool())
             .toBool());
 
-    m_view->set_workflow_phase(static_cast<ViewModule::WorkflowPhase>(
-        s.value("workflow_phase", 0).toUInt()));
+    set_show_get_started_on_start(
+        s.value("show_get_started_on_start", true).toBool());
+
+    auto workflow_phase =
+        s.value("workflow_phase",
+                static_cast<int>(ViewModule::WorkflowPhase::Load))
+            .toInt();
+    if (workflow_phase <= static_cast<int>(ViewModule::WorkflowPhase::Start) ||
+        workflow_phase > static_cast<int>(ViewModule::WorkflowPhase::Analyze)) {
+        workflow_phase = static_cast<int>(ViewModule::WorkflowPhase::Load);
+    }
+    m_view->set_workflow_phase(
+        static_cast<ViewModule::WorkflowPhase>(workflow_phase));
 
     m_view->set_configure_section(s.value("configure_section", 0).toUInt());
     m_view->set_simulate_section(s.value("simulate_section", 0).toUInt());
@@ -84,13 +95,11 @@ void AppData::load_session() {
     m_view->set_sun_section(s.value("sun_section", 0).toUInt());
     m_view->set_right_panel_section(s.value("right_panel_section", 0).toUInt());
 
-    m_view->full_panel()->set_mode(static_cast<FullPanelData::FullPanelMode>(
-        s.value("full_panel_mode", 0).toUInt()));
+    m_view->full_panel()->set_mode(FullPanelData::FullPanelMode::Settings);
     m_view->full_panel()->set_settings_section(
         s.value("settings_section", 0).toUInt());
-    m_view->full_panel()->set_docs_section(s.value("docs_section", 0).toUInt());
-    m_view->full_panel()->set_build_section(
-        s.value("build_section", 0).toUInt());
+    m_view->set_info_section(
+        s.value("info_section", s.value("docs_section", 0)).toUInt());
 
     // Viewport
     auto* sim = m_view->sim();
@@ -174,8 +183,13 @@ void AppData::save_session() {
     s.setValue("right_panel_width", m_view->right_panel()->width());
 
     s.setValue("inline_docs", m_view->inline_docs());
+    s.setValue("show_get_started_on_start", show_get_started_on_start());
 
-    s.setValue("workflow_phase", m_view->workflow_phase());
+    auto workflow_phase = m_view->workflow_phase();
+    if (workflow_phase == ViewModule::WorkflowPhase::Start) {
+        workflow_phase = ViewModule::WorkflowPhase::Load;
+    }
+    s.setValue("workflow_phase", workflow_phase);
 
     s.setValue("configure_section", m_view->configure_section());
     s.setValue("simulate_section", m_view->simulate_section());
@@ -185,10 +199,9 @@ void AppData::save_session() {
     s.setValue("right_panel_section", m_view->right_panel_section());
 
     s.setValue("full_panel_mode",
-               static_cast<int>(m_view->full_panel()->mode()));
+               static_cast<int>(FullPanelData::FullPanelMode::Settings));
     s.setValue("settings_section", m_view->full_panel()->settings_section());
-    s.setValue("docs_section", m_view->full_panel()->docs_section());
-    s.setValue("build_section", m_view->full_panel()->build_section());
+    s.setValue("info_section", m_view->info_section());
 
     // Viewport
     auto* sim = m_view->sim();

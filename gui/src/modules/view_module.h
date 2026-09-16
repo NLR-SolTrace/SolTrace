@@ -7,7 +7,7 @@
 
 namespace SolTrace::GUI::App {
 
-/// State for the full-screen overlay panel used by settings/docs/build info.
+/// State for the full-screen overlay panel used by settings.
 class FullPanelData : public QObject {
     Q_OBJECT
     QML_ELEMENT
@@ -15,9 +15,7 @@ public:
     explicit FullPanelData(QObject* parent = nullptr);
 
     enum class FullPanelMode {
-        Settings         = 0,
-        Documentation    = 1,
-        BuildInformation = 2
+        Settings = 0
     };
 
     Q_ENUM(FullPanelMode)
@@ -26,8 +24,6 @@ public:
     Q_WRITABLE_PROPERTY(bool, saved_visible, false)
     Q_WRITABLE_PROPERTY(FullPanelMode, mode, FullPanelMode::Settings)
     Q_WRITABLE_PROPERTY(int, settings_section, 0)
-    Q_WRITABLE_PROPERTY(int, docs_section, 0)
-    Q_WRITABLE_PROPERTY(int, build_section, 0)
 
 public slots:
     /// Mark the full panel visible.
@@ -177,6 +173,7 @@ public:
     Q_WRITABLE_PROPERTY(int, analyze_section, 0)
 
     Q_WRITABLE_PROPERTY(int, sun_section, 0)
+    Q_WRITABLE_PROPERTY(int, info_section, 0)
 
     // Right Panel Section State
     Q_WRITABLE_PROPERTY(int, right_panel_section, 0)

@@ -59,14 +59,14 @@ ShadowedGlassRectangle {
                 glassColor: App.theme.glassColor
 
                 Label {
-                    text: App.view.workflow_phase + 1
+                    text: Math.max(1, App.view.workflow_phase)
                     anchors.centerIn: parent
                 }
             }
 
             Label {
-                text: ["Get Started", "Load Scene", "Configure Scene", "Trace Scene", "Analyze Results"][
-                          Math.min(App.view.workflow_phase, 4)]
+                text: ["Load Scene", "Configure Scene", "Trace Scene", "Analyze Results"][
+                          Math.max(0, Math.min(App.view.workflow_phase - 1, 3))]
                 font.pointSize: 16
                 font.bold: true
                 font.family: "CMU Serif"
@@ -96,8 +96,8 @@ ShadowedGlassRectangle {
 
     StackLayout {
         id: module_stack
-        currentIndex: App.view.workflow_phase
-        onCurrentIndexChanged: App.view.workflow_phase = currentIndex
+        currentIndex: Math.max(0, App.view.workflow_phase - 1)
+        onCurrentIndexChanged: App.view.workflow_phase = currentIndex + 1
 
         anchors.top: module_info_row.bottom
         anchors.left: parent.left
@@ -107,7 +107,6 @@ ShadowedGlassRectangle {
         anchors.leftMargin: 16
         anchors.rightMargin: 16
 
-        StartModule {}
         LoadModule {}
         ConfigureModule {}
         SimulateModule {}

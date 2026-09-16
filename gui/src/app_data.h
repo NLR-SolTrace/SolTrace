@@ -83,6 +83,7 @@ public:
     Q_READONLY_PROPERTY(QString, current_version_info);
     Q_READONLY_PROPERTY(QString, current_build_info);
     Q_READONLY_PROPERTY(bool, is_prerelease);
+    Q_WRITABLE_PROPERTY(bool, show_get_started_on_start, true);
 
     static AppData* create(QQmlEngine* qmlEngine, QJSEngine*);
 
