@@ -70,7 +70,7 @@ ScrollView {
                     Layout.fillWidth: true
                     from: 1
                     to: 1000000000
-                    onValueModified: AppData.simulation.ray_count = value
+                    onValueModified: AppData.simulation.update_ray_count(value)
                     value: AppData.simulation.ray_count
                 }
             }

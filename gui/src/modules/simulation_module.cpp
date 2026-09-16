@@ -93,6 +93,18 @@ void SimulationModule::job_done() {
         emit notify(ANotification::error(
             "The simulation completed, but no results were produced."));
         return;
+    }
+
+    if (m_running_requested_max_ray_count > 0 &&
+        results->sun_ray_count >= m_running_requested_max_ray_count &&
+        static_cast<uint64_t>(results->records.size()) <
+            m_running_requested_ray_count) {
+        emit notify(ANotification::warning(QString(
+            "Simulation reached the maximum traced ray limit (%1) before "
+            "collecting the requested %2 result rays. Increase Max # Rays "
+            "Traced to collect more rays.")
+                                               .arg(m_running_requested_max_ray_count)
+                                               .arg(m_running_requested_ray_count)));
     } else {
         emit notify(ANotification::info(QString(
             "A simulation has completed. Check analysis for new data.")));
@@ -230,6 +242,8 @@ void SimulationModule::run() {
     sim_data->data->set_seed(m_seed_value);
     sim_data->data->set_number_of_rays(m_ray_count);
     sim_data->data->set_max_rays_traced(m_max_ray_count);
+    m_running_requested_ray_count     = m_ray_count;
+    m_running_requested_max_ray_count = m_max_ray_count;
 
     auto& sim_params = sim_data->data->get_simulation_parameters();
     sim_params.include_sun_shape_errors = m_sun_shape;
@@ -332,6 +346,11 @@ void SimulationModule::duplicate_current_result_for_edit() {
     if (!m_current_result) return;
 
     emit edit_result_copy_requested(m_current_result);
+}
+
+void SimulationModule::update_ray_count(int new_count) {
+    if (new_count > max_ray_count()) { set_max_ray_count(new_count); }
+    set_ray_count(new_count);
 }
 
 void SimulationModule::update_max_ray_count(int new_max) {

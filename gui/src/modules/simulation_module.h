@@ -41,6 +41,9 @@ class SimulationModule : public QObject {
 
     QVector<std::shared_ptr<db::SimulationResult>> m_completed_sims;
 
+    uint32_t m_running_requested_ray_count     = 0;
+    uint32_t m_running_requested_max_ray_count = 0;
+
 private slots:
     void job_done();
     void job_failed(QString const& message);
@@ -102,6 +105,7 @@ public slots:
     void export_result(int index);
     void duplicate_current_result_for_edit();
 
+    void update_ray_count(int new_count);
     void update_max_ray_count(int new_max);
 signals:
     void new_results(db::SimulationResultPtr);
