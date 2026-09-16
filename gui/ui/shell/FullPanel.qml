@@ -48,6 +48,49 @@ ShadowedGlassRectangle {
                     ListElement { name: "Language"; icon: "\uf0ac" }
                 }
 
+                listFooter: ColumnLayout {
+                    spacing: 8
+
+                    STDangerousButton {
+                        Layout.fillWidth: true
+                        text: "Reset All Settings"
+                        left_text_icon: "\uf2ed"
+                        onClicked: resetSettingsDialog.open()
+                    }
+
+                    STDialog {
+                        id: resetSettingsDialog
+                        title: "Reset All Settings"
+                        modal: true
+
+                        ColumnLayout {
+                            anchors.fill: parent
+
+                            Label {
+                                Layout.fillWidth: true
+                                text: "This will reset all saved settings to their defaults."
+                                wrapMode: Label.WrapAtWordBoundaryOrAnywhere
+                            }
+                        }
+
+                        footer: STDialogButtonBox {
+                            STButton {
+                                text: "Cancel"
+                                DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
+                            }
+
+                            STDangerousButton {
+                                text: "Reset Settings"
+                                DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
+                                onClicked: {
+                                    AppData.reset_all_settings()
+                                    resetSettingsDialog.close()
+                                }
+                            }
+                        }
+                    }
+                }
+
                 listDelegate: ItemDelegate {
                     text: itemModel ? itemModel.name : ""
                     highlighted: isCurrent

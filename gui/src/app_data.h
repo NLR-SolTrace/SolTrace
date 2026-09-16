@@ -94,6 +94,7 @@ public:
     ~AppData();
 
     Q_INVOKABLE void copy_build_info_to_clipboard();
+    Q_INVOKABLE void reset_all_settings();
 
     QOBJECT_WRITABLE_PROPERTY(db::Database, current_database)
 

@@ -22,6 +22,7 @@ constexpr auto font_list = std::array {
 };
 
 int main(int argc, char* argv[]) {
+    qputenv("QT_QUICK_CONTROLS_STYLE", "Material");
     qputenv("QT_QUICK_CONTROLS_MATERIAL_VARIANT", "Dense");
     qputenv("QML_XHR_ALLOW_FILE_READ", "1");
 

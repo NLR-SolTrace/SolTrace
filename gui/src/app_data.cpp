@@ -263,6 +263,12 @@ void AppData::clear_session() {
     s.clear();
 }
 
+void AppData::reset_all_settings() {
+    clear_session();
+    load_session();
+    emit notification(ANotification::info("Settings reset to defaults."));
+}
+
 void AppData::apply_ui_locale(DocumentationModule::Locale locale) {
     if (m_ui_translator_installed) {
         qApp->removeTranslator(&m_ui_translator);
