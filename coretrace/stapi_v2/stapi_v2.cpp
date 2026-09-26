@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <system_error>
 
 #include "../simulation_runner/simulation_runner.hpp"
 #include "../simulation_runner/native_runner/native_runner.hpp"
@@ -41,8 +42,10 @@
 STAPI_V2 st_return_t st_create_context(st_context_v2_t* pcxt, p_callback cb)
 {
     st_context* cxt = new st_context();
-    cxt->p_data = new SimulationData();
-    cxt->p_cb = cb;
+    cxt->p_data     = new SimulationData();
+    cxt->p_cb       = cb;
+    cxt->location   = fs::path();
+
     *pcxt = reinterpret_cast<st_context_v2_t>(cxt);
     return st_return_code::SUCCESS;
 }
@@ -60,6 +63,7 @@ STAPI_V2 st_return_t st_reset_context(st_context_v2_t pcxt)
     cxt->p_runner     = nullptr;
     cxt->report_level = RunnerStatistics::STATISTICS_COUNT;
     cxt->p_results    = nullptr;
+    cxt->location     = fs::path();
 
 	return st_return_code::SUCCESS;
 }
@@ -74,6 +78,25 @@ STAPI_V2 st_return_t st_free_context(st_context_v2_t pcxt)
 
     delete cxt;
 	return st_return_code::SUCCESS;
+}
+
+STAPI_V2 st_return_t st_locate_context(st_context_v2_t pcxt, const char *path)
+{
+	CONTEXT(pcxt);
+
+    fs::path p(path);
+    std::error_code ec;
+
+    if (fs::exists(p, ec))
+    {
+        cxt->location = p;
+        return st_return_code::SUCCESS;
+    }
+    else if (ec && cxt->p_cb)
+    {
+        cxt->p_cb("locate context", ec.message().c_str());
+    }
+    return st_return_code::INVALID_ARGUMENTS;
 }
 
 ////////////////////////////////
@@ -1332,11 +1355,30 @@ STAPI_V2 st_return_t st_sim_setup(st_context_v2_t  pcxt,
         // by default disable stages
         temp_native->disable_stages();
     }
-    // if using optix runner and requested threads, emit warning that it was ignored 
-    else if (num_threads != DEFAULT_NUM_THREADS) rt = st_return_code::WARNING_ARGUMENT_IGNORED_BY_RUNNER;
+    // otherwise using optix runner
+    else {
+        // if context is located, add for ptx discovery, include ifdef guard b/c need to access OptixRunner
+#ifdef STAPI_V2_OPTIX_SUPPORT
+        if (!cxt->location.empty())
+        {
+            OptixRunner *temp_optix = dynamic_cast<OptixRunner*>(runner);
+            temp_optix->set_additional_ptx_directory(cxt->location);
+        }
+#endif
+        // if using optix runner and requested threads, emit warning that it was ignored 
+        if (num_threads != DEFAULT_NUM_THREADS) rt = st_return_code::WARNING_ARGUMENT_IGNORED_BY_RUNNER;
+    }
 
     // auto t_setup_start = std::chrono::steady_clock::now();
-    sts = runner->setup_simulation(data);
+    
+    try { sts = runner->setup_simulation(data); }
+    catch (std::runtime_error &e)
+    {
+        if (cxt->p_cb) cxt->p_cb("set up runner", e.what());
+        delete runner;
+        return st_return_code::RUNNER_SETUP_ERROR;
+    }
+    
     // auto t_setup_end = std::chrono::steady_clock::now();
     if (sts != RunnerStatus::SUCCESS)
     {

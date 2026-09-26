@@ -66,6 +66,7 @@ ST_RETURN_CODE_ERROR_MSG = {
     dot_h.st_return_code.RUNNER_INILIALIZE_FAILURE:                    'SimulationRunner could not be initialized.',
     dot_h.st_return_code.RUNNER_NUMBER_THREADS_SEEDS_MISMATCH_FAILURE: 'Number of threads requested and length of seeds list are not'
                                                                        'equal. Include the same number of seeds as threads requested.',
+    dot_h.st_return_code.RUNNER_SETUP_ERROR:                           'A runtime error was thrown when setting up SimulationRunner.',
     dot_h.st_return_code.RUNNER_SETUP_FAILURE:                         'SimulationRunner could not be set up based on SimulationData provided.',
     dot_h.st_return_code.RUNNER_NOT_READY_TO_RUN:                      'SimulationRunner is not ready to run. Set up the SimulationRunner.',
     dot_h.st_return_code.RUNNER_NOT_READY_TO_REPORT:                   'SimulationRunner is not ready to report. Run the simulation.',

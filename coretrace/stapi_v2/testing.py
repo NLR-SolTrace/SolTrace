@@ -4,6 +4,7 @@ from math import sin, cos, pi, sqrt
 import orjson
 import numpy as np
 
+# TODO: make a script to blow up the build dir, run the wheel build, make the build dir, make .venv and pip install wheel, run this file
 from pysoltrace import dot_h, found_in, \
                        api, \
                        PySolTrace, \
@@ -364,9 +365,8 @@ class ConstantsTests(STAPIv2TestCase):
                 check_return_code(i)
 
     def test_args_simulation_parameters(self):
-        args = (1, 100, .1, 35.962278, -106.5122622, True, True, False)
-        params = _STC.simulation_parameters(*args)
-        c_params = dot_h.args_simulation_parameters(*args)
+        params = _STC.simulation_parameters(35.962278, -106.5122622, 1, 100, .1, True, True, False)
+        c_params = dot_h.args_simulation_parameters(1, 100, .1, 35.962278, -106.5122622, True, True, False)
         self.assertStructEqual(params.ctype, c_params)
 
     def test_args_optical_properties_face(self):
@@ -408,7 +408,7 @@ class ConstantsTests(STAPIv2TestCase):
 class ParametersTests(STAPIv2TestCase):
     def setUp(self):
         super().setUp()
-        self.params = _STC.simulation_parameters(1, 100, .1, 35.962278, -106.5122622, True, True, False)
+        self.params = _STC.simulation_parameters(35.962278, -106.5122622, 1, 100, .1, True, True, False)
 
     def test_set_parameters(self):
         self.stapi.parameters.set(self.params)
@@ -988,7 +988,7 @@ class BatchTests(STAPIv2TestCase):
     def setUp(self):
         super().setUp()
         # set up dummy values
-        self.sim_params = _STC.simulation_parameters(1, 100, .1, 35.962278, -106.5122622, True, True, False)
+        self.sim_params = _STC.simulation_parameters(35.962278, -106.5122622, 1, 100, .1, True, True, False)
 
         self.args_sun_buie = _STC.sun(0, 2, 2, 2, .5, b'b')
         self.args_sun_user = _STC.sun(3, 608, 303, 1000, 5, b' ')

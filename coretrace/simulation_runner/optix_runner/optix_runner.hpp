@@ -108,6 +108,9 @@ public:
     size_t  get_num_groups() const { return m_groups.size(); }
     int32_t get_group(int32_t element_id);
 
+    void set_additional_ptx_directory(std::filesystem::path &p)
+    { m_sys.set_additional_ptx_directory(p); }
+
 private:
     bool should_report_grouped_counts(int level) const;
     bool should_report_ray_records(int level) const;

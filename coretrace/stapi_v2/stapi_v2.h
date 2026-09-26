@@ -135,6 +135,8 @@ other items
 #define STAPI_V2
 #endif
 
+#include <filesystem>
+
 #include "../simulation_runner/simulation_runner.hpp"
 #include "../simulation_runner/native_runner/native_runner.hpp"
 #include "../simulation_data/simulation_data_export.hpp"
@@ -164,6 +166,8 @@ extern "C" {
 		return st_return_code::EXCEPTION; \
 	} 									  \
 
+namespace fs = std::filesystem;
+
 using SolTrace::Runner::SimulationRunner;
 using SolTrace::Runner::RunnerStatus;
 using SolTrace::Runner::RunnerStatistics;
@@ -192,6 +196,7 @@ typedef enum st_return_code : st_return_t {
 	DATA_VALUE_NOT_FOUND,
 	RUNNER_INILIALIZE_FAILURE,
 	RUNNER_NUMBER_THREADS_SEEDS_MISMATCH_FAILURE,
+	RUNNER_SETUP_ERROR,
 	RUNNER_SETUP_FAILURE,
 	RUNNER_NOT_READY_TO_RUN,
 	RUNNER_NOT_READY_TO_REPORT,
@@ -229,6 +234,7 @@ typedef struct st_context {
 	RunnerStatistics  report_level = RunnerStatistics::STATISTICS_COUNT;
 	SimulationResult* p_results;
 	p_callback		  p_cb;
+	fs::path		  location;
 } st_context;
 
 typedef void* st_context_v2_t;
@@ -241,6 +247,7 @@ typedef void* st_context_v2_t;
 STAPI_V2 st_return_t st_create_context(st_context_v2_t* pcxt, p_callback cb = nullptr);
 STAPI_V2 st_return_t st_reset_context(st_context_v2_t pcxt);
 STAPI_V2 st_return_t st_free_context(st_context_v2_t pcxt);
+STAPI_V2 st_return_t st_locate_context(st_context_v2_t pcxt, const char *path);
 
 ////////////////////////////////
 // Simlulation Data Functions //

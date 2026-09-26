@@ -52,6 +52,9 @@ def setup_dll(path: str = ''):
 
     pdll.st_free_context.argtypes = [ctypes.c_void_p]
     pdll.st_free_context.restype  = dot_h.st_return_t
+    
+    pdll.st_locate_context.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
+    pdll.st_locate_context.restype  = dot_h.st_return_t
 
     ###############################################
     # creates ctypes function pointers for each   #

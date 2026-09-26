@@ -70,13 +70,18 @@ class STAPIv2:
                 rt += f'\n{" " * max_key_len}: {[_STC._CTYPES_RE.search(str(arg)).group() for arg in v.argtypes]}'
         return rt
 
-    @st_function
     def __create(self, override_path: str = '', testing: bool = False):
-        pdll = _setup_dll(override_path if len(override_path) else _find_dll())
+        dll_f = pathlib.Path(override_path).resolve() if len(override_path) else _find_dll()
+        pdll = _setup_dll(dll_f)
 
         ppcxt = ctypes.c_void_p()
         code = pdll.st_create_context(ctypes.byref(ppcxt), message_cb if not testing else testing_cb)
-        return code, pdll, ppcxt.value
+        check_return_code(code)
+
+        code = pdll.st_locate_context(ppcxt.value, bytes(dll_f.parent))
+        check_return_code(code)
+
+        return pdll, ppcxt.value
 
     def reset(self):
         code = self.__pdll.st_reset_context(self.__pcxt)
