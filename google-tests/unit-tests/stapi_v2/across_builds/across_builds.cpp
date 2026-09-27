@@ -430,6 +430,9 @@ st_return_t call_stapi_v2_add_elements(st_context_v2_t pcxt)
         std::fprintf(stderr, "[diag] el dynamic type: %s\n", typeid(*el).name());
     std::fflush(stderr);
     auto sel = std::dynamic_pointer_cast<SingleElement>(el);
+    if (sel)
+        std::fprintf(stderr, "[diag] sel dynamic type: %s\n", typeid(*sel).name());
+    std::fflush(stderr);
     code += check(sel->is_enabled(), false);
     code += check(sel->is_virtual(), true);
     auto origin = sel->get_origin_ref();
