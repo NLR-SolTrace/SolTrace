@@ -109,7 +109,7 @@ add_custom_command(TARGET stapi_v2_all_runners POST_BUILD
     $<TARGET_FILE_DIR:stapi_v2_all_runners> # The destination folder
 )
 
-if(MSVC)
+if(MSVC AND NOT CMAKE_BUILD_TYPE STREQUAL "Release")
     add_custom_command(TARGET stapi_v2_all_runners POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_PDB_FILE:stapi_v2_all_runners_dll>             # The source pdb from the 'stapi_v2' target

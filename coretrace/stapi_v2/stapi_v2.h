@@ -225,7 +225,7 @@ typedef enum st_runner_type_t : st_uint_t {
 	RUNNER_COUNT         /* sentinel (not a valid runner) */
 } st_runner_type_t;
 
-typedef int (*p_callback)(char* loc, const char* msg);
+typedef int (*p_callback)(const char* loc, const char* msg);
 
 typedef struct st_context {
 	SimulationData*   p_data;
