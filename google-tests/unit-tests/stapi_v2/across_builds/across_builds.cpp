@@ -328,6 +328,9 @@ st_return_t call_stapi_v2_get_optic(st_context_v2_t pcxt)
 
     // check set struct
     code += check(std::string(rt_set.name), std::string(set.name));
+    // dumb hack to check if this is broken on github, passing locally
+    if (code > 0) std::cout << std::string(rt_set.name) << ' ' << std::string(set.name) << '\n';
+    // TODO: remove
     code += check(rt_set.refraction_index_front, set.refraction_index_front);
     code += check(rt_set.refraction_index_back, set.refraction_index_back);
     code += check(rt_set.type, set.type);

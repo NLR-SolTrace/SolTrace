@@ -31,6 +31,7 @@ set_target_properties(stapi_v2
 		PROPERTIES
 		DEBUG_POSTFIX "d"
 		PREFIX ""
+        POSITION_INDEPENDENT_CODE ON
 		)
 
 # build options for optional runners
