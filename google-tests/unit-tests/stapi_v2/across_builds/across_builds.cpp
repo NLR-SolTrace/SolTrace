@@ -395,9 +395,9 @@ st_return_t call_stapi_v2_remove_optics(st_context_v2_t pcxt)
 
 // functions to add/remove/modify elements
 st_return_t call_stapi_v2_add_elements(st_context_v2_t pcxt)
-{
+{ // std::fprintf(stderr, "before all\n"); std::fflush(stderr);
     // set up dummy optical properties
-    std::cout << "before all\n";
+    std::fprintf(stderr, "before all\n"); std::fflush(stderr);
     std::string dummy("dummy");
     OpticalPropertySet opt(InteractionType::REFLECTION, dummy);
     st_context *cxt = reinterpret_cast<st_context*>(pcxt);
@@ -405,7 +405,7 @@ st_return_t call_stapi_v2_add_elements(st_context_v2_t pcxt)
     OpticalPropertySetReference res = data->add_optical_property_set(opt);
 
     // check no elements set
-    std::cout << "before no element\n";
+    std::fprintf(stderr, "before no element\n"); std::fflush(stderr);
     uint_fast64_t num = -1;
     uint_fast64_t id = -1;
     st_num_elements(pcxt, &num);
@@ -418,16 +418,16 @@ st_return_t call_stapi_v2_add_elements(st_context_v2_t pcxt)
 
     // test good element
     // expect += st_return_code::SUCCESS
-    std::cout << "before add el\n";
+    std::fprintf(stderr, "before add el\n"); std::fflush(stderr);
     code += st_add_element(pcxt, &el_args, res.id, a_params, s_params, &id);
     code += check(id, 1);
     st_num_elements(pcxt, &num);
     code += check(num, 1);
 
     // test values set
-    std::cout << "before get el\n";
+    std::fprintf(stderr, "before get el\n"); std::fflush(stderr);
     element_ptr el = data->get_element(id);
-    std::cout << "before cast el\n";
+    std::fprintf(stderr, "before cast el\n"); std::fflush(stderr);
     auto sel = std::dynamic_pointer_cast<SingleElement>(el);
     code += check(sel->is_enabled(), false);
     code += check(sel->is_virtual(), true);
@@ -442,17 +442,17 @@ st_return_t call_stapi_v2_add_elements(st_context_v2_t pcxt)
     code += check(aim[2], 2);
     code += check(zrot, 2);
 
-    std::cout << "before get opt\n";
+    std::fprintf(stderr, "before get opt\n"); std::fflush(stderr);
     optical_set_ptr opt_set = sel->get_optical_property_set();
     code += check(opt_set->get_name(), dummy);
 
-    std::cout << "before get ap\n";
+    std::fprintf(stderr, "before get ap\n"); std::fflush(stderr);
     aperture_ptr ap = sel->get_aperture();
     code += check(ap->my_type, ApertureType::CIRCLE);
     auto circle = std::dynamic_pointer_cast<Circle>(ap);
     code += check(circle->diameter, 2);
 
-    std::cout << "before get surf\n";
+    std::fprintf(stderr, "before get surf\n"); std::fflush(stderr);
     surface_ptr surf = sel->get_surface();
     code += check(surf->my_type, SurfaceType::PARABOLA);
     auto parabola = std::dynamic_pointer_cast<Parabola>(surf);
@@ -460,7 +460,7 @@ st_return_t call_stapi_v2_add_elements(st_context_v2_t pcxt)
     code += check(parabola->focal_length_y, 1. / 4.);
 
     // try bad optical id
-    std::cout << "before bad optical id\n";
+    std::fprintf(stderr, "before bad optical id\n"); std::fflush(stderr);
     // expect code += st_return_code::DATA_VALUE_NOT_FOUND
     code += st_add_element(pcxt, &el_args, res.id + 1, a_params, s_params, &id);
     code += check(id, 1);
@@ -468,7 +468,7 @@ st_return_t call_stapi_v2_add_elements(st_context_v2_t pcxt)
     code += check(num, 1);
 
     // try bad aperture type
-    std::cout << "before bad aperture type\n";
+    std::fprintf(stderr, "before bad aperture type\n"); std::fflush(stderr);
     // expect code += st_return_code::INVALID_ARGUMENTS
     el_args.ap = 'z';
     code += st_add_element(pcxt, &el_args, res.id, a_params, s_params, &id);
@@ -478,7 +478,7 @@ st_return_t call_stapi_v2_add_elements(st_context_v2_t pcxt)
     el_args.ap = 'c';
     
     // try bad surface type
-    std::cout << "before bad surface type\n";
+    std::fprintf(stderr, "before bad surface type\n"); std::fflush(stderr);
     // expect code += st_return_code::INVALID_ARGUMENTS
     el_args.surf = 'z';
     code += st_add_element(pcxt, &el_args, res.id, a_params, s_params, &id);
@@ -488,7 +488,7 @@ st_return_t call_stapi_v2_add_elements(st_context_v2_t pcxt)
     el_args.surf = 'p';
     
     // try bad aperture params
-    std::cout << "before bad aperture params\n";
+    std::fprintf(stderr, "before bad aperture params\n"); std::fflush(stderr);
     // expect code += st_return_code::INVALID_ARGUMENTS
     double bad_a_params[1] = { -2 };
     code += st_add_element(pcxt, &el_args, res.id, bad_a_params, s_params, &id);
@@ -497,7 +497,7 @@ st_return_t call_stapi_v2_add_elements(st_context_v2_t pcxt)
     code += check(num, 1);
 
     // try bad surface params
-    std::cout << "before bad surface params\n";
+    std::fprintf(stderr, "before bad surface params\n"); std::fflush(stderr);
     // expect code += st_return_code::INVALID_ARGUMENTS
     double bad_s_params[2] = { std::numeric_limits<double>::quiet_NaN(), 2 };
     code += st_add_element(pcxt, &el_args, res.id, a_params, bad_s_params, &id);
@@ -509,10 +509,10 @@ st_return_t call_stapi_v2_add_elements(st_context_v2_t pcxt)
     // expect += st_return_code::SUCCESS
     
     // dumb hack to check if this is broken on github, passing locally
-    if (code > 0) std::cout << "before second good\n";
+    std::fprintf(stderr, "before second good\n"); std::fflush(stderr);
     // TODO: remove
     code += st_add_element(pcxt, &el_args, res.id, a_params, s_params, &id);
-    if (code > 0) std::cout << "after\n";
+    std::fprintf(stderr, "after\n"); std::fflush(stderr);
     code += check(id, 2);
     st_num_elements(pcxt, &num);
     code += check(num, 2);
