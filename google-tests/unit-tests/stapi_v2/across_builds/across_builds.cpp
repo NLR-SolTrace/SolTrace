@@ -497,7 +497,12 @@ st_return_t call_stapi_v2_add_elements(st_context_v2_t pcxt)
 
     // test another good element
     // expect += st_return_code::SUCCESS
+    
+    // dumb hack to check if this is broken on github, passing locally
+    if (code > 0) std::cout << "before\n";
+    // TODO: remove
     code += st_add_element(pcxt, &el_args, res.id, a_params, s_params, &id);
+    if (code > 0) std::cout << "after\n";
     code += check(id, 2);
     st_num_elements(pcxt, &num);
     code += check(num, 2);

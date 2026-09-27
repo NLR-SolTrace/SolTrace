@@ -353,7 +353,7 @@ namespace SolTrace::Data
             return this->my_type;
         }
 
-        const std::string get_name() const
+        const std::string& get_name() const
         {
             return this->my_name;
         }
