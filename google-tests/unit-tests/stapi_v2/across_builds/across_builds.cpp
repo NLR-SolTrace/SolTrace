@@ -551,7 +551,7 @@ st_return_t call_stapi_v2_get_element(st_context_v2_t pcxt)
 
     // test values set
     element_ptr el = data->get_element(1);
-    auto sel = std::dynamic_pointer_cast<SingleElement>(el);
+    auto sel = std::static_pointer_cast<SingleElement>(el);
     code += check(rt_el_args.enabled_flag, sel->is_enabled());
     code += check(rt_el_args.virtual_flag, sel->is_virtual());
     auto origin = sel->get_origin_ref();
@@ -569,12 +569,12 @@ st_return_t call_stapi_v2_get_element(st_context_v2_t pcxt)
 
     aperture_ptr ap = sel->get_aperture();
     code += check(rt_el_args.ap, aperture_to_char(ap->get_type()));
-    auto circle = std::dynamic_pointer_cast<Circle>(ap);
+    auto circle = std::static_pointer_cast<Circle>(ap);
     code += check(rt_a_params[0], circle->diameter);
 
     surface_ptr surf = sel->get_surface();
     code += check(rt_el_args.surf, surface_to_char(surf->get_type()));
-    auto parabola = std::dynamic_pointer_cast<Parabola>(surf);
+    auto parabola = std::static_pointer_cast<Parabola>(surf);
     code += check(rt_s_params[0], parabola->focal_length_x);
     code += check(rt_s_params[1], parabola->focal_length_y);
 
@@ -664,7 +664,7 @@ st_return_t call_stapi_v2_toggle_element(st_context_v2_t pcxt)
     code += st_element_virtual(pcxt, 0, true);
 
     // test values set
-    auto sel = std::dynamic_pointer_cast<SingleElement>(data->get_element(1));
+    auto sel = std::static_pointer_cast<SingleElement>(data->get_element(1));
     code += check(sel->is_enabled(), true);
     code += check(sel->is_virtual(), false);
 
@@ -700,7 +700,7 @@ st_return_t call_stapi_v2_element_xyz(st_context_v2_t pcxt)
     code += st_element_xyz(pcxt, 0, 2, 2, 2);
 
     // test values set
-    auto sel = std::dynamic_pointer_cast<SingleElement>(data->get_element(1));
+    auto sel = std::static_pointer_cast<SingleElement>(data->get_element(1));
     auto origin = sel->get_origin_ref();
     code += check(origin[0], 1);
     code += check(origin[1], 1);
@@ -738,7 +738,7 @@ st_return_t call_stapi_v2_element_aim(st_context_v2_t pcxt)
     code += st_element_aim(pcxt, 0, 2, 2, 2);
 
     // test values set
-    auto sel = std::dynamic_pointer_cast<SingleElement>(data->get_element(1));
+    auto sel = std::static_pointer_cast<SingleElement>(data->get_element(1));
     auto aim = sel->get_aim_vector_ref();
     code += check(aim[0], 1);
     code += check(aim[1], 1);
@@ -776,7 +776,7 @@ st_return_t call_stapi_v2_element_zrot(st_context_v2_t pcxt)
     code += st_element_zrot(pcxt, 0, 2);
 
     // test values set
-    auto sel = std::dynamic_pointer_cast<SingleElement>(data->get_element(1));
+    auto sel = std::static_pointer_cast<SingleElement>(data->get_element(1));
     auto zrot = sel->get_zrot();
     code += check(zrot, 1);
 
@@ -810,10 +810,10 @@ st_return_t call_stapi_v2_element_aperture(st_context_v2_t pcxt)
     // expect += st_return_code::SUCCESS
     code += st_element_aperture(pcxt, 1, 'r', params);
 
-    auto sel = std::dynamic_pointer_cast<SingleElement>(data->get_element(1));
+    auto sel = std::static_pointer_cast<SingleElement>(data->get_element(1));
     aperture_ptr ap = sel->get_aperture();
     code += check(ap->my_type, ApertureType::RECTANGLE);
-    auto rectangle = std::dynamic_pointer_cast<Rectangle>(ap);
+    auto rectangle = std::static_pointer_cast<Rectangle>(ap);
     code += check(rectangle->x_length(), 4);
     code += check(rectangle->y_length(), 4);
 
@@ -853,10 +853,10 @@ st_return_t call_stapi_v2_element_surface(st_context_v2_t pcxt)
     // expect += st_return_code::SUCCESS
     code += st_element_surface(pcxt, 1, 's', params);
     
-    auto sel = std::dynamic_pointer_cast<SingleElement>(data->get_element(1));
+    auto sel = std::static_pointer_cast<SingleElement>(data->get_element(1));
     surface_ptr surf = sel->get_surface();
     code += check(surf->my_type, SurfaceType::SPHERE);
-    auto sphere = std::dynamic_pointer_cast<Sphere>(surf);
+    auto sphere = std::static_pointer_cast<Sphere>(surf);
     code += check(sphere->vertex_curv, 4);
 
     // expect += st_return_code::INVALID_ARGUMENTS
@@ -900,7 +900,7 @@ st_return_t call_stapi_v2_element_optic(st_context_v2_t pcxt)
     // expect += st_return_code::SUCCESS
     code += st_element_optic(pcxt, 1, res2.id);
     
-    auto sel = std::dynamic_pointer_cast<SingleElement>(data->get_element(1));
+    auto sel = std::static_pointer_cast<SingleElement>(data->get_element(1));
     optical_set_ptr opt_set = sel->get_optical_property_set();
     code += check(opt_set->get_name(), std::string("other"));
     
@@ -969,7 +969,7 @@ st_return_t call_stapi_v2_add_sun(st_context_v2_t pcxt)
     // expect += st_return_code::EXCEPTION
     code += st_add_sun(pcxt, &args, good_angles, bad_intensities);
 
-    auto sun_0 = std::dynamic_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
+    auto sun_0 = std::static_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
     auto xyz = sun_0->get_position();
     // expect position to be what was set
     if (xyz[0] != 608 || xyz[1] != 303 || xyz[2] != 1000) ++code;
@@ -995,7 +995,7 @@ st_return_t call_stapi_v2_add_sun(st_context_v2_t pcxt)
     
     // expect += st_return_code::WARNING_SUN_SHAPE_IGNORED
     code += st_add_sun(pcxt, &args, good_angles, good_intensities);
-    auto sun_1 = std::dynamic_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
+    auto sun_1 = std::static_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
     SunShape shape = sun_1->get_shape();
     double sigma = sun_1->get_sigma();
     // expect both of these to equal defaults
@@ -1008,7 +1008,7 @@ st_return_t call_stapi_v2_add_sun(st_context_v2_t pcxt)
     // expect += st_return_code::SUCCESS
     args.shape = 'g';
     code += st_add_sun(pcxt, &args, good_angles, good_intensities);
-    auto sun_2 = std::dynamic_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
+    auto sun_2 = std::static_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
     shape = sun_2->get_shape();
     sigma = sun_2->get_sigma();
     // expect both of these to equal args
@@ -1021,7 +1021,7 @@ st_return_t call_stapi_v2_add_sun(st_context_v2_t pcxt)
     // expect += st_return_code::SUCCESS
     args.shape = 'p';
     code += st_add_sun(pcxt, &args, good_angles, good_intensities);
-    auto sun_3 = std::dynamic_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
+    auto sun_3 = std::static_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
     shape = sun_3->get_shape();
     double hw = sun_3->get_half_width();
     // expect both of these to equal args
@@ -1034,7 +1034,7 @@ st_return_t call_stapi_v2_add_sun(st_context_v2_t pcxt)
     // expect += st_return_code::WARNING_SUN_SHAPE_IGNORED
     args.shape = 'l';
     code += st_add_sun(pcxt, &args, good_angles, good_intensities);
-    auto sun_4 = std::dynamic_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
+    auto sun_4 = std::static_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
     shape = sun_4->get_shape();
     sigma = sun_4->get_sigma();
     // expect both of these to equal defaults
@@ -1048,7 +1048,7 @@ st_return_t call_stapi_v2_add_sun(st_context_v2_t pcxt)
     args.shape = 'b';
     args.sigma_halfwidth_csr = .5;
     code += st_add_sun(pcxt, &args, good_angles, good_intensities);
-    auto sun_5 = std::dynamic_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
+    auto sun_5 = std::static_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
     shape = sun_5->get_shape();
     double csr = sun_5->get_circumsolar_ratio();
     // expect both of these to equal args
@@ -1061,7 +1061,7 @@ st_return_t call_stapi_v2_add_sun(st_context_v2_t pcxt)
     // expect += st_return_code::WARNING_SUN_SHAPE_IGNORED
     args.shape = 'u';
     code += st_add_sun(pcxt, &args, good_angles, good_intensities);
-    auto sun_6 = std::dynamic_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
+    auto sun_6 = std::static_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
     shape = sun_6->get_shape();
     sigma = sun_6->get_sigma();
     // expect both of these to equal defaults
@@ -1138,7 +1138,7 @@ st_return_t call_stapi_v2_sun_shape(st_context_v2_t pcxt)
 
     // expect += st_return_code::WARNING_SUN_SHAPE_IGNORED
     code += st_sun_shape(pcxt, ' ', 0);
-    auto sun = std::dynamic_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
+    auto sun = std::static_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
     SunShape shape = sun->get_shape();
     double sigma = sun->get_sigma();
     // expect both of these to equal defaults
@@ -1148,7 +1148,7 @@ st_return_t call_stapi_v2_sun_shape(st_context_v2_t pcxt)
 
     // expect += 0
     code += st_sun_shape(pcxt, 'g', 5);
-    auto sun_2 = std::dynamic_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
+    auto sun_2 = std::static_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
     shape = sun_2->get_shape();
     sigma = sun_2->get_sigma();
     // expect both of these to equal args
@@ -1156,7 +1156,7 @@ st_return_t call_stapi_v2_sun_shape(st_context_v2_t pcxt)
     
     // expect += 0
     code += st_sun_shape(pcxt, 'p', 5);
-    auto sun_3 = std::dynamic_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
+    auto sun_3 = std::static_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
     shape = sun_3->get_shape();
     double hw = sun_3->get_half_width();
     // expect both of these to equal args
@@ -1164,7 +1164,7 @@ st_return_t call_stapi_v2_sun_shape(st_context_v2_t pcxt)
     
     // expect += st_return_code::WARNING_SUN_SHAPE_IGNORED
     code += st_sun_shape(pcxt, 'l', 5);
-    auto sun_4 = std::dynamic_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
+    auto sun_4 = std::static_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
     shape = sun_4->get_shape();
     sigma = sun_4->get_sigma();
     // expect both of these to equal defaults
@@ -1172,7 +1172,7 @@ st_return_t call_stapi_v2_sun_shape(st_context_v2_t pcxt)
     
     // expect += 0
     code += st_sun_shape(pcxt, 'b', .5);
-    auto sun_5 = std::dynamic_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
+    auto sun_5 = std::static_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
     shape = sun_5->get_shape();
     double csr = sun_5->get_circumsolar_ratio();
     // expect both of these to equal args
@@ -1180,7 +1180,7 @@ st_return_t call_stapi_v2_sun_shape(st_context_v2_t pcxt)
     
     // expect += st_return_code::WARNING_SUN_SHAPE_IGNORED
     code += st_sun_shape(pcxt, 'u', 0);
-    auto sun_6 = std::dynamic_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
+    auto sun_6 = std::static_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
     shape = sun_6->get_shape();
     sigma = sun_6->get_sigma();
     // expect both of these to equal defaults
@@ -1206,7 +1206,7 @@ st_return_t call_stapi_v2_sun_xyz(st_context_v2_t pcxt)
 
     // expect == 0
     code += st_sun_xyz(pcxt, 0, 0, 0);
-    auto sun = std::dynamic_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
+    auto sun = std::static_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
     auto xyz = sun->get_position();
     // expect position to be what was set
     if (xyz[0] != 0 || xyz[1] != 0 || xyz[2] != 0) ++code;
@@ -1232,7 +1232,7 @@ st_return_t call_stapi_v2_sun_userdata(st_context_v2_t pcxt)
     double new_intensities[3] = {0, .1, .2};
     // expect += 0
     code += st_sun_userdata(pcxt, 3, new_angles, new_intensities);
-    auto sun = std::dynamic_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
+    auto sun = std::static_pointer_cast<Sun>(cxt->p_data->get_ray_source(0));
     
     std::vector<double> angles, intensities;
     sun->get_user_data(angles, intensities);
