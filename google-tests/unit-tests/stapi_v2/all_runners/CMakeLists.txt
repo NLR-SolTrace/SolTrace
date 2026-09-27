@@ -114,11 +114,11 @@ add_custom_command(TARGET stapi_v2_all_runners POST_BUILD
 
 if (ENABLE_COVERAGE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_link_options(stapi_v2_all_runners PRIVATE --coverage)
-    target_link_libraries(stapi_v2_all_runners gcov)
+    target_link_libraries(stapi_v2_all_runners PRIVATE gcov)
 endif()
 
 if(UNIX)
-    target_link_libraries(stapi_v2_all_runners pthread)
+    target_link_libraries(stapi_v2_all_runners PRIVATE pthread)
 endif()
 
 add_test(NAME stapi_v2_all_runners COMMAND stapi_v2_all_runners)

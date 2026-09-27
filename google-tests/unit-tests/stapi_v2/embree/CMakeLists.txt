@@ -112,11 +112,11 @@ add_custom_command(TARGET stapi_v2_embree POST_BUILD
 
 if (ENABLE_COVERAGE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_link_options(stapi_v2_embree PRIVATE --coverage)
-    target_link_libraries(stapi_v2_embree gcov)
+    target_link_libraries(stapi_v2_embree PRIVATE gcov)
 endif()
 
 if(UNIX)
-    target_link_libraries(stapi_v2_embree pthread)
+    target_link_libraries(stapi_v2_embree PRIVATE pthread)
 endif()
 
 add_test(NAME stapi_v2_embree COMMAND stapi_v2_embree)

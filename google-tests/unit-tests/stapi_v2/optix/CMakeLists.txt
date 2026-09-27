@@ -112,11 +112,11 @@ add_custom_command(TARGET stapi_v2_optix POST_BUILD
 
 if (ENABLE_COVERAGE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_link_options(stapi_v2_optix PRIVATE --coverage)
-    target_link_libraries(stapi_v2_optix gcov)
+    target_link_libraries(stapi_v2_optix PRIVATE gcov)
 endif()
 
 if(UNIX)
-    target_link_libraries(stapi_v2_optix pthread)
+    target_link_libraries(stapi_v2_optix PRIVATE pthread)
 endif()
 
 add_test(NAME stapi_v2_optix COMMAND stapi_v2_optix)

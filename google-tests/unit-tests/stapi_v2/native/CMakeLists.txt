@@ -103,11 +103,11 @@ add_custom_command(TARGET stapi_v2_native POST_BUILD
 
 if (ENABLE_COVERAGE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_link_options(stapi_v2_native PRIVATE --coverage)
-    target_link_libraries(stapi_v2_native gcov)
+    target_link_libraries(stapi_v2_native PRIVATE gcov)
 endif()
 
 if(UNIX)
-    target_link_libraries(stapi_v2_native pthread)
+    target_link_libraries(stapi_v2_native PRIVATE pthread)
 endif()
 
 add_test(NAME stapi_v2_native COMMAND stapi_v2_native)
