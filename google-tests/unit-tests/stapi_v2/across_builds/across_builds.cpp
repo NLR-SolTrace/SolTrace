@@ -397,6 +397,7 @@ st_return_t call_stapi_v2_remove_optics(st_context_v2_t pcxt)
 st_return_t call_stapi_v2_add_elements(st_context_v2_t pcxt)
 {
     // set up dummy optical properties
+    std::cout << "before all\n";
     std::string dummy("dummy");
     OpticalPropertySet opt(InteractionType::REFLECTION, dummy);
     st_context *cxt = reinterpret_cast<st_context*>(pcxt);
@@ -404,7 +405,7 @@ st_return_t call_stapi_v2_add_elements(st_context_v2_t pcxt)
     OpticalPropertySetReference res = data->add_optical_property_set(opt);
 
     // check no elements set
-    std::cout << "before all\n";
+    std::cout << "before no element\n";
     uint_fast64_t num = -1;
     uint_fast64_t id = -1;
     st_num_elements(pcxt, &num);

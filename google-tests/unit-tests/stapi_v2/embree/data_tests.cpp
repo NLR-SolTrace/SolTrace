@@ -114,13 +114,21 @@ TEST(data_tests, data_remove_optics)
 
 TEST(data_tests, data_add_elements)
 {
+    std::cout << "before setup marco";
+    
     SETUP_TEST_CXT();
-
+    
+    std::cout << "after setup marco";
+    
     code = call_stapi_v2_add_elements(pcxt);
     EXPECT_EQ(code, st_return_code::DATA_VALUE_NOT_FOUND
                     + 4 * st_return_code::INVALID_ARGUMENTS);
+    
+    std::cout << "before clean up marco";
 
-    CLEANUP_TEST_CXT();
+    CLEANUP_TEST_CXT();    
+    
+    std::cout << "after clean up marco";
 }
 
 TEST(data_tests, data_remove_elements)
