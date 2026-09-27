@@ -427,9 +427,19 @@ st_return_t call_stapi_v2_add_elements(st_context_v2_t pcxt)
              (unsigned long long)id, (void*)el.get(), el.use_count());
     std::fflush(stderr);
     if (el)
-        std::fprintf(stderr, "[diag] el dynamic type: %s\n", typeid(*el).name());
-    std::fflush(stderr);
+    {
+        std::fprintf(stderr, "[diag] typeid(*el):             %p (%s)\n",
+             (void*)&typeid(*el), typeid(*el).name());
+        std::fprintf(stderr, "[diag] typeid(SingleElement):   %p (%s)\n",
+             (void*)&typeid(SingleElement), typeid(SingleElement).name());
+        std::fprintf(stderr, "[diag] operator== result:       %d\n",
+             typeid(*el) == typeid(SingleElement));
+        std::fflush(stderr);
+    }
     auto sel = std::dynamic_pointer_cast<SingleElement>(el);
+    std::fprintf(stderr, "[diag] sel.get():               %p\n", (void*)sel.get());
+    std::fflush(stderr);
+
     if (sel)
         std::fprintf(stderr, "[diag] sel dynamic type: %s\n", typeid(*sel).name());
     std::fflush(stderr);
