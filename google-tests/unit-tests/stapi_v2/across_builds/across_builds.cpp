@@ -1256,6 +1256,12 @@ st_return_t test_calculator_method(st_context_v2_t pcxt,
 
     code += check_near(azimuth, expected->azimuth, 1e-3);
     code += check_near(elevation, expected->elevation, 1e-3);
+    if (code > 0)
+    {
+        std::fprintf(stderr, "[diag] az  = %f\t%f\t%f\n", azimuth,   expected->azimuth,   azimuth - expected->azimuth);
+        std::fprintf(stderr, "[diag] el  = %f\t%f\t%f\n", elevation, expected->elevation, elevation - expected->elevation);
+        std::fflush(stderr);
+    }
 
     // azimuth/elevation
     st_get_sun_az_zen(pcxt, calc, &loc, &dt, &azimuth, &zenith);
@@ -1263,6 +1269,12 @@ st_return_t test_calculator_method(st_context_v2_t pcxt,
     double expected_zenith = 90.0 - expected->elevation;
     code += check_near(azimuth, expected->azimuth, 1e-3);
     code += check_near(zenith, expected_zenith, 1e-3);
+    if (code > 0)
+    {
+        std::fprintf(stderr, "[diag] az  = %f\t%f\t%f\n", azimuth,   expected->azimuth,   azimuth - expected->azimuth);
+        std::fprintf(stderr, "[diag] zen = %f\t%f\t%f\n", zenith,    expected_zenith,     zenith - expected_zenith);
+        std::fflush(stderr);
+    }
 
     // sun vector
     st_get_sun_vector(pcxt, calc, &loc, &dt, &sun_x, &sun_y, &sun_z);
@@ -1272,9 +1284,6 @@ st_return_t test_calculator_method(st_context_v2_t pcxt,
     code += check_near(sun_z, expected->sun_z, 1e-6);
     if (code > 0)
     {
-        std::fprintf(stderr, "[diag] az  = %f\t%f\t%f\n", azimuth,   expected->azimuth,   azimuth - expected->azimuth);
-        std::fprintf(stderr, "[diag] el  = %f\t%f\t%f\n", elevation, expected->elevation, elevation - expected->elevation);
-        std::fprintf(stderr, "[diag] zen = %f\t%f\t%f\n", zenith,    expected_zenith,     zenith - expected_zenith);
         std::fprintf(stderr, "[diag] x   = %f\t%f\t%f\n", sun_x,     expected->sun_x,     sun_x - expected->sun_x);
         std::fprintf(stderr, "[diag] y   = %f\t%f\t%f\n", sun_y,     expected->sun_y,     sun_y - expected->sun_y);
         std::fprintf(stderr, "[diag] z   = %f\t%f\t%f\n", sun_z,     expected->sun_z,     sun_z - expected->sun_z);
