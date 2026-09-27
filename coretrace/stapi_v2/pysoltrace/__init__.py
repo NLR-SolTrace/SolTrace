@@ -1,3 +1,5 @@
+__version__ = "0.1.0"
+
 # no outside of pysoltrace dependencies
 from pysoltrace.chedder import dot_h, found_in 
 from pysoltrace.point import Point

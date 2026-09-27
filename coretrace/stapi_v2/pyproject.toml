@@ -14,7 +14,6 @@ dependencies = [
     "orjson >= 3.10,<4",
     "pandas >= 3.0.5"]
 
-# ADDED: Link your GitHub repository for distribution tools and PyPI
 [project.urls]
 Homepage = "https://github.com/NLR-SolTrace/SolTrace"
 Documentation = "https://github.com/NLR-SolTrace/SolTrace#readme"
@@ -31,12 +30,11 @@ cmake.define = { SOLTRACE_BUILD_API = "ON", SOLTRACE_BUILD_GUI = "OFF", SOLTRACE
 wheel.packages = ["pysoltrace"]
 wheel.install-dir = "pysoltrace"
 
-
-
 wheel.exclude = [
     "./pysoltrace/.venv",
-    "**.json",
     "**.csv",
+    "**.json",
+    "**.pickle",
     "pysoltrace/stapi_v2.dll",
     "pysoltrace/stapi_v2d.dll",
 ]
