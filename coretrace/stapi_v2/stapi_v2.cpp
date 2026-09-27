@@ -73,8 +73,11 @@ STAPI_V2 st_return_t st_free_context(st_context_v2_t pcxt)
 	CONTEXT(pcxt);
 
     delete cxt->p_data;
+    cxt->p_data    = nullptr;
     delete cxt->p_runner;
+    cxt->p_runner  = nullptr;
     delete cxt->p_results;
+    cxt->p_results = nullptr;
 
     delete cxt;
 	return st_return_code::SUCCESS;

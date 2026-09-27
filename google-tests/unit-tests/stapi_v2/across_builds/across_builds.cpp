@@ -429,10 +429,15 @@ st_return_t call_stapi_v2_add_elements(st_context_v2_t pcxt)
     element_ptr el = data->get_element(id);
     std::fprintf(stderr, "before cast el\n"); std::fflush(stderr);
     auto sel = std::dynamic_pointer_cast<SingleElement>(el);
+    std::fprintf(stderr, "before is_enabled\n"); std::fflush(stderr);
     code += check(sel->is_enabled(), false);
+    std::fprintf(stderr, "before is_virtual\n"); std::fflush(stderr);
     code += check(sel->is_virtual(), true);
+    std::fprintf(stderr, "before get_origin_ref\n"); std::fflush(stderr);
     auto origin = sel->get_origin_ref();
+    std::fprintf(stderr, "before get_aim_vector_ref\n"); std::fflush(stderr);
     auto aim = sel->get_aim_vector_ref();
+    std::fprintf(stderr, "before get_zrot\n"); std::fflush(stderr);
     auto zrot = sel->get_zrot();
     code += check(origin[0], 2);
     code += check(origin[1], 2);

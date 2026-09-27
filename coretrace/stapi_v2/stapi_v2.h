@@ -228,12 +228,12 @@ typedef enum st_runner_type_t : st_uint_t {
 typedef int (*p_callback)(const char* loc, const char* msg);
 
 typedef struct st_context {
-	SimulationData*   p_data;
-	st_runner_type_t  runner_type = st_runner_type_t::RUNNER_COUNT;
-	SimulationRunner* p_runner;
+	SimulationData*   p_data	   = nullptr;
+	st_runner_type_t  runner_type  = st_runner_type_t::RUNNER_COUNT;
+	SimulationRunner* p_runner	   = nullptr;
 	RunnerStatistics  report_level = RunnerStatistics::STATISTICS_COUNT;
-	SimulationResult* p_results;
-	p_callback		  p_cb;
+	SimulationResult* p_results	   = nullptr;
+	p_callback		  p_cb	   	   = nullptr;
 	fs::path		  location;
 } st_context;
 
