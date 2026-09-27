@@ -436,7 +436,7 @@ st_return_t call_stapi_v2_add_elements(st_context_v2_t pcxt)
              typeid(*el) == typeid(SingleElement));
         std::fflush(stderr);
     }
-    auto sel = std::dynamic_pointer_cast<SingleElement>(el);
+    auto sel = std::static_pointer_cast<SingleElement>(el);
     std::fprintf(stderr, "[diag] sel.get():               %p\n", (void*)sel.get());
     std::fflush(stderr);
 
@@ -461,12 +461,12 @@ st_return_t call_stapi_v2_add_elements(st_context_v2_t pcxt)
 
     aperture_ptr ap = sel->get_aperture();
     code += check(ap->my_type, ApertureType::CIRCLE);
-    auto circle = std::dynamic_pointer_cast<Circle>(ap);
+    auto circle = std::static_pointer_cast<Circle>(ap);
     code += check(circle->diameter, 2);
 
     surface_ptr surf = sel->get_surface();
     code += check(surf->my_type, SurfaceType::PARABOLA);
-    auto parabola = std::dynamic_pointer_cast<Parabola>(surf);
+    auto parabola = std::static_pointer_cast<Parabola>(surf);
     code += check(parabola->focal_length_x, 1. / 4.);
     code += check(parabola->focal_length_y, 1. / 4.);
 
