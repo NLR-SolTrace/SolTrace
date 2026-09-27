@@ -327,9 +327,11 @@ st_return_t call_stapi_v2_get_optic(st_context_v2_t pcxt)
     code += st_get_optical_properties_set(pcxt, id, &rt_set, &rt_f, &rt_b);
 
     // check set struct
-    code += check(std::string(rt_set.name), std::string(set.name));
+    std::string rt_str(rt_set.name);
+    std::string set_str(set.name);
+    code += check(rt_str, set_str);
     // dumb hack to check if this is broken on github, passing locally
-    if (code > 0) std::cout << std::string(rt_set.name) << ' ' << std::string(set.name) << '\n';
+    if (code > 0) std::cout << rt_str << ' ' << set_str << '\n';
     // TODO: remove
     code += check(rt_set.refraction_index_front, set.refraction_index_front);
     code += check(rt_set.refraction_index_back, set.refraction_index_back);
@@ -398,7 +400,8 @@ st_return_t call_stapi_v2_remove_optics(st_context_v2_t pcxt)
 st_return_t call_stapi_v2_add_elements(st_context_v2_t pcxt)
 {
     // set up dummy optical properties
-    OpticalPropertySet opt(InteractionType::REFLECTION, std::string("dummy"));
+    std::string dummy("dummy");
+    OpticalPropertySet opt(InteractionType::REFLECTION, dummy);
     st_context *cxt = reinterpret_cast<st_context*>(pcxt);
     SimulationData *data = cxt->p_data;
     OpticalPropertySetReference res = data->add_optical_property_set(opt);
@@ -422,7 +425,7 @@ st_return_t call_stapi_v2_add_elements(st_context_v2_t pcxt)
     code += check(num, 1);
 
     // test values set
-    element_ptr el = data->get_element(1);
+    element_ptr el = data->get_element(id);
     auto sel = std::dynamic_pointer_cast<SingleElement>(el);
     code += check(sel->is_enabled(), false);
     code += check(sel->is_virtual(), true);
@@ -438,7 +441,7 @@ st_return_t call_stapi_v2_add_elements(st_context_v2_t pcxt)
     code += check(zrot, 2);
 
     optical_set_ptr opt_set = sel->get_optical_property_set();
-    code += check(opt_set->get_name(), std::string("dummy"));
+    code += check(opt_set->get_name(), dummy);
 
     aperture_ptr ap = sel->get_aperture();
     code += check(ap->my_type, ApertureType::CIRCLE);
