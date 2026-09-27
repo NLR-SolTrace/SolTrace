@@ -912,9 +912,9 @@ namespace SolTrace::Data
 
     void Rectangle::validate() const
     {
-        if (!std::isfinite(m_length.x) || m_length.x <= 0.0)
+        if (!std::isfinite(m_length.x) || m_length.x < 0.0)
             throw std::invalid_argument("Rectangle: x_length must be non-negative");
-        if (!std::isfinite(m_length.y) || m_length.y <= 0.0)
+        if (!std::isfinite(m_length.y) || m_length.y < 0.0)
             throw std::invalid_argument("Rectangle: y_length must be non-negative");
     }
 
