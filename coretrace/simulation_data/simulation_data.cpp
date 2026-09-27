@@ -327,13 +327,13 @@ mut_optical_set_ptr SimulationData::get_mutable_optical_property_set(const Eleme
 optical_set_ptr SimulationData::get_optical_property_set(optics_id id) const
 {
     auto ptr = this->my_optical_property_sets.get_item(id);
-    return ptr == nullptr ? nullptr : static_cast<optical_set_ptr>(ptr.get());
+    return ptr == nullptr ? nullptr : ptr;
 }
 
 mut_optical_set_ptr SimulationData::get_optical_property_set(optics_id id)
 {
     auto ptr = this->my_optical_property_sets.get_item(id);
-    return ptr == nullptr ? nullptr : static_cast<mut_optical_set_ptr>(ptr.get());
+    return ptr == nullptr ? nullptr : ptr;
 }
 
 int SimulationData::update_simulation_positions()
