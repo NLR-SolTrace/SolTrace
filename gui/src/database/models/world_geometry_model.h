@@ -50,8 +50,10 @@ public slots:
     /// Override the display color for the instance at index.
     void set_color(int index, QColor color);
 
+    /// Set the default color for instances without a ColorComponent.
     void set_default_color(QColor color);
 
+    /// Material group assigned to the represented geometry group.
     db::Entity material_of_group();
 
     /// Geometry group represented by this instancing adapter.
@@ -92,7 +94,7 @@ class WorldGeometryModel : public StructModelAdapter<VisibleGroup> {
     std::unordered_map<entt::entity, int> m_reverse;
     double                                m_surface_thickness = 0.05;
     unsigned                              m_subdivision_scale = 2;
-    QColor                                m_default_color = Qt::white;
+    QColor                                m_default_color     = Qt::white;
 
     QVector<VisibleGroup> rebuild_lists();
     void                  apply_surface_options(VisibleGroup const& group);
@@ -104,8 +106,16 @@ private slots:
     void group_removed(entt::entity);
 
 public slots:
+    /// Compute current visible world-geometry bounds on demand.
+    Q_INVOKABLE QVariantMap content_bounds(bool include_flux_mapped) const;
+
+    /// Update default color on all visible instancing adapters.
     void set_default_color(QColor color);
+
+    /// Update generated surface thickness on all visible surface geometries.
     void set_surface_thickness(double thickness);
+
+    /// Update generated surface subdivision on all visible surface geometries.
     void set_subdivision_scale(unsigned scale);
 
 public:

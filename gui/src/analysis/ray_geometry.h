@@ -47,10 +47,13 @@ public:
     Q_ENUM(IntersectionMode)
 
 private:
+    /// Which events to include in our geometry?
     Q_WRITABLE_PROPERTY(QStringList, event_include, {});
 
     /// How many rays to show?
     Q_WRITABLE_PROPERTY(float, show_percent, 100);
+
+    /// How to set the UVs of the geometry?
     Q_WRITABLE_PROPERTY(TextureMode, texture_mode, TextureMode::Length);
 
     /// How to draw the intersections?

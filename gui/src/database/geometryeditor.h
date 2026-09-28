@@ -70,7 +70,11 @@ public:
 
     /// If thickness is added, how much in world units
     Q_WRITABLE_PROPERTY(double, thickness, 0.01)
+
+    /// Subdiv control. TODO: Clarify with above
     Q_WRITABLE_PROPERTY(unsigned, subdivision_scale, 2)
+
+    /// Bounding box of the surface geometry item
     Q_READONLY_PROPERTY(BoundingBox, bounding_box)
 
     /// Observe database geometry group and rebuild the generated geometry.

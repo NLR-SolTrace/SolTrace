@@ -2,6 +2,10 @@
 #include "utilities/math_utility.h"
 
 #include <algorithm>
+#include <limits>
+#include <QVariantMap>
+
+#include <glm/common.hpp>
 
 namespace db {
 
@@ -94,18 +98,6 @@ void InstancedElements::on_geometry_group_change(entt::entity group) {
         }
 
         if (m_database->is_virtual_element(member)) { color = Qt::red; }
-
-        if (m_database->is_selected(member)) { color = Qt::yellow; }
-
-        if (auto given_color = m_database->color.get(member); given_color) {
-            color = given_color->color;
-        }
-
-        if (m_database->is_virtual_element(member)) { color = Qt::red; }
-
-        if (m_database->as_registry().all_of<InvisibleComponent>(member)) {
-            color = Qt::black;
-        }
 
         if (m_database->is_selected(member)) { color = Qt::yellow; }
 
@@ -298,6 +290,41 @@ QByteArray InstancedElements::getInstanceBuffer(int* instanceCount) {
 }
 
 // =============================================================================
+
+QVariantMap
+WorldGeometryModel::content_bounds(bool include_flux_mapped) const {
+    BoundsAccumulator bounds;
+
+    if (!m_host) return bounds_map(bounds);
+
+    for (auto const& group : m_records) {
+        if (!group.group_geometry || group.group_geometry->vertex_count() == 0) {
+            continue;
+        }
+
+        auto const* root = m_host->geometry_root.get(group.geometry_group_entity);
+        if (!root) continue;
+
+        for (auto const& member : root->members) {
+            if (m_host->as_registry().all_of<InvisibleComponent>(member)) {
+                continue;
+            }
+            if (!include_flux_mapped &&
+                m_host->as_registry().all_of<HasFluxMapComponent>(member)) {
+                continue;
+            }
+
+            auto const* global = m_host->global_transform.get(member);
+            if (!global) continue;
+
+            include_transformed_box(bounds,
+                                    group.group_geometry->bounding_box(),
+                                    *global);
+        }
+    }
+
+    return bounds_map(bounds);
+}
 
 void WorldGeometryModel::apply_surface_options(VisibleGroup const& group) {
     if (!group.group_geometry) return;

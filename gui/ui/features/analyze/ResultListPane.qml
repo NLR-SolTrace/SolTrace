@@ -16,10 +16,6 @@ ColumnLayout {
 
     spacing: 8
 
-    InlineDocumentation {
-        key: "analyze.results"
-    }
-
     function formatRayCount(count) {
         return Number(count).toLocaleString(Qt.locale(), "f", 0) + " rays"
     }

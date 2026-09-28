@@ -56,7 +56,9 @@ void FluxModule::set_results(db::SimulationResultPtr p) {
     set_current_entity_name(QString());
     set_current_entity_position({});
     set_current_flux_stats({});
+    set_current_image(QString());
     m_entity_model->reset(nullptr);
+    m_computed_maps_model->reset(nullptr);
     m_pending_flux_maps->reset(nullptr);
     m_ray_iso_volume->set_current_mesh({});
 
