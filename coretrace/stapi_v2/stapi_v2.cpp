@@ -1905,6 +1905,13 @@ STAPI_V2 st_return_t st_batch(st_context_v2_t  pcxt,
                                       call_args->payload.add_sun_args.intensity);
                     break;
                 }
+                case st_api_call::CALL_ST_SUN_SHAPE:
+                {
+                    code = st_sun_shape(pcxt,
+                                        call_args->payload.sun_shape_args.shape,
+                                        call_args->payload.sun_shape_args.sigma_halfwidth_csr);
+                    break;
+                }
                 case st_api_call::CALL_ST_SUN_XYZ:
                 {
                     code = st_sun_xyz(pcxt,

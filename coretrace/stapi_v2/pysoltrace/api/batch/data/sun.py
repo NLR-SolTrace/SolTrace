@@ -5,6 +5,7 @@ from pysoltrace.api.batch.utils import batcher, generate_api_call
 
 # short names
 _ADD = dot_h.st_api_call.CALL_ST_ADD_SUN
+_SHA = dot_h.st_api_call.CALL_ST_SUN_SHAPE
 _XYZ = dot_h.st_api_call.CALL_ST_SUN_XYZ
 _POS = dot_h.st_api_call.CALL_ST_SUN_POSITION
 _UD  = dot_h.st_api_call.CALL_ST_SUN_USERDATA
@@ -43,16 +44,15 @@ class sun(batcher):
     #                                 ctypes.byref(ctypes.pointer(intensity)))
     #     return code, args.value, angle, intensity
 
-    # TODO:
     def shape(self,
               shape: bytes,
               sigma_halfwidth_csr: float) -> None:
         if isinstance(shape, str): shape = shape[0].encode()
         assert isinstance(shape, bytes) and len(shape) == 1, \
             "Sun shape type must be a single character byte string."
-        return self._pdll.st_sun_shape(self._pcxt,
-                                      shape,
-                                      sigma_halfwidth_csr)
+        return self.adder(generate_api_call(_SHA,
+                                            shape,
+                                            sigma_halfwidth_csr))
 
     def xyz(self, x: float, y: float, z: float) -> None:
         return self.adder(generate_api_call(_XYZ, x, y, z))

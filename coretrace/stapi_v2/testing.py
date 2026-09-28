@@ -704,7 +704,7 @@ class ElementTests(STAPIv2TestCase):
 
         # bad aperture params
         with self.assertRaises(STAPIv2Exception) as ex:
-            self.stapi.data.element.aperture(1, new_ap, [0, 2])
+            self.stapi.data.element.aperture(1, new_ap, [-1, 2])
         self.assertEqual(ex.exception.code, dot_h.st_return_code.INVALID_ARGUMENTS)
 
         self.stapi.data.element.aperture(1, new_ap, new_params)
@@ -1305,6 +1305,15 @@ class BatchTests(STAPIv2TestCase):
         self.stapi.batch()
         sun, *_ = self.stapi.data.sun.get()
         self.assertDictEqual(sun, self.args_sun_buie.ctype.value)
+    
+    def test_call_st_sun_shape(self):
+        self.stapi.batch.data.sun.shape('g', 5)
+
+        self.stapi.batch()
+
+        sun, *_ = self.stapi.data.sun.get()
+        self.assertEqual(sun['shape'], b'g')
+        self.assertEqual(sun['sigma_halfwidth_csr'], 5)
 
     def test_call_st_sun_xyz(self):
         self.stapi.data.sun.add(self.args_sun_buie)
