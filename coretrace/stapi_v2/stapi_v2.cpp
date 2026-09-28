@@ -1313,16 +1313,15 @@ STAPI_V2 st_return_t st_sim_setup(st_context_v2_t  pcxt,
         if (use_embree) 
         {
             rt = st_return_code::WARNING_FELLBACK_FROM_EMBREE;
-            runner_type = st_runner_type_t::NATIVE;
         }
 #endif
 #ifndef STAPI_V2_OPTIX_SUPPORT
         if (use_optix) 
         {
             rt = st_return_code::WARNING_FELLBACK_FROM_OPTIX;
-            runner_type = st_runner_type_t::NATIVE;
         }
 #endif
+        runner_type = st_runner_type_t::NATIVE;
         runner = new NativeRunner();
     }
 

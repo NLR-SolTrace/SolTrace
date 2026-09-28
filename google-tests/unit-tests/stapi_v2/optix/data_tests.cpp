@@ -244,7 +244,6 @@ TEST(data_tests, data_get_sun)
     CLEANUP_TEST_CXT();
 }
 
-
 TEST(data_tests, data_sun_shape)
 {
     SETUP_TEST_CXT();

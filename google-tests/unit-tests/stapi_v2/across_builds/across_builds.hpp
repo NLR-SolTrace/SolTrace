@@ -1,3 +1,52 @@
+/*
+testing coverage across builds (x: done, -: skipped)
+
+function \ build                        : native | embree | optix | all
+
+call_stapi_v2_read_input_json              [x]      [x]      [x]    [x]
+call_stapi_v2_read_input_json_file         [x]      [x]      [x]    [x]
+call_stapi_v2_set_simulation_parameters    [x]      [x]      [x]    [x]
+call_stapi_v2_sim_params                   [x]      [x]      [x]    [x]
+call_stapi_v2_sim_rays                     [x]      [x]      [x]    [x]
+call_stapi_v2_sim_power_tower              [x]      [x]      [x]    [x]
+call_stapi_v2_sim_errors                   [x]      [x]      [x]    [x]
+call_stapi_v2_sim_location                 [x]      [x]      [x]    [x]
+call_stapi_v2_sim_tolerance                [x]      [x]      [x]    [x]
+call_stapi_v2_get_simulation_parameters    [x]      [x]      [x]    [x]
+call_stapi_v2_add_optics                   [x]      [x]      [x]    [x]
+call_stapi_v2_get_optic                    [x]      [x]      [x]    [x]
+call_stapi_v2_remove_optics                [x]      [x]      [x]    [x]
+call_stapi_v2_add_elements                 [x]      [x]      [x]    [x]
+call_stapi_v2_get_element                  [x]      [x]      [x]    [x]
+call_stapi_v2_remove_elements              [x]      [x]      [x]    [x]
+call_stapi_v2_toggle_element               [x]      [x]      [x]    [x]
+call_stapi_v2_element_xyz                  [x]      [x]      [x]    [x]
+call_stapi_v2_element_aim                  [x]      [x]      [x]    [x]
+call_stapi_v2_element_zrot                 [x]      [x]      [x]    [x]
+call_stapi_v2_element_aperture             [x]      [x]      [x]    [x]
+call_stapi_v2_element_surface              [x]      [x]      [x]    [x]
+call_stapi_v2_element_optic                [x]      [x]      [x]    [x]
+call_stapi_v2_element_group                [x]      [x]      [x]    [x]
+call_stapi_v2_add_sun                      [x]      [x]      [x]    [x]
+call_stapi_v2_get_sun                      [x]      [x]      [x]    [x]
+call_stapi_v2_sun_shape                    [x]      [x]      [x]    [x]
+call_stapi_v2_sun_xyz                      [x]      [x]      [x]    [x]
+call_stapi_v2_sun_userdata                 [x]      [x]      [x]    [x]
+call_stapi_v2_solar_calculator             [x]      [x]      [x]    [x]
+call_stapi_v2_sim_setup                    [x]      [x]      [x]    [x]
+call_stapi_v2_sim_run_v2                   [x]      [x]      [x]    [x]
+call_stapi_v2_sim_report                   [x]      [x]      [x]    [x]
+call_stapi_v2_write_results_csv            [x]      [x]      [x]    [x]
+call_stapi_v2_write_group_results_json     [x]      [x]      [x]    [x]
+call_stapi_v2_locations                    [x]      [x]      [x]    [x]
+call_stapi_v2_cosines                      [x]      [x]      [x]    [x]
+call_stapi_v2_elementmap                   [x]      [x]      [x]    [x]
+call_stapi_v2_stagemap                     [x]      [x]      [x]    [x]
+call_stapi_v2_raynumbers                   [x]      [x]      [x]    [x]
+call_stapi_v2_sun_stats                    [x]      [x]      [x]    [x]
+call_stapi_v2_get_results_data             [x]      [x]      [x]    [x]
+*/
+
 #ifndef STAPI_V2_ACROSS_BUILDS_H
 #define STAPI_V2_ACROSS_BUILDS_H
 

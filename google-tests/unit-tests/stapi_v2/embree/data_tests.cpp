@@ -123,6 +123,16 @@ TEST(data_tests, data_add_elements)
     CLEANUP_TEST_CXT();    
 }
 
+TEST(data_tests, data_get_element)
+{
+    SETUP_TEST_CXT();
+
+    code = call_stapi_v2_get_element(pcxt);
+    EXPECT_EQ(code, st_return_code::DATA_VALUE_NOT_FOUND);
+
+    CLEANUP_TEST_CXT();
+}
+
 TEST(data_tests, data_remove_elements)
 {
     SETUP_TEST_CXT();
@@ -220,6 +230,16 @@ TEST(data_tests, data_add_sun)
     code = call_stapi_v2_add_sun(pcxt);
     EXPECT_EQ(code, 3 * st_return_code::WARNING_SUN_SHAPE_IGNORED
                     + st_return_code::EXCEPTION);
+
+    CLEANUP_TEST_CXT();
+}
+
+TEST(data_tests, data_get_sun)
+{
+    SETUP_TEST_CXT();
+
+    code = call_stapi_v2_get_sun(pcxt);
+    EXPECT_EQ(code, st_return_code::DATA_VALUE_NOT_FOUND);
 
     CLEANUP_TEST_CXT();
 }
