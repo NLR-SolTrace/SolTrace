@@ -68,6 +68,14 @@ python -m build --wheel
 
 ---
 
+## SolTrace-pysoltrace Version Compatibility
+
+| SolTrace | pysoltrace | Python |
+|----------|------------|--------|
+| 4.0.0-beta_v2 | 0.1.0 | 3.8+ |
+
+---
+
 ## Contributing
 
 See the main [CONTRIBUTING.md](https://github.com/NLR-SolTrace/SolTrace/blob/develop/CONTRIBUTING.md) for how to contribute to pysoltrace.
