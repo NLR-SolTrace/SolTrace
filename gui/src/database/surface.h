@@ -27,7 +27,7 @@ struct SurfaceGenerationOptions {
 
     // Fidelity goes from 1 to 10
     static SurfaceGenerationOptions
-    from_resolution_and_thickness(unsigned, float);
+    from_resolution_and_thickness(unsigned fidelity, float thickness);
 };
 
 /// Compute a mesh from a surface and an aperture.

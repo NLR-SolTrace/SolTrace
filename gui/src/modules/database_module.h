@@ -69,6 +69,7 @@ public slots:
     /// Open a native file picker and save the current database.
     bool save_current_dialog();
 
+    /// Load a database from a URL. name_override is used for display only.
     void load_url(QUrl, QString name_override = "");
 
     /// Replace the current selection with a new blank database.
