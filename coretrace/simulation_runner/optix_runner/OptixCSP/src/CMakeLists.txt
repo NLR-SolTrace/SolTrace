@@ -8,6 +8,7 @@ include(GNUInstallDirs)
 # core target
 # ---------------------------------------------------------------------------
 add_library(OptixCSP_core STATIC)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Link against CUDA and simulation_data (simdata)
 target_link_libraries(OptixCSP_core PRIVATE
