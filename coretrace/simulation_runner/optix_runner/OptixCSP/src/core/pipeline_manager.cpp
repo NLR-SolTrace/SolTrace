@@ -175,8 +175,10 @@ std::vector<std::filesystem::path> pipelineManager::ptxSearchDirectories()
     std::vector<std::filesystem::path> directories;
 
     if (!additional_ptx_directory.empty())
+    {
         directories.emplace_back(additional_ptx_directory);
         directories.emplace_back(additional_ptx_directory / "ptx");
+    }
 
     if (const char *env_path = std::getenv("SOLTRACE_PTX_DIR"))
     {
