@@ -7,6 +7,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QSettings>
 #include <QTemporaryFile>
 #include <QTimer>
 #include <QtGlobal>
@@ -30,6 +31,14 @@ QString import_name_filter() {
         "SolTrace Files (*.stinput *.json);;All Files (*)");
 }
 
+constexpr qsizetype MAX_RECENT_FILE_COUNT = 5;
+
+bool has_supported_file_suffix(QFileInfo const& file) {
+    auto const suffix = file.suffix();
+    return suffix.compare(QStringLiteral("stinput"), Qt::CaseInsensitive) == 0 ||
+           suffix.compare(QStringLiteral("json"), Qt::CaseInsensitive) == 0;
+}
+
 QString wasm_temp_import_template(QString const& file_name) {
     auto suffix = QFileInfo(file_name).suffix();
     if (suffix.isEmpty()) { suffix = QStringLiteral("stinput"); }
@@ -49,6 +58,31 @@ struct DirectTaskControl : TaskControl {
 #endif
 
 } // namespace
+
+RecentFileModel::RecentFileModel(QObject* parent)
+    : StructModelAdapter(parent) { }
+
+QStringList RecentFileModel::urls() const {
+    QStringList result;
+    result.reserve(rowCount());
+
+    for (auto const& record : *this) {
+        result.push_back(record.url);
+    }
+
+    return result;
+}
+
+void RecentFileModel::reset_urls(QStringList const& urls) {
+    QVector<RecentFileRecord> records;
+    records.reserve(urls.size());
+
+    for (auto const& url : urls) {
+        records.push_back(RecentFileRecord { .url = url });
+    }
+
+    store_reset(std::move(records));
+}
 
 static Support::Result<LoadedFile, LoadFileFailed>
 load_file(Support::TaskControl&          control,
@@ -74,21 +108,21 @@ load_file(Support::TaskControl&          control,
 
         auto new_data = std::make_shared<SD::SimulationData>();
 
-        auto str = fname.toStdString();
-
         stage = "parsing file";
 
         bool legacy_import = false;
 
-        if (str.ends_with("stinput")) {
+        if (file.suffix().compare(QStringLiteral("stinput"),
+                                  Qt::CaseInsensitive) == 0) {
             legacy_import = true;
-            if (!new_data->import_from_file(str)) {
+            if (!new_data->import_from_file(fname.toStdString())) {
                 return Support::return_failure(
                     QString("Could not import the file: %1").arg(fname));
             }
-        } else if (str.ends_with("json")) {
+        } else if (file.suffix().compare(QStringLiteral("json"),
+                                         Qt::CaseInsensitive) == 0) {
             try {
-                new_data->import_json_file(str);
+                new_data->import_json_file(fname.toStdString());
             } catch (std::exception const& e) {
                 return Support::return_failure(
                     QString("Could not import the file: %1 %2")
@@ -296,7 +330,27 @@ bool DatabaseModule::open_file_dialog() {
 }
 
 DatabaseModule::DatabaseModule(QObject* parent)
-    : StructModelAdapter { parent } {
+    : StructModelAdapter { parent },
+      m_recent_files(new RecentFileModel(this)) {
+
+    QSettings settings;
+    settings.beginGroup(QStringLiteral("file_history"));
+    auto const stored_recent_files =
+        settings.value(QStringLiteral("recent_files"));
+    settings.endGroup();
+
+    auto recent_files = stored_recent_files.toStringList();
+    if (recent_files.isEmpty()) {
+        for (auto const& value : stored_recent_files.toList()) {
+            recent_files.push_back(value.toString());
+        }
+    }
+    recent_files.removeAll(QString());
+    recent_files.removeDuplicates();
+    if (recent_files.size() > MAX_RECENT_FILE_COUNT) {
+        recent_files = recent_files.first(MAX_RECENT_FILE_COUNT);
+    }
+    m_recent_files->reset_urls(recent_files);
 
     connect(this,
             &DatabaseModule::rowsInserted,
@@ -304,6 +358,44 @@ DatabaseModule::DatabaseModule(QObject* parent)
             [this](QModelIndex const& parent, int first, int last) {
                 set_current(first);
             });
+}
+
+bool DatabaseModule::validate_file(QUrl url) const {
+    if (!url.isLocalFile()) return false;
+
+    QFileInfo const file(url.toLocalFile());
+    return file.isFile() && file.isReadable() && has_supported_file_suffix(file);
+}
+
+void DatabaseModule::save_recent_files() const {
+    QSettings settings;
+    settings.beginGroup(QStringLiteral("file_history"));
+    settings.setValue(QStringLiteral("recent_files"),
+                      m_recent_files->urls());
+    settings.endGroup();
+}
+
+void DatabaseModule::add_recent_file(QUrl url) {
+    if (!validate_file(url)) return;
+
+    auto const normalized_url = QUrl::fromLocalFile(
+        QFileInfo(url.toLocalFile()).absoluteFilePath()).toString();
+    auto recent_files = m_recent_files->urls();
+
+    recent_files.removeAll(normalized_url);
+    recent_files.prepend(normalized_url);
+
+    if (recent_files.size() > MAX_RECENT_FILE_COUNT) {
+        recent_files = recent_files.first(MAX_RECENT_FILE_COUNT);
+    }
+
+    m_recent_files->reset_urls(recent_files);
+    save_recent_files();
+}
+
+void DatabaseModule::clear_recent_files() {
+    m_recent_files->reset_urls({ });
+    save_recent_files();
 }
 
 bool DatabaseModule::set_current(int index) {

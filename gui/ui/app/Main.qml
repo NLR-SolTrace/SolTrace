@@ -59,6 +59,10 @@ ApplicationWindow {
         id: get_started_dialog
     }
 
+    DragAndDrop {
+
+    }
+
     Component.onCompleted: {
         if (AppData.show_get_started_on_start) {
             Qt.callLater(get_started_dialog.open)
