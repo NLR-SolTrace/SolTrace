@@ -32,7 +32,20 @@ Node {
     }
 
     Repeater3D {
-        visible: flux_repeater.count === 0 || AppData.flux.show_other_geometry
+        visible: {
+            if (App.view.workflow_phase !== ViewModule.Analyze)
+                return true
+
+            switch (App.view.analyze_section) {
+            case 1:
+                return AppData.intersections.show_geometry
+            case 2:
+                return flux_repeater.count === 0
+                        || AppData.flux.show_other_geometry
+            default:
+                return true
+            }
+        }
         model: AppData.simulation.world_geometry_model
 
         delegate: Model {

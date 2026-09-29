@@ -31,32 +31,6 @@ Flickable {
                 available > 0 ? count * 100.0 / available : 0.0
     }
 
-    function textureModeIndex(mode) {
-        switch (mode) {
-        case RayGeometry.SolidColor:
-            return 0
-        case RayGeometry.Length:
-            return 1
-        case RayGeometry.Segment:
-            return 2
-        default:
-            return 1
-        }
-    }
-
-    function textureModeAt(index) {
-        switch (index) {
-        case 0:
-            return RayGeometry.SolidColor
-        case 1:
-            return RayGeometry.Length
-        case 2:
-            return RayGeometry.Segment
-        default:
-            return root.ray_geom.texture_mode
-        }
-    }
-
     contentWidth: width
     contentHeight: content_column.implicitHeight
     clip: true
@@ -89,10 +63,19 @@ Flickable {
             STSwitch {
                 Layout.fillWidth: true
 
-                text: "Toggle interactions"
+                text: "Toggle Interactions"
                 checked: AppData.view.show_intersections
 
                 onToggled: AppData.view.show_intersections = checked
+            }
+
+            STSwitch {
+                Layout.fillWidth: true
+
+                text: "Show Geometry"
+                checked: root.intersections_module.show_geometry
+
+                onToggled: root.intersections_module.show_geometry = checked
             }
 
             STFormRow {
@@ -205,14 +188,20 @@ Flickable {
 
                 STComboBox {
                     Layout.fillWidth: true
-                    currentIndex: root.textureModeIndex(root.ray_geom.texture_mode)
 
-                    model: ["Solid Color", "Length", "Segment"]
+                    currentValue: root.ray_geom.texture_mode
 
-                    onCurrentIndexChanged: {
-                        if (currentIndex >= 0)
-                            root.ray_geom.texture_mode = root.textureModeAt(currentIndex)
-                    }
+                    model: [
+                        {value: RayGeometry.SolidColor, text: "Solid Color"},
+                        {value: RayGeometry.Length, text: "Length"},
+                        {value: RayGeometry.Segment, text: "Segment"},
+                        {value: RayGeometry.Element, text: "Element"},
+                    ]
+
+                    textRole: "text"
+                    valueRole: "value"
+
+                    onActivated: root.ray_geom.texture_mode = currentValue
                 }
             }
 

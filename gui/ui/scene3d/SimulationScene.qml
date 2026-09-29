@@ -135,12 +135,23 @@ Item {
 
         if (App.view.simulation_content_view) {
             var fluxBounds = AppData.flux.flux_map_world_model.content_bounds()
-            var normalGeometryVisible = AppData.flux.show_other_geometry
-                    || !fluxBounds.valid
+            var normalGeometryVisible = true
+
+            if (App.view.workflow_phase === ViewModule.Analyze) {
+                switch (App.view.analyze_section) {
+                case 1:
+                    normalGeometryVisible = AppData.intersections.show_geometry
+                    break
+                case 2:
+                    normalGeometryVisible = AppData.flux.show_other_geometry
+                            || !fluxBounds.valid
+                    break
+                }
+            }
 
             console.debug("fit_all_in_view normal_geometry_visible",
                           normalGeometryVisible,
-                          "show_other_geometry=" + AppData.flux.show_other_geometry)
+                          "analyze_section=" + App.view.analyze_section)
 
             if (normalGeometryVisible) {
                 include_logged_database_bounds(

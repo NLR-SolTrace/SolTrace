@@ -66,7 +66,7 @@ class RayGeometry : public QQuick3DGeometry {
     QVector3D m_content_bounds_max;
 
 public:
-    enum class TextureMode { SolidColor, Length, Segment };
+    enum class TextureMode { SolidColor, Length, Segment, Element };
     Q_ENUM(TextureMode)
 
     enum class IntersectionMode { Point, Line };

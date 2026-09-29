@@ -29,6 +29,22 @@ namespace {
 /// Number of rays to show by default
 constexpr quint64 DEFAULT_VISIBLE_RAY_COUNT = 10000;
 
+constexpr uint32_t COLOR_MAP_BIN_COUNT = 128;
+
+uint32_t lowbias32(uint32_t x) {
+    x ^= x >> 16;
+    x *= 0x7feb352d;
+    x ^= x >> 15;
+    x *= 0x846ca68b;
+    x ^= x >> 16;
+    return x;
+}
+
+float colormap_bin_for_entity(entt::entity e) {
+    auto bin = lowbias32(entt::to_integral(e)) % COLOR_MAP_BIN_COUNT;
+    return float(bin) / COLOR_MAP_BIN_COUNT;
+}
+
 /// Percent of a ray count. Used in a few places.
 float percent_for_ray_count(quint64 count, quint64 available) {
     if (available == 0) return 0.0f;
@@ -142,11 +158,13 @@ test_ray_sphere(QVector3D& fa, QVector3D& fb, double radius) {
 }
 
 /// Ask if our event filter contains an event.
-bool includes_event(EventTypeContainer const& filter, SolTrace::GUI::Data::RayEventType event) {
+bool includes_event(EventTypeContainer const&         filter,
+                    SolTrace::GUI::Data::RayEventType event) {
     return filter.events.contains(event);
 }
 
-bool includes_entity(SolTrace::GUI::Data::RayRecord const& path, SolTrace::GUI::Data::Entity entity) {
+bool includes_entity(SolTrace::GUI::Data::RayRecord const& path,
+                     SolTrace::GUI::Data::Entity           entity) {
     if (!entity.is_valid()) return true;
 
     return std::ranges::any_of(path.events, [entity](auto const& event) {
@@ -183,7 +201,7 @@ visible_segment(QVector3D const& start, QVector3D const& end, double radius) {
 }
 
 
-double extract_total_ray_distance(SolTrace::GUI::Data::RayRecord const&      path,
+double extract_total_ray_distance(SolTrace::GUI::Data::RayRecord const& path,
                                   EventTypeContainer const& include_events,
                                   double                    filter_sphere) {
     QVector3D last_point;
@@ -205,8 +223,7 @@ double extract_total_ray_distance(SolTrace::GUI::Data::RayRecord const&      pat
         auto clipped = visible_segment(last_point, p, filter_sphere);
 
         if (clipped) {
-            total_ray_distance +=
-                (clipped->end - clipped->start).length();
+            total_ray_distance += (clipped->end - clipped->start).length();
         }
 
         last_point = p;
@@ -227,7 +244,8 @@ EventTypeContainer::EventTypeContainer(QStringList l) {
     for (auto const& item : l) {
         auto str = item.toUpper().toStdString();
 
-        auto maybe_enum = magic_enum::enum_cast<SolTrace::GUI::Data::RayEventType>(str);
+        auto maybe_enum =
+            magic_enum::enum_cast<SolTrace::GUI::Data::RayEventType>(str);
 
         if (!maybe_enum) {
             qDebug() << "Unknown enum name" << item;
@@ -360,8 +378,9 @@ void RayGeometry::rebuild_geometry() {
             }
 
 
-            QVector3D last_point;
-            bool      have_last_point = false;
+            entt::entity last_entity = entt::null;
+            QVector3D    last_point;
+            bool         have_last_point = false;
             // Since events are filtered, compute UV ranges from visible events.
             size_t visible_point_index  = 0;
             double current_ray_distance = 0.0;
@@ -391,6 +410,9 @@ void RayGeometry::rebuild_geometry() {
                             at        = float(flip_flip) * .5f + .25f;
                             flip_flip = !flip_flip;
                             break;
+
+                        case TextureMode::Element:
+                            at = colormap_bin_for_entity(interaction.entity);
                         }
 
                         append_vertex({
@@ -401,12 +423,14 @@ void RayGeometry::rebuild_geometry() {
                         visible_point_index += 1;
                     }
 
+                    last_entity     = interaction.entity;
                     last_point      = p;
                     have_last_point = true;
                     continue;
                 }
 
                 if (!have_last_point) {
+                    last_entity     = interaction.entity;
                     last_point      = p;
                     have_last_point = true;
                     continue;
@@ -415,6 +439,7 @@ void RayGeometry::rebuild_geometry() {
                 auto clipped = visible_segment(last_point, p, filter_sphere);
 
                 if (!clipped) {
+                    last_entity = interaction.entity;
                     last_point = p;
                     continue;
                 }
@@ -423,6 +448,7 @@ void RayGeometry::rebuild_geometry() {
                     (clipped->end - clipped->start).length();
 
                 if (segment_distance == 0.0) {
+                    last_entity = interaction.entity;
                     last_point = p;
                     continue;
                 }
@@ -508,11 +534,42 @@ void RayGeometry::rebuild_geometry() {
                     flip_flip = !flip_flip;
                     break;
                 }
+                case TextureMode::Element: {
+
+                    QVector2D start_uv {
+                        colormap_bin_for_entity(last_entity),
+                        0.0,
+                    };
+
+                    current_ray_distance += segment_distance;
+
+                    QVector2D end_uv {
+                        colormap_bin_for_entity(interaction.entity),
+                        0.0,
+                    };
+
+                    auto prev = static_cast<uint32_t>(verts.size());
+                    append_vertex({
+                        .position = clipped->start,
+                        .uv       = start_uv,
+                    });
+
+                    auto cur = static_cast<uint32_t>(verts.size());
+                    append_vertex({
+                        .position = clipped->end,
+                        .uv       = end_uv,
+                    });
+
+                    index.push_back(prev);
+                    index.push_back(cur);
+                    break;
+                }
                 }
 
                 // Keep the raw event point for the next ray segment. Clipped
                 // endpoints are render-only.
-                last_point = p;
+                last_entity = interaction.entity;
+                last_point  = p;
                 visible_point_index += 1;
             }
         }
@@ -679,7 +736,7 @@ RayGeometry::RayGeometry(QQuick3DObject* parent)
 void RayGeometry::set_results(SolTrace::GUI::Data::SimulationResultPtr data) {
     qCDebug(rayGeometryLog) << Q_FUNC_INFO << "New ray geometry database";
     m_database = std::move(data);
-    set_entity_filter({});
+    set_entity_filter({ });
     set_selected_ray_id(-1);
     m_selected_ray_interactions->reset();
     const auto available =
@@ -698,7 +755,7 @@ void RayGeometry::select_entity_filter(SolTrace::GUI::Data::Entity entity) {
 }
 
 void RayGeometry::clear_entity_filter() {
-    set_entity_filter({});
+    set_entity_filter({ });
 }
 
 /// Classic; give me the closest point on a line segment to a ray
@@ -742,7 +799,7 @@ static float dist_segment_ray_closest_points(glm::vec3  A,
     if (c < EPS) {
         auto closestOnRay = P;
 
-        float s          = glm::clamp(dot(P - A, u) / a, 0.0f, 1.0f);
+        float s            = glm::clamp(dot(P - A, u) / a, 0.0f, 1.0f);
         closest_on_segment = A + s * u;
         return length(closest_on_segment - closestOnRay);
     }
@@ -771,7 +828,7 @@ static float dist_segment_ray_closest_points(glm::vec3  A,
     t = glm::max((b * s + e) / c, 0.0f);
 
     closest_on_segment = A + s * u;
-    auto closestOnRay = P + t * v;
+    auto closestOnRay  = P + t * v;
 
     return length(closest_on_segment - closestOnRay);
 }
@@ -779,19 +836,20 @@ static float dist_segment_ray_closest_points(glm::vec3  A,
 /// Ray cast query result
 struct RayCastRayResult {
     /// Ray id, -1 if not found
-    int64_t    ray_id = -1;
+    int64_t ray_id = -1;
     /// World position, valid only if valid ray
     glm::dvec3 world_pos;
 };
 
 /// For a traced ray, and a query ray, check if this 'intersects' with some
 /// tolerance
-static RayCastRayResult check_distance(SolTrace::GUI::Data::RayRecord const& record,
-                                       glm::dvec3 const&    world_position,
-                                       glm::dvec3 const&    world_direction,
-                                       EventTypeContainer const& filter,
-                                       double filter_sphere,
-                                       float angle_tolerance_rads_cos) {
+static RayCastRayResult
+check_distance(SolTrace::GUI::Data::RayRecord const& record,
+               glm::dvec3 const&                     world_position,
+               glm::dvec3 const&                     world_direction,
+               EventTypeContainer const&             filter,
+               double                                filter_sphere,
+               float                                 angle_tolerance_rads_cos) {
     if (record.events.empty()) return RayCastRayResult { };
 
 
@@ -815,7 +873,8 @@ static RayCastRayResult check_distance(SolTrace::GUI::Data::RayRecord const& rec
         QVector3D clipped_start = convert(segment_a);
         QVector3D clipped_end   = convert(segment_b);
 
-        auto clipped = visible_segment(clipped_start, clipped_end, filter_sphere);
+        auto clipped =
+            visible_segment(clipped_start, clipped_end, filter_sphere);
         if (!clipped) {
             segment_a = segment_b;
             continue;
@@ -871,8 +930,8 @@ void RayGeometry::pick_ray(QVector3D world_position,
 
     // Get filter
 
-    const auto event_filter = m_include_events;
-    const auto entity       = entity_filter();
+    const auto event_filter  = m_include_events;
+    const auto entity        = entity_filter();
     const auto filter_sphere = max_ray_distance();
 
     // Build iteration over all rays, bounded by what we can see
