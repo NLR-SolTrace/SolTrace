@@ -118,8 +118,8 @@ public slots:
     /// Export current_database to a JSON file path.
     bool export_current_json(QString path);
 
-    /// Remove current_database from the open database list.
-    void delete_current();
+    /// Remove the database at index from the open database list.
+    void delete_db_at_index(int index);
 
     /// Add a new blank database to the open database list.
     void append_new(QString);

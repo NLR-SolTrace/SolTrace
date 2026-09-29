@@ -7,6 +7,7 @@
 #include "data_io/database_notification.h"
 #include "entity.h"
 #include "magic_enum/magic_enum.hpp"
+#include "support/qt_helpers.h"
 #include "support/result.h"
 
 #include <QDebug>
@@ -49,6 +50,7 @@ class Database : public QObject {
     entt::registry m_registry;
 
     Q_PROPERTY(QString name READ name WRITE set_name NOTIFY name_changed FINAL)
+    Q_READONLY_PROPERTY(bool, modified);
 
 public:
     /// Create a new simulation database

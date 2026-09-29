@@ -16,6 +16,7 @@ namespace {
 
 namespace SD = SolTrace::Data;
 namespace App = SolTrace::GUI::App;
+namespace Data = SolTrace::GUI::Data;
 
 using namespace SolTrace::GUI::Support;
 
@@ -43,12 +44,14 @@ TEST(DatabaseModuleSave, SaveCurrentWritesLoadableSceneFileAndNotifies) {
     SD::SimulationData source;
     ASSERT_TRUE(source.import_from_file(simple_test_case_path().string()));
     module.current_database()->import(source);
+    EXPECT_TRUE(module.current_database()->modified());
 
     QTemporaryDir temp_dir;
     ASSERT_TRUE(temp_dir.isValid());
 
     auto const save_path = temp_dir.filePath(QStringLiteral("saved_scene.json"));
     module.save_current(QUrl::fromLocalFile(save_path));
+    EXPECT_FALSE(module.current_database()->modified());
 
     QFileInfo const saved_file(save_path);
     ASSERT_TRUE(saved_file.isFile());
@@ -65,6 +68,52 @@ TEST(DatabaseModuleSave, SaveCurrentWritesLoadableSceneFileAndNotifies) {
     EXPECT_EQ(last_notification.type, ANotification::INFO);
     EXPECT_EQ(last_notification.message,
               QStringLiteral("File successfully saved."));
+}
+
+TEST(DatabaseModified, TracksPersistentContentButNotSelection) {
+    Data::Database database(QStringLiteral("modified-test"));
+    EXPECT_FALSE(database.modified());
+
+    auto const entity = database.create();
+    database.identity.set(
+        entity, Data::IdentityComponent { .name = QStringLiteral("Element") });
+    EXPECT_TRUE(database.modified());
+
+    database.set_modified(false);
+    database.select(Data::Entity(entity));
+    EXPECT_FALSE(database.modified());
+
+    database.set_name(QStringLiteral("renamed"));
+    EXPECT_TRUE(database.modified());
+}
+
+TEST(DatabaseModuleDelete, SelectsAnotherDatabaseWhenDeletingCurrent) {
+    App::DatabaseModule module;
+    module.append_new(QStringLiteral("first"));
+    module.append_new(QStringLiteral("second"));
+
+    ASSERT_TRUE(module.set_current(0));
+    auto* const second = module.get_at(1)->database.data();
+
+    module.delete_db_at_index(0);
+
+    ASSERT_EQ(module.rowCount(), 1);
+    EXPECT_EQ(module.current_database(), second);
+    EXPECT_EQ(module.get_at(0)->database.data(), second);
+}
+
+TEST(DatabaseModuleDelete, ReplacesLastDatabaseWithBlank) {
+    App::DatabaseModule module;
+    module.append_new(QStringLiteral("only"));
+    auto* const deleted = module.current_database();
+
+    module.delete_db_at_index(0);
+
+    ASSERT_EQ(module.rowCount(), 1);
+    ASSERT_NE(module.current_database(), nullptr);
+    EXPECT_NE(module.current_database(), deleted);
+    EXPECT_EQ(module.current_database()->name(), QStringLiteral("Untitled"));
+    EXPECT_EQ(module.get_at(0)->database.data(), module.current_database());
 }
 
 TEST(DatabaseModuleFiles, ValidateFileAcceptsReadableLocalSceneFilesOnly) {

@@ -100,7 +100,45 @@ Database::Database(QString database_name, QObject* p)
 
     simulation_parameters_resource.set({});
 
-    qDebug() << Q_FUNC_INFO;
+    ComponentAPIBase* const persistent_components[] = {
+        &identity,
+        &transform,
+        &invisible,
+        &disabled,
+        &virtual_tag,
+        &parent,
+        &tag_root,
+        &element_tag,
+        &material_root,
+        &material_parameters,
+        &material_group_membership,
+        &geometry_root,
+        &geometry_parameters,
+        &geometry_group_membership,
+        &children,
+        &tag_membership,
+        &color,
+        &database_name_resource,
+        &ray_source_resource,
+        &simulation_parameters_resource,
+    };
+
+    for (auto* component : persistent_components) {
+        connect(component,
+                &ComponentAPIBase::changed,
+                this,
+                [this](entt::entity) { set_modified(true); });
+        connect(component,
+                &ComponentAPIBase::removed,
+                this,
+                [this](entt::entity) { set_modified(true); });
+    }
+
+    connect(this, &Database::name_changed, this, [this] {
+        this->set_modified(true);
+    });
+
+    qDebug() << Q_FUNC_INFO << "Completed";
 }
 
 Database::~Database() {
@@ -137,7 +175,6 @@ QString Database::name() const {
 }
 
 void Database::set_name(QString s) {
-
     if (s == name()) { return; }
 
     database_name_resource.set(DatabaseNameResource { .name = s });

@@ -10,13 +10,13 @@
 #include <QSettings>
 #include <QTemporaryFile>
 #include <QTimer>
-#include <QtGlobal>
 #include <QtConcurrent/qtconcurrentrun.h>
 #include <QtCore/qfileinfo.h>
 #include <QtCore/qfuturewatcher.h>
+#include <QtGlobal>
 
 #ifdef Q_OS_WASM
-#include <QFileDialog>
+#    include <QFileDialog>
 #endif
 
 #include <exception>
@@ -27,15 +27,15 @@ namespace SolTrace::GUI::App {
 namespace {
 
 QString import_name_filter() {
-    return QStringLiteral(
-        "SolTrace Files (*.stinput *.json);;All Files (*)");
+    return QStringLiteral("SolTrace Files (*.stinput *.json);;All Files (*)");
 }
 
 constexpr qsizetype MAX_RECENT_FILE_COUNT = 5;
 
 bool has_supported_file_suffix(QFileInfo const& file) {
     auto const suffix = file.suffix();
-    return suffix.compare(QStringLiteral("stinput"), Qt::CaseInsensitive) == 0 ||
+    return suffix.compare(QStringLiteral("stinput"), Qt::CaseInsensitive) ==
+               0 ||
            suffix.compare(QStringLiteral("json"), Qt::CaseInsensitive) == 0;
 }
 
@@ -91,7 +91,7 @@ load_file(Support::TaskControl&          control,
 
     // Take control of that free pointer...
     std::unique_ptr<SolTrace::GUI::Data::Database> destination(new_db);
-    QString                       stage = "starting";
+    QString                                        stage = "starting";
 
     try {
         qDebug() << Q_FUNC_INFO << fname;
@@ -190,6 +190,7 @@ void DatabaseModule::file_ready(QUrl, LoadedFile result) {
         auto* database = result.ptr.release();
 
         database->setParent(this);
+        database->set_modified(false);
         store_push_append({ .database = database });
 
         notify(Support::ANotification::info(
@@ -330,8 +331,7 @@ bool DatabaseModule::open_file_dialog() {
 }
 
 DatabaseModule::DatabaseModule(QObject* parent)
-    : StructModelAdapter { parent },
-      m_recent_files(new RecentFileModel(this)) {
+    : StructModelAdapter { parent }, m_recent_files(new RecentFileModel(this)) {
 
     QSettings settings;
     settings.beginGroup(QStringLiteral("file_history"));
@@ -364,22 +364,23 @@ bool DatabaseModule::validate_file(QUrl url) const {
     if (!url.isLocalFile()) return false;
 
     QFileInfo const file(url.toLocalFile());
-    return file.isFile() && file.isReadable() && has_supported_file_suffix(file);
+    return file.isFile() && file.isReadable() &&
+           has_supported_file_suffix(file);
 }
 
 void DatabaseModule::save_recent_files() const {
     QSettings settings;
     settings.beginGroup(QStringLiteral("file_history"));
-    settings.setValue(QStringLiteral("recent_files"),
-                      m_recent_files->urls());
+    settings.setValue(QStringLiteral("recent_files"), m_recent_files->urls());
     settings.endGroup();
 }
 
 void DatabaseModule::add_recent_file(QUrl url) {
     if (!validate_file(url)) return;
 
-    auto const normalized_url = QUrl::fromLocalFile(
-        QFileInfo(url.toLocalFile()).absoluteFilePath()).toString();
+    auto const normalized_url =
+        QUrl::fromLocalFile(QFileInfo(url.toLocalFile()).absoluteFilePath())
+            .toString();
     auto recent_files = m_recent_files->urls();
 
     recent_files.removeAll(normalized_url);
@@ -408,10 +409,10 @@ bool DatabaseModule::set_current(int index) {
     return true;
 }
 
-static bool save_common(SolTrace::GUI::Data::Database&   source,
-                        QString         path,
-                        DatabaseModule& notification,
-                        bool            emit_success = true) {
+static bool save_common(SolTrace::GUI::Data::Database& source,
+                        QString                        path,
+                        DatabaseModule&                notification,
+                        bool                           emit_success = true) {
     auto result = source.export_to_simdata();
 
     if (!result) {
@@ -434,6 +435,8 @@ static bool save_common(SolTrace::GUI::Data::Database&   source,
 
         return false;
     }
+
+    source.set_modified(false);
 
     if (emit_success) {
         emit notification.notify(Support::ANotification::info(
@@ -499,10 +502,8 @@ bool DatabaseModule::save_current_dialog() {
     auto const temp_path = file.fileName();
     file.close();
 
-    if (!save_common(*m_current_database,
-                     temp_path,
-                     *this,
-                     false /* emit_success */)) {
+    if (!save_common(
+            *m_current_database, temp_path, *this, false /* emit_success */)) {
         return true;
     }
 
@@ -525,39 +526,35 @@ bool DatabaseModule::save_current_dialog() {
 #endif
 }
 
-void DatabaseModule::delete_current() {
-    auto const& v = this->vector();
-    auto        iter =
-        std::find_if(v.begin(), v.end(), [this](DatabaseRecord const& record) {
-            return record.database == m_current_database;
-        });
+void DatabaseModule::delete_db_at_index(int index) {
+    auto const* record = get_at(index);
+    if (!record || !record->database) return;
 
-    if (iter == v.end()) return;
-
-    auto index = std::distance(v.begin(), iter);
-
-    SolTrace::GUI::Data::Database* curr_cache = m_current_database;
+    auto* const database_to_delete = record->database.data();
+    auto const  deleting_current =
+        !m_current_database || database_to_delete == m_current_database;
 
     if (rowCount() == 1) {
-        // this should mean that index == 0.
+        // Keep a valid database selected throughout deletion. rowsInserted
+        // selects the newly-created database before the old row is removed.
         load_new();
-        set_current(1);
-    } else {
-        auto replacement_index = index;
-        if (replacement_index > 0) { replacement_index--; }
-        set_current(replacement_index);
+    } else if (deleting_current) {
+        // Select an adjacent row while indices still refer to the pre-removal
+        // model. For the first row that means its successor; otherwise use the
+        // predecessor.
+        set_current(index == 0 ? 1 : index - 1);
     }
 
-    this->store_push_remove(index, 1);
-
-    if (curr_cache) curr_cache->deleteLater();
+    store_push_remove(index, 1);
+    database_to_delete->deleteLater();
 }
 
 void DatabaseModule::append_new(QString new_name) {
     load_url({ }, new_name);
 }
 
-bool DatabaseModule::append_clone(SolTrace::GUI::Data::SimulationResultPtr result) {
+bool DatabaseModule::append_clone(
+    SolTrace::GUI::Data::SimulationResultPtr result) {
     if (!result || !result->database) {
         emit notify(Support::ANotification::warning(
             "Select a simulation result before creating an editable copy."));

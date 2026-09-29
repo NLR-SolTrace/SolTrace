@@ -160,6 +160,8 @@ DatabaseCloneResult clone_database_with_entity_map(Database const& from,
     copy_plain_component<HasFluxMapComponent>(
         from_registry, mapper, to_registry);
 
+    ret->set_modified(false);
+
     return DatabaseCloneResult {
         .database       = std::move(ret),
         .old_to_new_map = std::move(mapper.old_to_new_map),
