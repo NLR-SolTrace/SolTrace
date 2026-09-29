@@ -58,6 +58,12 @@ ColumnLayout {
         }
     }
 
+    InlineDocumentation {
+        key: "configure.sun.calculator"
+        Layout.fillWidth: true
+        Layout.margins: 8
+    }
+
     Rectangle {
         Layout.fillWidth: true
         Layout.preferredHeight: 1
