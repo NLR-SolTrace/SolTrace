@@ -908,27 +908,27 @@ class Results:
         self.stapi.result.csv.dump('./pysoltrace/sample.csv')
 
     def test_locations(self):
-        loc_x, loc_y, loc_z = self.stapi.result.locations(self.n_intersections)
+        loc_x, loc_y, loc_z = self.stapi.result.locations()
         self.assertEqual(len(loc_x), self.n_intersections)
         self.assertEqual(len(loc_y), self.n_intersections)
         self.assertEqual(len(loc_z), self.n_intersections)
 
     def test_cosines(self):
-        coz_x, coz_y, coz_z = self.stapi.result.cosines(self.n_intersections)
+        coz_x, coz_y, coz_z = self.stapi.result.cosines()
         self.assertEqual(len(coz_x), self.n_intersections)
         self.assertEqual(len(coz_y), self.n_intersections)
         self.assertEqual(len(coz_z), self.n_intersections)
 
     def test_elementmap(self):
-        element_map = self.stapi.result.elementmap(self.n_intersections)
+        element_map = self.stapi.result.elementmap()
         self.assertEqual(len(element_map), self.n_intersections)
 
     def test_stagemap(self):
-        stage_map = self.stapi.result.stagemap(self.n_intersections)
+        stage_map = self.stapi.result.stagemap()
         self.assertEqual(len(stage_map), self.n_intersections)
 
     def test_raynumbers(self):
-        ray_numbers = self.stapi.result.raynumbers(self.n_intersections)
+        ray_numbers = self.stapi.result.raynumbers()
         self.assertEqual(len(ray_numbers), self.n_intersections)
 
     def test_sun_stats(self):
@@ -943,7 +943,7 @@ class Results:
         self.assertGreater(nsunrays, 0)
 
     def test_get_results_data(self):
-        res = self.stapi.result.get(self.n_intersections)
+        res = self.stapi.result.get()
         for k in res.keys():
             self.assertEqual(len(res[k][:self.n_intersections]), self.n_intersections)
 

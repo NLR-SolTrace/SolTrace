@@ -746,19 +746,18 @@ class legacy:
 
         if self.raydata: return self.raydata
 
-        n = self.stapi.result.num()
-        results_data = self.stapi.result.get(n)
+        results_data = self.stapi.result.get()
 
         self.raydata = pd.DataFrame({
-            "loc_x":   results_data['loc_x'][:n],
-            "loc_y":   results_data['loc_y'][:n],
-            "loc_z":   results_data['loc_z'][:n],
-            "cos_x":   results_data['cos_x'][:n],
-            "cos_y":   results_data['cos_y'][:n],
-            "cos_z":   results_data['cos_z'][:n],
-            "element": results_data['element_map'][:n],
-            "stage":   results_data['stage_map'][:n],
-            "number":  results_data['ray_numbers'][:n]
+            "loc_x":   results_data['loc_x'],
+            "loc_y":   results_data['loc_y'],
+            "loc_z":   results_data['loc_z'],
+            "cos_x":   results_data['cos_x'],
+            "cos_y":   results_data['cos_y'],
+            "cos_z":   results_data['cos_z'],
+            "element": results_data['element_map'],
+            "stage":   results_data['stage_map'],
+            "number":  results_data['ray_numbers']
         })
 
         return self.raydata

@@ -28,8 +28,14 @@ class result(context):
             return 0
         return self.num()
 
+    def __get_num(self):
+        n = self.num()
+        assert n > 0, 'No results to report.'
+        return n
+
     @st_function    
-    def locations(self, n: int):
+    def locations(self):
+        n = self.__get_num()
         loc_x, loc_y, loc_z = \
             ((ctypes.c_double * n)() for _ in range(3))
         code = self._pdll.st_locations(self._pcxt,
@@ -37,7 +43,8 @@ class result(context):
         return code, loc_x[:n], loc_y[:n], loc_z[:n]
 
     @st_function
-    def cosines(self, n: int):
+    def cosines(self):
+        n = self.__get_num()
         cos_x, cos_y, cos_z = \
             ((ctypes.c_double * n)() for _ in range(3))
         code = self._pdll.st_cosines(self._pcxt,
@@ -45,19 +52,22 @@ class result(context):
         return code, cos_x[:n], cos_y[:n], cos_z[:n]
     
     @st_function
-    def elementmap(self, n: int):
+    def elementmap(self):
+        n = self.__get_num()
         element_map = (ctypes.c_uint64 * n)()
         code = self._pdll.st_elementmap(self._pcxt, element_map)
         return code, element_map[:n]
 
     @st_function
-    def stagemap(self, n: int):
+    def stagemap(self):
+        n = self.__get_num()
         stage_map = (ctypes.c_uint64 * n)()
         code = self._pdll.st_stagemap(self._pcxt, stage_map)
         return code, stage_map[:n]
 
     @st_function
-    def raynumbers(self, n: int):
+    def raynumbers(self):
+        n = self.__get_num()
         ray_numbers = (ctypes.c_uint64 * n)()
         code = self._pdll.st_raynumbers(self._pcxt, ray_numbers)
         return code, ray_numbers[:n]
@@ -75,7 +85,8 @@ class result(context):
         return code, width.value, height.value, area.value, nsunrays.value
 
     @st_function
-    def get(self, n: int):
+    def get(self):
+        n = self.__get_num()
         loc_x, loc_y, loc_z, coz_x, coz_y, coz_z = \
             ((ctypes.c_double * n)() for _ in range(6))
         element_map, stage_map, ray_numbers= \
