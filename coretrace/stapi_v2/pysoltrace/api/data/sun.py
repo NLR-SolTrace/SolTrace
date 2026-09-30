@@ -56,11 +56,11 @@ class sun(context):
         px = ctypes.c_double()
         py = ctypes.c_double()
         pz = ctypes.c_double()
-        code = self.__pdll.st_sun_position(self.__pcxt,
-                                           lat, day, hour,
-                                           ctypes.byref(px),
-                                           ctypes.byref(py),
-                                           ctypes.byref(pz))
+        code = self._pdll.st_sun_position(self._pcxt,
+                                          lat, day, hour,
+                                          ctypes.byref(px),
+                                          ctypes.byref(py),
+                                          ctypes.byref(pz))
         return code, Point(px.value, py.value, pz.value)
 
     @st_function
