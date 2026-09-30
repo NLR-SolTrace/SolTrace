@@ -64,23 +64,23 @@ ST_RETURN_CODE_ERROR_MSG = {
     dot_h.st_return_code.DATA_INSERTION_FAILURE:                       'Unable to insert data into SimulationData.',
     dot_h.st_return_code.DATA_VALUE_NOT_FOUND:                         'Data required for function was not found in SimulationData',
     dot_h.st_return_code.RUNNER_INILIALIZE_FAILURE:                    'SimulationRunner could not be initialized.',
-    dot_h.st_return_code.RUNNER_NUMBER_THREADS_SEEDS_MISMATCH_FAILURE: 'Number of threads requested and length of seeds list are not'
+    dot_h.st_return_code.RUNNER_NUMBER_THREADS_SEEDS_MISMATCH_FAILURE: 'Number of threads requested and length of seeds list are not '
                                                                        'equal. Include the same number of seeds as threads requested.',
     dot_h.st_return_code.RUNNER_SETUP_ERROR:                           'A runtime error was thrown when setting up SimulationRunner.',
     dot_h.st_return_code.RUNNER_SETUP_FAILURE:                         'SimulationRunner could not be set up based on SimulationData provided.',
     dot_h.st_return_code.RUNNER_NOT_READY_TO_RUN:                      'SimulationRunner is not ready to run. Set up the SimulationRunner.',
     dot_h.st_return_code.RUNNER_NOT_READY_TO_REPORT:                   'SimulationRunner is not ready to report. Run the simulation.',
     dot_h.st_return_code.RESULT_NOT_REPORTED:                          'Reporting level does not include this information. Change to appropriate level.',
-    dot_h.st_return_code.EXCEPTION:                                    'Exception raised. Check validity of the arguments passed to the'
+    dot_h.st_return_code.EXCEPTION:                                    'Exception raised. Check validity of the arguments passed to the '
                                                                        'function called or of the JSON against SolTrace schema version used.',
     dot_h.st_return_code.UKNOWN_BATCH_API_CALL_FAILURE:                'Unknown batch call received.'
 }
 ST_RETURN_CODE_WARNING_MSG = {
     dot_h.st_return_code.WARNING_FELLBACK_FROM_EMBREE:       'Requested EmbreeRunner, but is not installed. Fellback to NativeRunner.',
     dot_h.st_return_code.WARNING_FELLBACK_FROM_OPTIX:        'Requested OptixRunner, but is not installed. Fellback to NativeRunner.',
-    dot_h.st_return_code.WARNING_ARGUMENT_IGNORED_BY_RUNNER: 'Requested a number of threads for OptixRunner. The arguement does not apply'
+    dot_h.st_return_code.WARNING_ARGUMENT_IGNORED_BY_RUNNER: 'Requested a number of threads for OptixRunner. The argument does not apply '
                                                              'to this runner type and was ignored.',
-    dot_h.st_return_code.WARNING_SUN_SHAPE_IGNORED:          'Requested invalid sun shape. Default sun created with a Gaussian'
+    dot_h.st_return_code.WARNING_SUN_SHAPE_IGNORED:          'Requested invalid sun shape. Default sun created with a Gaussian '
                                                              'distribution with sigma = 4.65.',
     dot_h.st_return_code.WARNING_GROUP_IGNORED:              'Requested invalid group number. Setting element to ungrouped.',
     dot_h.st_return_code.WARNING_NOT_FOUND:                  'Requested an item that was not found.',
