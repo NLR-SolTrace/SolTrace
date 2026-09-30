@@ -46,7 +46,7 @@ void SimulationData::enforce_elements_ready()
             element_ptr sub_el;
             for (auto cit = cptr->get_iterator(); !cptr->is_at_end(cit); ++cit)
             {
-                sub_el = it->second;
+                sub_el = cit->second;
                 sub_el->enforce_user_fields_set();
                 sub_el->compute_coordinate_rotations();
             }
