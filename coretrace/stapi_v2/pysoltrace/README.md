@@ -28,7 +28,7 @@ print(pysoltrace.__version__)
 
 ## Requirements
 
-- Python 3.8+
+- Python 3.10+
 
 ---
 
@@ -72,7 +72,7 @@ python -m build --wheel
 
 | SolTrace | pysoltrace | Python |
 |----------|------------|--------|
-| 4.0.0-beta_v2 | 0.1.0 | 3.8+ |
+| 4.0.0-beta_v2 | 0.1.0 | 3.10+ |
 
 ---
 
