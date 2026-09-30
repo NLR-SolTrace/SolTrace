@@ -144,6 +144,7 @@ public:
     void clear_elements()
     {
         this->my_elements.clear();
+        this->my_groups.clear();
         this->number_of_elements = 0;
     }
 
