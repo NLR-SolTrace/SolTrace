@@ -462,11 +462,17 @@ class ParametersTests(STAPIv2TestCase):
 
 class DataJSONTests(STAPIv2TestCase):
     def test_load_json_str(self):
-        self.stapi.data.json.load('./pysoltrace/sample.json')
+        f = open('./pysoltrace/sample.json', mode='rb')
+        _json = f.read()
+        f.close()
+        self.stapi.data.json.load(_json)
         self.assertEqual(self.stapi.data.element.num(), 126)
 
         with self.assertRaises(STAPIv2Exception) as ex:
-            self.stapi.data.json.load('./pysoltrace/errors.json')
+            f = open('./pysoltrace/errors.json', mode='rb')
+            _bad_json = f.read()
+            f.close()
+            self.stapi.data.json.load(_bad_json)
         self.assertEqual(ex.exception.code, dot_h.st_return_code.EXCEPTION)
 
     def test_load_json_dict(self):
@@ -835,7 +841,7 @@ class SunTests(STAPIv2TestCase):
 class RunnerTests(STAPIv2TestCase):
     def setUp(self):
         super().setUp()
-        self.stapi.data.json.load('./pysoltrace/sample.json')
+        self.stapi.data.json.load(Path('./pysoltrace/sample.json'))
 
     def test_set_up_native(self):
         # if this is called after sim_setup call, leads to OS error 
@@ -951,7 +957,7 @@ class ResultsNativeTests(STAPIv2TestCase, Results):
     def setUp(self):
         super().setUp()
         self.runner_type = dot_h.st_runner_type_t.NATIVE
-        self.stapi.data.json.load('./pysoltrace/sample.json')
+        self.stapi.data.json.load(Path('./pysoltrace/sample.json'))
         self.stapi.parameters.rays(1000, 10000)
         self.stapi.runner.setup(self.runner_type)
         self.stapi.runner.run()
@@ -964,7 +970,7 @@ class ResultsEmbreeTests(STAPIv2TestCase, Results):
     def setUp(self):
         super().setUp()
         self.runner_type = dot_h.st_runner_type_t.EMBREE
-        self.stapi.data.json.load('./pysoltrace/sample.json')
+        self.stapi.data.json.load(Path('./pysoltrace/sample.json'))
         self.stapi.parameters.rays(1000, 10000)
         self.stapi.runner.setup(self.runner_type)
         self.stapi.runner.run()
@@ -977,7 +983,7 @@ class ResultsOptixTests(STAPIv2TestCase, Results):
     def setUp(self):
         super().setUp()
         self.runner_type = dot_h.st_runner_type_t.OPTIX
-        self.stapi.data.json.load('./pysoltrace/sample.json')
+        self.stapi.data.json.load(Path('./pysoltrace/sample.json'))
         self.stapi.parameters.rays(1000, 10000)
         self.stapi.runner.setup(self.runner_type)
         self.stapi.runner.run()
@@ -1013,7 +1019,7 @@ class BatchTests(STAPIv2TestCase):
         self.sun_vector = Point(0.006908, -0.2849516, 0.9585169)
 
     def test_simple(self):
-        self.stapi.batch.data.json.load('./pysoltrace/sample.json')
+        self.stapi.batch.data.json.load(Path('./pysoltrace/sample.json'))
         el_rec = self.stapi.batch.data.element.num()
         self.stapi.batch.runner.setup(dot_h.st_runner_type_t.NATIVE)
         self.stapi.batch.runner.run()
@@ -1030,7 +1036,10 @@ class BatchTests(STAPIv2TestCase):
 
     # functions for simulation data management thru json strings
     def test_call_st_read_input_json(self):
-        self.stapi.batch.data.json.load('./pysoltrace/sample.json')
+        f = open('./pysoltrace/sample.json', mode='rb')
+        _json = f.read()
+        f.close()
+        self.stapi.batch.data.json.load(_json)
         self.stapi.batch()
         self.assertEqual(self.stapi.data.element.num(), 126)
     
@@ -1370,20 +1379,20 @@ class BatchTests(STAPIv2TestCase):
     
     # functions for SolTrace runner management
     def test_call_st_sim_setup(self):
-        self.stapi.data.json.load('./pysoltrace/sample.json')
+        self.stapi.data.json.load(Path('./pysoltrace/sample.json'))
         self.stapi.parameters.rays(1000, 10000)
         self.stapi.batch.runner.setup(dot_h.st_runner_type_t.NATIVE)
         self.stapi.batch()
 
     def test_call_st_sim_run_v2(self):
-        self.stapi.data.json.load('./pysoltrace/sample.json')
+        self.stapi.data.json.load(Path('./pysoltrace/sample.json'))
         self.stapi.parameters.rays(1000, 10000)
         self.stapi.runner.setup(dot_h.st_runner_type_t.NATIVE)
         self.stapi.batch.runner.run()
         self.stapi.batch()
 
     def test_call_st_sim_report(self):
-        self.stapi.data.json.load('./pysoltrace/sample.json')
+        self.stapi.data.json.load(Path('./pysoltrace/sample.json'))
         self.stapi.parameters.rays(1000, 10000)
         self.stapi.runner.setup(dot_h.st_runner_type_t.NATIVE)
         self.stapi.runner.run()
@@ -1392,7 +1401,7 @@ class BatchTests(STAPIv2TestCase):
         
     # functions for SolTrace results management
     def set_up_run_report(self):
-        self.stapi.data.json.load('./pysoltrace/sample.json')
+        self.stapi.data.json.load(Path('./pysoltrace/sample.json'))
         self.stapi.parameters.rays(1000, 10000)
         self.stapi.runner.setup(dot_h.st_runner_type_t.NATIVE)
         self.stapi.runner.run()
