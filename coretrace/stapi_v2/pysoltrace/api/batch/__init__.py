@@ -22,7 +22,7 @@ class batch_record:
 
     def __repr__(self):
         call = dot_h.st_api_call(self.batch_call.type)
-        return f'{call.name} ({call.ready}): {self.value}'
+        return f'{call.name} ({self.ready}): {self.value}'
 
 class batch(context):
     def __init__(self, pdll, pcxt):
@@ -58,12 +58,13 @@ class batch(context):
         ])
         fail_iteration = ctypes.c_uint(0)
 
-        for br in callable_brs: br.ready = True
         code = self._pdll.st_batch(self._pcxt,
                                    arr(callable_brs, num_calls),
                                    num_calls,
                                    ctypes.byref(fail_iteration),
                                    verbose)
         check_return_code(code, fail_iteration.value)
+        for br in callable_brs: br.ready = True
+        self.__called += num_calls
 
 __all__ = ['batch', 'batch_record']
