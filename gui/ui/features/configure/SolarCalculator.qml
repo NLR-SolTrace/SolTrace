@@ -59,7 +59,8 @@ ColumnLayout {
     }
 
     InlineDocumentation {
-        key: "configure.sun.calculator"
+        key: "configure.sun.calculators." +
+             ["legacy", "duffie", "solpos", "spa"][App.sun.calc_data.calculator]
         Layout.fillWidth: true
         Layout.margins: 8
     }
