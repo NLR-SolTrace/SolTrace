@@ -320,6 +320,17 @@ void FluxMapWorldModel::on_reset() {
 FluxMapWorldModel::FluxMapWorldModel(QObject* parent)
     : StructModelAdapter(parent) { }
 
+void FluxMapWorldModel::apply_surface_options(
+    std::shared_ptr<SurfaceGeometry> const& geometry) const {
+    if (!geometry) return;
+
+    auto thickness = std::clamp(m_surface_thickness, 0.0, 1.0);
+    geometry->set_add_thickness(thickness > 0.0);
+    geometry->set_thickness(thickness);
+    geometry->set_subdivision_scale(
+        std::clamp<unsigned>(m_subdivision_scale, 1, 10));
+}
+
 QVariantMap FluxMapWorldModel::content_bounds() const {
     QVectorBoundsAccumulator bounds;
 
@@ -335,6 +346,28 @@ QVariantMap FluxMapWorldModel::content_bounds() const {
     }
 
     return bounds_map(bounds);
+}
+
+void FluxMapWorldModel::set_surface_thickness(double thickness) {
+    thickness = std::clamp(thickness, 0.0, 1.0);
+    if (m_surface_thickness == thickness) return;
+
+    m_surface_thickness = thickness;
+
+    for (auto const& item : m_records) {
+        apply_surface_options(item.flux_geometry);
+    }
+}
+
+void FluxMapWorldModel::set_subdivision_scale(unsigned scale) {
+    scale = std::clamp<unsigned>(scale, 1, 10);
+    if (m_subdivision_scale == scale) return;
+
+    m_subdivision_scale = scale;
+
+    for (auto const& item : m_records) {
+        apply_surface_options(item.flux_geometry);
+    }
 }
 
 
@@ -361,6 +394,7 @@ void FluxMapWorldModel::on_ready(Entity                    e,
 
     auto geom = std::make_shared<SurfaceGeometry>();
 
+    apply_surface_options(geom);
     geom->set(db, group);
 
     auto global = GlobalTransformComponent::compute_for(db->as_registry(), e);

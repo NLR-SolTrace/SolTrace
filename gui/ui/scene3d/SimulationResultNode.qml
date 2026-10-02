@@ -21,6 +21,10 @@ Node {
                     App.view.sim.geometry_subdivision_scale)
         AppData.simulation.world_geometry_model.set_default_color(
                     App.view.sim.geometry_color)
+        AppData.flux.flux_map_world_model.set_surface_thickness(
+                    App.view.sim.geometry_thickness)
+        AppData.flux.flux_map_world_model.set_subdivision_scale(
+                    App.view.sim.geometry_subdivision_scale)
     }
 
     Component.onCompleted: applyPerformanceSettings()
@@ -118,6 +122,9 @@ Node {
         model: AppData.flux.flux_map_world_model
 
         delegate: Model {
+            objectName: "flux_map_geometry"
+
+            required property var flux_entity
             required property var flux_position
             required property var flux_rotation
             required property var flux_geometry
@@ -125,6 +132,7 @@ Node {
             required property string flux_image_path
 
             geometry: flux_geometry
+            pickable: true
             //source: "#Cube"
 
             position: flux_position

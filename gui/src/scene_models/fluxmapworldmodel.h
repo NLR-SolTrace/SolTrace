@@ -128,6 +128,12 @@ struct FluxMappedItem {
 class FluxMapWorldModel : public Support::StructModelAdapter<FluxMappedItem> {
     Q_OBJECT
 
+    double   m_surface_thickness = 0.05;
+    unsigned m_subdivision_scale = 2;
+
+    void apply_surface_options(
+        std::shared_ptr<SurfaceGeometry> const& geometry) const;
+
 public:
     // TODO: power per ray
 
@@ -137,6 +143,12 @@ public:
 public slots:
     /// Compute current completed flux-map geometry bounds on demand.
     Q_INVOKABLE QVariantMap content_bounds() const;
+
+    /// Update generated surface thickness on all completed flux maps.
+    void set_surface_thickness(double thickness);
+
+    /// Update generated surface subdivision on all completed flux maps.
+    void set_subdivision_scale(unsigned scale);
 
     /// Clear all completed flux map rows.
     void on_reset();
