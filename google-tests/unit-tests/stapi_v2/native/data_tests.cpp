@@ -239,7 +239,8 @@ TEST(data_tests, data_get_sun)
     SETUP_TEST_CXT();
 
     code = call_stapi_v2_get_sun(pcxt);
-    EXPECT_EQ(code, st_return_code::DATA_VALUE_NOT_FOUND);
+    EXPECT_EQ(code, st_return_code::DATA_VALUE_NOT_FOUND +
+                    2 * st_return_code::INVALID_ARGUMENTS);
 
     CLEANUP_TEST_CXT();
 }

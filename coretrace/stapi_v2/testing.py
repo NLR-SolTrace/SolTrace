@@ -763,7 +763,7 @@ class SunTests(STAPIv2TestCase):
         self.good_angles      = [0, 1, 2]
         self.good_intensities = [0, 1, 2]
         self.bad_intensities  = [0, -1]
-        self.args_sun = _STC.sun(3, 608, 303, 1000, 5, b' ')
+        self.args_sun = _STC.sun(3, 608, 303, 1000, 0, b'd')
 
         self.calc = dot_h.SolarPositionCalculationMethod.SPA
         self.loc = _STC.sun_location(40.0, -105.0, -7.0)
@@ -800,6 +800,14 @@ class SunTests(STAPIv2TestCase):
 
         rt_sun_args, rt_angle, rt_intensity = self.stapi.data.sun.get()
         self.assertDictEqual(rt_sun_args, sun_args.ctype.value)
+    
+    def test_get_sun_userdata(self):
+        self.stapi.data.sun.add(self.args_sun, self.good_angles, self.good_intensities)
+
+        rt_sun_args, rt_angle, rt_intensity = self.stapi.data.sun.get(3)
+        self.assertDictEqual(rt_sun_args, self.args_sun.ctype.value)
+        self.assertEqual(rt_angle, self.good_angles)
+        self.assertEqual(rt_intensity, self.good_intensities)
         # TODO: test userdata
 
     def test_sun_shape(self):
@@ -1302,7 +1310,7 @@ class BatchTests(STAPIv2TestCase):
         self.stapi.batch.data.sun.add(self.args_sun_user, self.good_angles, self.good_intensities)
 
         self.stapi.batch()
-        sun, *_ = self.stapi.data.sun.get()
+        sun, *_ = self.stapi.data.sun.get(3)
         self.assertEqual(sun['npoints'], 3)
         self.assertEqual(sun['x'], 608)
         self.assertEqual(sun['y'], 303)
@@ -1341,7 +1349,7 @@ class BatchTests(STAPIv2TestCase):
         self.stapi.batch.data.sun.userdata(3, self.good_angles, self.good_intensities)
 
         self.stapi.batch()
-        sun, *_ = self.stapi.data.sun.get()
+        sun, *_ = self.stapi.data.sun.get(3)
         self.assertEqual(sun['npoints'], 3)
         self.assertEqual(sun['shape'], b'd')
 

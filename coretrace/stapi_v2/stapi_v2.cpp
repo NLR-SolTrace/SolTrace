@@ -970,7 +970,8 @@ STAPI_V2 st_return_t st_add_sun(st_context_v2_t pcxt,
 STAPI_V2 st_return_t st_get_sun(st_context_v2_t pcxt,
 								args_sun 		*args,
 								double 		 	**angle,
-								double 		 	**intensity)
+								double 		 	**intensity,
+								st_uint_t 		npoints)
 {
     CONTEXT(pcxt);
     DATA(cxt);
@@ -1011,21 +1012,14 @@ STAPI_V2 st_return_t st_get_sun(st_context_v2_t pcxt,
             std::vector<double> _angle;
             std::vector<double> _intensity;
             sun->get_user_data(_angle, _intensity);
+
+            if (npoints == 0 || npoints != _angle.size())
+                return st_return_code::INVALID_ARGUMENTS;
+            
             args->npoints = _angle.size();
 
-            // TODO: return userdata
-            
-            // *angle = _angle.data();
-            // *intensity = _intensity.data();
-            // (*angle) = new double[_angle.size()]{ 0 };
-            // (*intensity) = new double[_intensity.size()]{ 0 };
-            // for (size_t i = 0; i < _angle.size(); ++i)
-            // {
-            //     (*angle)[i] = _angle[i];
-            //     (*intensity)[i] = _intensity[i];
-            // }
-            // std::copy(_angle.begin(), _angle.end(), *angle);
-            // std::copy(_intensity.begin(), _intensity.end(), *intensity);
+            std::copy(_angle.begin(), _angle.end(), *angle);
+            std::copy(_intensity.begin(), _intensity.end(), *intensity);
             break;
         }
     }
@@ -1196,6 +1190,7 @@ STAPI_V2 st_return_t st_get_sun_az_zen(st_context_v2_t   pcxt,
 
     return st_return_code::SUCCESS;
 }
+
 STAPI_V2 st_return_t st_get_sun_az_el(st_context_v2_t   pcxt,
 									  int				calc,
 									  args_sun_location *loc,
@@ -1215,6 +1210,7 @@ STAPI_V2 st_return_t st_get_sun_az_el(st_context_v2_t   pcxt,
 
     return st_return_code::SUCCESS;
 }
+
 STAPI_V2 st_return_t st_get_sun_vector(st_context_v2_t   pcxt,
 									   int				 calc,
 									   args_sun_location *loc,
@@ -1615,6 +1611,7 @@ STAPI_V2 st_return_t st_sun_stats(st_context_v2_t pcxt,
 								  double 		  *area,
 								  uint_fast64_t	  *nsunrays)
 {
+    // TODO: compute power per ray
     CONTEXT(pcxt);
     RESULT(cxt);
 

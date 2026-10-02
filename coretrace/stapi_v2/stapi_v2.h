@@ -397,7 +397,8 @@ STAPI_V2 st_return_t st_add_sun(st_context_v2_t pcxt,
 STAPI_V2 st_return_t st_get_sun(st_context_v2_t pcxt,
 								args_sun 		*args,
 								double 		 	**angle,
-								double 		 	**intensity);
+								double 		 	**intensity,
+								st_uint_t 		npoints = 0);
 STAPI_V2 st_return_t st_sun_shape(st_context_v2_t pcxt,
 								  char   		  shape, 
 								  double 		  sigma_halfwidth_csr);
@@ -782,9 +783,10 @@ typedef struct args_st_add_sun {
 } args_st_add_sun;
 
 typedef struct args_st_get_sun {
-	args_sun *args;
-	double 	 **angle;
-	double 	 **intensity;
+	args_sun  *args;
+	double 	  **angle;
+	double 	  **intensity;
+	st_uint_t npoints = 0;
 } args_st_get_sun;
 
 typedef struct args_st_sun_shape {

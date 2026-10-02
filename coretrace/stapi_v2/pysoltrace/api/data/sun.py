@@ -26,15 +26,20 @@ class sun(context):
                                     _intensity)
 
     @st_function
-    def get(self) -> tuple[_STC.sun, list[float], list[float]]:
+    def get(self, npoints: int = 0) -> tuple[_STC.sun, list[float], list[float]]:
         args = dot_h.args_sun()
-        angle = ctypes.c_double()
-        intensity = ctypes.c_double()
+        expect_userdata = npoints > 0
+        angle     = ctypes.cast((ctypes.c_double * npoints)(), ctypes.POINTER(ctypes.c_double)) \
+                    if expect_userdata else ctypes.pointer(ctypes.c_double())
+        intensity = ctypes.cast((ctypes.c_double * npoints)(), ctypes.POINTER(ctypes.c_double)) \
+                    if expect_userdata else ctypes.pointer(ctypes.c_double())
         code = self._pdll.st_get_sun(self._pcxt,
                                     ctypes.byref(args),
-                                    ctypes.byref(ctypes.pointer(angle)),
-                                    ctypes.byref(ctypes.pointer(intensity)))
-        return code, args.value, angle, intensity
+                                    ctypes.byref(angle),
+                                    ctypes.byref(intensity),
+                                    npoints)
+        rt = (args.value, angle[:npoints], intensity[:npoints]) if expect_userdata else (args.value, [], [])
+        return code, *rt
 
     @st_function
     def shape(self,

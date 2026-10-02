@@ -1062,8 +1062,8 @@ st_return_t call_stapi_v2_get_sun(st_context_v2_t pcxt)
     st_context *cxt = reinterpret_cast<st_context*>(pcxt);
 
     args_sun rt_args;
-    double *rt_angle;
-    double *rt_intensity;
+    double *rt_angle     = new double[3];
+    double *rt_intensity = new double[3];
 
     // expect += st_return_code::DATA_VALUE_NOT_FOUND
     st_return_t code = st_get_sun(pcxt, &rt_args, &rt_angle, &rt_intensity);
@@ -1092,14 +1092,21 @@ st_return_t call_stapi_v2_get_sun(st_context_v2_t pcxt)
     code += st_add_sun(pcxt, &args, angles, intensities);
 
     // expect += st_return_code::SUCCESS
-    // code += st_get_sun(pcxt, &rt_args, &rt_angle, &rt_intensity);
-    // code += check(rt_angle[0], angles[0]);
-    // code += check(rt_angle[1], angles[1]);
-    // code += check(rt_angle[2], angles[2]);
-    // code += check(rt_intensity[0], intensities[0]);
-    // code += check(rt_intensity[1], intensities[1]);
-    // code += check(rt_intensity[2], intensities[2]);
+    code += st_get_sun(pcxt, &rt_args, &rt_angle, &rt_intensity, 3);
+    code += check(rt_angle[0], angles[0]);
+    code += check(rt_angle[1], angles[1]);
+    code += check(rt_angle[2], angles[2]);
+    code += check(rt_intensity[0], intensities[0]);
+    code += check(rt_intensity[1], intensities[1]);
+    code += check(rt_intensity[2], intensities[2]);
+    
+    // expect += st_return_code::INVALID_ARGUMENTS
+    code += st_get_sun(pcxt, &rt_args, &rt_angle, &rt_intensity);
+    // expect += st_return_code::INVALID_ARGUMENTS
+    code += st_get_sun(pcxt, &rt_args, &rt_angle, &rt_intensity, 4);
 
+    // expect == st_return_code::DATA_VALUE_NOT_FOUND +
+    //           2 * st_return_code::INVALID_ARGUMENTS
     return code;
 }
 
