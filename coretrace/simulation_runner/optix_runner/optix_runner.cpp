@@ -706,7 +706,11 @@ RunnerStatus OptixRunner::report_simulation(SimulationResult* result, int level)
     }
 
     // Attach other results
-    result->set_sun_sampling_stats(this->get_sun_plane_area(),
+    double sun_width  = 0.0;
+    double sun_height = 0.0;
+    this->get_sun_plane_dimensions(sun_width, sun_height);
+    result->set_sun_sampling_stats(sun_width,
+                                   sun_height,
                                    this->get_N_sun_rays());
     result->set_exceeded_depth_count(m_sys.get_N_depth_exceeded_rays());
 

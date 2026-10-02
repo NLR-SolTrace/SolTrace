@@ -19,6 +19,26 @@ Flickable {
         return Number(count).toLocaleString(Qt.locale(), "f", 0) + " rays"
     }
 
+    function formatDetail(value, suffix) {
+        if (!isFinite(value)) {
+            return "--"
+        }
+
+        return Number(value).toLocaleString(Qt.locale(), "G", 6)
+                + (suffix.length ? " " + suffix : "")
+    }
+
+    function formatPowerPerRay() {
+        const ray_area_weight = root.intersections_module.ray_area_weight
+        const dni = AppData.flux.dni
+        if (!isFinite(ray_area_weight) || ray_area_weight <= 0
+                || !isFinite(dni) || dni < 0) {
+            return "--"
+        }
+
+        return root.formatDetail(dni * ray_area_weight, "W")
+    }
+
     function visibleRayCount() {
         const available = ray_geom.available_rays
         return Math.round(available *
@@ -53,6 +73,56 @@ Flickable {
                       root.ray_geom.available_rays)
             opacity: 0.75
             horizontalAlignment: Text.AlignHCenter
+        }
+
+        STFormPanel {
+            collapsible: true
+            title: "Trace Details"
+            visible: root.intersections_module.has_results
+
+            Label {
+                Layout.fillWidth: true
+                //Layout.columnSpan: ppi_row.singleColumn ? 1 : 2
+                text: "Power per ray uses the flux-map DNI of "
+                      + root.formatDetail(AppData.flux.dni, "W/m²") + "."
+                wrapMode: Label.WrapAtWordBoundaryOrAnywhere
+                opacity: 0.75
+            }
+
+            STFormRow {
+                label: "Sun Rays Traced"
+
+                Label {
+                    Layout.fillWidth: true
+                    text: Number(root.intersections_module.sun_ray_count)
+                              .toLocaleString(Qt.locale(), "f", 0)
+                }
+            }
+
+            STFormRow {
+                label: "Sun Plane Box"
+
+                Label {
+                    Layout.fillWidth: true
+                    text: root.formatDetail(
+                              root.intersections_module.sun_plane_width, "m")
+                          + " × "
+                          + root.formatDetail(
+                              root.intersections_module.sun_plane_height, "m")
+                }
+            }
+
+            STFormRow {
+                id: ppi_row
+                label: "Power per Ray"
+
+                Label {
+                    Layout.fillWidth: true
+                    text: root.formatPowerPerRay()
+                }
+            }
+
+
         }
 
         STFormPanel {

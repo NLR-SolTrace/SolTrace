@@ -28,6 +28,11 @@ class IntersectionsModule : public QObject {
     QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::AllElementsModel, entity_model)
     QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Analysis::RayGeometry, ray_geometry)
     Q_WRITABLE_PROPERTY(bool, show_geometry, true)
+    Q_READONLY_PROPERTY(bool, has_results)
+    Q_READONLY_PROPERTY(quint64, sun_ray_count)
+    Q_READONLY_PROPERTY(double, sun_plane_width)
+    Q_READONLY_PROPERTY(double, sun_plane_height)
+    Q_READONLY_PROPERTY(double, ray_area_weight)
 
 public:
     explicit IntersectionsModule(QObject* parent = nullptr);
