@@ -1,6 +1,7 @@
 #include "flux_map.h"
 
 #include "analysis/flux/triangle_raster.h"
+#include "data/database.h"
 #include "support/asynctask.h"
 #include "support/grid2d.h"
 #include "support/triangle_bvh.h"
@@ -689,6 +690,24 @@ execute_map_generation_for(Support::TaskControl&                    control,
                                         interaction_points,
                                         results->records.size(),
                                         power_per_ray);
+
+    if (stats.plotted_ray_count > 0 && results->database) {
+        auto const* cached_global =
+            results->database->global_transform.get(entity);
+        auto const global = cached_global
+                                ? *cached_global
+                                : SolTrace::GUI::Data::GlobalTransformComponent::
+                                      compute_for(results->database->as_registry(),
+                                                  entity);
+        auto const world_centroid = glm::dvec3(stats.centroid.x(),
+                                               stats.centroid.y(),
+                                               stats.centroid.z());
+        auto const local_centroid =
+            glm::inverse(global.rotation) * (world_centroid - global.position);
+        stats.local_centroid = QVector3D(local_centroid.x,
+                                         local_centroid.y,
+                                         local_centroid.z);
+    }
 
     qCDebug(fluxMapLog) << Q_FUNC_INFO << "complete";
 

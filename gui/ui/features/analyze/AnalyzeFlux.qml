@@ -117,7 +117,8 @@ Flickable {
                 }
 
                 ShadowedRectangle {
-                    width: 24
+                    width: Math.max(lower_bound.implicitWidth + 16,
+                                                  upper_bound.implicitWidth + 16)
                     height: parent.height / 2
                     anchors.left: parent.left
                     anchors.bottom: parent.bottom
@@ -125,6 +126,7 @@ Flickable {
                     anchors.bottomMargin: 6
                     anchors.leftMargin: 6
 
+                    visible: map_selector.currentIndex === 0
                     opacity: legend_hover.containsMouse ? 1 : .5
 
                     Behavior on opacity {
@@ -133,13 +135,50 @@ Flickable {
                         }
                     }
 
-                    Image {
-                        rotation: 90
-                        source: "qrc:/assets/images/b_to_r_wide.png"
-                        anchors.centerIn: parent
-                        width: parent.height - 4
-                        height: parent.width - 4
+                    Item {
+                        id: color_bar
+                        width: 24
+                        anchors.fill: parent
+                        anchors.margins: 2
+
+                        Image {
+                            rotation: -90
+                            source: "qrc:/assets/images/b_to_r_wide.png"
+                            anchors.centerIn: parent
+                            width: parent.height
+                            height: parent.width
+
+                            Label {
+                                anchors.centerIn: parent
+                                text: "W/m^2"
+                                style: Label.Outline
+                                styleColor: Qt.alpha(Material.backgroundColor, 0.5)
+                            }
+                        }
+
+                        Label {
+                            id: upper_bound
+                            anchors.left: parent.left
+                            anchors.leftMargin: 6
+                            anchors.top: parent.top
+                            anchors.topMargin: 4
+                            text: root.formatStatistic(
+                                      root.flux_module.current_flux_stats.peak_flux
+                                      )
+                        }
+
+                        Label {
+                            id: lower_bound
+                            anchors.left: parent.left
+                            anchors.leftMargin: 6
+                            anchors.bottom: parent.bottom
+                            anchors.bottomMargin: 4
+                            text: root.formatStatistic(0)
+                        }
+
                     }
+
+
 
                     MouseArea {
                         id: legend_hover
@@ -275,12 +314,25 @@ Flickable {
             }
 
             STFormRow {
-                label: "Centroid"
+                label: "Global Centroid"
 
                 labelWidth: 180
 
                 Label {
                     property vector3d cent: root.flux_module.current_flux_stats.centroid
+                    Layout.fillWidth: true
+                    text: root.formatCentroid(cent)
+                    font.bold: true
+                }
+            }
+
+            STFormRow {
+                label: "Local Centroid"
+
+                labelWidth: 180
+
+                Label {
+                    property vector3d cent: root.flux_module.current_flux_stats.local_centroid
                     Layout.fillWidth: true
                     text: root.formatCentroid(cent)
                     font.bold: true

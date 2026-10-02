@@ -28,6 +28,7 @@ struct BakedFluxMapStats {
     Q_PROPERTY(double peak_flux_uncertainty MEMBER peak_flux_uncertainty)
     Q_PROPERTY(double average_flux_uncertainty MEMBER average_flux_uncertainty)
     Q_PROPERTY(QVector3D centroid MEMBER centroid)
+    Q_PROPERTY(QVector3D local_centroid MEMBER local_centroid)
 
 public:
     /// Total rays in the simulation result used for this map.
@@ -55,6 +56,9 @@ public:
 
     /// Average world-space location of plotted interactions.
     QVector3D centroid;
+
+    /// Average plotted-interaction location in the target entity's local space.
+    QVector3D local_centroid;
 
     bool operator==(BakedFluxMapStats const&) const = default;
 };
