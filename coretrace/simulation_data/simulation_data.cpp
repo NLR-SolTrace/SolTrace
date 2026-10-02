@@ -54,6 +54,24 @@ void SimulationData::enforce_elements_ready()
     }
 }
 
+void SimulationData::insert_element_into_group(uint_fast64_t element_id, int32_t group)
+{
+    if (group > -1)
+    {
+            // ensure that group index exists by adding empty groups if necessary
+        size_t my_groups_size = this->my_groups.size();
+        if (group >= my_groups_size)
+        {        
+            for (size_t i = my_groups_size; i <= (size_t)group; ++i)
+            {
+                this->my_groups.push_back(std::set<uint_fast64_t>());
+            }
+        }
+        
+        this->my_groups[group].insert(element_id);
+    }
+}
+
 element_id SimulationData::add_element(element_ptr el)
 {
     element_id id = ELEMENT_ERROR;
@@ -86,22 +104,23 @@ element_id SimulationData::add_element(element_ptr el)
                 this->number_of_elements++;
 
                 // only check groups on single elements
-                int32_t group = el->get_group();
+                this->insert_element_into_group(id, el->get_group());
+                // int32_t group = el->get_group();
 
-                if (group > -1)
-                {
-                    // ensure that group index exists by adding empty groups if necessary
-                    size_t my_groups_size = this->my_groups.size();
-                    if (group >= my_groups_size)
-                    {        
-                        for (size_t i = my_groups_size; i <= (size_t)group; ++i)
-                        {
-                            this->my_groups.push_back(std::set<uint_fast64_t>());
-                        }
-                    }
+                // if (group > -1)
+                // {
+                //     // ensure that group index exists by adding empty groups if necessary
+                //     size_t my_groups_size = this->my_groups.size();
+                //     if (group >= my_groups_size)
+                //     {        
+                //         for (size_t i = my_groups_size; i <= (size_t)group; ++i)
+                //         {
+                //             this->my_groups.push_back(std::set<uint_fast64_t>());
+                //         }
+                //     }
                     
-                    this->my_groups[group].insert(id);
-                }
+                //     this->my_groups[group].insert(id);
+                // }
             }
         }
         else
@@ -334,6 +353,25 @@ mut_optical_set_ptr SimulationData::get_optical_property_set(optics_id id)
 {
     auto ptr = this->my_optical_property_sets.get_item(id);
     return ptr == nullptr ? nullptr : ptr;
+}
+
+void SimulationData::set_element_group(uint_fast64_t element_id, int32_t group)
+{
+    // remove the element from any existing group
+    size_t num_groups = this->my_groups.size();
+    if (num_groups > 0)
+    {
+        for (size_t i = 0; i < num_groups; ++i)
+        {
+            if (this->my_groups[i].erase(element_id) > 0) break;
+        }
+    }
+
+    // if requesting to ungroup element, do nothing else 
+    if (group < 0) return;
+
+    // add the element to the new group
+    this->insert_element_into_group(element_id, group);
 }
 
 int SimulationData::update_simulation_positions()

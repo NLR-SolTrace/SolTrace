@@ -371,6 +371,8 @@ public:
         return this->my_groups;
     }
 
+    void set_element_group(uint_fast64_t element_id, int32_t group);
+
     int update_simulation_positions();
     int update_simulation_positions(const Time &);
     int update_simulation_positions(const Date &);
@@ -432,6 +434,8 @@ private:
 
     optical_set_ptr get_optical_property_set(optics_id id) const;
     mut_optical_set_ptr get_optical_property_set(optics_id id);
+
+    void insert_element_into_group(uint_fast64_t element_id, int32_t group);
 };
 
 } // namespace SolTrace::Data

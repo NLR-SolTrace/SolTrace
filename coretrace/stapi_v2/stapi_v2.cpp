@@ -521,14 +521,16 @@ STAPI_V2 st_return_t st_add_element(st_context_v2_t pcxt,
     el->set_aperture(ap);
     el->set_surface(surf);
 
-    st_return_t code = st_return_code::SUCCESS;
-    if (args->group < -1) code = st_return_code::WARNING_GROUP_IGNORED;
-    else                  el->set_group(args->group);
-    
     // TODO in simulation_data.cpp saying add_element will be throwable in the future
     ST_WRAP_CB_TRY_CATCH(data->add_element(el), cxt->p_cb);
-
+    
     *element_id = el->get_id();
+    
+    // to maintain grouping, changing groups goes thru SimulationData, so set group after adding the element
+    st_return_t code = st_return_code::SUCCESS;
+    if (args->group < -1) code = st_return_code::WARNING_GROUP_IGNORED;
+    else                  data->set_element_group(*element_id, args->group);
+    
     return code;
 }
 
@@ -873,8 +875,10 @@ STAPI_V2 st_return_t st_element_group(st_context_v2_t pcxt,
     element_ptr el = data->get_element(idx);
     if (!el) return st_return_code::WARNING_NOT_FOUND;
 
-    auto sel = std::dynamic_pointer_cast<SingleElement>(el);
-    sel->set_group(group);
+    data->set_element_group(idx, group);
+
+    // auto sel = std::dynamic_pointer_cast<SingleElement>(el);
+    // sel->set_group(group);
     return st_return_code::SUCCESS;
 }
 
