@@ -50,7 +50,7 @@ void ProcessInteraction(
         if (IncludeErrors)
         {
             LastDFXYZ =
-                ApplySlopeError(myrng, LastDFXYZ, optics, LastHitBackSide);
+                ApplySlopeError(myrng, LastDFXYZ, *optics, LastHitBackSide);
         }
 
         Interaction(myrng,
@@ -78,7 +78,7 @@ void ProcessInteraction(
                                          : CosRayOutElement;
 
             CosRayOutElement = ApplySpecularityError(
-                myrng, CosIn, optics, LastHitBackSide, LastDFXYZ);
+                myrng, CosIn, *optics, LastHitBackSide, LastDFXYZ);
         }
     }
 }

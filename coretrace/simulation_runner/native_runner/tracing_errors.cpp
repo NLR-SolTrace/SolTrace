@@ -182,13 +182,13 @@ double SampleSunAngleMrad(MTRand& myrng, const TSun& Sun)
 
 // Surface error perturbation angle, in radians.
 double SampleSurfaceErrorAngle(MTRand& myrng,
-                               const SolTrace::Data::OpticalPropertySet* OptProperties,
+                               const SolTrace::Data::OpticalPropertySet& OptProperties,
                                const OpticalSide side)
 {
 	// delop = sqrt(4.0*sqr(OptProperties->RMSSlopeError)+sqr(OptProperties->RMSSpecError))/1000.0;
-	const double delop = OptProperties->get_specularity_error(side) / kMradPerRad;
+	const double delop = OptProperties.get_specularity_error(side) / kMradPerRad;
 
-	switch (OptProperties->get_error_distribution(side))
+	switch (OptProperties.get_error_distribution(side))
 	{
 	case DistributionType::GAUSSIAN:			// case 'g':
 		return SampleGaussianAngle(myrng, delop);
@@ -211,7 +211,7 @@ double SampleSurfaceErrorAngle(MTRand& myrng,
 
 glm::dvec3 ApplySlopeError(MTRand& myrng,
                            const glm::dvec3& CosIn,
-                           const SolTrace::Data::OpticalPropertySet* OptProperties,
+                           const SolTrace::Data::OpticalPropertySet& OptProperties,
                            const bool LastHitBackSide)
 {
 	/*{Purpose:  To add error terms to the surface normal vector at the surface in question
@@ -226,11 +226,11 @@ glm::dvec3 ApplySlopeError(MTRand& myrng,
 
 	const OpticalSide side = LastHitBackSide == false ? OpticalSide::Front : OpticalSide::Back;
 
-	const double delop = OptProperties->get_slope_error(side) / kMradPerRad;
+	const double delop = OptProperties.get_slope_error(side) / kMradPerRad;
 
 	double theta = 0.0;
 
-	switch (OptProperties->get_error_distribution(side))
+	switch (OptProperties.get_error_distribution(side))
 	{
 	case DistributionType::GAUSSIAN:		// case 'g':
 		theta = SampleGaussianAngle(myrng, delop);
@@ -264,7 +264,7 @@ glm::dvec3 ApplySunShape(MTRand& myrng, const glm::dvec3& CosIn, const TSun& Sun
 
 glm::dvec3 ApplySpecularityError(MTRand& myrng,
                                  const glm::dvec3& CosIn,
-                                 const SolTrace::Data::OpticalPropertySet* OptProperties,
+                                 const SolTrace::Data::OpticalPropertySet& OptProperties,
                                  const bool LastHitBackSide,
                                  const glm::dvec3& DFXYZ)
 {
@@ -282,7 +282,7 @@ glm::dvec3 ApplySpecularityError(MTRand& myrng,
 	const OpticalSide side = LastHitBackSide == false ? OpticalSide::Front : OpticalSide::Back;
 
 	const bool reflecting =
-		OptProperties->get_interaction_type() == InteractionType::REFLECTION;
+		OptProperties.get_interaction_type() == InteractionType::REFLECTION;
 
 	glm::dvec3 CosOut(0.0, 0.0, 0.0);
 

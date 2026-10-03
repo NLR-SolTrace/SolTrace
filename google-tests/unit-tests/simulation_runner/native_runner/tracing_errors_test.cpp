@@ -54,7 +54,7 @@ double AngleBetween(const glm::dvec3& a, const glm::dvec3& b)
     return std::acos(std::clamp(c, -1.0, 1.0));
 }
 
-optical_set_ptr MakeReflector(DistributionType   dist,
+OpticalPropertySet MakeReflector(DistributionType   dist,
                               double             slope_mrad,
                               double             spec_mrad,
                               const std::string& name = "test_optics")
@@ -63,7 +63,7 @@ optical_set_ptr MakeReflector(DistributionType   dist,
     // set_ideal_reflection() clears the error terms, so it must come first.
     optics.set_ideal_reflection(OpticalSide::Both);
     optics.set_errors(OpticalSide::Both, dist, slope_mrad, spec_mrad);
-    return std::make_shared<OpticalPropertySet>(optics);
+    return optics;
 }
 
 TSun MakeSun(SunShape shape, double sigma_mrad, double max_angle_mrad)
@@ -183,9 +183,9 @@ std::vector<double> SampleSunAngles(TSun& sun, int n, uint32_t seed = kSeed)
 }
 
 // Surface-error sample angles, in mrad.
-std::vector<double> SampleSurfaceAngles(optical_set_ptr optics,
-                                        int             n,
-                                        uint32_t        seed = kSeed)
+std::vector<double> SampleSurfaceAngles(const OpticalPropertySet& optics,
+                                        int                       n,
+                                        uint32_t                  seed = kSeed)
 {
     MTRand           rng(seed);
     const glm::dvec3 axis(0.0, 0.0, 1.0);
@@ -202,9 +202,9 @@ std::vector<double> SampleSurfaceAngles(optical_set_ptr optics,
 }
 
 // Slope-error sample angles, in mrad.
-std::vector<double> SampleSlopeAngles(optical_set_ptr optics,
-                                      int             n,
-                                      uint32_t        seed = kSeed)
+std::vector<double> SampleSlopeAngles(const OpticalPropertySet& optics,
+                                      int                       n,
+                                      uint32_t                  seed = kSeed)
 {
     MTRand           rng(seed);
     const glm::dvec3 axis(0.0, 0.0, 1.0);
@@ -246,7 +246,7 @@ double Mean(const std::vector<double>& v)
 TEST(TracingErrors, ZeroPerturbationReturnsAxisForAllAxes)
 {
     MTRand                   rng(kSeed);
-    optical_set_ptr optics =
+    const OpticalPropertySet optics =
         MakeReflector(DistributionType::NONE, 0.0, 0.0);
 
     for (const glm::dvec3& axis : kTestAxes)
@@ -264,7 +264,7 @@ TEST(TracingErrors, ZeroPerturbationReturnsAxisForAllAxes)
 TEST(TracingErrors, PerturbedDirectionIsUnitLengthForAllAxes)
 {
     MTRand                   rng(kSeed);
-    optical_set_ptr optics =
+    const OpticalPropertySet optics =
         MakeReflector(DistributionType::GAUSSIAN, 5.0, 5.0);
     TSun sun = MakeSun(SunShape::GAUSSIAN, 2.73, 4.65);
 
@@ -290,7 +290,7 @@ TEST(TracingErrors, PillboxRespectsHalfWidthForAllAxes)
 {
     const double             kSlopeMrad = 12.0;
     MTRand                   rng(kSeed);
-    optical_set_ptr optics =
+    const OpticalPropertySet optics =
         MakeReflector(DistributionType::PILLBOX, kSlopeMrad, kSlopeMrad);
 
     for (const glm::dvec3& axis : kTestAxes)
@@ -317,7 +317,7 @@ TEST(TracingErrors, RejectionKeepsRayAboveSurface)
 
     // A large specularity error at grazing incidence drives a substantial
     // fraction of the raw perturbations below the surface.
-    optical_set_ptr optics =
+    const OpticalPropertySet optics =
         MakeReflector(DistributionType::GAUSSIAN, 0.0, 400.0);
 
     const glm::dvec3 normal = glm::dvec3(0.0, 0.0, 1.0);
@@ -339,7 +339,7 @@ TEST(TracingErrors, RejectionCapTerminates)
 {
     MTRand rng(kSeed);
 
-    optical_set_ptr optics =
+    const OpticalPropertySet optics =
         MakeReflector(DistributionType::GAUSSIAN, 0.0, 1.0);
 
     const glm::dvec3 axis   = glm::dvec3(0.0, 0.0, 1.0);
@@ -363,7 +363,7 @@ TEST(TracingErrors, RejectionCapTerminates)
 TEST(TracingErrors, SlopeErrorGaussianMagnitudeInMrad)
 {
     const double             kSlopeMrad = 5.0;
-    optical_set_ptr optics =
+    const OpticalPropertySet optics =
         MakeReflector(DistributionType::GAUSSIAN, kSlopeMrad, 0.0);
 
     const std::vector<double> angles = SampleSlopeAngles(optics, kSamples);
@@ -377,7 +377,7 @@ TEST(TracingErrors, SlopeErrorGaussianMagnitudeInMrad)
 TEST(TracingErrors, SlopeErrorPillboxMagnitudeInMrad)
 {
     const double             kSlopeMrad = 5.0;
-    optical_set_ptr optics =
+    const OpticalPropertySet optics =
         MakeReflector(DistributionType::PILLBOX, kSlopeMrad, 0.0);
 
     const std::vector<double> angles = SampleSlopeAngles(optics, kSamples);
@@ -389,7 +389,7 @@ TEST(TracingErrors, SlopeErrorPillboxMagnitudeInMrad)
 TEST(TracingErrors, SpecularityErrorGaussianMagnitudeInMrad)
 {
     const double             kSpecMrad = 5.0;
-    optical_set_ptr optics =
+    const OpticalPropertySet optics =
         MakeReflector(DistributionType::GAUSSIAN, 0.0, kSpecMrad);
 
     const std::vector<double> angles = SampleSurfaceAngles(optics, kSamples);
@@ -401,7 +401,7 @@ TEST(TracingErrors, SpecularityErrorGaussianMagnitudeInMrad)
 TEST(TracingErrors, SpecularityErrorPillboxMagnitudeInMrad)
 {
     const double             kSpecMrad = 5.0;
-    optical_set_ptr optics =
+    const OpticalPropertySet optics =
         MakeReflector(DistributionType::PILLBOX, 0.0, kSpecMrad);
 
     const std::vector<double> angles = SampleSurfaceAngles(optics, kSamples);
@@ -413,7 +413,7 @@ TEST(TracingErrors, SpecularityErrorPillboxMagnitudeInMrad)
 TEST(TracingErrors, NoneDistributionIsIdentity)
 {
     MTRand                   rng(kSeed);
-    optical_set_ptr optics =
+    const OpticalPropertySet optics =
         MakeReflector(DistributionType::NONE, 0.0, 0.0);
 
     const glm::dvec3 axis = glm::normalize(glm::dvec3(0.2, -0.4, 0.9));
@@ -443,7 +443,7 @@ TEST(TracingErrors, NoneDistributionIsIdentity)
 TEST(TracingErrors, DiffuseIsLambertian)
 {
     MTRand                   rng(kSeed);
-    optical_set_ptr optics =
+    const OpticalPropertySet optics =
         MakeReflector(DistributionType::DIFFUSE, 0.0, 0.0);
 
     const glm::dvec3 normal = glm::normalize(glm::dvec3(0.2, -0.4, 0.9));
@@ -478,7 +478,7 @@ TEST(TracingErrors, DiffuseIsLambertian)
 TEST(TracingErrors, DiffuseAzimuthIsUniform)
 {
     MTRand                   rng(kSeed);
-    optical_set_ptr optics =
+    const OpticalPropertySet optics =
         MakeReflector(DistributionType::DIFFUSE, 0.0, 0.0);
 
     const glm::dvec3 normal(0.0, 0.0, 1.0);
@@ -534,10 +534,10 @@ TEST(TracingErrors, DiffuseIsIndependentOfIncidenceDirection)
         plate->set_aperture(make_aperture<Rectangle>(20, 20));
         plate->set_name("plate");
 
-        optical_set_ptr plate_optics =
+        const OpticalPropertySet plate_optics =
             MakeReflector(DistributionType::DIFFUSE, 0.0, 0.0, "diffuse_plate");
         plate->set_optical_property_set(
-            sd.add_optical_property_set(*plate_optics));
+            sd.add_optical_property_set(plate_optics));
 
         stage->add_element(plate);
         sd.add_stage(stage);
