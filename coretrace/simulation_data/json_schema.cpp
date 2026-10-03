@@ -281,7 +281,7 @@ void json_to_simulation_data(SimulationData& sd, nlohmann::ordered_json& root,  
         OpticalPropertySet opt_set(joptic);
 
         // Check for pre-existing optical property sets
-        optical_set_ptr existing = sd.get_optical_property_set(opt_id);
+        const OpticalPropertySet* existing = sd.get_optical_property_set(opt_id);
         if (existing != nullptr) {
             // This should be a built in optical property set
             if (opt_id >= 0)

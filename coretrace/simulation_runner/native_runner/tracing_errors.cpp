@@ -182,7 +182,7 @@ double SampleSunAngleMrad(MTRand& myrng, const TSun& Sun)
 
 // Surface error perturbation angle, in radians.
 double SampleSurfaceErrorAngle(MTRand& myrng,
-                               SolTrace::Data::optical_set_ptr OptProperties,
+                               const SolTrace::Data::OpticalPropertySet* OptProperties,
                                const OpticalSide side)
 {
 	// delop = sqrt(4.0*sqr(OptProperties->RMSSlopeError)+sqr(OptProperties->RMSSpecError))/1000.0;
@@ -211,7 +211,7 @@ double SampleSurfaceErrorAngle(MTRand& myrng,
 
 glm::dvec3 ApplySlopeError(MTRand& myrng,
                            const glm::dvec3& CosIn,
-                           SolTrace::Data::optical_set_ptr OptProperties,
+                           const SolTrace::Data::OpticalPropertySet* OptProperties,
                            const bool LastHitBackSide)
 {
 	/*{Purpose:  To add error terms to the surface normal vector at the surface in question
@@ -264,7 +264,7 @@ glm::dvec3 ApplySunShape(MTRand& myrng, const glm::dvec3& CosIn, const TSun& Sun
 
 glm::dvec3 ApplySpecularityError(MTRand& myrng,
                                  const glm::dvec3& CosIn,
-                                 SolTrace::Data::optical_set_ptr OptProperties,
+                                 const SolTrace::Data::OpticalPropertySet* OptProperties,
                                  const bool LastHitBackSide,
                                  const glm::dvec3& DFXYZ)
 {

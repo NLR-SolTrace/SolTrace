@@ -192,8 +192,8 @@ public:
     OpticalPropertySetReference add_optical_property_set(const OpticalPropertySet& opt_set);
     OpticalPropertySetReference find_or_add_optical_property_set(const OpticalPropertySet& opt_set);
 
-    optical_set_ptr get_optical_property_set(const Element& el) const;
-    mut_optical_set_ptr get_mutable_optical_property_set(const Element& el);
+    const OpticalPropertySet* get_optical_property_set(const Element& el) const;
+    OpticalPropertySet* get_mutable_optical_property_set(const Element& el);
 
     /// @brief Remove the OpticalPropertySet corresponding to the unique identifier `id`
     /// @param id unique identifier of the OpticalPropertySet to remove
@@ -432,8 +432,8 @@ private:
     uint_fast64_t add_subelements(element_ptr el);
     uint_fast64_t remove_subelements(element_ptr el);
 
-    optical_set_ptr get_optical_property_set(optics_id id) const;
-    mut_optical_set_ptr get_optical_property_set(optics_id id);
+    const OpticalPropertySet* get_optical_property_set(optics_id id) const;
+    OpticalPropertySet* get_optical_property_set(optics_id id);
 
     void insert_element_into_group(element_ptr el, int32_t group);
     void SimulationData::remove_element_from_group(element_ptr el);

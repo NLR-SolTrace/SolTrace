@@ -377,7 +377,7 @@ namespace SolTrace::NativeRunner
 					}
 
 					// Get optics and check for absorption
-					optical_set_ptr optics_set;
+					const OpticalPropertySet* optics_set;
 					RayEvent rev = RayEvent::VIRTUAL;
 					if (Stage->Virtual)
 					{
@@ -391,7 +391,7 @@ namespace SolTrace::NativeRunner
 						telement_ptr optelm =
 							Stage->ElementList[LastElementNumber - 1];
 
-						optics_set = optelm->Optics;
+						optics_set = &optelm->Optics;
 
 						bool good = determine_interaction_type(
 							logger,

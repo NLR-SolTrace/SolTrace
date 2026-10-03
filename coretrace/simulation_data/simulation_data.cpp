@@ -362,26 +362,26 @@ OpticalPropertySetReference SimulationData::find_or_add_optical_property_set(con
     return add_optical_property_set(opt_set);
 }
 
-optical_set_ptr SimulationData::get_optical_property_set(const Element& el) const
+const OpticalPropertySet* SimulationData::get_optical_property_set(const Element& el) const
 {
     return get_optical_property_set(el.get_optical_property_set_id());
 }
 
-mut_optical_set_ptr SimulationData::get_mutable_optical_property_set(const Element& el)
+OpticalPropertySet* SimulationData::get_mutable_optical_property_set(const Element& el)
 {
     return this->get_optical_property_set(el.get_optical_property_set_id());
 }
 
-optical_set_ptr SimulationData::get_optical_property_set(optics_id id) const
+const OpticalPropertySet* SimulationData::get_optical_property_set(optics_id id) const
 {
     auto ptr = this->my_optical_property_sets.get_item(id);
-    return ptr == nullptr ? nullptr : ptr;
+    return ptr == nullptr ? nullptr : ptr.get();
 }
 
-mut_optical_set_ptr SimulationData::get_optical_property_set(optics_id id)
+OpticalPropertySet* SimulationData::get_optical_property_set(optics_id id)
 {
     auto ptr = this->my_optical_property_sets.get_item(id);
-    return ptr == nullptr ? nullptr : ptr;
+    return ptr == nullptr ? nullptr : ptr.get();
 }
 
 void SimulationData::set_element_group(uint_fast64_t element_id, int32_t group)

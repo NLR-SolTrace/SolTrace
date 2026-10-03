@@ -177,7 +177,7 @@ namespace SolTrace::NativeRunner
 		// double CurvOfRev;
 
 		/////////// OPTICAL PARAMETERS ///////////////
-		SolTrace::Data::optical_set_ptr Optics;
+		SolTrace::Data::OpticalPropertySet Optics;
 
 		std::string Comment;
 		// mjw element number in the stage - unique ID in order
@@ -191,7 +191,7 @@ namespace SolTrace::NativeRunner
 	telement_ptr make_telement(SolTrace::Data::element_ptr el,
 							   tstage_ptr my_stage,
 							   const ElementParameters &eparams,
-							   const SolTrace::Data::optical_set_ptr optics);
+							   const SolTrace::Data::OpticalPropertySet& optics);
 
 	struct TSun
 	{
