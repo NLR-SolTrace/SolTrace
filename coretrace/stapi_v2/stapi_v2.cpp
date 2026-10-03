@@ -877,8 +877,6 @@ STAPI_V2 st_return_t st_element_group(st_context_v2_t pcxt,
 
     data->set_element_group(idx, group);
 
-    // auto sel = std::dynamic_pointer_cast<SingleElement>(el);
-    // sel->set_group(group);
     return st_return_code::SUCCESS;
 }
 

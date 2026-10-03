@@ -98,6 +98,13 @@ public:
     }*/
 
     virtual int32_t get_group() const override { return this->group; }
+    
+    /// @brief You don't actually want to use this function, use
+    ///        SimulationData::set_element_group() instead.
+    /// @param group Group number to assign to this element.
+    /// @note This function is public because it seems cleaner than
+    ///       making SimulationData a friend class.
+    void set_group(int32_t group) { if (group > -2) this->group = group; }
 
     virtual void enforce_user_fields_set() const override;
 

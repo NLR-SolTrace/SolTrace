@@ -435,7 +435,8 @@ private:
     optical_set_ptr get_optical_property_set(optics_id id) const;
     mut_optical_set_ptr get_optical_property_set(optics_id id);
 
-    void insert_element_into_group(uint_fast64_t element_id, int32_t group);
+    void insert_element_into_group(element_ptr el, int32_t group);
+    void SimulationData::remove_element_from_group(element_ptr el);
 };
 
 } // namespace SolTrace::Data

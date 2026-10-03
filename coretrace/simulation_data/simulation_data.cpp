@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "composite_element.hpp"
+#include "single_element.hpp"
 #include "simdata_io.hpp"
 #include "json_schema.hpp"
 
@@ -54,21 +55,64 @@ void SimulationData::enforce_elements_ready()
     }
 }
 
-void SimulationData::insert_element_into_group(uint_fast64_t element_id, int32_t group)
+void SimulationData::insert_element_into_group(element_ptr el, int32_t group)
 {
-    if (group > -1)
+    // only single elements can be grouped
+    // if composite is passed, set subelements to the group instead 
+    if (el->is_composite())
     {
-            // ensure that group index exists by adding empty groups if necessary
-        size_t my_groups_size = this->my_groups.size();
-        if (group >= my_groups_size)
-        {        
-            for (size_t i = my_groups_size; i <= (size_t)group; ++i)
-            {
-                this->my_groups.push_back(std::set<uint_fast64_t>());
-            }
+        composite_element_ptr cptr =
+            std::dynamic_pointer_cast<CompositeElement>(el);
+        for (auto cit = cptr->get_iterator(); !cptr->is_at_end(cit); ++cit)
+        {
+            this->insert_element_into_group(cit->second, group);
         }
-        
-        this->my_groups[group].insert(element_id);
+    }
+    else
+    {
+        // otherwise, add single element to group
+        single_element_ptr sel = std::dynamic_pointer_cast<SingleElement>(el);
+    
+        if (group > -1)
+        {
+            // ensure that group index exists by adding empty groups if necessary
+            size_t my_groups_size = this->my_groups.size();
+            if (group >= my_groups_size) 
+                this->my_groups.resize(static_cast<size_t>(group) + 1);
+            
+            this->my_groups[group].insert(el->get_id());
+            sel->set_group(group);
+        }
+        else
+        {
+            sel->set_group(-1);
+        }
+    }
+}
+
+void SimulationData::remove_element_from_group(element_ptr el)
+{
+    int32_t group;
+
+    if (el->is_composite())
+    {
+        composite_element_ptr cptr =
+            std::dynamic_pointer_cast<CompositeElement>(el);
+        auto cit = cptr->get_iterator();
+        group = cit->second->get_group();
+        if (group < 0) return; // elements are not in a group, do nothing
+
+        for ( ; !cptr->is_at_end(cit); ++cit)
+        {
+            this->my_groups[group].erase(cit->second->get_id());
+        }
+    }
+    else
+    {
+        group = el->get_group();
+        if (group < 0) return; // element is not in a group, do nothing
+
+        this->my_groups[group].erase(el->get_id());
     }
 }
 
@@ -104,23 +148,8 @@ element_id SimulationData::add_element(element_ptr el)
                 this->number_of_elements++;
 
                 // only check groups on single elements
-                this->insert_element_into_group(id, el->get_group());
-                // int32_t group = el->get_group();
-
-                // if (group > -1)
-                // {
-                //     // ensure that group index exists by adding empty groups if necessary
-                //     size_t my_groups_size = this->my_groups.size();
-                //     if (group >= my_groups_size)
-                //     {        
-                //         for (size_t i = my_groups_size; i <= (size_t)group; ++i)
-                //         {
-                //             this->my_groups.push_back(std::set<uint_fast64_t>());
-                //         }
-                //     }
-                    
-                //     this->my_groups[group].insert(id);
-                // }
+                // no need to remove because the element is new
+                this->insert_element_into_group(el, el->get_group());
             }
         }
         else
@@ -357,21 +386,16 @@ mut_optical_set_ptr SimulationData::get_optical_property_set(optics_id id)
 
 void SimulationData::set_element_group(uint_fast64_t element_id, int32_t group)
 {
+    element_ptr el = this->my_elements.get_item(element_id);
+    // if element is not found or group is invalid, do nothing
+    if (el == nullptr || group < -1) return;
+
     // remove the element from any existing group
-    size_t num_groups = this->my_groups.size();
-    if (num_groups > 0)
-    {
-        for (size_t i = 0; i < num_groups; ++i)
-        {
-            if (this->my_groups[i].erase(element_id) > 0) break;
-        }
-    }
+    this->remove_element_from_group(el);
 
-    // if requesting to ungroup element, do nothing else 
-    if (group < 0) return;
-
-    // add the element to the new group
-    this->insert_element_into_group(element_id, group);
+    // if requesting to ungroup element, only set that element's group
+    // to -1, insert_element_into_group will insert only set group to -1
+    this->insert_element_into_group(el, group);
 }
 
 int SimulationData::update_simulation_positions()
