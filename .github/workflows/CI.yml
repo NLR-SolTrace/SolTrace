@@ -115,6 +115,7 @@ jobs:
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -DSOLTRACE_BUILD_GUI=OFF
         -DSOLTRACE_BUILD_EMBREE_SUPPORT=ON
+        -DSOLTRACE_BUILD_API=ON
         -S ${{ github.workspace }}
 
     - name: Build-Windows
@@ -168,6 +169,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DSOLTRACE_BUILD_OPTIX_SUPPORT=ON \
             -DSOLTRACE_BUILD_GUI=OFF \
+            -DSOLTRACE_BUILD_API=ON \
             -DSOLTRACE_BUILD_EMBREE_SUPPORT=ON \
             -DSAMPLES_PTX_DIR="$GITHUB_WORKSPACE/build/lib/ptx" \
             -DFULL_FIELD_VALIDATION_TEST=OFF \

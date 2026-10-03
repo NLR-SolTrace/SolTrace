@@ -377,7 +377,7 @@ namespace SolTrace::NativeRunner
 					}
 
 					// Get optics and check for absorption
-					const OpticalPropertySet *optics_set = 0;
+					const OpticalPropertySet* optics_set = 0;
 					RayEvent rev = RayEvent::VIRTUAL;
 					if (Stage->Virtual)
 					{

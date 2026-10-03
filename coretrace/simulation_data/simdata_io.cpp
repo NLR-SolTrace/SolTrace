@@ -26,100 +26,135 @@
 
 namespace SolTrace::Data {
 
-DistributionType char_to_distribution(const char dist_char) {
-    switch (dist_char) {
-    case ('g'): {
-        return DistributionType::GAUSSIAN;
-    }
-    case ('p'): {
-        return DistributionType::PILLBOX;
-    }
-    case ('f'): {
-        return DistributionType::DIFFUSE;
-    }
-    case ('d'): {
-        return DistributionType::USER_DEFINED;
-    }
-    default: {
-        return DistributionType::GAUSSIAN;
-    }
+DistributionType char_to_distribution(const char dist_char)
+{
+    switch (dist_char)
+    {
+    case 'g': return DistributionType::GAUSSIAN;
+    case 'p': return DistributionType::PILLBOX;
+    case 'f': return DistributionType::DIFFUSE;
+    case 'd': return DistributionType::USER_DEFINED;
+    default:  return DistributionType::GAUSSIAN;
     }
 }
 
-SunShape char_to_sunshape(const char dist_char) {
-    switch (dist_char) {
-    case ('g'): {
-        return SunShape::GAUSSIAN;
-    }
-    case ('p'): {
-        return SunShape::PILLBOX;
-    }
-    case ('d'): {
-        return SunShape::USER_DEFINED;
-    }
-    default: {
-        return SunShape::GAUSSIAN;
-    }
+char distribution_to_char(const DistributionType dist)
+{
+    switch (dist)
+    {
+    case DistributionType::GAUSSIAN:     return 'g';
+    case DistributionType::PILLBOX:      return 'p';
+    case DistributionType::DIFFUSE:      return 'f';
+    case DistributionType::USER_DEFINED: return 'd';
+    default:                             return 'g';
     }
 }
 
-InteractionType int_to_interaction(const int interaction_int) {
-    switch (interaction_int) {
-    case (1): {
-        return InteractionType::REFRACTION;
-    }
-    case (2): {
-        return InteractionType::REFLECTION;
-    }
-    default: {
-        return InteractionType::REFLECTION;
-    }
+SunShape char_to_sunshape(const char dist_char)
+{
+    switch (dist_char)
+    {
+    case 'g': return SunShape::GAUSSIAN;
+    case 'p': return SunShape::PILLBOX;
+    case 'b': return SunShape::BUIE_CSR;
+    case 'd': return SunShape::USER_DEFINED;
+    default:  return SunShape::GAUSSIAN;
     }
 }
 
-ApertureType char_to_aperture(const char aperture_char) {
-    switch (aperture_char) {
-    case ('c'): {
-        return ApertureType::CIRCLE;
-    }
-    case ('h'): {
-        return ApertureType::HEXAGON;
-    }
-    case ('t'): {
-        return ApertureType::EQUILATERAL_TRIANGLE;
-    }
-    case ('r'): {
-        return ApertureType::RECTANGLE;
-    }
-    case ('a'): {
-        return ApertureType::ANNULUS;
-    }
-    case ('l'): {
-        return ApertureType::SINGLE_AXIS_CURVATURE_SECTION;
-    }
-    case ('i'): {
-        return ApertureType::IRREGULAR_TRIANGLE;
-    }
-    case ('q'): {
-        return ApertureType::IRREGULAR_QUADRILATERAL;
-    }
-    default: {
-        return ApertureType::APERTURE_UNKNOWN;
-    }
+char sunshape_to_char(const SunShape dist)
+{
+    switch (dist)
+    {
+    case SunShape::GAUSSIAN:     return 'g';
+    case SunShape::PILLBOX:      return 'p';
+    case SunShape::BUIE_CSR:     return 'b';
+    case SunShape::USER_DEFINED: return 'd';
+    default:                     return 'g';
     }
 }
 
-SurfaceType char_to_surface(const char surface_char) {
-    switch (surface_char) {
-    case ('s'): return SurfaceType::SPHERE;
-    case ('p'): return SurfaceType::PARABOLA;
-    case ('o'): return SurfaceType::HYPER;
-    case ('g'): return SurfaceType::GENERAL_SPENCER_MURTY;
-    case ('f'): return SurfaceType::FLAT;
-    case ('c'): return SurfaceType::CONE;
-    case ('t'): return SurfaceType::CYLINDER;
-    case ('d'): return SurfaceType::TORUS;
-    default: return SurfaceType::SURFACE_UNKNOWN;
+InteractionType int_to_interaction(const int interaction_int)
+{
+    switch (interaction_int)
+    {
+    case 1:  return InteractionType::REFRACTION;
+    case 2:  return InteractionType::REFLECTION;
+    default: return InteractionType::REFLECTION;
+    }
+}
+
+int interaction_to_int(const InteractionType interaction)
+{
+    switch (interaction)
+    {
+    case InteractionType::REFRACTION: return 1;
+    case InteractionType::REFLECTION: return 2;
+    default:                          return 2;
+    }
+}
+
+ApertureType char_to_aperture(const char aperture_char)
+{
+    switch (aperture_char)
+    {
+    case 'c': return ApertureType::CIRCLE;
+    case 'h': return ApertureType::HEXAGON;
+    case 't': return ApertureType::EQUILATERAL_TRIANGLE;
+    case 'r': return ApertureType::RECTANGLE;
+    case 'a': return ApertureType::ANNULUS;
+    case 'l': return ApertureType::SINGLE_AXIS_CURVATURE_SECTION;
+    case 'i': return ApertureType::IRREGULAR_TRIANGLE;
+    case 'q': return ApertureType::IRREGULAR_QUADRILATERAL;
+    default:  return ApertureType::APERTURE_UNKNOWN;
+    }
+}
+
+char aperture_to_char(const ApertureType aperture)
+{
+    switch (aperture)
+    {
+    case ApertureType::CIRCLE:                        return 'c';
+    case ApertureType::HEXAGON:                       return 'h';
+    case ApertureType::EQUILATERAL_TRIANGLE:          return 't';
+    case ApertureType::RECTANGLE:                     return 'r';
+    case ApertureType::ANNULUS:                       return 'a';
+    case ApertureType::SINGLE_AXIS_CURVATURE_SECTION: return 'l';
+    case ApertureType::IRREGULAR_TRIANGLE:            return 'i';
+    case ApertureType::IRREGULAR_QUADRILATERAL:       return 'q';
+    default:                                          return 'u';
+    }
+}
+
+SurfaceType char_to_surface(const char surface_char)
+{
+    switch (surface_char)
+    {
+    case 's': return SurfaceType::SPHERE;
+    case 'p': return SurfaceType::PARABOLA;
+    case 'o': return SurfaceType::HYPER;
+    case 'g': return SurfaceType::GENERAL_SPENCER_MURTY;
+    case 'f': return SurfaceType::FLAT;
+    case 'c': return SurfaceType::CONE;
+    case 't': return SurfaceType::CYLINDER;
+    case 'd': return SurfaceType::TORUS;
+    default:  return SurfaceType::SURFACE_UNKNOWN;
+    }
+}
+
+char surface_to_char(const SurfaceType surface)
+{
+    switch (surface)
+    {
+    case SurfaceType::SPHERE:                return 's';
+    case SurfaceType::PARABOLA:              return 'p';
+    case SurfaceType::HYPER:                 return 'o';
+    case SurfaceType::GENERAL_SPENCER_MURTY: return 'g';
+    case SurfaceType::FLAT:                  return 'f';
+    case SurfaceType::CONE:                  return 'c';
+    case SurfaceType::CYLINDER:              return 't';
+    case SurfaceType::TORUS:                 return 'd';
+    default:                                 return 'u';
     }
 }
 

@@ -16,6 +16,7 @@ option(
 	SOLTRACE_BUILD_CORETRACE 
 	"Legacy ray tracing backend including the strace executable"
 	OFF)
+option(SOLTRACE_BUILD_API "Build the API parts of Soltrace" OFF)
 
 option(SOLTRACE_BUILD_EMBREE_SUPPORT "Build Embree support for ray tracing" OFF)
 option(SOLTRACE_BUILD_OPTIX_SUPPORT "Build the OptiX support for ray tracing" OFF)

@@ -94,7 +94,7 @@ TEST(OpticalProperties, MutateOptics)
     test_element_2->set_optical_property_set(opt_ref);
 
     // Modify optical properties directly from simulation data
-    auto* optics_ptr =  sd.get_mutable_optical_property_set(*test_element_1);
+    OpticalPropertySet *optics_ptr =  sd.get_mutable_optical_property_set(*test_element_1);
     optics_ptr->set_reflectivity(OpticalSide::Front, 0.5);
 
     // Confirm reflectivity is modified for both

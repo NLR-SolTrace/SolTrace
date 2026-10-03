@@ -1,0 +1,46 @@
+[build-system]
+requires = ["scikit-build-core>=0.11.0"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "pysoltrace"
+version = "0.1.0"
+description = "Python bindings and utilities for the NLR SolTrace(TM) ray-tracing engine."
+requires-python = ">=3.10"
+dependencies = [
+    "colorama >= 0.4.6",
+    "numpy >= 2.5.2", 
+    "matplotlib >= 3.11.2", 
+    "orjson >= 3.10,<4",
+    "pandas >= 3.0.5"
+]
+
+[project.urls]
+Homepage = "https://github.com/NLR-SolTrace/SolTrace"
+Documentation = "https://github.com/NLR-SolTrace/SolTrace#readme"
+Repository = "https://github.com/NLR-SolTrace/SolTrace.git"
+"Bug Tracker" = "https://github.com/NLR-SolTrace/SolTrace/issues"
+
+[tool.scikit-build]
+# SolTrace CMake is two levels up
+cmake.source-dir = "../.."
+cmake.build-type = "Release"
+
+# SolTrace CMake flags
+cmake.define = { SOLTRACE_BUILD_API = "ON", SOLTRACE_BUILD_GUI = "OFF", SOLTRACE_BUILD_TESTS = "OFF", SOLTRACE_BUILD_EMBREE_SUPPORT = "OFF", SOLTRACE_BUILD_OPTIX_SUPPORT = "ON" }
+
+wheel.packages = ["pysoltrace"]
+# puts all build contents into the pysoltrace directory inside the wheel
+wheel.install-dir = "pysoltrace"
+
+# exclude development binaries from build source
+# excludeing from wheel did not actually exclude them for some reason
+sdist.exclude = ["**.dll", "**.exe"]
+
+# exclude development virtual environment and local data files
+wheel.exclude = [
+    "./pysoltrace/.venv",
+    "**.csv",
+    "**.json",
+    "**.pickle",
+]
