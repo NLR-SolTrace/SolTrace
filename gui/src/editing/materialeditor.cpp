@@ -5,6 +5,11 @@
 
 namespace SolTrace::GUI::Data {
 
+using DistributionModel =
+    Support::EnumModel<SD::DistributionType,
+                       SD::DistributionType::USER_DEFINED,
+                       SD::DistributionType::UNKNOWN>;
+
 
 MaterialEditor::MaterialEditor(QObject* parent)
     : QObject { parent },
@@ -14,8 +19,13 @@ MaterialEditor::MaterialEditor(QObject* parent)
           new Support::EnumModel<SD::InteractionType,
                                  SD::InteractionType::UNKNOWN>(this)),
       m_distribution_type_model(
-          new Support::EnumModel<SD::DistributionType,
-                                 SD::DistributionType::UNKNOWN>(this)) { }
+          new DistributionModel(this, [](SD::DistributionType value) {
+              if (value == SD::DistributionType::NONE) {
+                  return MaterialEditor::tr("No errors");
+              }
+
+              return DistributionModel::default_display_name(value);
+          })) { }
 
 MaterialEditor::~MaterialEditor() = default;
 

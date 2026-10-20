@@ -99,7 +99,7 @@ STFormPanel {
     // =========================================================================
 
     STFormRow {
-        label: qsTr("Distribution")
+        label: qsTr("Error profile")
         singleColumn: root.singleColumn
         labelAlignment: root.labelAlignment
 
@@ -109,6 +109,10 @@ STFormPanel {
             model: App.materials.material_edit.distribution_type_model
             textRole: "name"
             valueRole: "value"
+
+            ToolTip.delay: 500
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Controls how slope and specularity errors perturb traced rays.")
 
             currentValue: root.side_editor.error_distribution_type
 
@@ -134,10 +138,35 @@ STFormPanel {
             to: 1.0
             decimals: 4
             stepSize: 0.01
+            enabled: root.side_editor
+                     && !root.side_editor.reflectivity_uses_table
             value: root.side_editor ? root.side_editor.reflectivity : 0
             onValueModified: {
                 if (root.side_editor) {
                     root.side_editor.reflectivity = value
+                }
+            }
+        }
+
+        STIconButton {
+            icon: "\uf201"
+            label: root.side_editor
+                   && root.side_editor.reflectivity_uses_table
+                   ? qsTr("Edit table") : qsTr("Angle table")
+            toolTip: qsTr("Configure reflectance by incidence angle")
+            onClicked: reflectanceTableEditor.open()
+
+            AngularOpticalTableEditor {
+                id: reflectanceTableEditor
+                quantityName: qsTr("Reflectance")
+                tableModel: root.side_editor
+                            ? root.side_editor.reflectivity_table : null
+                tableEnabled: root.side_editor
+                              ? root.side_editor.reflectivity_uses_table : false
+                onTableEnabledRequested: function(enabled) {
+                    if (root.side_editor) {
+                        root.side_editor.reflectivity_uses_table = enabled
+                    }
                 }
             }
         }
@@ -156,10 +185,35 @@ STFormPanel {
             to: 1.0
             decimals: 4
             stepSize: 0.01
+            enabled: root.side_editor
+                     && !root.side_editor.transmissivity_uses_table
             value: root.side_editor ? root.side_editor.transmissivity : 0
             onValueModified: {
                 if (root.side_editor) {
                     root.side_editor.transmissivity = value
+                }
+            }
+        }
+
+        STIconButton {
+            icon: "\uf201"
+            label: root.side_editor
+                   && root.side_editor.transmissivity_uses_table
+                   ? qsTr("Edit table") : qsTr("Angle table")
+            toolTip: qsTr("Configure transmittance by incidence angle")
+            onClicked: transmittanceTableEditor.open()
+
+            AngularOpticalTableEditor {
+                id: transmittanceTableEditor
+                quantityName: qsTr("Transmittance")
+                tableModel: root.side_editor
+                            ? root.side_editor.transmissivity_table : null
+                tableEnabled: root.side_editor
+                              ? root.side_editor.transmissivity_uses_table : false
+                onTableEnabledRequested: function(enabled) {
+                    if (root.side_editor) {
+                        root.side_editor.transmissivity_uses_table = enabled
+                    }
                 }
             }
         }
@@ -256,31 +310,6 @@ STFormPanel {
             }
         }
     }
-
-    // =========================================================================
-
-    STFormRow {
-        label: qsTr("Error Type")
-        visible: false
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
-
-        STComboBox {
-            Layout.fillWidth: true
-            model: App.materials.material_edit.distribution_type_model
-            textRole: "name"
-            valueRole: "value"
-            currentValue: root.side_editor.error_distribution_type
-            enabled: count > 0
-            onActivated: {
-                if (root.side_editor) {
-                    root.side_editor.error_distribution_type = currentValue
-                }
-            }
-        }
-    }
-
-    // =========================================================================
 
     // RowLayout {
     //     Layout.columnSpan: 2
