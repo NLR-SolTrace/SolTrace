@@ -222,8 +222,7 @@ STFormPanel {
     // =========================================================================
 
     STFormRow {
-        label: qsTr("σ<sub>slope</sub> (mrad)")
-        labelTextFormat: Label.RichText
+        label: qsTr("Slope error (mrad)")
         singleColumn: root.singleColumn
         labelAlignment: root.labelAlignment
 
@@ -234,6 +233,11 @@ STFormPanel {
             decimals: 3
             stepSize: 0.01
             value: root.side_editor ? root.side_editor.slope_error : 0
+
+            ToolTip.delay: 500
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("σslope — angular variation of the surface normal.")
+
             onValueModified: {
                 if (root.side_editor) {
                     root.side_editor.slope_error = value
@@ -245,8 +249,7 @@ STFormPanel {
     // =========================================================================
 
     STFormRow {
-        label: qsTr("σ<sub>spec</sub> (mrad)")
-        labelTextFormat: Label.RichText
+        label: qsTr("Specularity error (mrad)")
         singleColumn: root.singleColumn
         labelAlignment: root.labelAlignment
 
@@ -257,6 +260,11 @@ STFormPanel {
             decimals: 3
             stepSize: 0.01
             value: root.side_editor ? root.side_editor.specularity_error : 0
+
+            ToolTip.delay: 500
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("σspec — angular spread around the ideal reflected or transmitted ray.")
+
             onValueModified: {
                 if (root.side_editor) {
                     root.side_editor.specularity_error = value
