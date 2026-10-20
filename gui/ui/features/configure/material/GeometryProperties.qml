@@ -51,7 +51,12 @@ ColumnLayout {
             delegate: STPropertyLabel {
                 required property int index
                 required property string name
-                text: name
+                required property real content
+                required property int type
+                readonly property bool isFlatFocalLength: type === 2
+                                                               && (content === 0
+                                                                   || !Number.isFinite(content))
+                text: name + (isFlatFocalLength ? qsTr(" (flat)") : "")
                 Layout.row: root.singleColumn ? (index * 2 + 2) : (index + 1)
                 Layout.column: 0
                 Layout.columnSpan: root.singleColumn ? 2 : 1
@@ -69,12 +74,15 @@ ColumnLayout {
                 required property real max
                 required property int type
                 readonly property bool isAngle: type === 1
+                readonly property bool isFocalLength: type === 2
 
                 function toDisplayValue(value) {
+                    if (isFocalLength && value === 0) return Infinity
                     return isAngle ? value * 180.0 / Math.PI : value
                 }
 
                 function toModelValue(value) {
+                    if (isFocalLength && !Number.isFinite(value)) return 0
                     return isAngle ? value * Math.PI / 180.0 : value
                 }
 
@@ -86,7 +94,7 @@ ColumnLayout {
                 from: toDisplayValue(min)
                 to: toDisplayValue(max)
                 decimals: 8
-                stepSize: isAngle ? 1 : 0.01
+                stepSize: isAngle ? 1 : (isFocalLength ? 0.1 : 0.01)
                 //suffix: isAngle ? "deg" : ""
                 onValueModified: model.content = toModelValue(value)
             }

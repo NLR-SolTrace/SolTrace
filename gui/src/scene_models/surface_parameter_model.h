@@ -19,8 +19,9 @@ namespace SolTrace::GUI::Data {
 
 /// UI presentation hint for a surface parameter.
 enum SurfaceParameterType {
-    GenericSurfaceParameter = 0,
-    AngleSurfaceParameter   = 1,
+    GenericSurfaceParameter     = 0,
+    AngleSurfaceParameter       = 1,
+    FocalLengthSurfaceParameter = 2,
 };
 
 /// One editable surface parameter exposed to QML.
@@ -49,6 +50,7 @@ class SurfaceParameterModel
 
     entt::entity m_current_group         = entt::null;
     bool         m_syncing_from_database = false;
+    bool         m_syncing_parameters    = false;
 
     void set_new_database_connections(Database* ptr) override;
 
