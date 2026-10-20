@@ -5,7 +5,7 @@
 #include "simulation_data_export.hpp"
 
 #include <QObject>
-#include <QtCore/qstringlistmodel.h>
+#include <QtTypes>
 #include <entt/entity/fwd.hpp>
 
 namespace SolTrace::GUI::Data {
@@ -35,11 +35,11 @@ class OpticalPropertiesObject : public QObject, public DatabaseObserver {
 private:
     // TODO: interaction is now unified front and back.
 
-    Q_PROPERTY(QString interaction_type READ interaction_type WRITE
+    Q_PROPERTY(qint32 interaction_type READ interaction_type WRITE
                    set_interaction_type NOTIFY interaction_type_changed)
 
     Q_PROPERTY(
-        QString error_distribution_type READ error_distribution_type WRITE
+        qint32 error_distribution_type READ error_distribution_type WRITE
             set_error_distribution_type NOTIFY error_distribution_type_changed)
 
     Q_PROPERTY(double transmissivity READ transmissivity WRITE
@@ -83,8 +83,8 @@ public:
     void set(Database*, entt::entity group);
 
 public:
-    QString interaction_type() const;
-    QString error_distribution_type() const;
+    qint32 interaction_type() const;
+    qint32 error_distribution_type() const;
 
     double transmissivity() const;
     double reflectivity() const;
@@ -96,10 +96,10 @@ public:
 public slots:
     /// Update the interaction model, for example
     /// absorption/reflection/refraction.
-    void set_interaction_type(QString v);
+    void set_interaction_type(qint32 v);
 
     /// Update the optical error distribution model.
-    void set_error_distribution_type(QString v);
+    void set_error_distribution_type(qint32 v);
 
     /// Update transmissivity, clamped by the UI to [0, 1].
     void set_transmissivity(double v);

@@ -1,5 +1,7 @@
 #include "simulation_module.h"
 
+#include "magic_enum/magic_enum.hpp"
+
 #include <algorithm>
 #include <thread>
 #include <QLoggingCategory>

@@ -18,8 +18,8 @@ ColumnLayout {
         required property var parameterModel
         required property string typeLabel
         required property var typeModel
-        required property string currentKind
-        signal kindChanged(string kind)
+        required property int currentKind
+        signal kindChanged(int kind)
 
         Layout.fillWidth: true
         collapsible: true
@@ -40,11 +40,10 @@ ColumnLayout {
             Layout.column: root.singleColumn ? 0 : 1
             Layout.columnSpan: root.singleColumn ? 2 : 1
             model: section.typeModel
-            textRole: "display"
-            valueRole: "display"
+            textRole: "name"
+            valueRole: "value"
             currentValue: section.currentKind
-            onActivated: section.kindChanged(currentText)
-            displayText: currentText.charAt(0).toUpperCase() + currentText.slice(1).toLowerCase();
+            onActivated: section.kindChanged(currentValue)
         }
 
         Repeater {

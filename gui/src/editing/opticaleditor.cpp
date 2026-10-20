@@ -62,21 +62,20 @@ OpticalPropertiesObject::get_properties() const {
     return &ptr->optics;
 }
 
-QString OpticalPropertiesObject::interaction_type() const {
+qint32 OpticalPropertiesObject::interaction_type() const {
     auto* ptr = get_properties();
 
-    if (!ptr) return {};
+    if (!ptr) return static_cast<qint32>(SD::InteractionType::UNKNOWN);
 
-    return QString(magic_enum::enum_name(ptr->get_interaction_type()).data());
+    return static_cast<qint32>(ptr->get_interaction_type());
 }
 
-QString OpticalPropertiesObject::error_distribution_type() const {
+qint32 OpticalPropertiesObject::error_distribution_type() const {
     auto* ptr = get_properties();
 
-    if (!ptr) return {};
+    if (!ptr) return static_cast<qint32>(SD::DistributionType::UNKNOWN);
 
-    return QString(
-        magic_enum::enum_name(ptr->get_error_distribution(m_side)).data());
+    return static_cast<qint32>(ptr->get_error_distribution(m_side));
 }
 
 double OpticalPropertiesObject::transmissivity() const {
@@ -138,26 +137,24 @@ double OpticalPropertiesObject::refraction_index_back() const {
 }
 
 
-void OpticalPropertiesObject::set_interaction_type(QString v) {
+void OpticalPropertiesObject::set_interaction_type(qint32 v) {
     patch_properties([this, &v](SD::OpticalPropertySet& prop, auto side) {
-        auto string = v.toStdString();
-
-        auto value =
-            magic_enum::enum_cast<SD::InteractionType>(string).value_or(
-                SD::InteractionType::REFLECTION);
+        auto value = static_cast<SD::InteractionType>(v);
+        if (!magic_enum::enum_contains(value)) {
+            value = SD::InteractionType::REFLECTION;
+        }
 
         prop.set_interaction_type(value);
         emit interaction_type_changed();
     });
 }
 
-void OpticalPropertiesObject::set_error_distribution_type(QString v) {
+void OpticalPropertiesObject::set_error_distribution_type(qint32 v) {
     patch_properties([this, &v](SD::OpticalPropertySet& prop, auto side) {
-        auto string = v.toStdString();
-
-        auto value =
-            magic_enum::enum_cast<SD::DistributionType>(string).value_or(
-                SD::DistributionType::DIFFUSE);
+        auto value = static_cast<SD::DistributionType>(v);
+        if (!magic_enum::enum_contains(value)) {
+            value = SD::DistributionType::DIFFUSE;
+        }
 
         auto slope_error = prop.get_slope_error(m_side);
         auto spec_error  = prop.get_specularity_error(m_side);

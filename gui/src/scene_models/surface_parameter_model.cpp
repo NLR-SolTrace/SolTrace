@@ -1,4 +1,5 @@
 #include "scene_models/surface_parameter_model.h"
+#include "support/enummodel.h"
 
 #include <magic_enum/magic_enum.hpp>
 
@@ -92,8 +93,9 @@ double focal_length_from_curvature(double curvature) {
 
 SurfaceParameterModel::SurfaceParameterModel(QObject* parent)
     : StructTableModel(parent),
-      m_surface_type_model(new QStringListModel(this)) {
-    build_options<SD::SurfaceType>(*m_surface_type_model);
+      m_surface_type_model(
+          new Support::EnumModel<SD::SurfaceType,
+                                 SD::SurfaceType::SURFACE_UNKNOWN>(this)) {
 
     connect(this,
             &SurfaceParameterModel::dataChanged,
@@ -154,7 +156,7 @@ void SurfaceParameterModel::parameters_changed(entt::entity e) {
     }
 
     m_syncing_from_database = true;
-    set_surface_kind(QString(magic_enum::enum_name(new_surf).data()));
+    set_surface_kind(static_cast<qint32>(new_surf));
     m_syncing_from_database = false;
 }
 
@@ -258,12 +260,12 @@ void SurfaceParameterModel::make_new_surface(SD::SurfaceType type) {
 void SurfaceParameterModel::surf_changed() {
     if (m_syncing_from_database) return;
 
-    auto str = surface_kind().toStdString();
+    auto new_surf = static_cast<SD::SurfaceType>(surface_kind());
+    if (!magic_enum::enum_contains(new_surf)) {
+        new_surf = SD::SurfaceType::SURFACE_UNKNOWN;
+    }
 
-    auto new_surf = magic_enum::enum_cast<SD::SurfaceType>(str).value_or(
-        SD::SurfaceType::SURFACE_UNKNOWN);
-
-    set_surface_kind(QString(magic_enum::enum_name(new_surf).data()));
+    set_surface_kind(static_cast<qint32>(new_surf));
     make_new_surface(new_surf);
 }
 

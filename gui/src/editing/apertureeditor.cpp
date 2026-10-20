@@ -1,4 +1,5 @@
 #include "apertureeditor.h"
+#include "support/enummodel.h"
 
 #include <magic_enum/magic_enum.hpp>
 
@@ -218,9 +219,9 @@ ApertureParameterModel::valid_apertures_for_surf(SD::SurfaceType st) {
 
 ApertureParameterModel::ApertureParameterModel(QObject* parent)
     : StructTableModel(parent),
-      m_aperture_type_model(new QStringListModel(this)) {
-
-    build_options<SD::ApertureType>(*m_aperture_type_model);
+      m_aperture_type_model(
+          new Support::EnumModel<SD::ApertureType,
+                                 SD::ApertureType::APERTURE_UNKNOWN>(this)) {
 
     connect(this,
             &ApertureParameterModel::dataChanged,
@@ -283,7 +284,7 @@ void ApertureParameterModel::parameters_changed(entt::entity e) {
     }
 
     m_syncing_from_database = true;
-    set_aperture_kind(QString(magic_enum::enum_name(new_apt).data()));
+    set_aperture_kind(static_cast<qint32>(new_apt));
     m_syncing_from_database = false;
 }
 
@@ -462,12 +463,12 @@ void ApertureParameterModel::make_new_aperture(SD::ApertureType type) {
 void ApertureParameterModel::apt_changed() {
     if (m_syncing_from_database) return;
 
-    auto str = aperture_kind().toStdString();
+    auto new_apt = static_cast<SD::ApertureType>(aperture_kind());
+    if (!magic_enum::enum_contains(new_apt)) {
+        new_apt = SD::ApertureType::APERTURE_UNKNOWN;
+    }
 
-    auto new_apt = magic_enum::enum_cast<SD::ApertureType>(str).value_or(
-        SD::ApertureType::APERTURE_UNKNOWN);
-
-    set_aperture_kind(QString(magic_enum::enum_name(new_apt).data()));
+    set_aperture_kind(static_cast<qint32>(new_apt));
     make_new_aperture(new_apt);
 }
 

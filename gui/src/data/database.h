@@ -6,13 +6,11 @@
 #include "data_io/database_export.h"
 #include "data_io/database_notification.h"
 #include "entity.h"
-#include "magic_enum/magic_enum.hpp"
 #include "support/qt_helpers.h"
 #include "support/result.h"
 
 #include <QDebug>
 #include <QPointer>
-#include <QStringListModel>
 #include <QtTypes>
 #include <qqmlintegration.h>
 
@@ -27,20 +25,6 @@ std::optional<K> reverse_lookup(std::map<K, V> const& map, V const& value) {
         if (v == value) return k;
     }
     return std::nullopt;
-}
-
-/// Write all enum options to a string list model
-template <class K>
-void build_options(QStringListModel& dest) {
-    QStringList items;
-
-    for (auto const& iter : magic_enum::enum_entries<K>()) {
-        auto val = QString(iter.second.data());
-
-        items.push_back(val);
-    }
-
-    dest.setStringList(items);
 }
 
 

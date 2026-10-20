@@ -1,7 +1,8 @@
 #pragma once
 
 #include <QObject>
-#include <QStringListModel>
+#include <QRangeModel>
+#include <QtTypes>
 #include <limits>
 #include <vector>
 
@@ -51,8 +52,11 @@ class SurfaceParameterModel
 
     void set_new_database_connections(Database* ptr) override;
 
-    Q_WRITABLE_PROPERTY(QString, surface_kind, "SURFACE_UNKNOWN");
-    QOBJECT_READONLY_PROPERTY(QStringListModel, surface_type_model);
+    Q_WRITABLE_PROPERTY(
+        qint32,
+        surface_kind,
+        static_cast<qint32>(SD::SurfaceType::SURFACE_UNKNOWN));
+    QOBJECT_READONLY_PROPERTY(QRangeModel, surface_type_model);
 
     void make_new_surface(SD::SurfaceType);
 

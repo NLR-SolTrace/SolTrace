@@ -73,7 +73,7 @@ STFormPanel {
     // =========================================================================
 
     STFormRow {
-        label: qsTr("Interaction")
+        label: qsTr("Optical behavior")
         singleColumn: root.singleColumn
         labelAlignment: root.labelAlignment
 
@@ -81,16 +81,14 @@ STFormPanel {
             id: interactionCombo
             Layout.fillWidth: true
             model: App.materials.material_edit.interaction_type_model
-            textRole: "display"
-            valueRole: "display"
+            textRole: "name"
+            valueRole: "value"
 
             currentValue: root.side_editor.interaction_type
 
-            displayText: currentText.charAt(0).toUpperCase() + currentText.slice(1).toLowerCase();
-
             onActivated: {
-                if (root.side_editor && currentText.length > 0) {
-                    root.side_editor.interaction_type = currentText
+                if (root.side_editor) {
+                    root.side_editor.interaction_type = currentValue
                 }
             }
         }
@@ -109,16 +107,14 @@ STFormPanel {
             id: distributionCombo
             Layout.fillWidth: true
             model: App.materials.material_edit.distribution_type_model
-            textRole: "display"
-            valueRole: "display"
+            textRole: "name"
+            valueRole: "value"
 
             currentValue: root.side_editor.error_distribution_type
 
-            displayText: currentText.charAt(0).toUpperCase() + currentText.slice(1).toLowerCase();
-
             onActivated: {
-                if (root.side_editor && currentText.length > 0) {
-                    root.side_editor.error_distribution_type = currentText
+                if (root.side_editor) {
+                    root.side_editor.error_distribution_type = currentValue
                 }
             }
         }
@@ -272,11 +268,13 @@ STFormPanel {
         STComboBox {
             Layout.fillWidth: true
             model: App.materials.material_edit.distribution_type_model
-            textRole: "display"
+            textRole: "name"
+            valueRole: "value"
+            currentValue: root.side_editor.error_distribution_type
             enabled: count > 0
             onActivated: {
-                if (root.side_editor && currentText.length > 0) {
-                    root.side_editor.error_distribution_type = currentText
+                if (root.side_editor) {
+                    root.side_editor.error_distribution_type = currentValue
                 }
             }
         }

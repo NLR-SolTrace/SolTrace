@@ -114,7 +114,7 @@ RowLayout {
             STClickableLabel {
                 id: prerel_logo
 
-                visible: AppData.is_prerelease
+                visible: AppData.is_prerelease && !AppData.recording_mode
 
                 //anchors.bottom: parent.bottom
                 //anchors.left: parent.left
@@ -173,7 +173,7 @@ RowLayout {
                     Layout.fillWidth: true
 
                     color: Material.color(Material.Yellow)
-                    visible: AppData.is_prerelease
+                    visible: AppData.is_prerelease && !AppData.recording_mode
 
                     text: "This version of SolTrace is intended for testing and evaluation. Features, file formats, and simulation behavior may change before the final release. Verify important results with a stable release before using them for production work."
                     wrapMode: Label.WrapAtWordBoundaryOrAnywhere
