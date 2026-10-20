@@ -222,52 +222,6 @@ STFormPanel {
     // =========================================================================
 
     STFormRow {
-        label: qsTr("<em>n</em> Front")
-        labelTextFormat: Label.RichText
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
-
-        STDoubleSpinBox {
-            Layout.fillWidth: true
-            from: 1.0
-            to: 5.0
-            decimals: 4
-            stepSize: 0.01
-            value: root.side_editor ? root.side_editor.refraction_index_front : 1
-            onValueModified: {
-                if (root.side_editor) {
-                    root.side_editor.refraction_index_front = value
-                }
-            }
-        }
-    }
-
-    // =========================================================================
-
-    STFormRow {
-        label: qsTr("<em>n</em> Back")
-        labelTextFormat: Label.RichText
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
-
-        STDoubleSpinBox {
-            Layout.fillWidth: true
-            from: 1
-            to: 5
-            decimals: 4
-            stepSize: 0.01
-            value: root.side_editor ? root.side_editor.refraction_index_back : 1
-            onValueModified: {
-                if (root.side_editor) {
-                    root.side_editor.refraction_index_back = value
-                }
-            }
-        }
-    }
-
-    // =========================================================================
-
-    STFormRow {
         label: qsTr("σ<sub>slope</sub> (mrad)")
         labelTextFormat: Label.RichText
         singleColumn: root.singleColumn

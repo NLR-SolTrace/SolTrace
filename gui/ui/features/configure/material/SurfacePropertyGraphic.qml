@@ -13,10 +13,30 @@ Item {
     property real transmittance: 0.10 // τ
     property real nFront: 1.0
     property real nBack: 1.5
+    property bool incidentFromBack: false
     property real slopeErrorMrad: 8.0
     property real specularityErrorMrad: 3.0
 
     property real incidentRayAngle: 33
+
+    readonly property real incidentIndex: incidentFromBack ? nBack : nFront
+    readonly property real transmittedIndex: incidentFromBack ? nFront : nBack
+    readonly property real incidentAngleFromNormal:
+        90 - Math.abs(incidentRayAngle)
+    readonly property real snellArgument:
+        transmittedIndex > 0
+        ? incidentIndex / transmittedIndex
+          * Math.sin(incidentAngleFromNormal * Math.PI / 180)
+        : 0
+    readonly property bool totalInternalReflection:
+        incidentIndex > 0 && transmittedIndex > 0
+        && Math.abs(snellArgument) > 1
+    readonly property real transmittedAngleFromNormal:
+        Math.asin(Math.max(-1, Math.min(1, snellArgument)))
+        * 180 / Math.PI
+    readonly property real transmittedRayAngle:
+        (incidentFromBack ? -1 : 1)
+        * (90 - Math.abs(transmittedAngleFromNormal))
 
     property bool exaggerateAngle: true
 
@@ -37,7 +57,8 @@ Item {
 
         anchors.bottom: parent.verticalCenter
 
-        color: Qt.alpha(Material.color(Material.Blue), .1)
+        color: Qt.alpha(Material.color(root.incidentFromBack
+                                       ? Material.Green : Material.Blue), .1)
 
         topLeftRadius: 10
         topRightRadius: 10
@@ -50,7 +71,8 @@ Item {
 
         anchors.top: parent.verticalCenter
 
-        color: Qt.alpha(Material.color(Material.Green), .1)
+        color: Qt.alpha(Material.color(root.incidentFromBack
+                                       ? Material.Blue : Material.Green), .1)
 
         bottomLeftRadius: 10
         bottomRightRadius: 10
@@ -167,7 +189,9 @@ Item {
 
         color: Material.color(Material.Orange)
 
-        ray_angle: root.incidentRayAngle
+        label_lower: root.incidentFromBack
+        ray_angle: (root.incidentFromBack ? -1 : 1)
+                   * root.incidentRayAngle
     }
 
     Ray {
@@ -179,7 +203,9 @@ Item {
 
         color: Material.color(Material.Blue)
 
-        ray_angle: -root.incidentRayAngle
+        label_lower: root.incidentFromBack
+        ray_angle: (root.incidentFromBack ? 1 : -1)
+                   * root.incidentRayAngle
     }
 
     Ray {
@@ -189,11 +215,12 @@ Item {
 
         other_side: true
 
-        label_lower: true
+        label_lower: !root.incidentFromBack
 
         color: Material.color(Material.Green)
 
-        ray_angle: root.incidentRayAngle
+        ray_angle: root.transmittedRayAngle
+        visible: !root.totalInternalReflection
     }
 
     // We use two lines per band to avoid weird dash artifacts
@@ -211,8 +238,10 @@ Item {
 
         // Angle convention:
         // 0 deg = right, -90 deg = up, +90 deg = down
-        property real normalAngleDeg: -90
-        property real reflectedAngleDeg: -root.incidentRayAngle
+        property real normalAngleDeg: root.incidentFromBack ? 90 : -90
+        property real reflectedAngleDeg: root.incidentFromBack
+                                           ? root.incidentRayAngle
+                                           : -root.incidentRayAngle
 
         property real slopeHalfAngleDeg: root.slopeErrorMrad * 180 / Math.PI / 1000 * (root.exaggerateAngle ? 10 : 1)
         property real specularHalfAngleDeg: root.specularityErrorMrad * 180 / Math.PI / 1000 * (root.exaggerateAngle ? 10 : 1)
@@ -240,8 +269,10 @@ Item {
             startY: error_shape.center_pin.y
 
             PathLine {
-                x: Math.cos(error_shape.degToRad(-90)) * root.radius * .75 + error_shape.center_pin.x
-                y: Math.sin(error_shape.degToRad(-90)) * root.radius * .75 + error_shape.center_pin.y
+                x: Math.cos(error_shape.degToRad(error_shape.normalAngleDeg))
+                   * root.radius * .75 + error_shape.center_pin.x
+                y: Math.sin(error_shape.degToRad(error_shape.normalAngleDeg))
+                   * root.radius * .75 + error_shape.center_pin.y
             }
         }
 
@@ -454,7 +485,7 @@ Item {
 
     Label {
         color: Material.color(Material.Grey)
-        text: qsTr("<em>n</em> Front = %1").arg(root.nFront)
+        text: qsTr("Front medium: <em>n</em> = %1").arg(root.nFront)
         textFormat: Label.RichText
 
         x: parent.width * .05
@@ -464,7 +495,7 @@ Item {
 
     Label {
         color: Material.color(Material.Grey)
-        text: qsTr("<em>n</em> Back = %1").arg(root.nBack)
+        text: qsTr("Back medium: <em>n</em> = %1").arg(root.nBack)
         textFormat: Label.RichText
 
         x: parent.width * .05
@@ -473,13 +504,14 @@ Item {
     }
 
     Label {
+        visible: !root.totalInternalReflection
         color: Material.color(Material.Green)
         text: root.transmittance
         textFormat: Label.RichText
 
         anchors.right: parent.right
         anchors.rightMargin: 10
-        y: parent.height * .75 - height / 2
+        y: parent.height * (root.incidentFromBack ? .25 : .75) - height / 2
     }
 
     Label {
@@ -489,7 +521,17 @@ Item {
 
         anchors.right: parent.right
         anchors.rightMargin: 10
-        y: parent.height * .25 - height / 2
+        y: parent.height * (root.incidentFromBack ? .75 : .25) - height / 2
+    }
+
+    Label {
+        visible: root.totalInternalReflection
+        color: Material.color(Material.Blue)
+        text: qsTr("Total internal reflection")
+
+        anchors.right: parent.right
+        anchors.rightMargin: 10
+        y: parent.height * (root.incidentFromBack ? .25 : .75) - height / 2
     }
 
     STIconButton {

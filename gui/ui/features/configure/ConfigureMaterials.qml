@@ -127,8 +127,70 @@ AdaptiveFilteredEditor {
                     transmittance: face.transmissivity
                     nFront: face.refraction_index_front
                     nBack: face.refraction_index_back
+                    incidentFromBack: bar.currentIndex == 1
                     slopeErrorMrad: face.slope_error
                     specularityErrorMrad: face.specularity_error
+                }
+
+                STFormPanel {
+                    id: refraction_indices
+                    title: qsTr("Refraction indices")
+
+                    readonly property var editor:
+                        App.materials.material_edit.front_editor
+                    readonly property bool singleColumn:
+                        App.view.left_panel.size <= SplitPanelData.Wide
+                    readonly property int labelAlignment:
+                        (singleColumn ? Qt.AlignLeft : Qt.AlignRight)
+                        | Qt.AlignVCenter
+
+                    STFormRow {
+                        label: qsTr("Front medium (<em>n</em>)")
+                        labelTextFormat: Label.RichText
+                        singleColumn: refraction_indices.singleColumn
+                        labelAlignment: refraction_indices.labelAlignment
+
+                        STDoubleSpinBox {
+                            Layout.fillWidth: true
+                            from: 1.0
+                            to: 5.0
+                            decimals: 4
+                            stepSize: 0.01
+                            value: refraction_indices.editor
+                                   ? refraction_indices.editor.refraction_index_front
+                                   : 1.0
+                            onValueModified: {
+                                if (refraction_indices.editor) {
+                                    refraction_indices.editor.refraction_index_front
+                                            = value
+                                }
+                            }
+                        }
+                    }
+
+                    STFormRow {
+                        label: qsTr("Back medium (<em>n</em>)")
+                        labelTextFormat: Label.RichText
+                        singleColumn: refraction_indices.singleColumn
+                        labelAlignment: refraction_indices.labelAlignment
+
+                        STDoubleSpinBox {
+                            Layout.fillWidth: true
+                            from: 1.0
+                            to: 5.0
+                            decimals: 4
+                            stepSize: 0.01
+                            value: refraction_indices.editor
+                                   ? refraction_indices.editor.refraction_index_back
+                                   : 1.0
+                            onValueModified: {
+                                if (refraction_indices.editor) {
+                                    refraction_indices.editor.refraction_index_back
+                                        = value
+                                }
+                            }
+                        }
+                    }
                 }
 
                 STComboBar {
