@@ -34,12 +34,10 @@ void AppSettings::load_session(AppData& app) {
         s.value("show_left_panel", true).toBool());
     view->right_panel()->set_visible(
         s.value("show_right_panel", true).toBool());
-    view->left_panel()->update_size();
-    view->right_panel()->update_size();
-
-    view->left_panel()->set_width(s.value("left_panel_width", 550).toUInt());
+    view->left_panel()->set_width(
+        qBound(400, s.value("left_panel_width", 550).toInt(), 750));
     view->right_panel()->set_width(
-        s.value("right_panel_width", 100).toUInt());
+        qMax(250, s.value("right_panel_width", 250).toInt()));
 
     view->set_inline_docs(
         s.value("inline_docs",

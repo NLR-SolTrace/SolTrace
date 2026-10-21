@@ -8,7 +8,6 @@ import SolTrace
 
 Flickable {
     id: root
-    property var left_panel_size: App.view.left_panel.size
     property var intersections_module : AppData.intersections
 
     property var ray_geom: AppData.intersections.ray_geometry
@@ -82,7 +81,6 @@ Flickable {
 
             Label {
                 Layout.fillWidth: true
-                //Layout.columnSpan: ppi_row.singleColumn ? 1 : 2
                 text: "Power per ray uses the flux-map DNI of "
                       + root.formatDetail(AppData.flux.dni, "W/m²") + "."
                 wrapMode: Label.WrapAtWordBoundaryOrAnywhere

@@ -7,8 +7,6 @@ ColumnLayout {
     id: root
 
     property var module
-    property bool singleColumn: false
-    property int labelAlignment: Qt.AlignRight | Qt.AlignVCenter
 
     property real xAngle: 0
     property real yAngle: 0
@@ -48,8 +46,6 @@ ColumnLayout {
 
     STFormRow {
         label: "X Angle (deg)"
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
 
         STDoubleSpinBox {
             id: x_euler
@@ -65,8 +61,6 @@ ColumnLayout {
 
     STFormRow {
         label: "Y Angle (deg)"
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
 
         STDoubleSpinBox {
             id: y_euler
@@ -82,8 +76,6 @@ ColumnLayout {
 
     STFormRow {
         label: "Z Angle (deg)"
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
 
         STDoubleSpinBox {
             id: z_euler

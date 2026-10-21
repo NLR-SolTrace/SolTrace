@@ -9,12 +9,9 @@ import SolTrace
 
 Flickable {
     id: root
-    property var left_panel_size: App.view.left_panel.size
     property var sun_module : App.sun
     readonly property real radToDeg: 180 / Math.PI
     readonly property real degToRad: Math.PI / 180
-    property bool singleColumn: App.view.left_panel.size === SplitPanelData.Small
-
     function clamp(value, lo, hi) {
         return Math.max(lo, Math.min(hi, value))
     }
@@ -71,10 +68,9 @@ Flickable {
             currentIndex: App.view.sun_section
             onCurrentIndexChanged: App.view.sun_section = currentIndex
             Layout.fillWidth: true
-            collapseLabels: App.view.left_panel.size === SplitPanelData.Small
             model: ["Type & Position", "Emission Profile"]
-            prefixModel: ["3a1", "3a2"]
-            iconModel: ["\uf124", "\uf1fe"]
+            prefixModel: ["2a1", "2a2"]
+            abbreviatedModel: ["Type/Pos.", "Profile"]
         }
 
         StackLayout {
@@ -153,7 +149,7 @@ Flickable {
 
                     GridLayout {
                         Layout.fillWidth: true
-                        columns: App.view.left_panel.size === SplitPanelData.Small ? 1 : 2
+                        columns: 1
 
                         STSpinBoxField {
                             id: azimuthField
@@ -213,8 +209,8 @@ Flickable {
                         }
 
                         STSpinBoxField {
-                            Layout.row: App.view.left_panel.size < 1 ? 1 : 0
-                            Layout.column: App.view.left_panel.size < 1 ? 0 : 1
+                            Layout.row: 1
+                            Layout.column: 0
                             Layout.fillWidth: true
                             Layout.preferredWidth: 100
                             label: "Y"
@@ -229,8 +225,8 @@ Flickable {
                         }
 
                         STSpinBoxField {
-                            Layout.row: App.view.left_panel.size < 1 ? 2 : 0
-                            Layout.column: App.view.left_panel.size < 1 ? 0 : 2
+                            Layout.row: 2
+                            Layout.column: 0
                             Layout.fillWidth: true
                             Layout.preferredWidth: 100
                             label: "Z"
@@ -280,14 +276,13 @@ Flickable {
                 }
 
                 GridLayout {
-                    rows: 2
-                    columns: 2
+                    columns: 1
                     Layout.margins: 12
 
                     StackLayout {
                         currentIndex: App.sun.shape.shape
-                        Layout.row: App.view.left_panel.size < 2 ? 1 : 0
-                        Layout.column: App.view.left_panel.size < 2 ? 0 : 1
+                        Layout.row: 1
+                        Layout.column: 0
                         Layout.alignment: Qt.AlignHCenter
                         Layout.preferredWidth: 200
 

@@ -31,10 +31,8 @@ ColumnLayout {
 
         Layout.fillWidth: true
 
-        collapseLabels: App.view.left_panel.size === SplitPanelData.Small
-
-        prefixModel: ["3a", "3b", "3c", "3d"]
-        iconModel: ["\uf185", "\uf042", "\uf1b2", "\uf5ee"]
+        prefixModel: ["2a", "2b", "2c", "2d"]
+        abbreviatedModel: ["Source", "Mats", "Geom", "Stage"]
         model: ["Ray Source", "Materials", "Geometries", "Staging"]
         
     }

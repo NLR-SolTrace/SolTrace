@@ -6,13 +6,11 @@ import QtQuick.Layouts
 
 import SolTrace
 
-AdaptiveFilteredEditor {
+FilteredStackEditor {
     id: root
 
     source_model: App.materials.materials_list
 
-    wideThreshold: 500
-    listWidth: 250
     emptyListText: qsTr("Materials define optical properties. Create one below to assign it to elements.")
 
     onEditingChanged: {
@@ -81,7 +79,6 @@ AdaptiveFilteredEditor {
         RowLayout {
             STIconButton {
                 icon: "\uf053"
-                visible: !root.wideMode
                 onClicked: root.goBack()
             }
 
@@ -138,17 +135,10 @@ AdaptiveFilteredEditor {
 
                     readonly property var editor:
                         App.materials.material_edit.front_editor
-                    readonly property bool singleColumn:
-                        App.view.left_panel.size <= SplitPanelData.Wide
-                    readonly property int labelAlignment:
-                        (singleColumn ? Qt.AlignLeft : Qt.AlignRight)
-                        | Qt.AlignVCenter
 
                     STFormRow {
                         label: qsTr("Front medium (<em>n</em>)")
                         labelTextFormat: Label.RichText
-                        singleColumn: refraction_indices.singleColumn
-                        labelAlignment: refraction_indices.labelAlignment
 
                         STDoubleSpinBox {
                             Layout.fillWidth: true
@@ -171,8 +161,6 @@ AdaptiveFilteredEditor {
                     STFormRow {
                         label: qsTr("Back medium (<em>n</em>)")
                         labelTextFormat: Label.RichText
-                        singleColumn: refraction_indices.singleColumn
-                        labelAlignment: refraction_indices.labelAlignment
 
                         STDoubleSpinBox {
                             Layout.fillWidth: true
@@ -255,12 +243,4 @@ AdaptiveFilteredEditor {
         }
     }
 
-    placeholder: Item {
-        Label {
-            anchors.centerIn: parent
-            text: qsTr("Select a material")
-            font.pointSize: 16
-            opacity: 0.5
-        }
-    }
 }

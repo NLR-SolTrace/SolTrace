@@ -9,8 +9,6 @@ STFormPanel {
     id: root
 
     property var module
-    property bool singleColumn: false
-    property int labelAlignment: Qt.AlignRight | Qt.AlignVCenter
 
     Label {
         Layout.fillWidth: true
@@ -24,8 +22,6 @@ STFormPanel {
 
     STFormRow {
         label: "Parent"
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
 
         STButton {
             Layout.fillWidth: true
@@ -44,8 +40,6 @@ STFormPanel {
 
     STFormRow {
         label: "Material"
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
 
         STButton {
             Layout.fillWidth: true
@@ -62,8 +56,6 @@ STFormPanel {
 
     STFormRow {
         label: "Geometry"
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
 
         STButton {
             Layout.fillWidth: true

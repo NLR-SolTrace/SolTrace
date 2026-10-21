@@ -10,7 +10,6 @@ import SolTrace
 
 Flickable {
     id: root
-    property var left_panel_size: App.view.left_panel.size
     property var flux_module : AppData.flux
 
     function formatCoordinate(value) {
@@ -220,8 +219,6 @@ Flickable {
             STFormRow {
                 label: "Plotted Power"
 
-                labelWidth: 180
-
                 Label {
                     Layout.fillWidth: true
                     text: formatStatistic(root.flux_module.current_flux_stats.plotted_power, "W")
@@ -231,8 +228,6 @@ Flickable {
 
             STFormRow {
                 label: "Peak Flux"
-
-                labelWidth: 180
 
                 Label {
                     Layout.fillWidth: true
@@ -244,8 +239,6 @@ Flickable {
             STFormRow {
                 label: "Min Flux"
 
-                labelWidth: 180
-
                 Label {
                     Layout.fillWidth: true
                     text: formatStatistic(root.flux_module.current_flux_stats.min_flux, "W/m^2")
@@ -255,8 +248,6 @@ Flickable {
 
             STFormRow {
                 label: "Average Flux"
-
-                labelWidth: 180
 
                 Label {
                     Layout.fillWidth: true
@@ -268,8 +259,6 @@ Flickable {
             STFormRow {
                 label: "Sigma Flux"
 
-                labelWidth: 180
-
                 Label {
                     Layout.fillWidth: true
                     text: formatStatistic(root.flux_module.current_flux_stats.sigma_flux, "W/m^2")
@@ -279,8 +268,6 @@ Flickable {
 
             STFormRow {
                 label: "Uniformity"
-
-                labelWidth: 180
 
                 Label {
                     Layout.fillWidth: true
@@ -292,8 +279,6 @@ Flickable {
             STFormRow {
                 label: "Peak Flux Uncert"
 
-                labelWidth: 180
-
                 Label {
                     Layout.fillWidth: true
                     text: formatStatistic(root.flux_module.current_flux_stats.peak_flux_uncertainty)
@@ -303,8 +288,6 @@ Flickable {
 
             STFormRow {
                 label: "Average Flux Uncert"
-
-                labelWidth: 180
 
                 Label {
                     Layout.fillWidth: true
@@ -316,8 +299,6 @@ Flickable {
             STFormRow {
                 label: "Global Centroid"
 
-                labelWidth: 180
-
                 Label {
                     property vector3d cent: root.flux_module.current_flux_stats.centroid
                     Layout.fillWidth: true
@@ -328,8 +309,6 @@ Flickable {
 
             STFormRow {
                 label: "Local Centroid"
-
-                labelWidth: 180
 
                 Label {
                     property vector3d cent: root.flux_module.current_flux_stats.local_centroid

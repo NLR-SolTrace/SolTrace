@@ -7,8 +7,6 @@ STFormPanel {
     id: root
 
     property var module
-    property bool singleColumn: false
-    property int labelAlignment: Qt.AlignRight | Qt.AlignVCenter
 
     STPropertySeparator {
         title: "Placement"
@@ -28,8 +26,6 @@ STFormPanel {
 
     STFormRow {
         label: "Coordinates"
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
 
         STComboBox {
             id: positionModeCombo
@@ -46,8 +42,6 @@ STFormPanel {
         ElementPositionEditor {
             Layout.preferredWidth: positionSwipe.width
             module: root.module
-            singleColumn: root.singleColumn
-            labelAlignment: root.labelAlignment
             targetProperty: "position"
             resetText: "Reset Local Default Position"
         }
@@ -55,8 +49,6 @@ STFormPanel {
         ElementPositionEditor {
             Layout.preferredWidth: positionSwipe.width
             module: root.module
-            singleColumn: root.singleColumn
-            labelAlignment: root.labelAlignment
             targetProperty: "global_position"
             resetText: "Reset Global Default Position"
         }
@@ -65,7 +57,5 @@ STFormPanel {
     ElementRotationEditor {
         Layout.fillWidth: true
         module: root.module
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
     }
 }

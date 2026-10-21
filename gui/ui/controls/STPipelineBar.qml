@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Controls.Material
 import QtQuick.Layouts
-import QtQuick.Effects
 
 import SolTrace
 
@@ -14,11 +13,9 @@ Rectangle {
     property string fontFamily
     property int fontWeight: Font.Normal
 
-    property var iconModel: []
+    property var abbreviatedModel: []
     property var prefixModel: []
     property var model: []
-
-    property bool collapseLabels: false
 
     height: 42
     radius: height / 2
@@ -54,6 +51,16 @@ Rectangle {
         return 0
     }
 
+    function abbreviatedLabelAt(index) {
+        if (bar.abbreviatedModel
+                && bar.abbreviatedModel.length > index
+                && bar.abbreviatedModel[index]) {
+            return bar.abbreviatedModel[index]
+        }
+
+        return bar.model[index] ?? ""
+    }
+
     RowLayout {
         anchors.fill: parent
         anchors.leftMargin: 4
@@ -83,60 +90,43 @@ Rectangle {
                     opacity: 0.3
                 }
 
-                // Full pill
-                ShadowedRectangle {
-                    visible: !isArrow && itemIndex === bar.currentIndex && bar.collapseLabels
-                    width: parent.height
-                    height: parent.height - 2
-                    anchors.centerIn: parent
-                    radius: height / 2
-                    glassColor: App.theme.glassColor
-                }
-
                 RowLayout {
                     visible: !isArrow
                     anchors.centerIn: parent
                     spacing: 6
 
-                    // Prefix bubble - expanded mode only
-                    ShadowedRectangle {
-                        visible: bar.prefixModel.length > itemIndex && !bar.collapseLabels
-                        Layout.preferredWidth: Math.max(25, prefixLabel.implicitWidth + 16)
-                        Layout.preferredHeight: 25
-                        radius: 100
-                        glassColor: App.theme.glassColor
-
-                        Label {
-                            id: prefixLabel
-                            anchors.centerIn: parent
-                            text: bar.prefixModel.length > itemIndex
-                                ? bar.prefixModel[itemIndex] : ""
-                        }
-                    }
-
-                    // Icon - compact mode only
                     Label {
-                        visible: bar.iconModel.length > itemIndex && bar.collapseLabels
-                        font.family: "Font Awesome 7 Free"
-                        font.pointSize: App.theme.defaultComboBarTextSize - 2
-                        font.weight: bar.fontWeight
-                        text: bar.iconModel.length > itemIndex ? bar.iconModel[itemIndex] : ""
+                        visible: bar.prefixModel.length > itemIndex
+                        Layout.alignment: Qt.AlignVCenter
+
+                        text: bar.prefixModel.length > itemIndex
+                            ? bar.prefixModel[itemIndex] : ""
+                        font.bold: itemIndex === bar.currentIndex
                         opacity: itemIndex === bar.currentIndex ? 1.0
                             : itemMouse.containsMouse ? 0.75
                             : 0.5
                     }
 
-                    // Text label - expanded mode only
+                    Rectangle {
+                        visible: bar.prefixModel.length > itemIndex
+                        Layout.preferredWidth: 1
+                        Layout.preferredHeight: 16
+                        Layout.alignment: Qt.AlignVCenter
+                        color: Material.dividerColor
+                    }
+
                     Label {
-                        visible: !bar.collapseLabels
-                        font.family: bar.fontFamily.length ? bar.fontFamily : default_label.font.family
+                        font.family: bar.fontFamily.length
+                            ? bar.fontFamily : default_label.font.family
                         font.pointSize: App.theme.defaultComboBarTextSize
-                        font.weight: bar.fontWeight
-                        text: bar.model[itemIndex] ?? ""
+                        font.weight: itemIndex === bar.currentIndex
+                            ? Font.Bold : bar.fontWeight
+                        text: bar.abbreviatedLabelAt(itemIndex)
                         opacity: itemIndex === bar.currentIndex ? 1.0
                             : itemMouse.containsMouse ? 0.75
                             : 0.5
                     }
+
                 }
 
                 MouseArea {
@@ -147,7 +137,9 @@ Rectangle {
                     onClicked: bar.select(itemIndex)
 
                     STToolTip {
-                        visible: itemMouse.containsMouse && bar.collapseLabels
+                        visible: itemMouse.containsMouse
+                                 && bar.abbreviatedLabelAt(itemIndex)
+                                    !== (bar.model[itemIndex] ?? "")
                         text: bar.model[itemIndex] ?? ""
                     }
                 }

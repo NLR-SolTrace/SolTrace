@@ -8,8 +8,6 @@ ColumnLayout {
     id: root
 
     property var group_edit: App.materials.geometry_edit
-    property bool singleColumn: App.view.left_panel.size === SplitPanelData.Small
-    property var labelAlignment: (singleColumn ? Qt.AlignLeft : Qt.AlignRight) | Qt.AlignVCenter
 
     spacing: 8
 
@@ -23,22 +21,20 @@ ColumnLayout {
 
         Layout.fillWidth: true
         collapsible: true
-        columns: 2
+        columns: 1
 
         STPropertyLabel {
             text: section.typeLabel
             Layout.row: 0
             Layout.column: 0
-            Layout.columnSpan: root.singleColumn ? 2 : 1
-            Layout.alignment: root.labelAlignment
+            Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
 
         STComboBox {
             Layout.fillWidth: true
             Layout.preferredHeight: implicitHeight
-            Layout.row: root.singleColumn ? 1 : 0
-            Layout.column: root.singleColumn ? 0 : 1
-            Layout.columnSpan: root.singleColumn ? 2 : 1
+            Layout.row: 1
+            Layout.column: 0
             model: section.typeModel
             textRole: "name"
             valueRole: "value"
@@ -57,10 +53,9 @@ ColumnLayout {
                                                                && (content === 0
                                                                    || !Number.isFinite(content))
                 text: name + (isFlatFocalLength ? qsTr(" (flat)") : "")
-                Layout.row: root.singleColumn ? (index * 2 + 2) : (index + 1)
+                Layout.row: index * 2 + 2
                 Layout.column: 0
-                Layout.columnSpan: root.singleColumn ? 2 : 1
-                Layout.alignment: root.labelAlignment
+                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
             }
         }
 
@@ -87,9 +82,8 @@ ColumnLayout {
                 }
 
                 Layout.fillWidth: true
-                Layout.row: root.singleColumn ? (index * 2 + 3) : (index + 1)
-                Layout.column: root.singleColumn ? 0 : 1
-                Layout.columnSpan: root.singleColumn ? 2 : 1
+                Layout.row: index * 2 + 3
+                Layout.column: 0
                 value: toDisplayValue(content)
                 from: toDisplayValue(min)
                 to: toDisplayValue(max)

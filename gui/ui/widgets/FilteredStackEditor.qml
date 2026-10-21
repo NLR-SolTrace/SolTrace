@@ -1,15 +1,11 @@
 import QtQuick
-import QtQuick.Controls
-import QtQuick.Controls.Material
-import QtQuick.Layouts
 
 import SolTrace
 
-AdaptiveEditor {
+StackEditor {
     id: root
 
     property var source_model: null
-
     property string filterText
 
     onFilterTextChanged: {
@@ -24,9 +20,10 @@ AdaptiveEditor {
         }
 
         try {
-            var sourceIndexObject = root.source_model.index(sourceIndex, 0)
+            const sourceIndexObject = root.source_model.index(sourceIndex, 0)
             if (filtered_model.mapFromSource) {
-                var proxyIndexObject = filtered_model.mapFromSource(sourceIndexObject)
+                const proxyIndexObject = filtered_model.mapFromSource(
+                                           sourceIndexObject)
                 if (proxyIndexObject && proxyIndexObject.row >= 0) {
                     currentIndex = proxyIndexObject.row
                     editing = true
@@ -37,7 +34,7 @@ AdaptiveEditor {
                 return
             }
         } catch (error) {
-            console.log("[AdaptiveFilteredEditor] source index mapping failed:",
+            console.log("[FilteredStackEditor] source index mapping failed:",
                         error)
         }
 
@@ -51,8 +48,6 @@ AdaptiveEditor {
 
         filters: [
             FunctionFilter {
-                id: filter
-
                 component NameFilter: QtObject {
                     property string name
                 }
@@ -60,8 +55,7 @@ AdaptiveEditor {
                 function filter(data: NameFilter) : bool {
                     if (root.filterText.length) {
                         return (data.name || "").toLowerCase().includes(
-                                    root.filterText.toLowerCase()
-                                    )
+                                    root.filterText.toLowerCase())
                     }
                     return true
                 }

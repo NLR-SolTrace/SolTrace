@@ -9,8 +9,6 @@ ColumnLayout {
     property var module
     property string targetProperty: "position"
     property string resetText: "Reset"
-    property bool singleColumn: false
-    property int labelAlignment: Qt.AlignRight | Qt.AlignVCenter
 
     property real xPosition: 0
     property real yPosition: 0
@@ -73,8 +71,6 @@ ColumnLayout {
 
     STFormRow {
         label: "X"
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
 
         STDoubleSpinBox {
             id: x_pos
@@ -91,8 +87,6 @@ ColumnLayout {
 
     STFormRow {
         label: "Y"
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
 
         STDoubleSpinBox {
             id: y_pos
@@ -109,8 +103,6 @@ ColumnLayout {
 
     STFormRow {
         label: "Z"
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
 
         STDoubleSpinBox {
             id: z_pos

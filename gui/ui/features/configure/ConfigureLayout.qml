@@ -14,8 +14,6 @@ ElementListEditor {
     property bool has_viewed_entity: module.viewed_element.is_valid()
 
     model: has_viewed_entity ? module.filtered_child_model : module.filtered_root_elements_model
-    wideThreshold: 500
-    listWidth: 250
     emptyListText: "Scene elements combine geometry, material, and placement to define a physical object. Create one below to build the scene."
 
     onEditingChanged: {
@@ -181,7 +179,6 @@ ElementListEditor {
         RowLayout {
             STIconButton {
                 icon: "\uf053"
-                visible: !root.wideMode
                 onClicked: {
                     root.module.clear_edited_element()
                     root.goBack()
@@ -284,12 +281,4 @@ ElementListEditor {
         }
     }
 
-    placeholder: Item {
-        Label {
-            anchors.centerIn: parent
-            text: "Select an element"
-            font.pointSize: 16
-            opacity: 0.5
-        }
-    }
 }

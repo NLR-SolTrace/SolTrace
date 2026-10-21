@@ -8,33 +8,14 @@
 namespace SolTrace::GUI::App {
 
 /// Width and visibility state for a side panel.
-///
-/// The discrete PanelSize value is derived from width and consumed by QML to
-/// switch between compact and expanded layouts.
 class SplitPanelData : public QObject {
     Q_OBJECT
     QML_ELEMENT
 
-    const inline static QVector<int> m_sizes      = { 450, 550, 750, 9999 };
-    const inline static QVector<int> m_thresholds = { 550, 750, 850 };
-
 public:
     explicit SplitPanelData(QObject* parent = nullptr);
 
-    enum PanelSize { Small = 0, Normal = 1, Wide = 2, Full = 3 };
-
-    Q_ENUM(PanelSize)
-
-    Q_PROPERTY(QVector<int> sizes READ sizes CONSTANT)
-    QVector<int> sizes() const;
-    Q_PROPERTY(QVector<int> thresholds READ thresholds CONSTANT)
-    QVector<int> thresholds() const;
-
-    // Source of Truth
-    Q_WRITABLE_PROPERTY(int, width, m_sizes[PanelSize::Normal])
-
-    // Derive PanelSize enum from width
-    Q_WRITABLE_PROPERTY(PanelSize, size, PanelSize::Normal)
+    Q_WRITABLE_PROPERTY(int, width, 550)
 
     Q_WRITABLE_PROPERTY(bool, visible, false)
 
@@ -42,18 +23,6 @@ public:
     // Idea: show walkthrough tags just for this section
 
 public slots:
-    /// Whether the current width maps to the compact panel layout.
-    bool is_small();
-
-    /// Whether the current width maps to the normal panel layout.
-    bool is_normal();
-
-    /// Whether the current width maps to the wide panel layout.
-    bool is_wide();
-
-    /// Recompute size from width and emit the generated property changes.
-    void update_size();
-
     /// Mark the panel visible.
     void show();
 
@@ -106,9 +75,6 @@ public:
 class ViewModule : public QObject {
     Q_OBJECT
     QML_ELEMENT
-
-    // Helper
-    bool shrink_panel(const QVector<int>& sizes, QPointer<SplitPanelData>& p);
 
 public:
     explicit ViewModule(QObject* parent = nullptr);

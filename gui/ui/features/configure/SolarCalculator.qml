@@ -10,7 +10,6 @@ ColumnLayout {
 
     property string error_string: ""
 
-    property bool singleColumn: App.view.left_panel.size === SplitPanelData.Small
     readonly property int fieldSpacing: 8
 
     function apply_changes() {
@@ -76,7 +75,7 @@ ColumnLayout {
         spacing: root.fieldSpacing
         Layout.fillWidth: true
 
-        readonly property int fieldWidth: root.singleColumn ? parent.width : (parent.width - root.fieldSpacing) / 2
+        readonly property int fieldWidth: parent.width
 
         STSpinBoxField {
             width: positionGroup.fieldWidth
@@ -110,7 +109,7 @@ ColumnLayout {
         spacing: root.fieldSpacing
         Layout.fillWidth: true
 
-        readonly property int fieldWidth: root.singleColumn ? parent.width : (parent.width - 2 * root.fieldSpacing) / 3
+        readonly property int fieldWidth: parent.width
 
         STSpinBoxField {
             width: dateGroup.fieldWidth
@@ -154,7 +153,7 @@ ColumnLayout {
         spacing: root.fieldSpacing
         Layout.fillWidth: true
 
-        readonly property int fieldWidth: root.singleColumn ? parent.width : (parent.width - 100 - 3 * root.fieldSpacing) / 3
+        readonly property int fieldWidth: parent.width
 
         STSpinBoxField {
             width: timeGroup.fieldWidth
@@ -193,7 +192,7 @@ ColumnLayout {
         }
 
         STSpinBoxField {
-            width: root.singleColumn ? parent.width : 100
+            width: parent.width
             label: "UTC Offset"
             from: -12
             to: 14
@@ -283,7 +282,7 @@ ColumnLayout {
 
         visible: App.sun.calc_data.calculator === SolarCalculatorData.SPA
 
-        readonly property int fieldWidth: root.singleColumn ? parent.width : (parent.width - 2 * root.fieldSpacing) / 3
+        readonly property int fieldWidth: parent.width
 
         STSpinBoxField {
             width: extraOptions.fieldWidth

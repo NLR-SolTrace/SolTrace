@@ -12,7 +12,7 @@ Item {
 
     onWidthChanged: {
         App.view.fit_panels(width, false, true)
-        bottom_bar.collapsed = root.width < bottom_bar.normal_width
+        //bottom_bar.collapsed = root.width < bottom_bar.normal_width
     }
 
     // C++ -> QML (consume width from ViewModule)
@@ -49,32 +49,16 @@ Item {
         }
     }
 
-    TopBar {
-        id: top_bar
-        anchors.left: parent.left
-        anchors.margins: 10
-        anchors.right: parent.right
-        anchors.top: parent.top
-        blur_source: root.blur_source
-        height: 42
-        available_width: root.width
-    }
-
     SplitView {
         id: split
-        anchors.top: top_bar.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: bottom_bar.top
+        anchors.fill: parent
 
-        anchors.margins: 10
         orientation: Qt.Horizontal
 
         handle: Rectangle {
-            implicitWidth: 6
+            implicitWidth: 1
             color: SplitHandle.pressed ? "#80ffffff"
-                                       : SplitHandle.hovered ? "#40ffffff"
-                                                             : "transparent"
+                                       : "#20ffffff"
         }
 
         LeftPanel {
@@ -84,12 +68,16 @@ Item {
             available_width: root.width
 
             SplitView.minimumWidth: 400
-            SplitView.maximumWidth: split.width
+            SplitView.maximumWidth: 750
             SplitView.fillHeight: true
 
             visible: App.view.left_panel.visible
             enabled: visible
             opacity: enabled
+
+            radius: 0
+            show_border: false
+            show_shadow: false
         }
 
         Item {
@@ -97,6 +85,39 @@ Item {
             SplitView.fillWidth: true
             SplitView.fillHeight: true
             SplitView.minimumWidth: App.view.left_panel.visible && App.view.right_panel.visible ? 10 : 0
+
+            TopBar {
+                id: top_bar
+
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.leftMargin: 10
+
+                height: left_panel.header_height
+                blur_source: root.blur_source
+                available_width: root.width
+            }
+
+            ShadowedGlassRectangle {
+                id: scene_view_toolbar
+
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.margins: 10
+
+                width: scene_view_controls.implicitWidth + 8
+                height: scene_view_controls.implicitHeight + 8
+                radius: width / 2
+
+                blur_source: root.blur_source
+                glassColor: App.theme.glassColor
+
+                SceneViewControls {
+                    id: scene_view_controls
+                    anchors.centerIn: parent
+                }
+            }
         }
 
         RightPanel {
@@ -115,9 +136,9 @@ Item {
         }
     }
 
-    BottomBar {
-        id: bottom_bar
-        available_width: root.width
-        blur_source: root.blur_source
-    }
+    // BottomBar {
+    //     id: bottom_bar
+    //     available_width: root.width
+    //     blur_source: root.blur_source
+    // }
 }

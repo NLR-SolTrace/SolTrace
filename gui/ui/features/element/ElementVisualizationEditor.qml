@@ -6,7 +6,6 @@ STFormPanel {
     id: root
 
     property var module
-    property bool singleColumn: false
 
     ColorPickerField {
         id: elementColorPicker

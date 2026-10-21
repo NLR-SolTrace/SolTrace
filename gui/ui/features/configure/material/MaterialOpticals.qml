@@ -8,15 +8,11 @@ STFormPanel {
     property bool has_selection : false
     property var material_editor : App.materials.group_edit
     property var side_editor
-    property bool singleColumn: App.view.left_panel.size <= SplitPanelData.Wide
-    property var labelAlignment: (root.singleColumn ? Qt.AlignLeft : Qt.AlignRight) | Qt.AlignVCenter
 
     // =========================================================================
 
     STFormRow {
         label: qsTr("Preset")
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
 
         STButton {
             text: qsTr("Load")
@@ -74,8 +70,6 @@ STFormPanel {
 
     STFormRow {
         label: qsTr("Optical behavior")
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
 
         STComboBox {
             id: interactionCombo
@@ -100,8 +94,6 @@ STFormPanel {
 
     STFormRow {
         label: qsTr("Error profile")
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
 
         STComboBox {
             id: distributionCombo
@@ -129,8 +121,6 @@ STFormPanel {
 
     STFormRow {
         label: qsTr("Reflectance (ρ)")
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
 
         STDoubleSpinBox {
             Layout.fillWidth: true
@@ -176,8 +166,6 @@ STFormPanel {
 
     STFormRow {
         label: qsTr("Transmittance (τ)")
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
 
         STDoubleSpinBox {
             Layout.fillWidth: true
@@ -223,8 +211,6 @@ STFormPanel {
 
     STFormRow {
         label: qsTr("Slope error (mrad)")
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
 
         STDoubleSpinBox {
             Layout.fillWidth: true
@@ -250,8 +236,6 @@ STFormPanel {
 
     STFormRow {
         label: qsTr("Specularity error (mrad)")
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
 
         STDoubleSpinBox {
             Layout.fillWidth: true

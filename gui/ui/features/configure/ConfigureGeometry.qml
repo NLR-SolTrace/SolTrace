@@ -6,12 +6,10 @@ import QtQuick.Layouts
 
 import SolTrace
 
-AdaptiveFilteredEditor {
+FilteredStackEditor {
     id: root
 
     source_model: App.materials.geometry_list
-    wideThreshold: 500
-    listWidth: 250
     emptyListText: qsTr("Geometries define reusable element shapes. Create one below to assign it to elements.")
 
     onEditingChanged: {
@@ -77,7 +75,6 @@ AdaptiveFilteredEditor {
         RowLayout {
             STIconButton {
                 icon: "\uf053"
-                visible: !root.wideMode
                 onClicked: root.goBack()
             }
 
@@ -197,13 +194,4 @@ AdaptiveFilteredEditor {
         }
     }
 
-    placeholder: Item {
-        Label {
-            anchors.centerIn: parent
-            text: qsTr("Select a geometry")
-            font.pointSize: 16
-            opacity: 0.5
-            
-        }
-    }
 }

@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Controls.Material
-import QtQuick.Layouts
+import QtQuick.Effects
 
 import SolTrace
 
@@ -13,6 +13,7 @@ Item {
     implicitHeight: mode_row.implicitHeight
 
     required property var blur_source
+    property bool show_header: true
     property int last_db_count: AppData.file_source.rowCount()
     property bool highlighted: false
     function flash_added_data() {
@@ -21,7 +22,115 @@ Item {
 
     signal openClicked()
 
-    RowLayout {
+    component WorkflowItem: Rectangle {
+        id: workflow_item
+
+        required property int step
+        required property string label
+        required property bool active
+        property bool has_menu: false
+
+        signal activated()
+        signal menuRequested()
+
+        implicitWidth: workflow_item_content.implicitWidth + 16
+        implicitHeight: 32
+        width: implicitWidth
+        height: implicitHeight
+        anchors.verticalCenter: parent.verticalCenter
+        radius: 12
+
+        color: workflow_item_mouse.containsMouse
+               ? Material.rippleColor
+               : App.theme.glassColor
+        border.width: 1
+        border.color: Material.dividerColor
+
+        opacity: active ? 1 : .75
+
+
+        Behavior on color {
+            ColorAnimation { duration: 100 }
+        }
+
+        Behavior on opacity {
+            NumberAnimation { duration: 100 }
+        }
+
+        Behavior on width {
+            NumberAnimation {
+                duration: 350
+                easing.type: Easing.OutElastic
+                easing.amplitude: 0.4
+                easing.period: 0.3
+            }
+        }
+
+        RectangularShadow {
+            anchors.fill: parent
+            radius: parent.radius
+            blur: 30
+            spread: 2
+            color: Material.dropShadowColor
+            visible: workflow_item.active
+        }
+
+        MouseArea {
+            id: workflow_item_mouse
+            anchors.fill: parent
+            hoverEnabled: true
+            onClicked: workflow_item.activated()
+        }
+
+        Row {
+            id: workflow_item_content
+            anchors.fill: parent
+            anchors.leftMargin: 8
+            anchors.rightMargin: 8
+            spacing: 8
+
+            Label {
+                anchors.verticalCenter: parent.verticalCenter
+                text: workflow_item.step
+                font.pointSize: 16
+                font.bold: workflow_item.active
+                opacity: workflow_item.active ? 1.0 : 0.5
+            }
+
+            Rectangle {
+                anchors.verticalCenter: parent.verticalCenter
+                width: 1
+                height: 16
+                color: Material.dividerColor
+            }
+
+            Label {
+                anchors.verticalCenter: parent.verticalCenter
+                text: workflow_item.label
+                font.pointSize: 16
+                opacity: workflow_item.active ? 1.0 : 0.5
+            }
+
+            STClickableLabel {
+                anchors.verticalCenter: parent.verticalCenter
+                visible: workflow_item.has_menu
+                text: "\uf0d7"
+                font.family: "Font Awesome 7 Free"
+                opacity: workflow_item.active ? 1.0 : 0.5
+                onClicked: workflow_item.menuRequested()
+            }
+        }
+    }
+
+    // Rectangle {
+    //     anchors.fill: parent
+    //     radius: height / 2
+    //     color: App.theme.glassColor
+    //     border.width: 1
+    //     border.color: Qt.alpha("black", 0.25)
+    // }
+
+    Row {
         id: mode_row
 
         anchors.fill: parent
@@ -70,7 +179,9 @@ Item {
         }
 
         Label {
+            anchors.verticalCenter: parent.verticalCenter
             text: "Workflow"
+            visible: root.show_header
 
             //font.family: "CMU Serif"
 
@@ -78,7 +189,7 @@ Item {
 
             opacity: 0.65
 
-            Layout.rightMargin: 12
+            rightPadding: 12
 
             Rectangle {
                 id: wf_highlight
@@ -114,58 +225,33 @@ Item {
         }
 
         Rectangle {
+            anchors.verticalCenter: parent.verticalCenter
             color: Material.dividerColor
+            visible: root.show_header
 
-            Layout.preferredWidth: 1
-            Layout.fillHeight: true
+            width: 1
+            height: 32
         }
 
-        ShadowedRectangle {
-            Layout.preferredWidth: 25
-            Layout.preferredHeight: 25
-            Layout.leftMargin: 8
-
-            radius: 100
-            blur_source: root.blur_source
-            glassColor: App.theme.glassColor
-
-            Label {
-                text: "1"
-                anchors.centerIn: parent
-            }
+        Item {
+            visible: root.show_header
+            width: visible ? 4 : 0
+            height: 1
         }
 
-        STClickableLabel {
-            id: data_label
+        WorkflowItem {
+            id: load_item
 
-            Layout.fillHeight: true
-            Layout.rightMargin: 4
+            step: 1
+            label: active ? "Load Scene" : "Load"
+            active: App.view.workflow_phase === ViewModule.Load
+            has_menu: active
 
-            borderWidth: 0
-
-            property bool is_active: App.view.workflow_phase === ViewModule.Load
-
-            text: App.view.workflow_phase === ViewModule.Load ? "Load Scene" : "Load"
-            font.pointSize: 16
-            horizontalAlignment: Qt.AlignHCenter
-            verticalAlignment: Qt.AlignVCenter
-            opacity: is_active ? 1.0 : .50
-
-            onClicked: {
+            onActivated: {
                 App.view.simulation_content_view = false
                 App.view.workflow_phase = ViewModule.Load
             }
-        }
-
-        STClickableLabel {
-            id: file_menu_indicator
-            text: "\uf0d7"
-
-            font.family: "Font Awesome 7 Free"
-
-            visible: App.view.workflow_phase === ViewModule.Load
-
-            onClicked: file_menu.open()
+            onMenuRequested: file_menu.open()
 
             WorkflowFileMenu {
                 id: file_menu
@@ -175,52 +261,27 @@ Item {
         Label {
             id: file_separator
 
-            Layout.leftMargin: 4
-            Layout.rightMargin: 8
-            Layout.alignment: Qt.AlignVCenter
+            anchors.verticalCenter: parent.verticalCenter
+            leftPadding: 4
+            rightPadding: 8
 
             font.family: "Font Awesome 7 Free"
             text: "\uf178"
 
-            property bool highlight: data_label.is_active
-                                     || current_scene_label.is_active
+            property bool highlight: load_item.active || configure_item.active
 
             opacity: highlight ? 1.0 : .50
         }
 
-        ShadowedRectangle {
-            Layout.preferredWidth: 25
-            Layout.preferredHeight: 25
-            Layout.leftMargin: 4
+        WorkflowItem {
+            id: configure_item
 
-            radius: 100
-            blur_source: root.blur_source
-            glassColor: App.theme.glassColor
+            step: 2
+            label: active ? "Configure Scene" : "Configure"
+            active: App.view.workflow_phase === ViewModule.Configure
+            has_menu: active
 
-            Label {
-                text: "2"
-                anchors.centerIn: parent
-            }
-        }
-
-        STClickableLabel {
-            id: current_scene_label
-
-            property bool is_active: App.view.workflow_phase === ViewModule.Configure
-
-            Layout.fillHeight: true
-
-            horizontalAlignment: Qt.AlignHCenter
-            verticalAlignment: Qt.AlignVCenter
-
-            text: App.view.workflow_phase === ViewModule.Configure ? "Configure Scene" : "Configure"
-            elide: Label.ElideMiddle
-
-            //font.bold: is_active
-            font.pointSize: 16
-            opacity: is_active ? 1.0 : .50
-
-            onClicked: {
+            onActivated: {
                 if (App.view.workflow_phase === ViewModule.Configure) {
                     data_pop.open()
                 } else {
@@ -228,141 +289,64 @@ Item {
                     App.view.workflow_phase = ViewModule.Configure
                 }
             }
-
-            Behavior on opacity {
-                NumberAnimation {
-                    duration: 150
-                }
-            }
-        }
-
-        STClickableLabel {
-            id: swap_data_indicator
-            text: "\uf0d7"
-
-            font.family: "Font Awesome 7 Free"
-
-            visible: App.view.workflow_phase === ViewModule.Configure
-
-            onClicked: data_pop.open()
+            onMenuRequested: data_pop.open()
         }
 
         Label {
             id: configure_separator
 
-            Layout.leftMargin: 4
-            Layout.rightMargin: 8
-            Layout.alignment: Qt.AlignVCenter
+            anchors.verticalCenter: parent.verticalCenter
+            leftPadding: 4
+            rightPadding: 8
 
             font.family: "Font Awesome 7 Free"
             text: "\uf178"
 
-            property bool highlight: current_scene_label.is_active || simulate_label.is_active
+            property bool highlight: configure_item.active || trace_item.active
 
             opacity: highlight ? 1.0 : .50
 
         }
 
-        ShadowedRectangle {
-            Layout.preferredWidth: 25
-            Layout.preferredHeight: 25
-            Layout.leftMargin: 4
+        WorkflowItem {
+            id: trace_item
 
-            radius: 100
-            blur_source: root.blur_source
-            glassColor: App.theme.glassColor
+            step: 3
+            label: active ? "Trace Scene" : "Trace"
+            active: App.view.workflow_phase === ViewModule.Simulate
+            has_menu: active
 
-            Label {
-                text: "3"
-                anchors.centerIn: parent
-            }
-        }
-
-        STClickableLabel {
-            id: simulate_label
-
-            property bool is_active: App.view.workflow_phase === ViewModule.Simulate
-
-            Layout.fillHeight: true
-
-            text: App.view.workflow_phase === ViewModule.Simulate ? "Trace Scene" : "Trace"
-            horizontalAlignment: Qt.AlignHCenter
-            verticalAlignment: Qt.AlignVCenter
-
-            //font.bold: is_active
-            font.pointSize: 16
-            opacity: is_active ? 1.0 : .50
-
-            onClicked: {
+            onActivated: {
                 App.view.simulation_content_view = false
                 App.view.workflow_phase = ViewModule.Simulate
             }
-
-            Behavior on opacity {
-                NumberAnimation {
-                    duration: 150
-                }
-            }
-        }
-
-        STClickableLabel {
-            id: swap_simulation_data_indicator
-            text: "\uf0d7"
-
-            font.family: "Font Awesome 7 Free"
-
-            visible: App.view.workflow_phase === ViewModule.Simulate
-
-            onClicked: data_pop.open()
+            onMenuRequested: data_pop.open()
         }
 
         Label {
             id: analyze_separator
 
-            Layout.leftMargin: 4
-            Layout.rightMargin: 8
-            Layout.alignment: Qt.AlignVCenter
+            anchors.verticalCenter: parent.verticalCenter
+            leftPadding: 4
+            rightPadding: 8
 
             font.family: "Font Awesome 7 Free"
             text: "\uf178"
 
-            property bool highlight: analyze_label.is_active || simulate_label.is_active
+            property bool highlight: analyze_item.active || trace_item.active
 
             opacity: highlight ? 1.0 : .50
         }
 
-        ShadowedRectangle {
-            Layout.preferredWidth: 25
-            Layout.preferredHeight: 25
-            Layout.leftMargin: 4
+        WorkflowItem {
+            id: analyze_item
 
-            radius: 100
-            blur_source: root.blur_source
-            glassColor: App.theme.glassColor
+            step: 4
+            label: active ? "Analyze Results" : "Analyze"
+            active: App.view.workflow_phase === ViewModule.Analyze
+            has_menu: active
 
-            Label {
-                text: "4"
-                anchors.centerIn: parent
-            }
-        }
-
-        STClickableLabel {
-            id: analyze_label
-
-            property bool is_active: App.view.workflow_phase === ViewModule.Analyze
-
-            Layout.fillHeight: true
-
-            font.pointSize: 16
-
-            text: App.view.workflow_phase === ViewModule.Analyze ? "Analyze Results" : "Analyze"
-            horizontalAlignment: Qt.AlignHCenter
-            verticalAlignment: Qt.AlignVCenter
-
-            //font.bold: is_active
-            opacity: is_active ? 1.0 : .50
-
-            onClicked: {
+            onActivated: {
                 if (App.view.workflow_phase === ViewModule.Analyze) {
                     results_pop.open()
                 } else {
@@ -370,23 +354,7 @@ Item {
                     App.view.workflow_phase = ViewModule.Analyze
                 }
             }
-
-            Behavior on opacity {
-                NumberAnimation {
-                    duration: 150
-                }
-            }
-        }
-
-        STClickableLabel {
-            id: swap_results_indicator
-            text: "\uf0d7"
-
-            font.family: "Font Awesome 7 Free"
-
-            visible: App.view.workflow_phase === ViewModule.Analyze
-
-            onClicked: results_pop.open()
+            onMenuRequested: results_pop.open()
         }
     }
 

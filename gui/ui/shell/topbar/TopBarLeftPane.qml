@@ -11,6 +11,9 @@ RowLayout {
 
     required property int available_width
     required property bool show_logos
+    property bool show_branding: true
+    property bool show_context: true
+    property bool show_left_panel_toggle: true
 
     function getTitle() {
         switch (App.view.workflow_phase) {
@@ -41,6 +44,7 @@ RowLayout {
 
     STIconButton {
         id: leftpanel_open
+        visible: root.show_left_panel_toggle
         Layout.preferredWidth: implicitWidth
         Layout.preferredHeight: implicitHeight
         //Layout.leftMargin: 20
@@ -55,7 +59,7 @@ RowLayout {
 
     Item {
         id: soltrace_logo
-        visible: root.show_logos
+        visible: root.show_branding && root.show_logos
 
         Layout.alignment: Qt.AlignVCenter
 
@@ -111,24 +115,6 @@ RowLayout {
                 font.capitalization: Font.SmallCaps
             }
 
-            STClickableLabel {
-                id: prerel_logo
-
-                visible: AppData.is_prerelease && !AppData.recording_mode
-
-                //anchors.bottom: parent.bottom
-                //anchors.left: parent.left
-
-                text: " \uf071"
-                font.family: "Font Awesome 7 Free"
-
-                style: Label.Outline
-                styleColor: "black"
-
-                font.pointSize: App.theme.labelSize
-
-                color: Material.color(Material.Yellow)
-            }
         }
 
         MouseArea {
@@ -256,31 +242,46 @@ RowLayout {
 
     RowLayout {
         id: context_row
+        visible: root.show_context
 
         Layout.fillWidth: true
+        Layout.minimumWidth: 0
         Layout.leftMargin: 8
         Layout.rightMargin: 12
         spacing: 8
 
-        Label {
-            text: root.current_context_title
-            font.bold: true
-            opacity: 0.65
-            elide: Text.ElideRight
-        }
+        // Label {
+        //     text: root.current_context_title
+        //     font.bold: true
+        //     opacity: 0.65
+        //     elide: Text.ElideRight
+        // }
 
-        Rectangle {
-            Layout.fillHeight: true
-            Layout.topMargin: 10
-            Layout.bottomMargin: 10
-            Layout.preferredWidth: 1
-            color: Material.dividerColor
-        }
+        // Rectangle {
+        //     Layout.fillHeight: true
+        //     Layout.topMargin: 10
+        //     Layout.bottomMargin: 10
+        //     Layout.preferredWidth: 1
+        //     color: Material.dividerColor
+        // }
 
         Label {
+            id: context_name
+
+            Layout.fillWidth: true
+            Layout.minimumWidth: 0
             Layout.maximumWidth: 320
             text: root.current_context_name
             elide: Text.ElideMiddle
+            horizontalAlignment: Text.AlignRight
+
+            HoverHandler {
+                id: context_name_hover
+            }
+
+            ToolTip.delay: 500
+            ToolTip.visible: context_name_hover.hovered
+            ToolTip.text: context_name.text
         }
 
         Rectangle {
@@ -289,11 +290,15 @@ RowLayout {
             Layout.bottomMargin: 10
             Layout.preferredWidth: 1
             color: Material.dividerColor
+
+            visible: !root.analyzing
         }
 
         STIconButton {
             visible: !root.analyzing
             enabled: !App.file_source.is_loading
+            Layout.minimumWidth: implicitWidth
+            Layout.preferredWidth: implicitWidth
             icon: "\uf56f"
             toolTip: "Load Scene"
             onClicked: file_menu.open()
@@ -307,13 +312,11 @@ RowLayout {
         STIconButton {
             visible: !root.analyzing && !!App.file_source.current_database
             enabled: !App.file_source.is_loading
+            Layout.minimumWidth: implicitWidth
+            Layout.preferredWidth: implicitWidth
             icon: "\uf0c7"
             toolTip: "Save Scene"
             onClicked: file_controller.save_current()
-        }
-
-        Item {
-            Layout.fillWidth: true
         }
     }
 
