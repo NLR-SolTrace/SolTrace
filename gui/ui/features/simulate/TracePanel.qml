@@ -6,7 +6,7 @@ import QtQuick.Layouts
 
 import SolTrace
 
-ScrollView {
+STScrollView {
     id: root
 
     Layout.fillHeight: true

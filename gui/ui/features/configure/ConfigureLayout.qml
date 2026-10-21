@@ -6,7 +6,7 @@ import QtQuick.Layouts
 import QtQuick.Dialogs
 import SolTrace
 
-ElementListEditor {
+InlineListEditor {
     id: root
 
     property var module: App.layout
@@ -14,7 +14,8 @@ ElementListEditor {
     property bool has_viewed_entity: module.viewed_element.is_valid()
 
     model: has_viewed_entity ? module.filtered_child_model : module.filtered_root_elements_model
-    emptyListText: "Scene elements combine geometry, material, and placement to define a physical object. Create one below to build the scene."
+    emptyListText: qsTr("No elements available")
+    helpText: qsTr("Scene elements combine geometry, material, and placement. Select one above, or create one to build the scene.")
 
     onEditingChanged: {
         App.view.editing_layout = editing
@@ -30,32 +31,22 @@ ElementListEditor {
         }
     }
 
-    onItemClicked: function(entity) {
-        module.edited_element = entity
+    onItemClicked: function(index, modelData) {
+        module.edited_element = modelData.entity
     }
 
     listHeader: RowLayout {
-        STSearchField {
-            id: search_field
+        Breadcrumb {
             Layout.fillWidth: true
-            text: root.model.name_filter
+            Layout.margins: 3
 
-            Binding {
-                target: root.model
-                property: "name_filter"
-                value: search_field.text
-            }
-        }
-
-        STIconButton {
-            icon: "\uf05b"
-            toolTip: "Select Element From View"
-            onClicked: App.view.mouse_mode = ViewModule.SelectElement
+            onItemSelected: root.editing = true
+            onItemDeselected: root.clearSelection()
         }
 
         STIconButton {
             icon: "\uf0b0"
-
+            toolTip: qsTr("Filter Elements")
             onClicked: filter_popup.open()
 
             STPopup {
@@ -126,7 +117,6 @@ ElementListEditor {
 
                         onClicked: root.model.clear_all_filters()
                     }
-
                 }
             }
         }
@@ -137,15 +127,46 @@ ElementListEditor {
             visible: root.model.has_filter
 
             icon: "\ue17b"
+            toolTip: qsTr("Clear Element Filters")
 
             onClicked: root.model.clear_all_filters()
         }
     }
 
-    listFooter: RowLayout {
+    searchBar: STSearchField {
+        id: search_field
+        text: root.model.name_filter
+
+        Binding {
+            target: root.model
+            property: "name_filter"
+            value: search_field.text
+        }
+    }
+
+    actions: ColumnLayout {
+        spacing: 0
+
+        STIconButton {
+            icon: "\uf002"
+            toolTip: root.searchVisible ? qsTr("Hide Search")
+                                            : qsTr("Search Elements")
+            onClicked: root.searchVisible = !root.searchVisible
+        }
+
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 1
+            Layout.topMargin: 3
+            Layout.bottomMargin: 3
+            color: Material.dividerColor
+        }
+
         CreateNewItemButton {
             title: "New Element"
             icon: "\uf055"
+            label: ""
+            toolTip: title
 
             onCreateRequested: function(name) {
                 var new_name = AppData.current_database.sanitize_element_name(name)
@@ -158,7 +179,8 @@ ElementListEditor {
         CreateNewItemButton {
             title: "New Child Element"
             icon: "\uf0fe"
-            label: "New Child"
+            label: ""
+            toolTip: title
             enabled: root.has_viewed_entity
             opacity: enabled ? 1.0 : 0.4
 
@@ -172,112 +194,110 @@ ElementListEditor {
                 root.editing = true
             }
         }
+
+        RenameItemButton {
+            enabled: root.editing
+            opacity: enabled ? 1.0 : 0.4
+            currentName: root.module.edited_element_name
+            title: qsTr("Rename Element")
+
+            onRenameRequested: function(newName) {
+                const currDb = root.module.current_database
+                const sanitizedName = currDb.sanitize_element_name(newName)
+                currDb.set_name_of(root.module.edited_element, sanitizedName)
+            }
+        }
+
+        STIconButton {
+            enabled: root.editing
+            opacity: enabled ? 1.0 : 0.4
+            icon: "\uf2ed"
+            toolTip: qsTr("Delete Element")
+            onClicked: delete_element_dialog.open()
+
+            STDialog {
+                id: delete_element_dialog
+                title: qsTr("Delete Element")
+
+                ColumnLayout {
+                    anchors.fill: parent
+
+                    Label {
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        text: qsTr("Delete this element? Any children of this element will be made top-level.")
+                    }
+                }
+
+                footer: STDialogButtonBox {
+                    STButton {
+                        text: qsTr("Cancel")
+                        DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
+                    }
+
+                    STButton {
+                        text: qsTr("Delete")
+                        Material.foreground: Material.Red
+                        DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
+                        idle_color: App.theme.destructiveGlassColor
+                        down_color: Material.color(Material.Red)
+
+                        onClicked: {
+                            root.module.delete_edited_element()
+                            root.clearSelection()
+                            delete_element_dialog.close()
+                        }
+                    }
+                }
+            }
+        }
+
+        STIconButton {
+            icon: "\uf05b"
+            toolTip: qsTr("Select Element From View")
+            onClicked: App.view.mouse_mode = ViewModule.SelectElement
+        }
+    }
+
+    listDelegate: STItemDelegate {
+        text: itemModel ? itemModel.name : qsTr("No name")
+        highlighted: itemModel
+                     && itemModel.entity === root.module.edited_element
+
+        STIconButton {
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            visible: itemModel && itemModel.has_children
+            icon: "\uf802"
+            toolTip: qsTr("Open Children")
+
+            onClicked: {
+                root.module.viewed_element = itemModel.entity
+                root.module.clear_edited_element()
+                root.clearSelection()
+            }
+        }
     }
 
     detailView: ColumnLayout {
+        spacing: 8
 
-        RowLayout {
-            STIconButton {
-                icon: "\uf053"
-                onClicked: {
-                    root.module.clear_edited_element()
-                    root.goBack()
-                }
-            }
-
-            RenameLabel {
-                text: root.module.edited_element_name
-
-                onAccepted: (new_name) => {
-                                var curr_db = root.module.current_database
-
-                                new_name = curr_db.sanitize_element_name(new_name);
-
-                                curr_db.set_name_of(
-                                    root.module.edited_element,
-                                    new_name
-                                    )
-                            }
-            }
+        InlineDocumentation {
+            key: "configure.layout"
         }
 
-        ScrollView {
-            id: layout_scroll
-            Layout.fillHeight: true
+        ElementEdit {
             Layout.fillWidth: true
-            contentWidth: availableWidth
-
-            ColumnLayout {
-                width: layout_scroll.availableWidth
-
-                InlineDocumentation {
-                    key: "configure.layout"
-                }
-
-                ElementEdit {
-                    Layout.fillWidth: true
-                }
-            }
         }
 
-        RowLayout {
-
-
-            STIconButton {
-                icon: "\uf2ed"
-                label: "Delete"
-                onClicked: delete_element_dialog.open()
-
-                STDialog {
-                    id: delete_element_dialog
-
-                    title: "Delete Element"
-
-                    ColumnLayout {
-                        anchors.fill: parent
-
-                        Label {
-                            Layout.fillWidth: true
-                            wrapMode: Text.WordWrap
-                            text: "Delete this element? Any children of this element will be made top-level."
-                        }
-                    }
-
-                    footer: STDialogButtonBox {
-                        STButton {
-                            text: qsTr("Cancel")
-                            DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
-                        }
-
-                        STButton {
-                            text: qsTr("Delete")
-                            Material.foreground: Material.Red
-                            DialogButtonBox.buttonRole: DialogButtonBox.DestructiveRole
-                            idle_color: App.theme.destructiveGlassColor
-                            down_color: Material.color(Material.Red)
-
-                            onClicked: {
-                                root.module.delete_edited_element()
-                                root.goBack()
-                                delete_element_dialog.close()
-                            }
-                        }
-                    }
-                }
-            }
-
-            Item {
-                Layout.fillWidth: true
-            }
-
-            STIconButton {
-                icon: "\uf140"
-                label: "Orient Camera"
-                toolTip: "Orient Camera to Element"
-                enabled: root.module.instance_edit
-                onClicked: simulation_scene.orient_camera_to_database_position(
-                               root.module.instance_edit.global_position)
-            }
+        STIconButton {
+            Layout.alignment: Qt.AlignRight
+            icon: "\uf140"
+            label: qsTr("Orient Camera")
+            toolTip: qsTr("Orient Camera to Element")
+            enabled: root.module.instance_edit
+            onClicked: simulation_scene.orient_camera_to_database_position(
+                           root.module.instance_edit.global_position)
         }
     }
 

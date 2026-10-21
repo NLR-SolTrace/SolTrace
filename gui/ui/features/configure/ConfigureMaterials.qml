@@ -6,12 +6,13 @@ import QtQuick.Layouts
 
 import SolTrace
 
-FilteredStackEditor {
+FilteredInlineListEditor {
     id: root
 
     source_model: App.materials.materials_list
 
-    emptyListText: qsTr("Materials define optical properties. Create one below to assign it to elements.")
+    emptyListText: qsTr("No materials available")
+    helpText: qsTr("Materials define optical properties. Select one above, or create one to assign to scene elements.")
 
     onEditingChanged: {
         App.view.editing_material = editing
@@ -38,15 +39,87 @@ FilteredStackEditor {
         // if (App.db) App.db.select_all_with_material(modelData.entity)
     }
 
-    listHeader: RowLayout {
-        STSearchField {
-            id: search_field
-            Layout.fillWidth: true
+    searchBar: STSearchField {
+        id: search_field
 
-            Binding {
-                target: root
-                property: "filterText"
-                value: search_field.text
+        Binding {
+            target: root
+            property: "filterText"
+            value: search_field.text
+        }
+    }
+
+    actions: ColumnLayout {
+        spacing: 0
+
+        STIconButton {
+            icon: "\uf002"
+            toolTip: root.searchVisible ? qsTr("Hide Search")
+                                            : qsTr("Search Materials")
+            onClicked: root.searchVisible = !root.searchVisible
+        }
+
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 1
+            Layout.topMargin: 3
+            Layout.bottomMargin: 3
+            color: Material.dividerColor
+        }
+
+        CreateNewItemButton {
+            title: qsTr("New Material")
+            label: ""
+            toolTip: title
+
+            onCreateRequested: function(name) {
+                var new_name = AppData.current_database.sanitize_material_name(name)
+                App.materials.current_material =
+                        AppData.current_database.add_material_group(new_name)
+            }
+        }
+
+        RenameItemButton {
+            enabled: root.editing
+            opacity: enabled ? 1.0 : 0.4
+            currentName: App.materials.current_material_name
+            title: qsTr("Rename Material")
+
+            onRenameRequested: function(newName) {
+                const mats = App.materials
+                const currDb = mats.current_database
+                const sanitizedName = currDb.sanitize_material_name(newName)
+                currDb.set_name_of(mats.current_material, sanitizedName)
+            }
+        }
+
+        DeleteItemButton {
+            id: delete_button
+
+            enabled: root.editing
+            opacity: enabled ? 1.0 : 0.4
+            label: ""
+            toolTip: title
+            title: qsTr("Delete Material")
+            itemType: qsTr("material")
+            replacementModel: root.source_model
+            toDelete: AppData.materials.current_material
+
+            onBeforeOpened: {
+                isDangerous = AppData.current_database.material_use_count(
+                            delete_button.toDelete)
+            }
+
+            onDeleteRequested: {
+                AppData.current_database.delete_material_group(
+                            delete_button.toDelete)
+                root.clearSelection()
+            }
+
+            onDeleteReassignRequested: function(entity) {
+                AppData.current_database.delete_material_group(
+                            delete_button.toDelete, entity)
+                root.clearSelection()
             }
         }
 
@@ -54,17 +127,6 @@ FilteredStackEditor {
             icon: "\uf05b"
             toolTip: qsTr("Select Material From View")
             onClicked: App.view.mouse_mode = ViewModule.SelectMaterial
-        }
-    }
-
-    listFooter: RowLayout {
-        CreateNewItemButton {
-            title: qsTr("New Material")
-
-            onCreateRequested: function(name) {
-                var new_name = AppData.current_database.sanitize_material_name(name)
-                AppData.current_database.add_material_group(new_name)
-            }
         }
     }
 
@@ -76,43 +138,11 @@ FilteredStackEditor {
     detailView: ColumnLayout {
         spacing: 8
 
-        RowLayout {
-            STIconButton {
-                icon: "\uf053"
-                onClicked: root.goBack()
-            }
-
-            RenameLabel {
-                text: App.materials.current_material_name
-
-                onAccepted: (new_name) => {
-                    var mats = App.materials;
-                    var curr_db = mats.current_database
-
-                    new_name = curr_db.sanitize_material_name(new_name);
-
-                    curr_db.set_name_of(
-                                    mats.current_material,
-                                    new_name
-                                    )
-                }
-            }
+        InlineDocumentation {
+            key: "configure.materials"
         }
 
-        ScrollView {
-            id: mat_scroll
-            Layout.fillHeight: true
-            Layout.fillWidth: true
-            contentWidth: availableWidth
-
-            ColumnLayout {
-                width: mat_scroll.availableWidth
-
-                InlineDocumentation {
-                    key: "configure.materials"
-                }
-
-                SurfacePropertyGraphic {
+        SurfacePropertyGraphic {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 148
 
@@ -129,7 +159,7 @@ FilteredStackEditor {
                     specularityErrorMrad: face.specularity_error
                 }
 
-                STFormPanel {
+        STFormPanel {
                     id: refraction_indices
                     title: qsTr("Refraction indices")
 
@@ -181,13 +211,13 @@ FilteredStackEditor {
                     }
                 }
 
-                STComboBar {
+        STComboBar {
                     id: bar
                     Layout.fillWidth: true
                     model: [qsTr("Front"), qsTr("Back")]
                 }
 
-                SwipeView {
+        SwipeView {
                     Layout.fillWidth: true
                     Layout.preferredHeight: currentItem ? currentItem.implicitHeight : 0
                     interactive: false
@@ -205,41 +235,6 @@ FilteredStackEditor {
                         Layout.fillWidth: true
                         side_editor: App.materials.material_edit.back_editor
                     }
-                }
-            }
-        }
-
-        RowLayout {
-            DeleteItemButton {
-                id: delete_button
-
-                title: qsTr("Delete Material")
-                itemType: qsTr("material")
-                replacementModel: root.source_model
-
-                toDelete: AppData.materials.current_material
-
-                onBeforeOpened: {
-                    isDangerous = AppData.current_database.material_use_count(
-                                delete_button.toDelete
-                                )
-                }
-
-                onDeleteRequested: {
-                    AppData.current_database.delete_material_group(
-                                delete_button.toDelete
-                                )
-                    root.clearSelection()
-                }
-
-                onDeleteReassignRequested: (entity) => {
-                    AppData.current_database.delete_material_group(
-                                delete_button.toDelete,
-                                entity
-                                )
-                    root.clearSelection()
-                }
-            }
         }
     }
 

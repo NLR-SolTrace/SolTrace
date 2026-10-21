@@ -7,7 +7,7 @@ import QtQuick.Dialogs
 
 import SolTrace
 
-ScrollView {
+STScrollView {
     Layout.fillHeight: true
     Layout.fillWidth: true
 
@@ -95,7 +95,7 @@ ScrollView {
                 }
             }
 
-            ScrollView {
+            STScrollView {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
 

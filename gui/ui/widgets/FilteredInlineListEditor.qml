@@ -2,7 +2,7 @@ import QtQuick
 
 import SolTrace
 
-StackEditor {
+InlineListEditor {
     id: root
 
     property var source_model: null
@@ -34,7 +34,7 @@ StackEditor {
                 return
             }
         } catch (error) {
-            console.log("[FilteredStackEditor] source index mapping failed:",
+            console.log("[FilteredInlineListEditor] source index mapping failed:",
                         error)
         }
 

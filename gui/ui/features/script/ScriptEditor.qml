@@ -23,7 +23,7 @@ Popup {
 
     ColumnLayout {
         anchors.fill: parent
-        ScrollView {
+        STScrollView {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
