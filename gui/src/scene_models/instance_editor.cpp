@@ -525,6 +525,25 @@ QString AnInstanceEditor::parent_name() const {
     return { };
 }
 
+bool AnInstanceEditor::can_set_parent(Entity candidate) const {
+    if (!m_host or !m_host->valid(m_entity) or !m_host->valid(candidate)) {
+        return false;
+    }
+
+    std::unordered_set<Entity> visited;
+    auto                       cursor = candidate;
+
+    while (cursor.is_valid() and visited.insert(cursor).second) {
+        if (cursor == m_entity) return false;
+
+        auto const* parent_component = m_host->parent.get(cursor);
+        if (!parent_component) break;
+        cursor = parent_component->parent;
+    }
+
+    return true;
+}
+
 QVector<SolTrace::GUI::Data::Entity> AnInstanceEditor::tags() const {
     if (m_host and m_host->valid(m_entity)) {
         if (auto tf = m_host->tag_membership.get(m_entity); tf) {

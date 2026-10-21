@@ -38,6 +38,9 @@ public:
     void reset(Database* database);
 
 public slots:
+    /// Return the visible row for an entity, or -1 when it is filtered out.
+    int index_of(Entity entity) const;
+
     /// Clear the material-group filter.
     void clear_material();
 

@@ -70,7 +70,7 @@ ColumnLayout {
     }
 
     STFormRow {
-        label: "X"
+        label: qsTr("X")
 
         STDoubleSpinBox {
             id: x_pos
@@ -86,7 +86,7 @@ ColumnLayout {
     }
 
     STFormRow {
-        label: "Y"
+        label: qsTr("Y")
 
         STDoubleSpinBox {
             id: y_pos
@@ -102,7 +102,7 @@ ColumnLayout {
     }
 
     STFormRow {
-        label: "Z"
+        label: qsTr("Z")
 
         STDoubleSpinBox {
             id: z_pos

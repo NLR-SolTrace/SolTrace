@@ -7,13 +7,10 @@ STFormPanel {
     id: root
 
     property var module
-
-    STPropertySeparator {
-        title: "Placement"
-    }
+    title: qsTr("Placement")
 
     STSwitch {
-        text: "Use 3D widget"
+        text: qsTr("Use 3D Widget")
         checked: App.view.mouse_mode === ViewModule.EditElement
         onToggled: App.view.mouse_mode = checked ? ViewModule.EditElement
                                                   : ViewModule.Camera
@@ -25,32 +22,33 @@ STFormPanel {
     }
 
     STFormRow {
-        label: "Coordinates"
+        label: qsTr("Coordinates")
 
-        STComboBox {
-            id: positionModeCombo
+        STTabBar {
+            id: positionModeBar
+            secondary: true
             Layout.fillWidth: true
-            model: ["Local", "Global"]
+            model: [qsTr("Local"), qsTr("Global")]
         }
     }
 
     StackLayout {
         id: positionSwipe
         Layout.fillWidth: true
-        currentIndex: positionModeCombo.currentIndex
+        currentIndex: positionModeBar.currentIndex
 
         ElementPositionEditor {
             Layout.preferredWidth: positionSwipe.width
             module: root.module
             targetProperty: "position"
-            resetText: "Reset Local Default Position"
+            resetText: qsTr("Reset Local Position")
         }
 
         ElementPositionEditor {
             Layout.preferredWidth: positionSwipe.width
             module: root.module
             targetProperty: "global_position"
-            resetText: "Reset Global Default Position"
+            resetText: qsTr("Reset Global Position")
         }
     }
 

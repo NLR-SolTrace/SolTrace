@@ -30,7 +30,8 @@ struct SurfaceParameter {
     double  content = 0.0;
     double  min     = std::numeric_limits<double>::lowest();
     double  max     = std::numeric_limits<double>::max();
-    int     type    = GenericSurfaceParameter;
+    int     type     = GenericSurfaceParameter;
+    bool    editable = true;
 
 
     RECORD_META(SurfaceParameter,
@@ -38,7 +39,8 @@ struct SurfaceParameter {
                 SM_EXPOSE_RW(content),
                 SM_EXPOSE_RO(min),
                 SM_EXPOSE_RO(max),
-                SM_EXPOSE_RO(type));
+                SM_EXPOSE_RO(type),
+                SM_EXPOSE_RO(editable));
 };
 
 

@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Controls.Material
 import QtQuick.Layouts
 
 import SolTrace
@@ -10,6 +11,7 @@ STDialog {
     required property var tableModel
     required property string quantityName
     required property bool tableEnabled
+    property color graphColor: Material.color(Material.Blue)
 
     signal tableEnabledRequested(bool enabled)
 
@@ -34,6 +36,14 @@ STDialog {
             text: qsTr("Values are linearly interpolated between incidence angles. Angles must be in strictly increasing order.")
             wrapMode: Label.WrapAtWordBoundaryOrAnywhere
             opacity: 0.75
+        }
+
+        AngularOpticalGraph {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 145
+            model: root.tableModel
+            quantityName: root.quantityName
+            lineColor: root.graphColor
         }
 
         ListView {

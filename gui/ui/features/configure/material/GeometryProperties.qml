@@ -46,13 +46,16 @@ ColumnLayout {
             model: section.parameterModel
             delegate: STPropertyLabel {
                 required property int index
+                required property var model
                 required property string name
                 required property real content
                 required property int type
                 readonly property bool isFlatFocalLength: type === 2
                                                                && (content === 0
                                                                    || !Number.isFinite(content))
-                text: name + (isFlatFocalLength ? qsTr(" (flat)") : "")
+                text: name
+                      + (isFlatFocalLength ? qsTr(" (flat)") : "")
+                      + (!model.editable ? qsTr(" (set by surface)") : "")
                 Layout.row: index * 2 + 2
                 Layout.column: 0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
@@ -84,6 +87,7 @@ ColumnLayout {
                 Layout.fillWidth: true
                 Layout.row: index * 2 + 3
                 Layout.column: 0
+                enabled: model.editable
                 value: toDisplayValue(content)
                 from: toDisplayValue(min)
                 to: toDisplayValue(max)

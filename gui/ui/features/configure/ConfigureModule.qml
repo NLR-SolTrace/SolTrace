@@ -24,14 +24,13 @@ ColumnLayout {
         showTitle: false
     }
 
-    STPipelineBar {
+    STTabBar {
         id: bar
         currentIndex: App.view.configure_section
         onCurrentIndexChanged: App.view.configure_section = currentIndex
 
         Layout.fillWidth: true
 
-        abbreviatedModel: ["Source", "Mats", "Geom", "Stage"]
         model: ["Ray Source", "Materials", "Geometries", "Staging"]
         
     }

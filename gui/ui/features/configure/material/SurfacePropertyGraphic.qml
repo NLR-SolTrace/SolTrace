@@ -16,6 +16,7 @@ Item {
     property bool incidentFromBack: false
     property real slopeErrorMrad: 8.0
     property real specularityErrorMrad: 3.0
+    property bool reflection: true
 
     property real incidentRayAngle: 33
 
@@ -206,6 +207,7 @@ Item {
         label_lower: root.incidentFromBack
         ray_angle: (root.incidentFromBack ? 1 : -1)
                    * root.incidentRayAngle
+        visible: root.reflection
     }
 
     Ray {
@@ -220,7 +222,7 @@ Item {
         color: Material.color(Material.Green)
 
         ray_angle: root.transmittedRayAngle
-        visible: !root.totalInternalReflection
+        visible: !root.reflection && !root.totalInternalReflection
     }
 
     // We use two lines per band to avoid weird dash artifacts
@@ -239,9 +241,11 @@ Item {
         // Angle convention:
         // 0 deg = right, -90 deg = up, +90 deg = down
         property real normalAngleDeg: root.incidentFromBack ? 90 : -90
-        property real reflectedAngleDeg: root.incidentFromBack
+        property real outgoingAngleDeg: root.reflection
+                                        ? (root.incidentFromBack
                                            ? root.incidentRayAngle
-                                           : -root.incidentRayAngle
+                                           : -root.incidentRayAngle)
+                                        : root.transmittedRayAngle
 
         property real slopeHalfAngleDeg: root.slopeErrorMrad * 180 / Math.PI / 1000 * (root.exaggerateAngle ? 10 : 1)
         property real specularHalfAngleDeg: root.specularityErrorMrad * 180 / Math.PI / 1000 * (root.exaggerateAngle ? 10 : 1)
@@ -387,9 +391,9 @@ Item {
             strokeColor: "transparent"
             fillColor: Qt.alpha(Material.color(Material.Pink), 0.1)
 
-            readonly property real a0: error_shape.reflectedAngleDeg
+            readonly property real a0: error_shape.outgoingAngleDeg
                                        - error_shape.specularHalfAngleDeg
-            readonly property real a1: error_shape.reflectedAngleDeg
+            readonly property real a1: error_shape.outgoingAngleDeg
                                        + error_shape.specularHalfAngleDeg
 
             startX: error_shape.center_pin.x
@@ -428,10 +432,10 @@ Item {
 
             PathLine {
                 x: error_shape.point_x(
-                       error_shape.reflectedAngleDeg - error_shape.specularHalfAngleDeg,
+                       error_shape.outgoingAngleDeg - error_shape.specularHalfAngleDeg,
                        )
                 y: error_shape.point_y(
-                       error_shape.reflectedAngleDeg - error_shape.specularHalfAngleDeg,
+                       error_shape.outgoingAngleDeg - error_shape.specularHalfAngleDeg,
                        )
             }
         }
@@ -450,10 +454,10 @@ Item {
                 id: spec_error_left
 
                 x: error_shape.point_x(
-                       error_shape.reflectedAngleDeg + error_shape.specularHalfAngleDeg,
+                       error_shape.outgoingAngleDeg + error_shape.specularHalfAngleDeg,
                        )
                 y: error_shape.point_y(
-                       error_shape.reflectedAngleDeg + error_shape.specularHalfAngleDeg,
+                       error_shape.outgoingAngleDeg + error_shape.specularHalfAngleDeg,
                        )
             }
         }
@@ -484,6 +488,7 @@ Item {
     }
 
     Label {
+        visible: !root.reflection
         color: Material.color(Material.Grey)
         text: qsTr("Front medium: <em>n</em> = %1").arg(root.nFront)
         textFormat: Label.RichText
@@ -494,6 +499,7 @@ Item {
     }
 
     Label {
+        visible: !root.reflection
         color: Material.color(Material.Grey)
         text: qsTr("Back medium: <em>n</em> = %1").arg(root.nBack)
         textFormat: Label.RichText
@@ -504,7 +510,7 @@ Item {
     }
 
     Label {
-        visible: !root.totalInternalReflection
+        visible: !root.reflection && !root.totalInternalReflection
         color: Material.color(Material.Green)
         text: root.transmittance
         textFormat: Label.RichText
@@ -515,6 +521,7 @@ Item {
     }
 
     Label {
+        visible: root.reflection
         color: Material.color(Material.Blue)
         text: root.reflectance
         textFormat: Label.RichText
@@ -525,7 +532,7 @@ Item {
     }
 
     Label {
-        visible: root.totalInternalReflection
+        visible: !root.reflection && root.totalInternalReflection
         color: Material.color(Material.Blue)
         text: qsTr("Total internal reflection")
 

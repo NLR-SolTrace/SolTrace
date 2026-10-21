@@ -442,22 +442,22 @@ void OpticalPropertiesObject::set_refraction_index_back(double v) {
 void OpticalPropertiesObject::set_ideal_absorption() {
     patch_properties([this](SD::OpticalPropertySet& prop, auto side) {
         prop.set_ideal_absorption(m_side);
-        trigger_all_changed();
     });
+    trigger_all_changed();
 }
 
 void OpticalPropertiesObject::set_ideal_reflection() {
     patch_properties([this](SD::OpticalPropertySet& prop, auto side) {
         prop.set_ideal_reflection(m_side);
-        trigger_all_changed();
     });
+    trigger_all_changed();
 }
 
 void OpticalPropertiesObject::set_ideal_transmission() {
-    patch_properties([this](SD::OpticalPropertySet& prop, auto side) {
+    patch_properties([](SD::OpticalPropertySet& prop, auto) {
         prop.set_ideal_transmission();
-        trigger_all_changed();
     });
+    trigger_all_changed();
 }
 
 void OpticalPropertiesObject::set_ideal_transmission_with_indices(
@@ -465,10 +465,10 @@ void OpticalPropertiesObject::set_ideal_transmission_with_indices(
     double n_back) {
 
     patch_properties(
-        [n_front, n_back, this](SD::OpticalPropertySet& prop, auto side) {
+        [n_front, n_back](SD::OpticalPropertySet& prop, auto) {
             prop.set_ideal_transmission(n_front, n_back);
-            trigger_all_changed();
         });
+    trigger_all_changed();
 }
 
 } // namespace SolTrace::GUI::Data

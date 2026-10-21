@@ -8,8 +8,12 @@ import SolTrace
 Item {
     id: root
 
-    implicitWidth: mode_row.implicitWidth + mode_row.anchors.leftMargin
-                   + mode_row.anchors.rightMargin
+    readonly property real expandedImplicitWidth:
+        mode_row.implicitWidth + mode_row.anchors.leftMargin
+        + mode_row.anchors.rightMargin
+    readonly property bool compact: width + 1 < expandedImplicitWidth
+
+    implicitWidth: expandedImplicitWidth
     implicitHeight: mode_row.implicitHeight
 
     required property var blur_source
@@ -21,6 +25,11 @@ Item {
     }
 
     signal openClicked()
+
+    function selectWorkflow(index) {
+        App.view.simulation_content_view = index === 3
+        App.view.workflow_phase = index + 1
+    }
 
     component WorkflowItem: Rectangle {
         id: workflow_item
@@ -132,6 +141,8 @@ Item {
 
     Row {
         id: mode_row
+
+        visible: !root.compact
 
         anchors.fill: parent
         anchors.leftMargin: 20
@@ -356,6 +367,24 @@ Item {
             }
             onMenuRequested: results_pop.open()
         }
+    }
+
+    STComboBox {
+        id: compactModeSelector
+
+        visible: root.compact
+        anchors.fill: parent
+        anchors.leftMargin: 4
+        anchors.rightMargin: 4
+
+        model: [
+            qsTr("1  Load Scene"),
+            qsTr("2  Configure Scene"),
+            qsTr("3  Trace Scene"),
+            qsTr("4  Analyze Results")
+        ]
+        currentIndex: Math.max(0, App.view.workflow_phase - 1)
+        onActivated: root.selectWorkflow(currentIndex)
     }
 
     Item {

@@ -1,9 +1,12 @@
 #include "scene_models/surface_parameter_model.h"
+#include "editing/apertureeditor.h"
 #include "support/enummodel.h"
 
 #include <magic_enum/magic_enum.hpp>
 
 #include <QtMath>
+
+#include <algorithm>
 
 namespace SolTrace::GUI::Data {
 
@@ -117,6 +120,10 @@ SurfaceParameterModel::SurfaceParameterModel(QObject* parent)
     : StructTableModel(parent),
       m_surface_type_model(
           new Support::EnumModel<SD::SurfaceType,
+                                 SD::SurfaceType::CONE,
+                                 SD::SurfaceType::HYPER,
+                                 SD::SurfaceType::GENERAL_SPENCER_MURTY,
+                                 SD::SurfaceType::TORUS,
                                  SD::SurfaceType::SURFACE_UNKNOWN>(this)) {
 
     connect(this,
@@ -324,8 +331,33 @@ void SurfaceParameterModel::make_new_surface(SD::SurfaceType type) {
     }
 
     database()->geometry_parameters.try_patch(
-        m_current_group,
-        [&](GeometryComponent& params) { params.surface = replacement; });
+        m_current_group, [&](GeometryComponent& params) {
+            params.surface = replacement;
+
+            auto valid_apertures =
+                ApertureParameterModel::valid_apertures_for_surf(type);
+            auto aperture_is_valid = params.aperture
+                                     && std::find(valid_apertures.begin(),
+                                                  valid_apertures.end(),
+                                                  params.aperture->my_type)
+                                            != valid_apertures.end();
+
+            if (!aperture_is_valid) {
+                params.aperture = SD::Aperture::make_aperture_from_type(
+                    SD::ApertureType::RECTANGLE, { 1.0, 1.0 });
+            }
+
+            if (type == SD::SurfaceType::CYLINDER) {
+                auto* cylinder =
+                    dynamic_cast<SD::Cylinder*>(params.surface.get());
+                auto* rectangle =
+                    dynamic_cast<SD::Rectangle*>(params.aperture.get());
+                if (cylinder && rectangle) {
+                    rectangle->set_x_coord(-cylinder->radius);
+                    rectangle->set_x_length(2.0 * cylinder->radius);
+                }
+            }
+        });
 }
 
 void SurfaceParameterModel::surf_changed() {

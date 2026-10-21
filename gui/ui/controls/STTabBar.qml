@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Controls.Material
@@ -14,19 +16,18 @@ Item {
     property string fontFamily
     property int fontWeight: Font.Normal
 
-    property var abbreviatedModel: []
     property var model: []
 
     implicitHeight: secondary ? 28 : 32
     height: implicitHeight
 
     Label {
-        id: default_label
+        id: defaultLabel
         visible: false
     }
 
-    function select(idx) {
-        bar.currentIndex = idx
+    function select(index) {
+        bar.currentIndex = index
     }
 
     function modelCount() {
@@ -34,16 +35,6 @@ Item {
         if (bar.model.length !== undefined) return bar.model.length
         if (bar.model.count !== undefined) return bar.model.count
         return 0
-    }
-
-    function abbreviatedLabelAt(index) {
-        if (bar.abbreviatedModel
-                && bar.abbreviatedModel.length > index
-                && bar.abbreviatedModel[index]) {
-            return bar.abbreviatedModel[index]
-        }
-
-        return bar.model[index] ?? ""
     }
 
     Rectangle {
@@ -79,7 +70,8 @@ Item {
                 delegate: TabButton {
                     id: tab
 
-                    property int itemIndex: index
+                    required property int index
+                    readonly property int itemIndex: index
 
                     Layout.fillWidth: true
                     Layout.fillHeight: true
@@ -115,36 +107,25 @@ Item {
                             anchors.left: parent.left
                             anchors.right: parent.right
                             anchors.bottom: parent.bottom
-                            height: 3
+                            height: 2
                             color: Material.foreground
                         }
                     }
 
-                    contentItem: Item {
-                        Row {
-                            anchors.centerIn: parent
-
-                            Label {
-                                anchors.verticalCenter: parent.verticalCenter
-                                font.family: bar.fontFamily.length
-                                             ? bar.fontFamily : default_label.font.family
-                                font.pointSize: Math.max(8,
-                                                         App.theme.defaultComboBarTextSize
-                                                         - (bar.secondary ? 1 : 0))
-                                font.weight: tab.checked
-                                             ? Font.Bold : bar.fontWeight
-                                text: bar.abbreviatedLabelAt(tab.itemIndex)
-                                opacity: tab.checked ? 1.0
-                                                     : tab.hovered ? 0.82 : 0.62
-                            }
-                        }
-                    }
-
-                    STToolTip {
-                        visible: tab.hovered
-                                 && bar.abbreviatedLabelAt(tab.itemIndex)
-                                 !== tab.text
+                    contentItem: Label {
+                        font.family: bar.fontFamily.length
+                                     ? bar.fontFamily
+                                     : defaultLabel.font.family
+                        font.pointSize: Math.max(
+                                            8,
+                                            App.theme.comboBarTextSize
+                                            - (bar.secondary ? 1 : 0))
+                        font.weight: tab.checked ? Font.Bold : bar.fontWeight
                         text: tab.text
+                        opacity: tab.checked ? 1.0 : tab.hovered ? 0.82 : 0.62
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                        elide: Text.ElideRight
                     }
                 }
             }

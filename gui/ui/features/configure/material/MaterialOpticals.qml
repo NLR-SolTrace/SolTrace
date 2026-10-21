@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Controls.Material
 import QtQuick.Layouts
 import SolTrace
 
@@ -8,89 +9,7 @@ STFormPanel {
     property bool has_selection : false
     property var material_editor : App.materials.group_edit
     property var side_editor
-
-    // =========================================================================
-
-    STFormRow {
-        label: qsTr("Preset")
-
-        STButton {
-            text: qsTr("Load")
-
-            Layout.fillWidth: true
-
-            onClicked: {
-                preset_popup.open()
-            }
-
-            STPopup {
-                id: preset_popup
-
-                RowLayout {
-                    Layout.fillWidth: true
-
-                    STButton {
-                        Layout.fillWidth: true
-                        text: qsTr("Absorber")
-                        onClicked: {
-                            if (root.side_editor) {
-                                root.side_editor.set_ideal_absorption()
-                            }
-                            preset_popup.close()
-                        }
-                    }
-
-                    STButton {
-                        Layout.fillWidth: true
-                        text: qsTr("Reflector")
-                        onClicked: {
-                            if (root.side_editor) {
-                                root.side_editor.set_ideal_reflection()
-                            }
-                            preset_popup.close()
-                        }
-                    }
-
-                    STButton {
-                        Layout.fillWidth: true
-                        text: qsTr("Transmitter")
-                        onClicked: {
-                            if (root.side_editor) {
-                                root.side_editor.set_ideal_transmission()
-                            }
-                            preset_popup.close()
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // =========================================================================
-
-    STFormRow {
-        label: qsTr("Optical behavior")
-
-        STComboBox {
-            id: interactionCombo
-            Layout.fillWidth: true
-            model: App.materials.material_edit.interaction_type_model
-            textRole: "name"
-            valueRole: "value"
-
-            currentValue: root.side_editor.interaction_type
-
-            onActivated: {
-                if (root.side_editor) {
-                    root.side_editor.interaction_type = currentValue
-                }
-            }
-        }
-    }
-
-
-
-    // =========================================================================
+    property bool reflection: true
 
     STFormRow {
         label: qsTr("Error profile")
@@ -120,6 +39,7 @@ STFormPanel {
     // =========================================================================
 
     STFormRow {
+        visible: root.reflection
         label: qsTr("Reflectance (ρ)")
 
         STDoubleSpinBox {
@@ -149,6 +69,7 @@ STFormPanel {
             AngularOpticalTableEditor {
                 id: reflectanceTableEditor
                 quantityName: qsTr("Reflectance")
+                graphColor: Material.color(Material.Blue)
                 tableModel: root.side_editor
                             ? root.side_editor.reflectivity_table : null
                 tableEnabled: root.side_editor
@@ -165,6 +86,7 @@ STFormPanel {
     // =========================================================================
 
     STFormRow {
+        visible: !root.reflection
         label: qsTr("Transmittance (τ)")
 
         STDoubleSpinBox {
@@ -194,6 +116,7 @@ STFormPanel {
             AngularOpticalTableEditor {
                 id: transmittanceTableEditor
                 quantityName: qsTr("Transmittance")
+                graphColor: Material.color(Material.Green)
                 tableModel: root.side_editor
                             ? root.side_editor.transmissivity_table : null
                 tableEnabled: root.side_editor
@@ -257,21 +180,39 @@ STFormPanel {
         }
     }
 
-    // RowLayout {
-    //     Layout.columnSpan: 2
-    //     Layout.fillWidth: true
-    //     spacing: 12
+    // =========================================================================
 
-    //     Button {
-    //         Layout.fillWidth: true
-    //         text: "Angular Reflectance"
-    //         enabled: false
-    //     }
+    STFormRow {
+        label: qsTr("Quick setup")
 
-    //     Button {
-    //         Layout.fillWidth: true
-    //         text: "Angular Transmittance"
-    //         enabled: false
-    //     }
-    // }
+        STIconButton {
+            icon: "\uf0d0"
+            label: qsTr("Choose preset")
+            toolTip: qsTr("Apply a preset to this face")
+            onClicked: face_preset_menu.open()
+
+            STMenu {
+                id: face_preset_menu
+
+                MenuItem {
+                    text: qsTr("Ideal absorber")
+                    onTriggered: {
+                        if (root.side_editor) {
+                            root.side_editor.set_ideal_absorption()
+                        }
+                    }
+                }
+
+                MenuItem {
+                    text: qsTr("Ideal reflector")
+                    onTriggered: {
+                        if (root.side_editor) {
+                            root.side_editor.set_ideal_reflection()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }

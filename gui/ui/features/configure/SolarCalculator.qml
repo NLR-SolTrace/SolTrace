@@ -9,8 +9,18 @@ ColumnLayout {
     id: root
 
     property string error_string: ""
-
-    readonly property int fieldSpacing: 8
+    readonly property var utcOffsetModel: {
+        const values = []
+        for (let offset = -12; offset <= 14; ++offset) {
+            const absolute = Math.abs(offset)
+            const hours = absolute < 10 ? "0" + absolute : absolute
+            values.push({
+                value: offset,
+                text: "UTC" + (offset < 0 ? "\u2212" : "+") + hours + ":00"
+            })
+        }
+        return values
+    }
 
     function apply_changes() {
         root.error_string = App.sun.apply_calculator(
@@ -27,33 +37,29 @@ ColumnLayout {
             App.sun.calc_data.altitude,
             App.sun.calc_data.pressure,
             App.sun.calc_data.temperature)
-
-        if (root.error_string.length > 0) {
-            return;
-        }
     }
 
     spacing: 10
 
-    RowLayout {
-        Layout.fillWidth: true
+    STFormPanel {
+        title: qsTr("Calculator")
 
-        Label {
-            text: "Calculator"
-        }
+        STFormRow {
+            label: qsTr("Method")
 
-        STComboBox {
-            Layout.fillWidth: true
-            model: [
-                { value: 0, text: "Legacy" },
-                { value: 1, text: "Duffie" },
-                { value: 2, text: "SOLPOS" },
-                { value: 3, text: "SPA" }
-            ]
-            textRole: "text"
-            valueRole: "value"
-            currentValue: App.sun.calc_data.calculator
-            onActivated: App.sun.calc_data.calculator = currentValue
+            STComboBox {
+                Layout.fillWidth: true
+                model: [
+                    { value: 0, text: qsTr("Legacy") },
+                    { value: 1, text: qsTr("Duffie") },
+                    { value: 2, text: qsTr("SOLPOS") },
+                    { value: 3, text: qsTr("SPA") }
+                ]
+                textRole: "text"
+                valueRole: "value"
+                currentValue: App.sun.calc_data.calculator
+                onActivated: App.sun.calc_data.calculator = currentValue
+            }
         }
     }
 
@@ -64,254 +70,262 @@ ColumnLayout {
         Layout.margins: 8
     }
 
-    Rectangle {
-        Layout.fillWidth: true
-        Layout.preferredHeight: 1
-        color: Material.dividerColor
-    }
+    STFormPanel {
+        title: qsTr("Location")
 
-    Flow {
-        id: positionGroup
-        spacing: root.fieldSpacing
-        Layout.fillWidth: true
+        STFormRow {
+            label: qsTr("Latitude (deg)")
 
-        readonly property int fieldWidth: parent.width
-
-        STSpinBoxField {
-            width: positionGroup.fieldWidth
-            label: "Latitude (deg)"
-            from: -90
-            to: 90
-            decimals: 4
-            value: App.sun.calc_data.latitude
-            onValueModified: App.sun.calc_data.latitude = value
-        }
-
-        STSpinBoxField {
-            width: positionGroup.fieldWidth
-            label: "Longitude (deg)"
-            from: -180
-            to: 180
-            decimals: 4
-            value: App.sun.calc_data.longitude
-            onValueModified: App.sun.calc_data.longitude = value
-        }
-    }
-
-    Rectangle {
-        Layout.fillWidth: true
-        Layout.preferredHeight: 1
-        color: Material.dividerColor
-    }
-
-    Flow {
-        id: dateGroup
-        spacing: root.fieldSpacing
-        Layout.fillWidth: true
-
-        readonly property int fieldWidth: parent.width
-
-        STSpinBoxField {
-            width: dateGroup.fieldWidth
-            label: "Year"
-            from: 1900
-            to: 2200
-            value: App.sun.calc_data.year
-            onValueModified: {
-                App.sun.calc_data.year = value
-                seasonPresetField.clear()
+            STDoubleSpinBox {
+                Layout.fillWidth: true
+                from: -90
+                to: 90
+                decimals: 4
+                value: App.sun.calc_data.latitude
+                onValueModified: App.sun.calc_data.latitude = value
             }
         }
 
-        STSpinBoxField {
-            width: dateGroup.fieldWidth
-            label: "Month"
-            from: 1
-            to: 12
-            value: App.sun.calc_data.month
-            onValueModified: {
-                App.sun.calc_data.month = value
-                seasonPresetField.clear()
-            }
-        }
+        STFormRow {
+            label: qsTr("Longitude (deg)")
 
-        STSpinBoxField {
-            width: dateGroup.fieldWidth
-            label: "Day"
-            from: 1
-            to: 31
-            value: App.sun.calc_data.day
-            onValueModified: {
-                App.sun.calc_data.day = value
-                seasonPresetField.clear()
+            STDoubleSpinBox {
+                Layout.fillWidth: true
+                from: -180
+                to: 180
+                decimals: 4
+                value: App.sun.calc_data.longitude
+                onValueModified: App.sun.calc_data.longitude = value
             }
         }
     }
 
-    Flow {
-        id: timeGroup
-        spacing: root.fieldSpacing
-        Layout.fillWidth: true
+    STFormPanel {
+        title: qsTr("Date and time")
 
-        readonly property int fieldWidth: parent.width
+        STFormRow {
+            label: qsTr("Date")
 
-        STSpinBoxField {
-            width: timeGroup.fieldWidth
-            label: "Hour"
-            from: 0
-            to: 23
-            value: App.sun.calc_data.hour
-            onValueModified: {
-                App.sun.calc_data.hour = value
-                timePresetField.clear()
+            STComboBox {
+                Layout.fillWidth: true
+                Layout.minimumWidth: 90
+                model: [
+                    qsTr("January"), qsTr("February"), qsTr("March"),
+                    qsTr("April"), qsTr("May"), qsTr("June"),
+                    qsTr("July"), qsTr("August"), qsTr("September"),
+                    qsTr("October"), qsTr("November"), qsTr("December")
+                ]
+                currentIndex: App.sun.calc_data.month - 1
+                onActivated: App.sun.calc_data.month = currentIndex + 1
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Month")
             }
-        }
 
-        STSpinBoxField {
-            width: timeGroup.fieldWidth
-            label: "Minute"
-            from: 0
-            to: 59
-            value: App.sun.calc_data.minute
-            onValueModified: {
-                App.sun.calc_data.minute = value
-                timePresetField.clear()
+            STDoubleSpinBox {
+                Layout.minimumWidth: 72
+                Layout.preferredWidth: 72
+                from: 1
+                to: 31
+                decimals: 0
+                value: App.sun.calc_data.day
+                onValueModified: App.sun.calc_data.day = value
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Day")
             }
-        }
 
-        STSpinBoxField {
-            width: timeGroup.fieldWidth
-            label: "Second"
-            from: 0
-            to: 59
-            value: App.sun.calc_data.second
-            onValueModified: {
-                App.sun.calc_data.second = value
-                timePresetField.clear()
+            STDoubleSpinBox {
+                Layout.minimumWidth: 90
+                Layout.preferredWidth: 96
+                from: 1900
+                to: 2200
+                decimals: 0
+                value: App.sun.calc_data.year
+                onValueModified: App.sun.calc_data.year = value
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Year")
             }
+
         }
 
-        STSpinBoxField {
-            width: parent.width
-            label: "UTC Offset"
-            from: -12
-            to: 14
-            value: App.sun.calc_data.timezone_offset
-            onValueModified: {
-                App.sun.calc_data.timezone_offset = value
-                timePresetField.clear()
+        STFormRow {
+            label: qsTr("Time")
+
+            STDoubleSpinBox {
+                Layout.fillWidth: true
+                Layout.minimumWidth: 60
+                from: 0
+                to: 23
+                decimals: 0
+                value: App.sun.calc_data.hour
+                onValueModified: App.sun.calc_data.hour = value
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Hour")
             }
+
+            Label {
+                text: ":"
+            }
+
+            STDoubleSpinBox {
+                Layout.fillWidth: true
+                Layout.minimumWidth: 60
+                from: 0
+                to: 59
+                decimals: 0
+                value: App.sun.calc_data.minute
+                onValueModified: App.sun.calc_data.minute = value
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Minute")
+            }
+
+            Label {
+                text: ":"
+            }
+
+            STDoubleSpinBox {
+                Layout.fillWidth: true
+                Layout.minimumWidth: 60
+                from: 0
+                to: 59
+                decimals: 0
+                value: App.sun.calc_data.second
+                onValueModified: App.sun.calc_data.second = value
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Second")
+            }
+
         }
-    }
 
-    RowLayout {
-        Layout.fillWidth: true
+        STFormRow {
+            label: qsTr("Presets")
 
-        Label {
-            text: "Preset Season"
-        }
+            STButton {
+                Layout.fillWidth: true
+                text: qsTr("Date")
+                right_text_icon: "\uf0d7"
+                onClicked: datePresetMenu.open()
 
-        STComboBox {
-            id: seasonPresetField
-            Layout.fillWidth: true
-            currentIndex: -1
-            model: ["Spring (March 20)", "Summer (June 21)", "Fall (September 22)", "Winter (December 21)"]
-            onActivated: function(index) {
-                if (currentIndex >= 0) {
-                    [
-                        App.sun.calc_data.set_spring,
-                        App.sun.calc_data.set_summer,
-                        App.sun.calc_data.set_fall,
-                        App.sun.calc_data.set_winter,
-                    ][currentIndex]()
+                STMenu {
+                    id: datePresetMenu
+
+                    MenuItem {
+                        text: qsTr("Spring (March 20)")
+                        onTriggered: App.sun.calc_data.set_spring()
+                    }
+                    MenuItem {
+                        text: qsTr("Summer (June 21)")
+                        onTriggered: App.sun.calc_data.set_summer()
+                    }
+                    MenuItem {
+                        text: qsTr("Fall (September 22)")
+                        onTriggered: App.sun.calc_data.set_fall()
+                    }
+                    MenuItem {
+                        text: qsTr("Winter (December 21)")
+                        onTriggered: App.sun.calc_data.set_winter()
+                    }
                 }
-                displayText = model[currentIndex]
             }
 
-            function clear() {
-                currentIndex = -1
-                displayText = ""
-            }
-        }
-    }
+            STButton {
+                Layout.fillWidth: true
+                text: qsTr("Time")
+                right_text_icon: "\uf0d7"
+                onClicked: timePresetMenu.open()
 
-    RowLayout {
-        Layout.fillWidth: true
+                STMenu {
+                    id: timePresetMenu
 
-        Label {
-            text: "Preset Time"
-        }
-
-        STComboBox {
-            id: timePresetField
-            Layout.fillWidth: true
-            currentIndex: -1
-            model: ["Dawn (6am)", "Mid-Morning (9am)", "Noon (12pm)", "Mid-Afternoon (3pm)", "Golden Hour (5pm)", "Dusk (7pm)"]
-            onActivated: function(index) {
-                if (currentIndex >= 0) {
-                    [
-                        App.sun.calc_data.set_dawn,
-                        App.sun.calc_data.set_mid_morning,
-                        App.sun.calc_data.set_noon,
-                        App.sun.calc_data.set_mid_afternoon,
-                        App.sun.calc_data.set_golden_hour,
-                        App.sun.calc_data.set_dusk,
-                    ][currentIndex]()
+                    MenuItem {
+                        text: qsTr("Dawn (6am)")
+                        onTriggered: App.sun.calc_data.set_dawn()
+                    }
+                    MenuItem {
+                        text: qsTr("Mid-Morning (9am)")
+                        onTriggered: App.sun.calc_data.set_mid_morning()
+                    }
+                    MenuItem {
+                        text: qsTr("Noon (12pm)")
+                        onTriggered: App.sun.calc_data.set_noon()
+                    }
+                    MenuItem {
+                        text: qsTr("Mid-Afternoon (3pm)")
+                        onTriggered: App.sun.calc_data.set_mid_afternoon()
+                    }
+                    MenuItem {
+                        text: qsTr("Golden Hour (5pm)")
+                        onTriggered: App.sun.calc_data.set_golden_hour()
+                    }
+                    MenuItem {
+                        text: qsTr("Dusk (7pm)")
+                        onTriggered: App.sun.calc_data.set_dusk()
+                    }
                 }
-                displayText = model[currentIndex]
             }
+        }
 
-            function clear() {
-                currentIndex = -1
-                displayText = ""
+        STFormRow {
+            label: qsTr("Time zone")
+
+            STComboBox {
+                Layout.fillWidth: true
+                model: root.utcOffsetModel
+                textRole: "text"
+                valueRole: "value"
+                currentValue: App.sun.calc_data.timezone_offset
+                onActivated: App.sun.calc_data.timezone_offset = currentValue
             }
         }
     }
 
-    Rectangle {
-        Layout.columnSpan: 2
+    STFormPanel {
         Layout.fillWidth: true
-        Layout.preferredHeight: 1
-        color: Material.dividerColor
-    }
-
-    Flow {
-        id: extraOptions
-        spacing: root.fieldSpacing
-        Layout.fillWidth: true
-
+        title: qsTr("Atmospheric conditions")
         visible: App.sun.calc_data.calculator === SolarCalculatorData.SPA
 
-        readonly property int fieldWidth: parent.width
+        STFormRow {
+            label: qsTr("Altitude (m)")
 
-        STSpinBoxField {
-            width: extraOptions.fieldWidth
-            label: "Altitude (m)"
-            from: -440
-            to: 8850
-            decimals: 1
-            value: App.sun.calc_data.altitude
-            onValueModified: App.sun.calc_data.altitude = value
+            STDoubleSpinBox {
+                Layout.fillWidth: true
+                from: -440
+                to: 8850
+                decimals: 1
+                value: App.sun.calc_data.altitude
+                onValueModified: App.sun.calc_data.altitude = value
+            }
         }
 
-        STSpinBoxField {
-            width: extraOptions.fieldWidth
-            label: "Pressure"
-            from: 950
-            to: 1050
-            decimals: 2
-            value: App.sun.calc_data.pressure
-            onValueModified: App.sun.calc_data.pressure = value
+        STFormRow {
+            label: qsTr("Pressure (hPa)")
+
+            STDoubleSpinBox {
+                Layout.fillWidth: true
+                from: 950
+                to: 1050
+                decimals: 2
+                value: App.sun.calc_data.pressure
+                onValueModified: App.sun.calc_data.pressure = value
+            }
         }
 
-        STSpinBoxField {
-            width: extraOptions.fieldWidth
-            label: "Temperature"
-            from: -50
-            to: 60
-            decimals: 1
-            value: App.sun.calc_data.temperature
-            onValueModified: App.sun.calc_data.temperature = value
+        STFormRow {
+            label: qsTr("Temperature (°C)")
+
+            STDoubleSpinBox {
+                Layout.fillWidth: true
+                from: -50
+                to: 60
+                decimals: 1
+                value: App.sun.calc_data.temperature
+                onValueModified: App.sun.calc_data.temperature = value
+            }
         }
     }
 
@@ -325,7 +339,7 @@ ColumnLayout {
 
     STButton {
         Layout.fillWidth: true
-        text: "Apply"
+        text: qsTr("Apply")
         onClicked: root.apply_changes()
     }
 }

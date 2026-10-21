@@ -17,6 +17,20 @@ InlineListEditor {
     emptyListText: qsTr("No elements available")
     helpText: qsTr("Scene elements combine geometry, material, and placement. Select one above, or create one to build the scene.")
 
+    function synchronizeSelection() {
+        const entity = module.edited_element
+        if (!entity || !entity.is_valid()) {
+            root.currentIndex = -1
+            root.editing = false
+            return
+        }
+
+        root.currentIndex = root.model.index_of(entity)
+        root.editing = true
+    }
+
+    onModelChanged: Qt.callLater(root.synchronizeSelection)
+
     onEditingChanged: {
         App.view.editing_layout = editing
         if (!editing && App.view.mouse_mode === ViewModule.EditElement) {
@@ -28,6 +42,35 @@ InlineListEditor {
         target: App.view
         function onEditing_layout_changed() {
             root.editing = App.view.editing_layout
+        }
+    }
+
+    Connections {
+        target: root.module
+
+        function onEdited_element_changed() {
+            Qt.callLater(root.synchronizeSelection)
+        }
+    }
+
+    Connections {
+        target: root.model
+        ignoreUnknownSignals: true
+
+        function onLayoutChanged() {
+            Qt.callLater(root.synchronizeSelection)
+        }
+
+        function onModelReset() {
+            Qt.callLater(root.synchronizeSelection)
+        }
+
+        function onRowsInserted() {
+            Qt.callLater(root.synchronizeSelection)
+        }
+
+        function onRowsRemoved() {
+            Qt.callLater(root.synchronizeSelection)
         }
     }
 
@@ -59,17 +102,17 @@ InlineListEditor {
                         Layout.fillWidth: true
                         Layout.columnSpan: 3
 
-                        text: "Filter elements by:"
+                        text: qsTr("Filter elements by:")
                     }
 
                     Label {
-                        text: "Material:"
+                        text: qsTr("Material:")
                     }
 
                     STClickableLabel {
                         Layout.fillWidth: true
                         property string mat_name: root.model.material_filter_name
-                        text: mat_name.length ? mat_name : "All"
+                        text: mat_name.length ? mat_name : qsTr("All")
 
                         onClicked: mat_pop.open()
 
@@ -84,17 +127,20 @@ InlineListEditor {
 
                     STIconButton {
                         icon: "\uf0e2"
+                        enabled: root.model.material_filter.is_valid()
+                        opacity: enabled ? 1.0 : 0.4
+                        toolTip: qsTr("Clear Material Filter")
                         onClicked: root.model.clear_material()
                     }
 
                     Label {
-                        text: "Geometry:"
+                        text: qsTr("Geometry:")
                     }
 
                     STClickableLabel {
                         Layout.fillWidth: true
                         property string geo_name: root.model.geometry_filter_name
-                        text: geo_name.length ? geo_name : "All"
+                        text: geo_name.length ? geo_name : qsTr("All")
 
                         onClicked: geo_pop.open()
 
@@ -109,11 +155,14 @@ InlineListEditor {
 
                     STIconButton {
                         icon: "\uf0e2"
+                        enabled: root.model.geometry_filter.is_valid()
+                        opacity: enabled ? 1.0 : 0.4
+                        toolTip: qsTr("Clear Geometry Filter")
                         onClicked: root.model.clear_geometry()
                     }
 
                     STButton {
-                        text: "Reset All"
+                        text: qsTr("Reset All")
 
                         onClicked: root.model.clear_all_filters()
                     }
@@ -286,10 +335,6 @@ InlineListEditor {
             key: "configure.layout"
         }
 
-        ElementEdit {
-            Layout.fillWidth: true
-        }
-
         STIconButton {
             Layout.alignment: Qt.AlignRight
             icon: "\uf140"
@@ -298,6 +343,10 @@ InlineListEditor {
             enabled: root.module.instance_edit
             onClicked: simulation_scene.orient_camera_to_database_position(
                            root.module.instance_edit.global_position)
+        }
+
+        ElementEdit {
+            Layout.fillWidth: true
         }
     }
 

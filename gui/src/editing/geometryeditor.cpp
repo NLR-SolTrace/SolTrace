@@ -86,6 +86,10 @@ SurfaceGenerationOptions SurfaceGeometry::surface_generation_options() const {
 
 void SurfaceGeometry::rebuild_geometry() {
     clear();
+    set_vertex_count(0);
+    set_bounding_box({});
+    setBounds(QVector3D {}, QVector3D {});
+    update();
 
     if (!database()) {
         qDebug() << Q_FUNC_INFO << "no db";
@@ -101,7 +105,6 @@ void SurfaceGeometry::rebuild_geometry() {
 
     if (!ptr->surface || !ptr->aperture) {
         qDebug() << Q_FUNC_INFO << "no surf or apt";
-        update();
         return;
     }
 
@@ -112,8 +115,6 @@ void SurfaceGeometry::rebuild_geometry() {
     if (!mesh || mesh->vertex.empty() || mesh->triangles.empty()) {
         qWarning() << Q_FUNC_INFO
                    << "Geometry is empty, or unable to be generated";
-        set_vertex_count(0);
-        update();
         return;
     }
 
@@ -235,6 +236,32 @@ void GeometryEditor::recompute_geometry_errors() {
         errors.push_back("Geometry is missing a surface or aperture.");
         m_geometry_error_model->setStringList(errors);
         return;
+    }
+
+    switch (params->surface->my_type) {
+    case SD::FLAT:
+    case SD::PARABOLA:
+    case SD::CYLINDER:
+    case SD::SPHERE: break;
+    case SD::CONE:
+        errors.push_back(
+            "Cone surfaces are not supported by the simulation runners.");
+        break;
+    case SD::HYPER:
+        errors.push_back(
+            "Hyperboloid surfaces are not supported by the simulation runners.");
+        break;
+    case SD::GENERAL_SPENCER_MURTY:
+        errors.push_back(
+            "General Spencer-Murty surfaces are not supported by the simulation runners.");
+        break;
+    case SD::TORUS:
+        errors.push_back(
+            "Torus surfaces are not supported by the simulation runners.");
+        break;
+    case SD::SURFACE_UNKNOWN:
+        errors.push_back("The surface type is unknown.");
+        break;
     }
 
     auto valid_apertures =

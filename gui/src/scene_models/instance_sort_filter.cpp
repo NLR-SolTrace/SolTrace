@@ -122,6 +122,24 @@ void InstanceSortFilter::reset(Database* database) {
             &InstanceSortFilter::invalidate);
 }
 
+int InstanceSortFilter::index_of(Entity entity) const {
+    if (!sourceModel() or !entity.is_valid()) return -1;
+
+    for (int source_row = 0; source_row < sourceModel()->rowCount();
+         ++source_row) {
+        auto const source_index = sourceModel()->index(source_row, 0);
+        auto const candidate =
+            sourceModel()->data(source_index, entity_role).value<Entity>();
+
+        if (candidate != entity) continue;
+
+        auto const proxy_index = mapFromSource(source_index);
+        return proxy_index.isValid() ? proxy_index.row() : -1;
+    }
+
+    return -1;
+}
+
 void InstanceSortFilter::clear_material() {
     set_material_filter({ });
     set_material_filter_name(QString());

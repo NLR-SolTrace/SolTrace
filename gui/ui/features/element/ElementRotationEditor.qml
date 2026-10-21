@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 
 import SolTrace
@@ -41,11 +42,11 @@ ColumnLayout {
     }
 
     STPropertySeparator {
-        title: "Parent-relative Rotation"
+        title: qsTr("Local Rotation")
     }
 
     STFormRow {
-        label: "X Angle (deg)"
+        label: qsTr("X Angle (deg)")
 
         STDoubleSpinBox {
             id: x_euler
@@ -60,7 +61,7 @@ ColumnLayout {
     }
 
     STFormRow {
-        label: "Y Angle (deg)"
+        label: qsTr("Y Angle (deg)")
 
         STDoubleSpinBox {
             id: y_euler
@@ -75,7 +76,7 @@ ColumnLayout {
     }
 
     STFormRow {
-        label: "Z Angle (deg)"
+        label: qsTr("Z Angle (deg)")
 
         STDoubleSpinBox {
             id: z_euler
@@ -91,13 +92,13 @@ ColumnLayout {
 
     STButton {
         Layout.fillWidth: true
-        text: "Reset"
+        text: qsTr("Reset Rotation")
         onClicked: root.module.euler_angles_xyz = Qt.vector3d(0, 0, 0)
     }
 
     STButton {
         Layout.fillWidth: true
-        text: "Point at..."
+        text: qsTr("Point at...")
         onClicked: look_at_pop.open()
 
         STPopup {
@@ -113,11 +114,19 @@ ColumnLayout {
             ColumnLayout {
                 spacing: 8
 
-                STComboBar {
+                STTabBar {
                     id: look_at_mode
+                    secondary: true
                     Layout.fillWidth: true
-                    model: ["Position", "Element"]
-                    iconModel: ["\uf3c5", "\uf6d1"]
+                    model: [qsTr("Position"), qsTr("Element")]
+                }
+
+                Label {
+                    visible: look_at_mode.currentIndex === 0
+                    Layout.fillWidth: true
+                    text: qsTr("Orientation updates live as you edit the target position.")
+                    opacity: 0.65
+                    wrapMode: Label.WrapAtWordBoundaryOrAnywhere
                 }
 
                 ColumnLayout {
@@ -125,7 +134,7 @@ ColumnLayout {
                     Layout.fillWidth: true
 
                     STFormRow {
-                        label: "X"
+                        label: qsTr("X")
 
                         STDoubleSpinBox {
                             id: look_at_x
@@ -139,7 +148,7 @@ ColumnLayout {
                     }
 
                     STFormRow {
-                        label: "Y"
+                        label: qsTr("Y")
 
                         STDoubleSpinBox {
                             id: look_at_y
@@ -153,7 +162,7 @@ ColumnLayout {
                     }
 
                     STFormRow {
-                        label: "Z"
+                        label: qsTr("Z")
 
                         STDoubleSpinBox {
                             id: look_at_z
@@ -170,17 +179,14 @@ ColumnLayout {
                 STButton {
                     visible: look_at_mode.currentIndex === 0
                     Layout.fillWidth: true
-                    text: "Point at Position"
-                    onClicked: {
-                        look_at_pop.accept_position()
-                        look_at_pop.close()
-                    }
+                    text: qsTr("Done")
+                    onClicked: look_at_pop.close()
                 }
 
                 STButton {
                     visible: look_at_mode.currentIndex === 1
                     Layout.fillWidth: true
-                    text: "Choose Element"
+                    text: qsTr("Choose Element")
                     onClicked: look_at_element_pop.open()
 
                     SelectElementPopup {

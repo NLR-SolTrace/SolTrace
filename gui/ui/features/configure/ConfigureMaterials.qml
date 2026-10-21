@@ -136,105 +136,138 @@ FilteredInlineListEditor {
     }
 
     detailView: ColumnLayout {
+        id: material_detail
+
         spacing: 8
+
+        readonly property var editor: App.materials.material_edit.front_editor
+        readonly property var face: bar.currentIndex === 0
+                                    ? App.materials.material_edit.front_editor
+                                    : App.materials.material_edit.back_editor
+        readonly property bool reflection:
+            editor
+            && editor.interaction_type
+               === App.materials.material_edit.reflection_type
+        SurfacePropertyGraphic {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 164
+            reflectance: material_detail.face.reflectivity
+            transmittance: material_detail.face.transmissivity
+            nFront: material_detail.face.refraction_index_front
+            nBack: material_detail.face.refraction_index_back
+            incidentFromBack: bar.currentIndex === 1
+            slopeErrorMrad: material_detail.face.slope_error
+            specularityErrorMrad: material_detail.face.specularity_error
+            reflection: material_detail.reflection
+        }
 
         InlineDocumentation {
             key: "configure.materials"
         }
 
-        SurfacePropertyGraphic {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 148
-
-                    property var face: bar.currentIndex == 0
-                                       ? App.materials.material_edit.front_editor
-                                       : App.materials.material_edit.back_editor
-
-                    reflectance: face.reflectivity
-                    transmittance: face.transmissivity
-                    nFront: face.refraction_index_front
-                    nBack: face.refraction_index_back
-                    incidentFromBack: bar.currentIndex == 1
-                    slopeErrorMrad: face.slope_error
-                    specularityErrorMrad: face.specularity_error
-                }
-
         STFormPanel {
-                    id: refraction_indices
-                    title: qsTr("Refraction indices")
+            id: shared_properties
+            title: qsTr("Material")
 
-                    readonly property var editor:
-                        App.materials.material_edit.front_editor
+            STFormRow {
+                label: qsTr("Optical behavior")
 
-                    STFormRow {
-                        label: qsTr("Front medium (<em>n</em>)")
-                        labelTextFormat: Label.RichText
-
-                        STDoubleSpinBox {
-                            Layout.fillWidth: true
-                            from: 1.0
-                            to: 5.0
-                            decimals: 4
-                            stepSize: 0.01
-                            value: refraction_indices.editor
-                                   ? refraction_indices.editor.refraction_index_front
-                                   : 1.0
-                            onValueModified: {
-                                if (refraction_indices.editor) {
-                                    refraction_indices.editor.refraction_index_front
-                                            = value
-                                }
-                            }
-                        }
-                    }
-
-                    STFormRow {
-                        label: qsTr("Back medium (<em>n</em>)")
-                        labelTextFormat: Label.RichText
-
-                        STDoubleSpinBox {
-                            Layout.fillWidth: true
-                            from: 1.0
-                            to: 5.0
-                            decimals: 4
-                            stepSize: 0.01
-                            value: refraction_indices.editor
-                                   ? refraction_indices.editor.refraction_index_back
-                                   : 1.0
-                            onValueModified: {
-                                if (refraction_indices.editor) {
-                                    refraction_indices.editor.refraction_index_back
-                                        = value
-                                }
-                            }
-                        }
-                    }
-                }
-
-        STComboBar {
-                    id: bar
+                STComboBox {
+                    id: interaction_combo
                     Layout.fillWidth: true
-                    model: [qsTr("Front"), qsTr("Back")]
+                    model: App.materials.material_edit.interaction_type_model
+                    textRole: "name"
+                    valueRole: "value"
+                    currentValue: material_detail.editor.interaction_type
+
+                    onActivated: {
+                        material_detail.editor.interaction_type = currentValue
+                    }
                 }
+
+                STIconButton {
+                    icon: "\uf0d0"
+                    label: qsTr("Preset")
+                    toolTip: qsTr("Choose a material-wide preset")
+                    onClicked: material_preset_menu.open()
+
+                    STMenu {
+                        id: material_preset_menu
+
+                        MenuItem {
+                            text: qsTr("Ideal transmitter (both faces)")
+                            onTriggered: {
+                                material_detail.editor.set_ideal_transmission()
+                            }
+                        }
+                    }
+                }
+            }
+
+            STFormRow {
+                visible: !material_detail.reflection
+                label: qsTr("Front medium (<em>n</em>)")
+                labelTextFormat: Label.RichText
+
+                STDoubleSpinBox {
+                    Layout.fillWidth: true
+                    from: 1.0
+                    to: 5.0
+                    decimals: 4
+                    stepSize: 0.01
+                    value: material_detail.editor.refraction_index_front
+                    onValueModified: {
+                        material_detail.editor.refraction_index_front = value
+                    }
+                }
+            }
+
+            STFormRow {
+                visible: !material_detail.reflection
+                label: qsTr("Back medium (<em>n</em>)")
+                labelTextFormat: Label.RichText
+
+                STDoubleSpinBox {
+                    Layout.fillWidth: true
+                    from: 1.0
+                    to: 5.0
+                    decimals: 4
+                    stepSize: 0.01
+                    value: material_detail.editor.refraction_index_back
+                    onValueModified: {
+                        material_detail.editor.refraction_index_back = value
+                    }
+                }
+            }
+        }
+
+        STTabBar {
+            id: bar
+            secondary: true
+            Layout.fillWidth: true
+            model: [qsTr("Front"), qsTr("Back")]
+        }
 
         SwipeView {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: currentItem ? currentItem.implicitHeight : 0
-                    interactive: false
-                    clip: true
-                    currentIndex: bar.currentIndex
+            Layout.fillWidth: true
+            Layout.preferredHeight: currentItem ? currentItem.implicitHeight : 0
+            interactive: false
+            clip: true
+            currentIndex: bar.currentIndex
 
-                    MaterialOpticals {
-                        collapsed: false
-                        Layout.fillWidth: true
-                        side_editor: App.materials.material_edit.front_editor
-                    }
+            MaterialOpticals {
+                collapsed: false
+                Layout.fillWidth: true
+                side_editor: App.materials.material_edit.front_editor
+                reflection: material_detail.reflection
+            }
 
-                    MaterialOpticals {
-                        collapsed: false
-                        Layout.fillWidth: true
-                        side_editor: App.materials.material_edit.back_editor
-                    }
+            MaterialOpticals {
+                collapsed: false
+                Layout.fillWidth: true
+                side_editor: App.materials.material_edit.back_editor
+                reflection: material_detail.reflection
+            }
         }
     }
 

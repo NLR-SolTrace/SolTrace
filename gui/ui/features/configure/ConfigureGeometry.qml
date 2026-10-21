@@ -135,55 +135,110 @@ FilteredInlineListEditor {
     detailView: ColumnLayout {
         spacing: 8
 
-        InlineDocumentation {
-            key: "configure.geometry"
+        SurfacePreviewScene {
+            id: preview_scene
+            Layout.fillWidth: true
+
+            property bool show_expand: false
+
+            Layout.preferredHeight: show_expand ? 300 : 148
+
+            property bool no_geometry:
+                App.materials.geometry_edit.surface_geometry.vertex_count === 0
+
+            Row {
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.margins: 3
+                spacing: 3
+
+                STIconButton {
+                    icon: preview_scene.show_expand ? "\uf066" : "\uf065"
+                    toolTip: preview_scene.show_expand
+                             ? qsTr("Collapse preview")
+                             : qsTr("Expand preview")
+                    onClicked: preview_scene.show_expand = !preview_scene.show_expand
+                }
+
+                STIconButton {
+                    icon: "\uf0b2"
+                    toolTip: qsTr("Fit geometry in view")
+                    enabled: !preview_scene.no_geometry
+                    onClicked: preview_scene.fitGeometry()
+                }
+            }
+
+            RowLayout {
+                visible: parent.no_geometry
+
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.margins: 3
+
+                Label {
+                    text: "\uf071"
+
+                    font.family: "Font Awesome 7 Free"
+
+                    color: Material.color(Material.Yellow)
+                }
+
+                Label {
+                    Layout.fillWidth: true
+                    text: qsTr("No geometry for this configuration.")
+
+                    elide: Label.ElideRight
+
+                    color: Material.color(Material.Yellow)
+                }
+            }
         }
 
-        SurfacePreviewScene {
-                    id: preview_scene
-                    Layout.fillWidth: true
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: visible ? implicitHeight : 0
+            implicitHeight: geometry_errors.implicitHeight + 12
+            visible: error_repeater.count > 0
+            radius: 8
+            color: Qt.alpha(Material.color(Material.Yellow), 0.08)
+            border.color: Qt.alpha(Material.color(Material.Yellow), 0.45)
 
-                    property bool show_expand: false
+            ColumnLayout {
+                id: geometry_errors
+                anchors.fill: parent
+                anchors.margins: 6
+                spacing: 4
 
-                    Layout.preferredHeight: show_expand ? 300 : 148
+                Repeater {
+                    id: error_repeater
+                    model: App.materials.geometry_edit.geometry_error_model
 
-                    property bool no_geometry: App.materials.geometry_edit.surface_geometry.vertex_count === 0
-
-                    STIconButton {
-                        anchors.top: parent.top
-                        anchors.left: parent.left
-
-                        icon: "\uf424"
-
-                        onClicked: preview_scene.show_expand = !preview_scene.show_expand
-                    }
-
-                    RowLayout {
-                        visible: parent.no_geometry
-
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.bottom: parent.bottom
-                        anchors.margins: 3
+                    delegate: RowLayout {
+                        required property string display
+                        Layout.fillWidth: true
+                        spacing: 6
 
                         Label {
                             text: "\uf071"
-
                             font.family: "Font Awesome 7 Free"
-
                             color: Material.color(Material.Yellow)
                         }
 
                         Label {
                             Layout.fillWidth: true
-                            text: qsTr("No geometry for this configuration.")
-
-                            elide: Label.ElideRight
-
+                            text: display
+                            wrapMode: Label.WrapAtWordBoundaryOrAnywhere
                             color: Material.color(Material.Yellow)
                         }
                     }
                 }
+            }
+        }
+
+        InlineDocumentation {
+            key: "configure.geometry"
+        }
 
         GeometryProperties {
             Layout.fillWidth: true

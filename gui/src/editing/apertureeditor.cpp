@@ -5,6 +5,9 @@
 
 #include <QtMath>
 
+#include <algorithm>
+#include <cmath>
+
 namespace SolTrace::GUI::Data {
 
 namespace {
@@ -174,16 +177,34 @@ std::vector<double> factory_arguments_for(
 
 } // namespace
 
+ApertureTypeModel::ApertureTypeModel(QObject* parent)
+    : StructTableModel(parent) { }
+
+void ApertureTypeModel::set_for_surface(SD::SurfaceType surface_type) {
+    QVector<ApertureTypeRecord> records;
+
+    for (auto type : ApertureParameterModel::valid_apertures_for_surf(
+             surface_type)) {
+        records.push_back({
+            .name = Support::EnumModel<SD::ApertureType>::default_display_name(
+                type),
+            .value = static_cast<qint32>(type),
+        });
+    }
+
+    if (records == m_records) return;
+    reset(std::move(records));
+}
+
 std::span<SD::ApertureType const>
 ApertureParameterModel::valid_apertures_for_surf(SD::SurfaceType st) {
 
-    static constexpr std::array<SD::ApertureType, 8> all_valid = {
+    static constexpr std::array<SD::ApertureType, 7> all_valid = {
         SolTrace::Data::ANNULUS,
         SolTrace::Data::CIRCLE,
         SolTrace::Data::HEXAGON,
         SolTrace::Data::RECTANGLE,
         SolTrace::Data::EQUILATERAL_TRIANGLE,
-        SolTrace::Data::SINGLE_AXIS_CURVATURE_SECTION,
         SolTrace::Data::IRREGULAR_TRIANGLE,
         SolTrace::Data::IRREGULAR_QUADRILATERAL,
     };
@@ -219,9 +240,7 @@ ApertureParameterModel::valid_apertures_for_surf(SD::SurfaceType st) {
 
 ApertureParameterModel::ApertureParameterModel(QObject* parent)
     : StructTableModel(parent),
-      m_aperture_type_model(
-          new Support::EnumModel<SD::ApertureType,
-                                 SD::ApertureType::APERTURE_UNKNOWN>(this)) {
+      m_aperture_type_model(new ApertureTypeModel(this)) {
 
     connect(this,
             &ApertureParameterModel::dataChanged,
@@ -274,11 +293,45 @@ void ApertureParameterModel::parameters_changed(entt::entity e) {
     auto* params = database()->geometry_parameters.get(m_current_group);
     if (!params) return;
 
+    auto surface_type = params->surface
+                            ? params->surface->my_type
+                            : SD::SurfaceType::SURFACE_UNKNOWN;
+    m_aperture_type_model->set_for_surface(surface_type);
+
+    if (surface_type == SD::SurfaceType::CYLINDER && params->surface
+        && params->aperture) {
+        auto const* cylinder =
+            dynamic_cast<SD::Cylinder const*>(params->surface.get());
+        auto const* rectangle =
+            dynamic_cast<SD::Rectangle const*>(params->aperture.get());
+
+        if (cylinder && rectangle) {
+            auto const radius = cylinder->radius;
+            auto const close = [](double a, double b) {
+                return std::abs(a - b) <= 1.0e-8;
+            };
+
+            if (!close(rectangle->x_coord(), -radius)
+                || !close(rectangle->x_length(), 2.0 * radius)) {
+                database()->geometry_parameters.try_patch(
+                    m_current_group, [radius](GeometryComponent& geometry) {
+                        auto* rect = dynamic_cast<SD::Rectangle*>(
+                            geometry.aperture.get());
+                        if (!rect) return;
+                        rect->set_x_coord(-radius);
+                        rect->set_x_length(2.0 * radius);
+                    });
+                return;
+            }
+        }
+    }
+
     auto new_apt = SD::ApertureType::RECTANGLE;
 
     if (params->aperture) {
         new_apt = params->aperture->my_type;
-        set_from(*params->aperture);
+        set_from(*params->aperture,
+                 surface_type == SD::SurfaceType::CYLINDER);
     } else {
         set_for(new_apt);
     }
@@ -292,7 +345,8 @@ void ApertureParameterModel::set_for(SD::ApertureType type) {
     this->reset(make_parameters_for(type));
 }
 
-void ApertureParameterModel::set_from(SD::Aperture const& aperture) {
+void ApertureParameterModel::set_from(SD::Aperture const& aperture,
+                                      bool cylinder_surface) {
     auto ret = make_parameters_for(aperture.my_type);
 
     switch (aperture.my_type) {
@@ -369,6 +423,12 @@ void ApertureParameterModel::set_from(SD::Aperture const& aperture) {
         break;
     }
     case SolTrace::Data::APERTURE_UNKNOWN: break;
+    }
+
+    if (cylinder_surface && aperture.my_type == SD::ApertureType::RECTANGLE
+        && ret.size() >= 4) {
+        ret[0].editable = false;
+        ret[2].editable = false;
     }
 
     this->reset(ret);

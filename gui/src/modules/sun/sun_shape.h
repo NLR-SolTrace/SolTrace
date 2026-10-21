@@ -22,6 +22,7 @@ class SunShape : public QObject {
     void sample_pillbox();
     void sample_buie();
     void sample_limb_darkened();
+    void ensure_custom_distribution();
     void update_x_axis();
 
     void update_current_distribution();

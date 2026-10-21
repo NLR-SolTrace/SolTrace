@@ -133,6 +133,10 @@ Item {
             visible: App.view.right_panel.visible
             enabled: visible
             opacity: enabled
+
+            radius: 0
+            show_border: false
+            show_shadow: false
         }
     }
 
