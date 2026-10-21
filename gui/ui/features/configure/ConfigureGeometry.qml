@@ -135,6 +135,10 @@ FilteredInlineListEditor {
     detailView: ColumnLayout {
         spacing: 8
 
+        InlineDocumentation {
+            key: "configure.geometry"
+        }
+
         SurfacePreviewScene {
             id: preview_scene
             Layout.fillWidth: true
@@ -234,10 +238,6 @@ FilteredInlineListEditor {
                     }
                 }
             }
-        }
-
-        InlineDocumentation {
-            key: "configure.geometry"
         }
 
         GeometryProperties {

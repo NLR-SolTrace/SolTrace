@@ -32,12 +32,6 @@ ColumnLayout {
 
     Label {
         Layout.fillWidth: true
-        text: "Simulation Results"
-        font.bold: true
-    }
-
-    Label {
-        Layout.fillWidth: true
         visible: result_list.count === 0
         text: "No simulation results yet."
         opacity: 0.7

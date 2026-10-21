@@ -148,6 +148,11 @@ FilteredInlineListEditor {
             editor
             && editor.interaction_type
                === App.materials.material_edit.reflection_type
+
+        InlineDocumentation {
+            key: "configure.materials"
+        }
+
         SurfacePropertyGraphic {
             Layout.fillWidth: true
             Layout.preferredHeight: 164
@@ -159,10 +164,6 @@ FilteredInlineListEditor {
             slopeErrorMrad: material_detail.face.slope_error
             specularityErrorMrad: material_detail.face.specularity_error
             reflection: material_detail.reflection
-        }
-
-        InlineDocumentation {
-            key: "configure.materials"
         }
 
         STFormPanel {

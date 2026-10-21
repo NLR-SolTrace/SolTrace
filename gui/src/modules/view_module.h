@@ -124,7 +124,6 @@ public:
     Q_WRITABLE_PROPERTY(QColor, ray_color, "white")
     Q_WRITABLE_PROPERTY(int, point_size, 1)
     Q_WRITABLE_PROPERTY(MouseMode, mouse_mode, MouseMode::Camera)
-    Q_WRITABLE_PROPERTY(bool, inline_docs, false)
 
     // Viewport State
     QOBJECT_READONLY_PROPERTY(SimulationViewState, sim)

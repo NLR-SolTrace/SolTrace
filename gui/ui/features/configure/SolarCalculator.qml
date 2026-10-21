@@ -44,6 +44,11 @@ ColumnLayout {
     STFormPanel {
         title: qsTr("Calculator")
 
+        STDocumentationSection {
+            key: "configure.sun.calculators." +
+                 ["legacy", "duffie", "solpos", "spa"][App.sun.calc_data.calculator]
+        }
+
         STFormRow {
             label: qsTr("Method")
 
@@ -61,13 +66,6 @@ ColumnLayout {
                 onActivated: App.sun.calc_data.calculator = currentValue
             }
         }
-    }
-
-    InlineDocumentation {
-        key: "configure.sun.calculators." +
-             ["legacy", "duffie", "solpos", "spa"][App.sun.calc_data.calculator]
-        Layout.fillWidth: true
-        Layout.margins: 8
     }
 
     STFormPanel {
@@ -143,6 +141,12 @@ ColumnLayout {
                 decimals: 0
                 value: App.sun.calc_data.year
                 onValueModified: App.sun.calc_data.year = value
+                textFromValue: function(value, locale) {
+                    return String(Math.round(value))
+                }
+                valueFromText: function(text, locale) {
+                    return Number.fromLocaleString(locale, text)
+                }
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Year")

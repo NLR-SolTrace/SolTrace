@@ -39,12 +39,6 @@ void AppSettings::load_session(AppData& app) {
     view->right_panel()->set_width(
         qMax(250, s.value("right_panel_width", 250).toInt()));
 
-    view->set_inline_docs(
-        s.value("inline_docs",
-                s.value("left_panel_inline_docs", false).toBool() ||
-                    s.value("right_panel_inline_docs", false).toBool())
-            .toBool());
-
     app.set_show_get_started_on_start(
         s.value("show_get_started_on_start", true).toBool());
 
@@ -147,7 +141,6 @@ void AppSettings::save_session(AppData const& app) {
     s.setValue("left_panel_width", view->left_panel()->width());
     s.setValue("right_panel_width", view->right_panel()->width());
 
-    s.setValue("inline_docs", view->inline_docs());
     s.setValue("show_get_started_on_start",
                app.show_get_started_on_start());
 

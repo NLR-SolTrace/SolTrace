@@ -145,13 +145,8 @@ RowLayout {
                     ColumnLayout {
                         width: parent.width
 
-                        InlineDocumentation {
+                        STDocumentationSection {
                             key: "view.camera"
-                            title: "Cameras"
-                        }
-
-                        Label {
-                            text: "Camera Controls"
                         }
 
                         STComboBar {
@@ -174,13 +169,8 @@ RowLayout {
                             }
                         }
 
-                        InlineDocumentation {
+                        STDocumentationSection {
                             key: "view.perspective"
-                            title: "Camera Perspectives"
-                        }
-
-                        Label {
-                            text: "Camera Projection"
                         }
 
                         STComboBar {

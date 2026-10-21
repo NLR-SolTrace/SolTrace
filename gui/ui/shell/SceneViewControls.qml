@@ -10,109 +10,94 @@ ColumnLayout {
     spacing: 0
 
     STIconButton {
+        id: camera_button
         icon: AppData.view.sim.camera === SimulationViewState.WASD
               ? "\uf047" : "\ue4bb"
         toolTip: "Camera Mode"
 
         onClicked: camera_popup.open()
 
-        STPopup {
+        SceneViewPopup {
             id: camera_popup
+            title: qsTr("Camera & Projection")
+            icon: camera_button.icon
 
-            width: 250
-            x: -width - 16
-            y: (parent.height - height) / 2
+            STDocumentationSection {
+                key: "view.camera"
+            }
 
-            ColumnLayout {
-                width: parent.width
+            STComboBar {
+                currentIndex: AppData.view.sim.camera
+                onCurrentIndexChanged: AppData.view.sim.camera = currentIndex
+                Layout.fillWidth: true
+                model: [qsTr("FPS"), qsTr("Orbit")]
+                iconModel: ["\uf03d", "\uf135"]
+            }
 
-                InlineDocumentation {
-                    key: "view.camera"
-                    title: "Cameras"
-                }
+            SliderField {
+                value: AppData.view.sim.fps_walk_speed
+                from: 10
+                to: 100
+                text: qsTr("FPS Camera Speed")
+                visible: AppData.view.sim.camera === SimulationViewState.WASD
 
-                Label {
-                    text: "Camera Controls"
-                }
+                onValueChanged: App.view.sim.fps_walk_speed = value
+            }
 
-                STComboBar {
-                    currentIndex: AppData.view.sim.camera
-                    onCurrentIndexChanged: AppData.view.sim.camera = currentIndex
-                    Layout.fillWidth: true
-                    model: ["FPS", "Orbit"]
-                    iconModel: ["\uf03d", "\uf135"]
-                }
+            STDocumentationSection {
+                key: "view.perspective"
+            }
 
-                SliderField {
-                    value: AppData.view.sim.fps_walk_speed
-                    from: 10
-                    to: 100
-                    text: "FPS Camera Speed"
-                    visible: AppData.view.sim.camera === 0
-
-                    onValueChanged: App.view.sim.fps_walk_speed = value
-                }
-
-                InlineDocumentation {
-                    key: "view.perspective"
-                    title: "Camera Perspectives"
-                }
-
-                Label {
-                    text: "Camera Projection"
-                }
-
-                STComboBar {
-                    currentIndex: AppData.view.sim.perspective
-                    onCurrentIndexChanged: AppData.view.sim.perspective = currentIndex
-                    Layout.fillWidth: true
-                    model: ["Perspective", "Orthographic"]
-                    iconModel: ["\uf1b2", "\uf0c8"]
-                }
+            STComboBar {
+                currentIndex: AppData.view.sim.perspective
+                onCurrentIndexChanged: AppData.view.sim.perspective = currentIndex
+                Layout.fillWidth: true
+                model: [qsTr("Perspective"), qsTr("Orthographic")]
+                iconModel: ["\uf1b2", "\uf0c8"]
             }
         }
     }
 
     STIconButton {
+        id: view_tools_button
         icon: "\uf279"
         toolTip: "View Tools"
 
         onClicked: view_tools_popup.open()
 
-        STPopup {
+        SceneViewPopup {
             id: view_tools_popup
+            title: qsTr("View Tools")
+            icon: view_tools_button.icon
 
-            width: 250
-            x: -width - 16
-            y: (parent.height - height) / 2
-
-            ColumnLayout {
-                width: parent.width
-
-                STButton {
-                    Layout.fillWidth: true
-                    text: "Fit All in View"
-                    left_text_icon: "\uf279"
-                    onClicked: {
-                        simulation_scene.fit_all_in_view()
-                        view_tools_popup.close()
-                    }
+            STButton {
+                Layout.fillWidth: true
+                text: qsTr("Fit All in View")
+                left_text_icon: "\uf279"
+                onClicked: {
+                    simulation_scene.fit_all_in_view()
+                    view_tools_popup.close()
                 }
             }
         }
     }
 
     STIconButton {
+        id: alignment_button
         icon: "\uf568"
         toolTip: "Alignment"
 
         onClicked: camera_alignment_popup.open()
 
-        STPopup {
+        SceneViewPopup {
             id: camera_alignment_popup
-            width: 250
-            x: -width - 16
-            y: (parent.height - height) / 2
+            title: qsTr("Alignment")
+            icon: alignment_button.icon
+
+            function alignToAxis(axis, reversed) {
+                simulation_scene.align_to_axis(axis, reversed)
+                close()
+            }
 
             GridLayout {
                 columns: 2
@@ -123,52 +108,58 @@ ColumnLayout {
                 uniformCellHeights: true
 
                 STButton {
-                    text: "Reset"
+                    text: qsTr("Reset")
                     Layout.columnSpan: 2
                     Layout.fillWidth: true
-                    onClicked: simulation_scene.reset_camera_view()
+                    onClicked: {
+                        simulation_scene.reset_camera_view()
+                        camera_alignment_popup.close()
+                    }
                 }
 
                 STButton {
-                    text: "45° View"
+                    text: qsTr("45° View")
                     Layout.columnSpan: 2
                     Layout.fillWidth: true
-                    onClicked: simulation_scene.align_to_pretty_view()
+                    onClicked: {
+                        simulation_scene.align_to_pretty_view()
+                        camera_alignment_popup.close()
+                    }
                 }
 
                 STButton {
                     text: "-X"
-                    onClicked: simulation_scene.align_to_axis(
+                    onClicked: camera_alignment_popup.alignToAxis(
                                    CameraController.Axis.X, true)
                 }
 
                 STButton {
                     text: "X"
-                    onClicked: simulation_scene.align_to_axis(
+                    onClicked: camera_alignment_popup.alignToAxis(
                                    CameraController.Axis.X, false)
                 }
 
                 STButton {
                     text: "-Y"
-                    onClicked: simulation_scene.align_to_axis(
+                    onClicked: camera_alignment_popup.alignToAxis(
                                    CameraController.Axis.Y, true)
                 }
 
                 STButton {
                     text: "Y"
-                    onClicked: simulation_scene.align_to_axis(
+                    onClicked: camera_alignment_popup.alignToAxis(
                                    CameraController.Axis.Y, false)
                 }
 
                 STButton {
                     text: "-Z"
-                    onClicked: simulation_scene.align_to_axis(
+                    onClicked: camera_alignment_popup.alignToAxis(
                                    CameraController.Axis.Z, true)
                 }
 
                 STButton {
                     text: "Z"
-                    onClicked: simulation_scene.align_to_axis(
+                    onClicked: camera_alignment_popup.alignToAxis(
                                    CameraController.Axis.Z, false)
                 }
             }
@@ -176,27 +167,23 @@ ColumnLayout {
     }
 
     STIconButton {
+        id: performance_button
         icon: "\uf625"
         toolTip: "Performance"
 
         onClicked: performance_popup.open()
 
-        STPopup {
+        SceneViewPopup {
             id: performance_popup
-            width: 260
-            x: -width - 16
-            y: (parent.height - height) / 2
+            title: qsTr("Performance")
+            icon: performance_button.icon
 
             GridLayout {
-                width: parent.width
+                Layout.fillWidth: true
                 columns: 2
 
-                STPropertySeparator {
-                    title: "Performance"
-                }
-
                 STPropertyLabel {
-                    text: "Surface Width"
+                    text: qsTr("Surface Width")
                 }
 
                 STDoubleSpinBox {
@@ -210,7 +197,7 @@ ColumnLayout {
                 }
 
                 STPropertyLabel {
-                    text: "Subdivision Scale"
+                    text: qsTr("Subdivision Scale")
                 }
 
                 STSpinBox {
@@ -226,7 +213,7 @@ ColumnLayout {
                 STSwitch {
                     Layout.fillWidth: true
                     Layout.columnSpan: 2
-                    text: "Show Grid"
+                    text: qsTr("Show Grid")
                     checked: App.view.sim.show_grid
                     onToggled: App.view.sim.show_grid = checked
                 }

@@ -54,6 +54,10 @@ Flickable {
 
             visible: AppData.flux.current_image.length || computed_map_combo.count > 0
 
+            STDocumentationSection {
+                key: "analyze.flux.display"
+            }
+
             STFormRow {
                 label: "Computed Map"
                 visible: computed_map_combo.count > 0
@@ -200,10 +204,6 @@ Flickable {
                 onToggled: AppData.flux.show_other_geometry = checked
             }
 
-            STFormHelp {
-                key: "analyze.flux.display"
-            }
-
             Label {
                 Layout.fillWidth: true
                 text: "Flux map values are scaled by solar DNI when ray area metadata is available."
@@ -212,7 +212,7 @@ Flickable {
                 wrapMode: Label.WrapAtWordBoundaryOrAnywhere
             }
 
-            STFormHelp {
+            STDocumentationSection {
                 key: "analyze.flux.stats"
             }
 
@@ -323,6 +323,10 @@ Flickable {
             collapsible: true
             title: "Compute Flux Map"
 
+            STDocumentationSection {
+                key: "analyze.flux.target"
+            }
+
             STFormRow {
                 label: "Element"
 
@@ -373,8 +377,8 @@ Flickable {
                 }
             }
 
-            STFormHelp {
-                key: "analyze.flux.target"
+            STDocumentationSection {
+                key: "analyze.flux.dni"
             }
 
             STFormRow {
@@ -392,8 +396,8 @@ Flickable {
                 }
             }
 
-            STFormHelp {
-                key: "analyze.flux.dni"
+            STDocumentationSection {
+                key: "analyze.flux.resolution"
             }
 
             STSwitch {
@@ -458,10 +462,6 @@ Flickable {
                         AppData.flux.pending_flux_maps.mesh_resolution_multiply = value
                     }
                 }
-            }
-
-            STFormHelp {
-                key: "analyze.flux.resolution"
             }
 
             ListView {
@@ -617,10 +617,7 @@ Flickable {
 
             collapsible: true
             title: "Normalized Ray Volume"
-
-            STFormHelp {
-                key: "analyze.flux.volume"
-            }
+            documentationKey: "analyze.flux.volume"
 
             STFormRow {
                 label: "Grid Resolution"

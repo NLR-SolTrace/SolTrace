@@ -15,20 +15,17 @@ STScrollView {
 
         InlineDocumentation {
             key: "settings.overview"
-            alwaysVisible: true
-            showTitle: true
+            expanded: true
             Layout.fillWidth: true
         }
         InlineDocumentation {
             key: "settings.background"
-            alwaysVisible: true
-            showTitle: true
+            expanded: true
             Layout.fillWidth: true
         }
         InlineDocumentation {
             key: "settings.methodology"
-            alwaysVisible: true
-            showTitle: true
+            expanded: true
             Layout.fillWidth: true
         }
     }

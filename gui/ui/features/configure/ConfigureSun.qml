@@ -283,8 +283,7 @@ Flickable {
                     color: Material.dividerColor
                 }
 
-                InlineDocumentation {
-                    Layout.fillWidth: true
+                STDocumentationSection {
                     Layout.margins: 8
                     key: "configure.sun.type." + ["directional", "point_source"][App.sun.type]
                 }
@@ -421,8 +420,7 @@ Flickable {
                     }
                 }
 
-                InlineDocumentation {
-                    Layout.fillWidth: true
+                STDocumentationSection {
                     Layout.margins: 8
                     key: "configure.sun.shape." + ["gaussian", "pillbox", "csr", "custom", "limb_darkened"][App.sun.shape.shape]
                 }

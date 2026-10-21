@@ -16,9 +16,8 @@ STFormPanel {
                                                   : ViewModule.Camera
     }
 
-    InlineDocumentation {
+    STDocumentationSection {
         key: "configure.layout.coordinates"
-        Layout.fillWidth: true
     }
 
     STFormRow {

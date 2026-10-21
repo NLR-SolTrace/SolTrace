@@ -29,7 +29,7 @@ SimulationRunnerModel::SimulationRunnerModel(QObject* parent)
 
 #ifdef SOLTRACE_HAS_OPTIX_RUNNER
     store_push_append(SimulationRunnerRecord {
-        .name   = "GPU Runner",
+        .name   = "NVIDIA GPU Runner",
         .runner = SimulationModule::GPU,
     });
 #endif
