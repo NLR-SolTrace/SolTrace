@@ -127,7 +127,8 @@ Item {
             available_width: root.width
 
             SplitView.minimumWidth: 250
-            SplitView.maximumWidth: split.width
+            SplitView.maximumWidth: Math.max(SplitView.minimumWidth,
+                                             split.width)
             SplitView.fillHeight: true
 
             visible: App.view.right_panel.visible
