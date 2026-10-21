@@ -65,11 +65,12 @@ Flickable {
 
         STPipelineBar {
             id: bar
+            secondary: true
             currentIndex: App.view.sun_section
             onCurrentIndexChanged: App.view.sun_section = currentIndex
             Layout.fillWidth: true
+            Layout.leftMargin: 12
             model: ["Type & Position", "Emission Profile"]
-            prefixModel: ["2a1", "2a2"]
             abbreviatedModel: ["Type/Pos.", "Profile"]
         }
 

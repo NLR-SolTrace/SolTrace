@@ -5,35 +5,20 @@ import QtQuick.Layouts
 
 import SolTrace
 
-Rectangle {
+Item {
     id: bar
 
     property int currentIndex: 0
+    property bool secondary: false
 
     property string fontFamily
     property int fontWeight: Font.Normal
 
     property var abbreviatedModel: []
-    property var prefixModel: []
     property var model: []
 
-    height: 42
-    radius: height / 2
-    color: App.theme.glassColor
-
-    Rectangle {
-        anchors.fill: parent
-        radius: height / 2
-        color: "transparent"
-        border.color: Qt.alpha("black", .25)
-
-        Rectangle {
-            anchors.fill: parent
-            radius: height / 2
-            color: "transparent"
-            border.color: Qt.alpha("black", .1)
-        }
-    }
+    implicitHeight: secondary ? 28 : 32
+    height: implicitHeight
 
     Label {
         id: default_label
@@ -61,86 +46,105 @@ Rectangle {
         return bar.model[index] ?? ""
     }
 
-    RowLayout {
+    Rectangle {
         anchors.fill: parent
-        anchors.leftMargin: 4
-        anchors.rightMargin: 4
-        anchors.topMargin: 4
-        anchors.bottomMargin: 4
-        spacing: 0
+        color: "transparent"
 
-        Repeater {
-            model: Math.max(0, bar.modelCount() * 2 - 1)
+        Rectangle {
+            anchors.fill: parent
 
-            delegate: Item {
-                property bool isArrow: index % 2 === 1
-                property int itemIndex: Math.floor(index / 2)
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: "transparent" }
+                GradientStop { position: 1.0; color: App.theme.glassColor }
+            }
+        }
 
-                Layout.fillWidth: !isArrow
-                Layout.fillHeight: true
-                Layout.preferredWidth: isArrow ? arrowText.implicitWidth + 8 : -1
+        Rectangle {
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            height: 1
+            z: 1
+            color: Qt.alpha(Material.foreground, 0.3)
+        }
 
-                Label {
-                    id: arrowText
-                    visible: isArrow
-                    anchors.centerIn: parent
-                    font.family: "Font Awesome 7 Free"
-                    font.pointSize: App.theme.defaultComboBarTextSize - 2
-                    text: "\uf178"
-                    opacity: 0.3
-                }
+        RowLayout {
+            anchors.fill: parent
+            anchors.bottomMargin: 1
+            spacing: 2
 
-                RowLayout {
-                    visible: !isArrow
-                    anchors.centerIn: parent
-                    spacing: 6
+            Repeater {
+                model: bar.modelCount()
 
-                    Label {
-                        visible: bar.prefixModel.length > itemIndex
-                        Layout.alignment: Qt.AlignVCenter
+                delegate: TabButton {
+                    id: tab
 
-                        text: bar.prefixModel.length > itemIndex
-                            ? bar.prefixModel[itemIndex] : ""
-                        font.bold: itemIndex === bar.currentIndex
-                        opacity: itemIndex === bar.currentIndex ? 1.0
-                            : itemMouse.containsMouse ? 0.75
-                            : 0.5
-                    }
+                    property int itemIndex: index
 
-                    Rectangle {
-                        visible: bar.prefixModel.length > itemIndex
-                        Layout.preferredWidth: 1
-                        Layout.preferredHeight: 16
-                        Layout.alignment: Qt.AlignVCenter
-                        color: Material.dividerColor
-                    }
-
-                    Label {
-                        font.family: bar.fontFamily.length
-                            ? bar.fontFamily : default_label.font.family
-                        font.pointSize: App.theme.defaultComboBarTextSize
-                        font.weight: itemIndex === bar.currentIndex
-                            ? Font.Bold : bar.fontWeight
-                        text: bar.abbreviatedLabelAt(itemIndex)
-                        opacity: itemIndex === bar.currentIndex ? 1.0
-                            : itemMouse.containsMouse ? 0.75
-                            : 0.5
-                    }
-
-                }
-
-                MouseArea {
-                    id: itemMouse
-                    visible: !isArrow
-                    anchors.fill: parent
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
                     hoverEnabled: true
+                    checkable: true
+                    checked: itemIndex === bar.currentIndex
+                    text: bar.model[itemIndex] ?? ""
                     onClicked: bar.select(itemIndex)
 
+                    background: Rectangle {
+                        color: tab.checked
+                               ? Qt.alpha(Material.foreground, 0.1)
+                               : tab.hovered
+                                 ? Material.rippleColor
+                                 : Qt.alpha(App.theme.glassColor, 0.24)
+                        border.width: 1
+                        border.color: tab.checked
+                                      ? Qt.alpha(Material.foreground, 0.45)
+                                      : Qt.alpha(Material.dividerColor, 0.45)
+                        topLeftRadius: 5
+                        topRightRadius: 5
+
+                        Behavior on color {
+                            ColorAnimation { duration: 100 }
+                        }
+
+                        Behavior on border.color {
+                            ColorAnimation { duration: 100 }
+                        }
+
+                        Rectangle {
+                            visible: tab.checked
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.bottom: parent.bottom
+                            height: 3
+                            color: Material.foreground
+                        }
+                    }
+
+                    contentItem: Item {
+                        Row {
+                            anchors.centerIn: parent
+
+                            Label {
+                                anchors.verticalCenter: parent.verticalCenter
+                                font.family: bar.fontFamily.length
+                                             ? bar.fontFamily : default_label.font.family
+                                font.pointSize: Math.max(8,
+                                                         App.theme.defaultComboBarTextSize
+                                                         - (bar.secondary ? 1 : 0))
+                                font.weight: tab.checked
+                                             ? Font.Bold : bar.fontWeight
+                                text: bar.abbreviatedLabelAt(tab.itemIndex)
+                                opacity: tab.checked ? 1.0
+                                                     : tab.hovered ? 0.82 : 0.62
+                            }
+                        }
+                    }
+
                     STToolTip {
-                        visible: itemMouse.containsMouse
-                                 && bar.abbreviatedLabelAt(itemIndex)
-                                    !== (bar.model[itemIndex] ?? "")
-                        text: bar.model[itemIndex] ?? ""
+                        visible: tab.hovered
+                                 && bar.abbreviatedLabelAt(tab.itemIndex)
+                                 !== tab.text
+                        text: tab.text
                     }
                 }
             }

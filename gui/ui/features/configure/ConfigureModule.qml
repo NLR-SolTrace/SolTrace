@@ -31,7 +31,6 @@ ColumnLayout {
 
         Layout.fillWidth: true
 
-        prefixModel: ["2a", "2b", "2c", "2d"]
         abbreviatedModel: ["Source", "Mats", "Geom", "Stage"]
         model: ["Ray Source", "Materials", "Geometries", "Staging"]
         
