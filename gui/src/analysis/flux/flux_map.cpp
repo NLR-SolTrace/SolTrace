@@ -7,6 +7,7 @@
 #include "support/triangle_bvh.h"
 #include "vector_utility.hpp"
 
+#include <QDateTime>
 #include <QFile>
 #include <QImage>
 #include <QLoggingCategory>
@@ -17,6 +18,7 @@
 #include <cmath>
 #include <limits>
 #include <optional>
+#include <vector>
 
 namespace SolTrace::GUI::Analysis {
 
@@ -44,14 +46,6 @@ struct TriangleFluxBin {
     float flux = 0.0f; // W/m^2 or normalized equivalent
 };
 
-/// A per-vertex accumulation of neighboring triangle flux.
-struct VertexFluxBin {
-    float weighted_flux_sum = 0.0f;
-    float weight            = 0.0f;
-    float flux              = 0.0f;
-};
-
-
 /// Barycentric interpolation.
 template <class T>
 static T interpolate(T const& a, T const& b, T const& c, glm::vec3 bary) {
@@ -64,6 +58,12 @@ static QPointF uv_to_pixel(glm::vec2 uv, QSize const& size) {
     auto height = std::max(0, size.height() - 1);
 
     return QPointF(uv.x * width, uv.y * height);
+}
+
+/// Map UV boundaries to raster cell boundaries. Unlike point coordinates,
+/// u/v == 1 lies on the far edge of the final pixel.
+static QPointF uv_to_raster_edge(glm::vec2 uv, QSize const& size) {
+    return QPointF(uv.x * size.width(), uv.y * size.height());
 }
 
 /// Get the area of a triangle in world space.
@@ -112,6 +112,33 @@ project_point_to_triangle(SolTrace::GUI::Data::Mesh const& mesh,
     };
 }
 
+static bool is_physical_interaction(
+    SolTrace::GUI::Data::RayEventType event) {
+    using SolTrace::GUI::Data::RayEventType;
+
+    switch (event) {
+    case RayEventType::ABSORB:
+    case RayEventType::REFLECT:
+    case RayEventType::TRANSMIT: return true;
+    case RayEventType::CREATE:
+    case RayEventType::VIRTUAL:
+    case RayEventType::EXIT:
+    case RayEventType::UNKNOWN: return false;
+    }
+
+    return false;
+}
+
+static bool is_direct_sun_interaction(
+    SolTrace::GUI::Data::RayRecord const& ray,
+    size_t                                interaction_index) {
+    for (size_t i = 0; i < interaction_index; ++i) {
+        if (is_physical_interaction(ray.events[i].event)) return false;
+    }
+
+    return true;
+}
+
 /// Make triangle bins; the per-triangle stat bin
 static std::vector<TriangleFluxBin> make_triangle_bins(SolTrace::GUI::Data::Mesh const& mesh) {
     std::vector<TriangleFluxBin> triangles;
@@ -132,55 +159,13 @@ static std::vector<TriangleFluxBin> make_triangle_bins(SolTrace::GUI::Data::Mesh
     return triangles;
 }
 
-/// For all bins, compute the flux after all energy has been accumulated
-static float
-compute_triangle_flux_and_max(std::vector<TriangleFluxBin>& triangles,
-                              float                         total_energy) {
-    if (total_energy <= 0.0f) { return 0.0f; }
-
-    float max_density = 0.0f;
-
+/// Compute the per-face flux retained for mesh exports and diagnostics.
+static void compute_triangle_flux(std::vector<TriangleFluxBin>& triangles) {
     for (auto& triangle : triangles) {
         if (triangle.world_area <= 0.0f) { continue; }
 
         triangle.flux = triangle.accumulated_energy / triangle.world_area;
-
-        max_density = std::max(max_density, triangle.flux);
     }
-
-    return max_density;
-}
-
-static std::vector<VertexFluxBin>
-compute_vertex_flux_bins(std::vector<TriangleFluxBin> const& triangles,
-                         SolTrace::GUI::Data::Mesh const&                     mesh) {
-    std::vector<VertexFluxBin> vertices(static_cast<size_t>(mesh.vertex.size()));
-
-    for (size_t tri_index = 0; tri_index < mesh.triangles.size(); ++tri_index) {
-        auto const& triangle = triangles[tri_index];
-        auto const& indices  = mesh.triangles[tri_index];
-
-        if (triangle.world_area <= 0.0f) { continue; }
-
-        auto add_triangle = [&](unsigned vertex_index) {
-            if (vertex_index >= vertices.size()) return;
-
-            auto& vertex = vertices[vertex_index];
-            vertex.weight += triangle.world_area;
-            vertex.weighted_flux_sum += triangle.flux * triangle.world_area;
-        };
-
-        add_triangle(indices.x);
-        add_triangle(indices.y);
-        add_triangle(indices.z);
-    }
-
-    for (auto& vertex : vertices) {
-        if (vertex.weight <= 0.0f) { continue; }
-        vertex.flux = vertex.weighted_flux_sum / vertex.weight;
-    }
-
-    return vertices;
 }
 
 static QVector<float>
@@ -217,85 +202,23 @@ static float max_raster_value(Support::Grid2D<float> const& raster) {
     return max_value;
 }
 
-/// Using triangle bins, burn stats to a 2D grid
-[[maybe_unused]] static Support::Grid2D<float>
-raster_triangle_flux(std::vector<TriangleFluxBin> const& triangles,
-                     SolTrace::GUI::Data::Mesh const&    mesh,
-                     QSize const&                        image_size,
-                     Support::TaskControl&               control,
-                     int                                 progress_low,
-                     int                                 progress_high) {
-    Support::Grid2D<float> raster(image_size.width(), image_size.height());
-    raster.fill(0.0f);
+struct PixelCoverage {
+    unsigned index  = 0;
+    float    weight = 0.0f;
+};
 
-    auto report_progress = [&](int item, int max_item) {
-        auto a = max_item > 0 ? float(item) / float(max_item) : 1.0f;
-        int  p = glm::mix(float(progress_low), float(progress_high), a);
-        control.setProgressValue(p);
-    };
-
-    size_t tri_index = 0;
-    for (size_t tri_index = 0; tri_index < mesh.triangles.size(); ++tri_index) {
-        auto const& tri = triangles[tri_index];
-
-        if (tri.flux <= 0.0f) {
-            report_progress(int(tri_index + 1), int(triangles.size()));
-            continue;
-        }
-
-        // Fill covered pixels directly before nearby-sample interpolation.
-
-        auto const& v1 = mesh.vertex[mesh.triangles[tri_index].x];
-        auto const& v2 = mesh.vertex[mesh.triangles[tri_index].y];
-        auto const& v3 = mesh.vertex[mesh.triangles[tri_index].z];
-
-        QPointF a = uv_to_pixel(v1.uv, image_size);
-        QPointF b = uv_to_pixel(v2.uv, image_size);
-        QPointF c = uv_to_pixel(v3.uv, image_size);
-
-        int min_x =
-            std::max(0, int(std::floor(std::min({ a.x(), b.x(), c.x() }))));
-        int max_x = std::min(image_size.width() - 1,
-                             int(std::ceil(std::max({ a.x(), b.x(), c.x() }))));
-        int min_y =
-            std::max(0, int(std::floor(std::min({ a.y(), b.y(), c.y() }))));
-        int max_y = std::min(image_size.height() - 1,
-                             int(std::ceil(std::max({ a.y(), b.y(), c.y() }))));
-
-        for (int y = min_y; y <= max_y; ++y) {
-            for (int x = min_x; x <= max_x; ++x) {
-                QPointF p(x + 0.5, y + 0.5);
-
-                auto bary = barycentric_for_point(p, a, b, c);
-                if (!bary.has_value()) continue;
-
-                constexpr float eps = -1e-5f;
-                if (bary->x < eps || bary->y < eps || bary->z < eps) continue;
-
-                // Assuming non-overlapping UVs, but still...
-                raster(x, y) += tri.flux;
-            }
-        }
-
-        if (control.cancelRequested()) return raster;
-
-        report_progress(int(tri_index + 1), int(triangles.size()));
-    }
-
-    return raster;
-}
-
-/// Using vertex-averaged flux, burn smooth interpolated stats to a 2D grid.
+/// Rasterize the amount of world-space surface represented by every UV pixel.
+/// Each triangle's sampled coverage is normalized so that its complete world
+/// area is preserved, independent of its tessellation density.
 static Support::Grid2D<float>
-raster_vertex_flux(std::vector<TriangleFluxBin> const& triangles,
-                   std::vector<VertexFluxBin> const&   vertices,
-                   SolTrace::GUI::Data::Mesh const&    mesh,
-                   QSize const&                        image_size,
-                   Support::TaskControl&               control,
-                   int                                 progress_low,
-                   int                                 progress_high) {
-    Support::Grid2D<float> raster(image_size.width(), image_size.height());
-    raster.fill(0.0f);
+raster_surface_area(std::vector<TriangleFluxBin> const& triangles,
+                    SolTrace::GUI::Data::Mesh const&    mesh,
+                    QSize const&                        image_size,
+                    Support::TaskControl&               control,
+                    int                                 progress_low,
+                    int                                 progress_high) {
+    Support::Grid2D<float> area(image_size.width(), image_size.height());
+    area.fill(0.0f);
 
     auto report_progress = [&](int item, int max_item) {
         auto a = max_item > 0 ? float(item) / float(max_item) : 1.0f;
@@ -303,74 +226,255 @@ raster_vertex_flux(std::vector<TriangleFluxBin> const& triangles,
         control.setProgressValue(p);
     };
 
-    for (size_t tri_index = 0; tri_index < mesh.triangles.size(); ++tri_index) {
-        auto const& tri = triangles[tri_index];
+    constexpr int subpixel_samples_per_axis = 4;
 
-        if (tri.world_area <= 0.0f) {
+    for (size_t tri_index = 0; tri_index < mesh.triangles.size(); ++tri_index) {
+        auto const& triangle = triangles[tri_index];
+        if (triangle.world_area <= 0.0f) {
             report_progress(int(tri_index + 1), int(triangles.size()));
             continue;
         }
 
         auto const& indices = mesh.triangles[tri_index];
-        if (indices.x >= vertices.size() || indices.y >= vertices.size() ||
-            indices.z >= vertices.size()) {
-            report_progress(int(tri_index + 1), int(triangles.size()));
-            continue;
-        }
+        auto const& v1      = mesh.vertex[indices.x];
+        auto const& v2      = mesh.vertex[indices.y];
+        auto const& v3      = mesh.vertex[indices.z];
 
-        auto const& v1 = mesh.vertex[indices.x];
-        auto const& v2 = mesh.vertex[indices.y];
-        auto const& v3 = mesh.vertex[indices.z];
+        QPointF const a = uv_to_raster_edge(v1.uv, image_size);
+        QPointF const b = uv_to_raster_edge(v2.uv, image_size);
+        QPointF const c = uv_to_raster_edge(v3.uv, image_size);
 
-        QPointF a = uv_to_pixel(v1.uv, image_size);
-        QPointF b = uv_to_pixel(v2.uv, image_size);
-        QPointF c = uv_to_pixel(v3.uv, image_size);
-
-        int min_x =
+        int const min_x =
             std::max(0, int(std::floor(std::min({ a.x(), b.x(), c.x() }))));
-        int max_x = std::min(image_size.width() - 1,
-                             int(std::ceil(std::max({ a.x(), b.x(), c.x() }))));
-        int min_y =
+        int const max_x =
+            std::min(image_size.width() - 1,
+                     int(std::ceil(std::max({ a.x(), b.x(), c.x() }))));
+        int const min_y =
             std::max(0, int(std::floor(std::min({ a.y(), b.y(), c.y() }))));
-        int max_y = std::min(image_size.height() - 1,
-                             int(std::ceil(std::max({ a.y(), b.y(), c.y() }))));
+        int const max_y =
+            std::min(image_size.height() - 1,
+                     int(std::ceil(std::max({ a.y(), b.y(), c.y() }))));
 
-        constexpr int   subpixel_samples_per_axis = 4;
-        constexpr float subpixel_sample_count =
-            subpixel_samples_per_axis * subpixel_samples_per_axis;
+        std::vector<PixelCoverage> coverage;
+        float                      total_coverage = 0.0f;
 
         for (int y = min_y; y <= max_y; ++y) {
             for (int x = min_x; x <= max_x; ++x) {
-                float accumulated_flux = 0.0f;
+                float pixel_coverage = 0.0f;
 
                 for (int sy = 0; sy < subpixel_samples_per_axis; ++sy) {
                     for (int sx = 0; sx < subpixel_samples_per_axis; ++sx) {
-                        QPointF p(
+                        QPointF const p(
                             x + (sx + 0.5f) / subpixel_samples_per_axis,
                             y + (sy + 0.5f) / subpixel_samples_per_axis);
 
-                        if (!contains_with_edge_ownership(p, a, b, c)) continue;
-
-                        auto bary = barycentric_for_point(p, a, b, c);
-                        if (!bary.has_value()) continue;
-                        accumulated_flux +=
-                            interpolate(vertices[indices.x].flux,
-                                        vertices[indices.y].flux,
-                                        vertices[indices.z].flux,
-                                        *bary);
+                        if (contains_with_edge_ownership(p, a, b, c)) {
+                            pixel_coverage += 1.0f;
+                        }
                     }
                 }
 
-                raster(x, y) += accumulated_flux / subpixel_sample_count;
+                if (pixel_coverage <= 0.0f) continue;
+                coverage.push_back(PixelCoverage {
+                    .index  = area.index(x, y),
+                    .weight = pixel_coverage,
+                });
+                total_coverage += pixel_coverage;
             }
         }
 
-        if (control.cancelRequested()) return raster;
+        if (total_coverage > 0.0f) {
+            float const area_per_sample =
+                triangle.world_area / total_coverage;
+            for (auto const& pixel : coverage) {
+                area[pixel.index] += pixel.weight * area_per_sample;
+            }
+        } else {
+            // Preserve triangles smaller than the subpixel sampling pattern.
+            auto const center = (a + b + c) / 3.0;
+            int const  x = std::clamp(int(std::lround(center.x())),
+                                     0,
+                                     image_size.width() - 1);
+            int const  y = std::clamp(int(std::lround(center.y())),
+                                     0,
+                                     image_size.height() - 1);
+            area(x, y) += triangle.world_area;
+        }
 
+        if (control.cancelRequested()) return area;
         report_progress(int(tri_index + 1), int(triangles.size()));
     }
 
-    return raster;
+    return area;
+}
+
+/// Deposit one ray's energy into neighboring pixels without crossing outside
+/// the rasterized receiver surface.
+static void splat_energy(Support::Grid2D<float>&       energy,
+                         Support::Grid2D<float> const& area,
+                         glm::vec2                     uv,
+                         float                         ray_energy) {
+    auto const width  = int(energy.size_x());
+    auto const height = int(energy.size_y());
+    auto const p      = uv_to_pixel(uv, QSize(width, height));
+    auto const px     = std::clamp(p.x(), 0.0, double(width - 1));
+    auto const py     = std::clamp(p.y(), 0.0, double(height - 1));
+    auto const x0     = int(std::floor(px));
+    auto const y0     = int(std::floor(py));
+    auto const x1     = std::min(x0 + 1, width - 1);
+    auto const y1     = std::min(y0 + 1, height - 1);
+    auto const tx     = float(px - x0);
+    auto const ty     = float(py - y0);
+
+    struct Candidate {
+        int   x;
+        int   y;
+        float weight;
+    };
+    Candidate const candidates[] = {
+        { x0, y0, (1.0f - tx) * (1.0f - ty) },
+        { x1, y0, tx * (1.0f - ty) },
+        { x0, y1, (1.0f - tx) * ty },
+        { x1, y1, tx * ty },
+    };
+
+    float valid_weight = 0.0f;
+    for (auto const& candidate : candidates) {
+        if (area(candidate.x, candidate.y) > 0.0f) {
+            valid_weight += candidate.weight;
+        }
+    }
+
+    if (valid_weight > 0.0f) {
+        for (auto const& candidate : candidates) {
+            if (area(candidate.x, candidate.y) <= 0.0f) continue;
+            energy(candidate.x, candidate.y) +=
+                ray_energy * candidate.weight / valid_weight;
+        }
+        return;
+    }
+
+    // Degenerate UV triangles may only mark their centroid pixel. Find the
+    // closest represented pixel rather than silently dropping the ray energy.
+    for (int radius = 0; radius <= 2; ++radius) {
+        for (int y = std::max(0, y0 - radius);
+             y <= std::min(height - 1, y0 + radius);
+             ++y) {
+            for (int x = std::max(0, x0 - radius);
+                 x <= std::min(width - 1, x0 + radius);
+                 ++x) {
+                if (area(x, y) <= 0.0f) continue;
+                energy(x, y) += ray_energy;
+                return;
+            }
+        }
+    }
+}
+
+/// A separable Gaussian used to reduce sampling noise in UV space.
+static Support::Grid2D<float>
+smooth_raster(Support::Grid2D<float> const& source, unsigned requested_radius) {
+    int const radius = std::clamp<int>(requested_radius, 1, 64);
+    float const sigma = std::max(1.0f, radius / 2.0f);
+
+    std::vector<float> kernel(static_cast<size_t>(radius * 2 + 1));
+    for (int offset = -radius; offset <= radius; ++offset) {
+        kernel[static_cast<size_t>(offset + radius)] =
+            std::exp(-float(offset * offset) / (2.0f * sigma * sigma));
+    }
+
+    Support::Grid2D<float> horizontal(source.size_x(), source.size_y());
+    Support::Grid2D<float> result(source.size_x(), source.size_y());
+    horizontal.fill(0.0f);
+    result.fill(0.0f);
+
+    for (int y = 0; y < int(source.size_y()); ++y) {
+        for (int x = 0; x < int(source.size_x()); ++x) {
+            float sum = 0.0f;
+            float weight_sum = 0.0f;
+            for (int offset = -radius; offset <= radius; ++offset) {
+                int const sample_x = x + offset;
+                if (sample_x < 0 || sample_x >= int(source.size_x())) continue;
+                float const weight =
+                    kernel[static_cast<size_t>(offset + radius)];
+                sum += source(sample_x, y) * weight;
+                weight_sum += weight;
+            }
+            horizontal(x, y) = sum / weight_sum;
+        }
+    }
+
+    for (int y = 0; y < int(source.size_y()); ++y) {
+        for (int x = 0; x < int(source.size_x()); ++x) {
+            float sum = 0.0f;
+            float weight_sum = 0.0f;
+            for (int offset = -radius; offset <= radius; ++offset) {
+                int const sample_y = y + offset;
+                if (sample_y < 0 || sample_y >= int(source.size_y())) continue;
+                float const weight =
+                    kernel[static_cast<size_t>(offset + radius)];
+                sum += horizontal(x, sample_y) * weight;
+                weight_sum += weight;
+            }
+            result(x, y) = sum / weight_sum;
+        }
+    }
+
+    return result;
+}
+
+/// Build a flux-density raster directly from hit UVs. Energy and represented
+/// surface area are smoothed independently so a constant flux remains constant
+/// at receiver boundaries.
+static Support::Grid2D<float>
+raster_flux(std::vector<glm::vec2> const& uvs,
+            float                         ray_energy,
+            Support::Grid2D<float> const& surface_area,
+            unsigned                      smoothing_radius) {
+    Support::Grid2D<float> energy(surface_area.size_x(), surface_area.size_y());
+    energy.fill(0.0f);
+
+    for (auto const& uv : uvs) {
+        splat_energy(energy, surface_area, uv, ray_energy);
+    }
+
+    Support::Grid2D<float> flux;
+    Support::Grid2D<float> smoothed_area;
+
+    if (smoothing_radius > 0) {
+        flux = smooth_raster(energy, smoothing_radius);
+        energy = Support::Grid2D<float>();
+        smoothed_area = smooth_raster(surface_area, smoothing_radius);
+    } else {
+        flux = std::move(energy);
+    }
+
+    for (unsigned i = 0; i < flux.size(); ++i) {
+        float const divisor = smoothing_radius > 0 ? smoothed_area[i]
+                                                   : surface_area[i];
+        if (surface_area[i] > 0.0f && divisor > 0.0f) {
+            flux[i] /= divisor;
+        } else {
+            flux[i] = 0.0f;
+        }
+    }
+
+    // Normalized smoothing near an aperture boundary can slightly change the
+    // integral. Restore exact conservation of the plotted ray power.
+    double integrated_power = 0.0;
+    for (unsigned i = 0; i < flux.size(); ++i) {
+        integrated_power += double(flux[i]) * double(surface_area[i]);
+    }
+
+    double const expected_power = double(uvs.size()) * double(ray_energy);
+    if (integrated_power > 0.0 && expected_power >= 0.0) {
+        float const scale = float(expected_power / integrated_power);
+        for (unsigned i = 0; i < flux.size(); ++i) {
+            flux[i] *= scale;
+        }
+    }
+
+    return flux;
 }
 
 /// Take a raster bin and color map, and burn that to a QImage
@@ -426,17 +530,23 @@ static void raster_mesh_overlay(QPainter&       painter,
     painter.restore();
 }
 
-static QImage make_points_debug_image(std::vector<glm::vec2> const& uvs,
-                                      QSize const&                  image_size,
-                                      SolTrace::GUI::Data::Mesh const&               mesh) {
+static QImage
+make_points_debug_image(std::vector<glm::vec2> const&       uvs,
+                        QSize const&                        image_size,
+                        SolTrace::GUI::Data::Mesh const&    mesh,
+                        QColor const&                       grid_line_color) {
     QImage image(image_size, QImage::Format_RGB32);
     image.fill(Qt::white);
 
     auto painter = QPainter(&image);
-    raster_mesh_overlay(painter, mesh, image_size, QColor(0, 0, 0, 128));
+    raster_mesh_overlay(painter, mesh, image_size, grid_line_color);
 
     painter.save();
-    painter.setPen(QPen(Qt::red, 2.0));
+    auto const point_width = std::clamp(
+        std::min(image_size.width(), image_size.height()) / 512.0,
+        1.0,
+        4.0);
+    painter.setPen(QPen(Qt::red, point_width));
 
     for (auto const& uv : uvs) {
         QPointF pixel = uv_to_pixel(uv, image_size);
@@ -468,6 +578,7 @@ static bool dump_interaction_points_csv(std::vector<glm::vec3> const& points,
 
 static BakedFluxMapStats
 compute_flux_map_stats(Support::Grid2D<float> const&       raster,
+                       Support::Grid2D<float> const&       surface_area,
                        std::vector<TriangleFluxBin> const& triangles,
                        std::vector<glm::vec3> const&       interaction_points,
                        std::size_t                         source_ray_count,
@@ -487,29 +598,36 @@ compute_flux_map_stats(Support::Grid2D<float> const&       raster,
         stats.centroid = QVector3D(centroid.x, centroid.y, centroid.z);
     }
 
-    if (raster.size() == 0) return stats;
+    if (raster.size() == 0 || raster.size() != surface_area.size()) return stats;
 
-    double sum       = 0.0;
-    double sum_sq    = 0.0;
+    double total_area        = 0.0;
+    double area_weighted_sum = 0.0;
+    double area_weighted_sq  = 0.0;
     double min_flux  = std::numeric_limits<double>::max();
     double peak_flux = 0.0;
 
     for (unsigned i = 0; i < raster.size(); ++i) {
+        const double area = surface_area[i];
+        if (area <= 0.0) continue;
+
         const double value = raster[i];
-        sum += value;
-        sum_sq += value * value;
+        total_area += area;
+        area_weighted_sum += value * area;
+        area_weighted_sq += value * value * area;
         min_flux  = std::min(min_flux, value);
         peak_flux = std::max(peak_flux, value);
     }
 
-    const double bin_count = raster.size();
     stats.peak_flux        = peak_flux;
     stats.min_flux =
         min_flux == std::numeric_limits<double>::max() ? 0.0 : min_flux;
-    stats.average_flux = sum / bin_count;
+    stats.average_flux =
+        total_area > 0.0 ? area_weighted_sum / total_area : 0.0;
 
-    const double variance =
-        (bin_count * sum_sq - sum * sum) / (bin_count * bin_count);
+    const double variance = total_area > 0.0
+                                ? area_weighted_sq / total_area -
+                                      stats.average_flux * stats.average_flux
+                                : 0.0;
     stats.sigma_flux = std::sqrt(std::max(0.0, variance));
     stats.uniformity =
         stats.average_flux > 0.0 ? stats.sigma_flux / stats.average_flux : 0.0;
@@ -533,6 +651,68 @@ compute_flux_map_stats(Support::Grid2D<float> const&       raster,
     }
 
     return stats;
+}
+
+static QString smoothing_description(unsigned radius) {
+    switch (radius) {
+    case 0: return QStringLiteral("None");
+    case 2: return QStringLiteral("Light (2-bin radius)");
+    case 4: return QStringLiteral("Medium (4-bin radius)");
+    case 8: return QStringLiteral("Strong (8-bin radius)");
+    default:
+        return QStringLiteral("%1-bin radius").arg(radius);
+    }
+}
+
+static void set_generation_metadata(
+    QImage&                              image,
+    QString const&                       image_kind,
+    QString const&                       generated_at,
+    entt::entity                         entity,
+    FluxMapBakeOptions const&            opts,
+    SolTrace::GUI::Data::Mesh const&     mesh,
+    BakedFluxMapStats const&             stats) {
+    image.setText(QStringLiteral("Software"), QStringLiteral("SolTrace"));
+    image.setText(QStringLiteral("Description"), image_kind);
+    image.setText(QStringLiteral("Creation Time"), generated_at);
+    image.setText(QStringLiteral("SolTrace.FluxMapMetadataVersion"),
+                  QStringLiteral("1"));
+    image.setText(QStringLiteral("SolTrace.Entity"),
+                  QString::number(entt::to_integral(entity)));
+    image.setText(QStringLiteral("SolTrace.GridResolution"),
+                  QStringLiteral("%1x%2")
+                      .arg(opts.image_resolution.x)
+                      .arg(opts.image_resolution.y));
+    image.setText(QStringLiteral("SolTrace.Smoothing"),
+                  smoothing_description(opts.smoothing_radius));
+    image.setText(QStringLiteral("SolTrace.SmoothingRadiusBins"),
+                  QString::number(opts.smoothing_radius));
+    image.setText(QStringLiteral("SolTrace.SurfaceDetail"),
+                  QString::number(opts.surface_detail));
+    image.setText(QStringLiteral("SolTrace.MeshTriangleCount"),
+                  QString::number(
+                      static_cast<qulonglong>(mesh.triangles.size())));
+    image.setText(QStringLiteral("SolTrace.ShowTriangleGrid"),
+                  opts.grid_line_color.isValid() ? QStringLiteral("true")
+                                                 : QStringLiteral("false"));
+    image.setText(QStringLiteral("SolTrace.ColorMapSource"),
+                  opts.color_map_source);
+    image.setText(QStringLiteral("SolTrace.SolarDNI.WPerM2"),
+                  QString::number(opts.dni, 'g', 17));
+    image.setText(QStringLiteral("SolTrace.IncludeDirectSunRays"),
+                  opts.include_direct_sun_rays ? QStringLiteral("true")
+                                               : QStringLiteral("false"));
+    image.setText(QStringLiteral("SolTrace.TerminalInteractionsOnly"),
+                  opts.terminal_interactions_only ? QStringLiteral("true")
+                                                  : QStringLiteral("false"));
+    image.setText(QStringLiteral("SolTrace.SourceRayCount"),
+                  QString::number(stats.source_ray_count));
+    image.setText(QStringLiteral("SolTrace.ContributingHits"),
+                  QString::number(stats.plotted_ray_count));
+    image.setText(QStringLiteral("SolTrace.PowerPerRay.W"),
+                  QString::number(stats.power_per_ray, 'g', 17));
+    image.setText(QStringLiteral("SolTrace.MappedPower.W"),
+                  QString::number(stats.plotted_power, 'g', 17));
 }
 
 /// Main fluxmap compute function
@@ -587,7 +767,6 @@ execute_map_generation_for(Support::TaskControl&                    control,
     const double power_per_ray =
         std::max(0.0, opts.dni) *
         (result_ray_area_weight > 0.0 ? result_ray_area_weight : 1.0);
-    float                  total_ray_impact = 0.0f;
     std::vector<glm::vec2> interaction_uvs;
     std::vector<glm::vec3> interaction_points;
     interaction_uvs.reserve(iter->second.size());
@@ -617,7 +796,12 @@ execute_map_generation_for(Support::TaskControl&                    control,
 
         ASYNC_TASK_SYNC_POINT(control);
 
-        for (auto const& interaction : results->records.at(ray_index).events) {
+        auto const& ray = results->records.at(ray_index);
+        for (size_t interaction_index = 0;
+             interaction_index < ray.events.size();
+             ++interaction_index) {
+            auto const& interaction = ray.events[interaction_index];
+
             // TODO: we need to double check that this is ok
             if (interaction.entity != entity) { continue; }
             switch (interaction.event) {
@@ -630,6 +814,17 @@ execute_map_generation_for(Support::TaskControl&                    control,
             case SolTrace::GUI::Data::RayEventType::TRANSMIT: break;
             }
 
+            if (!opts.include_direct_sun_rays &&
+                is_direct_sun_interaction(ray, interaction_index)) {
+                continue;
+            }
+
+            if (opts.terminal_interactions_only &&
+                interaction.event !=
+                    SolTrace::GUI::Data::RayEventType::ABSORB) {
+                continue;
+            }
+
             auto projection = project_point_to_triangle(
                 mesh, triangle_bvh, interaction.location);
 
@@ -640,7 +835,6 @@ execute_map_generation_for(Support::TaskControl&                    control,
             float hit_energy = static_cast<float>(power_per_ray);
             triangle.hit_count += 1;
             triangle.accumulated_energy += hit_energy;
-            total_ray_impact += hit_energy;
             interaction_points.push_back(interaction.location);
             interaction_uvs.push_back(projection->uv);
         }
@@ -652,20 +846,24 @@ execute_map_generation_for(Support::TaskControl&                    control,
 
     control.setProgressValue(PROGRESS_ACCUMULATE);
 
+    // The face values remain useful for exports and diagnostics, but the
+    // visible map is accumulated directly in UV space so its gradients do not
+    // inherit the mesh's triangle boundaries.
+    compute_triangle_flux(triangles);
 
-    // Burn triangle bins to raster
+    auto surface_area = raster_surface_area(triangles,
+                                            mesh,
+                                            img.size(),
+                                            control,
+                                            PROGRESS_ACCUMULATE,
+                                            PROGRESS_RASTER);
 
-    compute_triangle_flux_and_max(triangles, total_ray_impact);
+    ASYNC_TASK_SYNC_POINT(control);
 
-    auto vertex_flux = compute_vertex_flux_bins(triangles, mesh);
-
-    auto raster = raster_vertex_flux(triangles,
-                                     vertex_flux,
-                                     mesh,
-                                     img.size(),
-                                     control,
-                                     PROGRESS_ACCUMULATE,
-                                     PROGRESS_RASTER);
+    auto raster = raster_flux(interaction_uvs,
+                              static_cast<float>(power_per_ray),
+                              surface_area,
+                              opts.smoothing_radius);
 
     auto max_density = max_raster_value(raster);
 
@@ -683,9 +881,12 @@ execute_map_generation_for(Support::TaskControl&                    control,
         raster_mesh_overlay(painter, mesh, img.size(), opts.grid_line_color);
     }
 
-    auto points_img =
-        make_points_debug_image(interaction_uvs, img.size(), mesh);
+    auto points_img = make_points_debug_image(interaction_uvs,
+                                              img.size(),
+                                              mesh,
+                                              opts.grid_line_color);
     auto stats = compute_flux_map_stats(raster,
+                                        surface_area,
                                         triangles,
                                         interaction_points,
                                         results->records.size(),
@@ -711,8 +912,25 @@ execute_map_generation_for(Support::TaskControl&                    control,
 
     qCDebug(fluxMapLog) << Q_FUNC_INFO << "complete";
 
-    // Convert to the more common format
+    // Convert to the more common format and attach settings to saved images.
     img = img.convertToFormat(QImage::Format_RGBA8888);
+
+    auto const generated_at =
+        QDateTime::currentDateTimeUtc().toString(Qt::ISODateWithMs);
+    set_generation_metadata(img,
+                            QStringLiteral("SolTrace flux-density map"),
+                            generated_at,
+                            entity,
+                            opts,
+                            mesh,
+                            stats);
+    set_generation_metadata(points_img,
+                            QStringLiteral("SolTrace flux-map interaction points"),
+                            generated_at,
+                            entity,
+                            opts,
+                            mesh,
+                            stats);
 
     control.setProgressValue(PROGRESS_COMPLETE);
 

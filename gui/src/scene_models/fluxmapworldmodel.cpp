@@ -272,7 +272,13 @@ bool PendingFluxMapModel::start_generate_for(Entity entity) {
         .grid_line_color =
             this->show_mesh_grid() ? this->mesh_line_color() : QColor(),
         .color_map = QImage(color_map()),
+        .color_map_source = color_map(),
         .dni       = this->dni(),
+        .smoothing_radius =
+            static_cast<unsigned>(std::max(0, this->smoothing_radius())),
+        .surface_detail = static_cast<unsigned>(mesh_res),
+        .include_direct_sun_rays = this->include_direct_sun_rays(),
+        .terminal_interactions_only = this->terminal_interactions_only(),
     };
 
     store_push_append(FluxMappedPendingItem {

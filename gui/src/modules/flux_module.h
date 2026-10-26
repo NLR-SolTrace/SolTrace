@@ -36,15 +36,17 @@ class FluxModule : public QObject {
     QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::FluxMapWorldModel, flux_map_world_model);
 
     Q_READONLY_PROPERTY(bool, ray_volume_flux_in_progress);
+    Q_READONLY_PROPERTY(bool, has_results);
     QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::QMLMesh, ray_iso_volume);
 
     Q_WRITABLE_PROPERTY(SolTrace::GUI::Data::Entity, current_entity, { });
     Q_READONLY_PROPERTY(QString, current_entity_name);
     Q_READONLY_PROPERTY(QVector3D, current_entity_position);
+    Q_READONLY_PROPERTY(SolTrace::GUI::Data::Entity, current_map_entity);
     Q_READONLY_PROPERTY(SolTrace::GUI::Analysis::BakedFluxMapStats, current_flux_stats);
 
     Q_WRITABLE_PROPERTY(bool, show_flux_volume, true);
-    Q_WRITABLE_PROPERTY(bool, show_other_geometry, false);
+    Q_WRITABLE_PROPERTY(bool, show_other_geometry, true);
     Q_WRITABLE_PROPERTY(double, dni, 1000.0);
 
     // Hack
@@ -75,8 +77,11 @@ public slots:
     /// Set the result set used for all flux computations and scene models.
     void set_results(Data::SimulationResultPtr);
 
-    /// Select the entity whose flux map/statistics are shown in the UI.
+    /// Select the target for the next flux-map computation.
     void select_entity(Data::Entity);
+
+    /// Select a previously computed map without changing the next map target.
+    void select_map(Data::Entity);
 
     /// Generate a surface flux map for current_entity.
     void start_generate();

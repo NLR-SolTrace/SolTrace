@@ -66,7 +66,9 @@ FluxModule::FluxModule(QQmlEngine* engine, QObject* parent)
 
 void FluxModule::set_results(SolTrace::GUI::Data::SimulationResultPtr p) {
     m_results = p;
+    set_has_results(p != nullptr);
     set_current_entity({});
+    set_current_map_entity({});
     set_current_entity_name(QString());
     set_current_entity_position({});
     set_current_flux_stats({});
@@ -100,6 +102,11 @@ void FluxModule::set_results(SolTrace::GUI::Data::SimulationResultPtr p) {
     }
 
     select_entity(largest);
+
+    auto initial_map = m_computed_maps_model->index_of(largest) >= 0
+                           ? SolTrace::GUI::Data::Entity(largest)
+                           : m_computed_maps_model->entity_at(0);
+    select_map(initial_map);
 }
 
 void FluxModule::select_entity(SolTrace::GUI::Data::Entity entity) {
@@ -108,7 +115,6 @@ void FluxModule::select_entity(SolTrace::GUI::Data::Entity entity) {
     if (!m_results || !m_results->database || !entity.is_valid()) {
         set_current_entity_name(QString());
         set_current_entity_position({});
-        set_current_flux_stats({});
         return;
     }
 
@@ -124,6 +130,10 @@ void FluxModule::select_entity(SolTrace::GUI::Data::Entity entity) {
                                           transform.position.y,
                                           transform.position.z));
 
+}
+
+void FluxModule::select_map(SolTrace::GUI::Data::Entity entity) {
+    set_current_map_entity(entity);
     refresh_current_flux_stats();
 }
 
@@ -134,7 +144,7 @@ void FluxModule::maybe_update_batch(SolTrace::GUI::Data::Entity entity) {
 
 void FluxModule::refresh_current_flux_stats() {
     for (auto const& item : m_flux_map_world_model->vector()) {
-        if (item.flux_entity == current_entity()) {
+        if (item.flux_entity == current_map_entity()) {
             set_current_flux_stats(item.flux_stats);
             set_current_image(item.flux_image_path);
             return;
@@ -151,9 +161,11 @@ void FluxModule::flux_map_ready(SolTrace::GUI::Data::Entity              entity,
     // we record completion, batch or not
     maybe_update_batch(entity);
 
-    if (entity != current_entity()) return;
-
-    refresh_current_flux_stats();
+    if (entity == current_entity()) {
+        select_map(entity);
+    } else if (entity == current_map_entity()) {
+        refresh_current_flux_stats();
+    }
 }
 
 void FluxModule::start_generate() {

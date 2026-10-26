@@ -2,8 +2,10 @@
 title: "Flux Map Resolution"
 ---
 
-Image resolution controls the exported and displayed texture size. Higher values preserve more detail, but they take longer to compute and use more memory.
+Flux grid resolution controls the number of flux bins and the exported texture size. Choose a square resolution from 128 × 128 through 4096 × 4096. Higher values preserve more spatial detail, but they can reveal more ray-sampling noise, take longer to compute, and use more memory.
 
-Surface resolution controls how finely the selected surface is meshed before ray hits are projected. Higher values can make curved or analytic surfaces look smoother, but they also increase flux-map computation time.
+Smoothing reduces ray-sampling noise without lowering the grid resolution. **None** preserves the unsmoothed bin values. **Light**, **Medium**, and **Strong** apply increasingly wide Gaussian smoothing in flux-grid bins. Energy and physical surface area are smoothed together, and the total plotted power is preserved.
 
-Show Triangle Grid overlays the generated surface mesh on the map. Use it when validating whether the mesh is fine enough for the gradient you expect.
+Surface detail controls how finely curved or analytic geometry is approximated when ray hits are projected and when physical pixel areas are calculated. It does not set the flux-map bin size. Higher values can improve the accuracy of strongly curved surfaces, but they also increase computation time.
+
+Show Triangle Grid overlays the generated surface mesh for diagnostic purposes. The displayed flux is accumulated in image space and should not follow these triangle edges.

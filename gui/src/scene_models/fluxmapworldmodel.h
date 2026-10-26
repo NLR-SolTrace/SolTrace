@@ -64,12 +64,15 @@ public:
     // TODO: Make sure we have bins counts and bin areas to export
     // power per ray
 
-    Q_WRITABLE_PROPERTY(int, mesh_resolution_multiply, 1);
+    Q_WRITABLE_PROPERTY(int, mesh_resolution_multiply, 2);
     Q_WRITABLE_PROPERTY(QSize, image_resolution, (QSize { 1024, 1024 }));
+    Q_WRITABLE_PROPERTY(int, smoothing_radius, 2);
     Q_WRITABLE_PROPERTY(QColor, mesh_line_color, "black");
     Q_WRITABLE_PROPERTY(bool, show_mesh_grid, false);
     Q_WRITABLE_PROPERTY(QString, color_map, "");
     Q_WRITABLE_PROPERTY(double, dni, 1000.0);
+    Q_WRITABLE_PROPERTY(bool, include_direct_sun_rays, true);
+    Q_WRITABLE_PROPERTY(bool, terminal_interactions_only, false);
 
     explicit PendingFluxMapModel(QObject* parent = nullptr);
     virtual ~PendingFluxMapModel() = default;

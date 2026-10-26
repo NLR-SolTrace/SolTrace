@@ -12,6 +12,8 @@ namespace SolTrace::GUI::Analysis {
 
 /// Options for rasterizing ray/surface hits into a flux-map image.
 struct FluxMapBakeOptions {
+    // TODO: Preserve these options with BakedFluxMap so the UI can report how
+    // an existing map was generated.
     // TODO: change to support UV aspect ratio
     glm::uvec2 image_resolution = { 1024, 1024 };
 
@@ -21,14 +23,30 @@ struct FluxMapBakeOptions {
     /// The color map to use. If null, uses a classic blue to red map.
     QImage color_map;
 
+    /// Source identifier for the color map, retained as image metadata.
+    QString color_map_source;
+
     /// Solar direct normal irradiance in W/m^2.
     double dni = 1000.0;
+
+    /// Radius of the image-space Gaussian smoothing kernel, in flux bins.
+    unsigned smoothing_radius = 2;
+
+    /// Surface tessellation multiplier used to prepare the projection mesh.
+    unsigned surface_detail = 1;
+
+    /// Include hits that occur before any prior physical ray interaction.
+    bool include_direct_sun_rays = true;
+
+    /// Include only absorbing interactions at the mapped element.
+    bool terminal_interactions_only = false;
 };
 
 /// Asynchronous flux-map generator for simulation results.
 ///
 /// The input mesh is expected to be a UV-unwrapped receiver surface. Generated
-/// maps are piecewise-continuous triangle rasters emitted by signal when ready.
+/// maps accumulate ray energy directly in UV image space and use the mesh to
+/// determine the physical surface area represented by each pixel.
 class FluxMapComputer : public QObject {
     Q_OBJECT
 

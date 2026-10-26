@@ -8,7 +8,7 @@ import QtQuick.Dialogs
 
 import SolTrace
 
-Flickable {
+STScrollView {
     id: root
     property var flux_module : AppData.flux
 
@@ -35,28 +35,62 @@ Flickable {
         return Number(value).toLocaleString(Qt.locale(), 'G', 6) + suffix_part
     }
 
-    contentWidth: width
-    contentHeight: content_column.implicitHeight
-    clip: true
-    boundsBehavior: Flickable.StopAtBounds
+    function contributionSummary() {
+        const filters = root.flux_module.pending_flux_maps
+        const include_direct = filters.include_direct_sun_rays
+        const terminal_only = filters.terminal_interactions_only
+
+        if (include_direct && !terminal_only) {
+            return "All Contributions"
+        }
+        if (!include_direct && terminal_only) {
+            return "Indirect · Terminating"
+        }
+        return include_direct ? "Terminating Only" : "Indirect Only"
+    }
+
+    function closestFluxGridResolution(size) {
+        const resolutions = [128, 256, 512, 1024, 2048, 4096]
+        const target = Math.max(size.width, size.height)
+        let closest = resolutions[0]
+
+        for (const resolution of resolutions) {
+            if (Math.abs(resolution - target)
+                    < Math.abs(closest - target)) {
+                closest = resolution
+            }
+        }
+
+        return closest
+    }
+
+    contentWidth: availableWidth
 
     ColumnLayout {
         id: content_column
-        width: root.width
+        width: root.availableWidth
 
         InlineDocumentation {
             key: "analyze.flux"
         }
 
+        Label {
+            Layout.fillWidth: true
+            visible: !root.flux_module.has_results
+            text: "Select a simulation result to compute or inspect flux maps."
+            wrapMode: Label.WrapAtWordBoundaryOrAnywhere
+            horizontalAlignment: Text.AlignHCenter
+            opacity: 0.7
+            Layout.margins: 12
+        }
+
         STFormPanel {
             collapsible: true
             title: "Current Flux Map"
+            documentationKey: "analyze.flux.display"
 
-            visible: AppData.flux.current_image.length || computed_map_combo.count > 0
-
-            STDocumentationSection {
-                key: "analyze.flux.display"
-            }
+            visible: root.flux_module.has_results
+                     && computed_map_combo.count > 0
 
             STFormRow {
                 label: "Computed Map"
@@ -71,10 +105,10 @@ Flickable {
                     currentIndex: Math.max(
                                       0,
                                       AppData.flux.computed_maps_model.index_of(
-                                          AppData.flux.current_entity))
+                                          AppData.flux.current_map_entity))
 
                     onActivated: (index) => {
-                        AppData.flux.select_entity(
+                        AppData.flux.select_map(
                                     AppData.flux.computed_maps_model.entity_at(index))
                     }
                 }
@@ -96,6 +130,7 @@ Flickable {
 
                 STIconButton {
                     icon: "\uf019"
+                    toolTip: "Save the displayed flux-map image"
 
                     anchors.bottom: parent.bottom
                     anchors.right: parent.right
@@ -120,8 +155,14 @@ Flickable {
                 }
 
                 ShadowedRectangle {
-                    width: Math.max(lower_bound.implicitWidth + 16,
-                                                  upper_bound.implicitWidth + 16)
+                    id: color_bar_container
+
+                    property bool isClosed: false
+
+                    property real openWidth: Math.max(lower_bound.implicitWidth + 16,
+                                                      upper_bound.implicitWidth + 16)
+
+                    width: isClosed ? 10 : openWidth
                     height: parent.height / 2
                     anchors.left: parent.left
                     anchors.bottom: parent.bottom
@@ -153,9 +194,11 @@ Flickable {
 
                             Label {
                                 anchors.centerIn: parent
-                                text: "W/m^2"
+                                text: "W/m²"
                                 style: Label.Outline
                                 styleColor: Qt.alpha(Material.backgroundColor, 0.5)
+
+                                opacity: !color_bar_container.isClosed
                             }
                         }
 
@@ -168,6 +211,8 @@ Flickable {
                             text: root.formatStatistic(
                                       root.flux_module.current_flux_stats.peak_flux
                                       )
+
+                            opacity: !color_bar_container.isClosed
                         }
 
                         Label {
@@ -177,8 +222,9 @@ Flickable {
                             anchors.bottom: parent.bottom
                             anchors.bottomMargin: 4
                             text: root.formatStatistic(0)
-                        }
 
+                            opacity: !color_bar_container.isClosed
+                        }
                     }
 
 
@@ -187,6 +233,8 @@ Flickable {
                         id: legend_hover
                         hoverEnabled: true
                         anchors.fill: parent
+
+                        onClicked: color_bar_container.isClosed = !color_bar_container.isClosed
                     }
                 }
             }
@@ -199,21 +247,29 @@ Flickable {
             }
 
             STSwitch {
-                text: "Show Whole Scene"
-                checked: AppData.flux.show_other_geometry
-                onToggled: AppData.flux.show_other_geometry = checked
+                text: "Hide Scene Geometry"
+                checked: !AppData.flux.show_other_geometry
+                onToggled: AppData.flux.show_other_geometry = !checked
             }
 
-            Label {
-                Layout.fillWidth: true
-                text: "Flux map values are scaled by solar DNI when ray area metadata is available."
-                color: App.theme.fontColor
-                opacity: 0.75
-                wrapMode: Label.WrapAtWordBoundaryOrAnywhere
-            }
+        }
 
-            STDocumentationSection {
-                key: "analyze.flux.stats"
+        STFormPanel {
+            collapsible: true
+            title: "Map Statistics"
+            documentationKey: "analyze.flux.stats"
+            visible: root.flux_module.has_results
+                     && AppData.flux.current_image.length > 0
+
+            STFormRow {
+                label: "Contributing Hits"
+
+                Label {
+                    Layout.fillWidth: true
+                    text: Number(root.flux_module.current_flux_stats.plotted_ray_count)
+                              .toLocaleString(Qt.locale(), "f", 0)
+                    horizontalAlignment: Text.AlignRight
+                }
             }
 
             STFormRow {
@@ -222,7 +278,7 @@ Flickable {
                 Label {
                     Layout.fillWidth: true
                     text: formatStatistic(root.flux_module.current_flux_stats.plotted_power, "W")
-                    font.bold: true
+                    horizontalAlignment: Text.AlignRight
                 }
             }
 
@@ -231,18 +287,18 @@ Flickable {
 
                 Label {
                     Layout.fillWidth: true
-                    text: formatStatistic(root.flux_module.current_flux_stats.peak_flux, "W/m^2")
-                    font.bold: true
+                    text: formatStatistic(root.flux_module.current_flux_stats.peak_flux, "W/m²")
+                    horizontalAlignment: Text.AlignRight
                 }
             }
 
             STFormRow {
-                label: "Min Flux"
+                label: "Minimum Flux"
 
                 Label {
                     Layout.fillWidth: true
-                    text: formatStatistic(root.flux_module.current_flux_stats.min_flux, "W/m^2")
-                    font.bold: true
+                    text: formatStatistic(root.flux_module.current_flux_stats.min_flux, "W/m²")
+                    horizontalAlignment: Text.AlignRight
                 }
             }
 
@@ -251,18 +307,18 @@ Flickable {
 
                 Label {
                     Layout.fillWidth: true
-                    text: formatStatistic(root.flux_module.current_flux_stats.average_flux, "W/m^2")
-                    font.bold: true
+                    text: formatStatistic(root.flux_module.current_flux_stats.average_flux, "W/m²")
+                    horizontalAlignment: Text.AlignRight
                 }
             }
 
             STFormRow {
-                label: "Sigma Flux"
+                label: "Flux Standard Deviation"
 
                 Label {
                     Layout.fillWidth: true
-                    text: formatStatistic(root.flux_module.current_flux_stats.sigma_flux, "W/m^2")
-                    font.bold: true
+                    text: formatStatistic(root.flux_module.current_flux_stats.sigma_flux, "W/m²")
+                    horizontalAlignment: Text.AlignRight
                 }
             }
 
@@ -272,27 +328,27 @@ Flickable {
                 Label {
                     Layout.fillWidth: true
                     text: formatStatistic(root.flux_module.current_flux_stats.uniformity)
-                    font.bold: true
+                    horizontalAlignment: Text.AlignRight
                 }
             }
 
             STFormRow {
-                label: "Peak Flux Uncert"
+                label: "Peak Flux Uncertainty"
 
                 Label {
                     Layout.fillWidth: true
-                    text: formatStatistic(root.flux_module.current_flux_stats.peak_flux_uncertainty)
-                    font.bold: true
+                    text: formatStatistic(root.flux_module.current_flux_stats.peak_flux_uncertainty, "%")
+                    horizontalAlignment: Text.AlignRight
                 }
             }
 
             STFormRow {
-                label: "Average Flux Uncert"
+                label: "Average Flux Uncertainty"
 
                 Label {
                     Layout.fillWidth: true
-                    text: formatStatistic(root.flux_module.current_flux_stats.average_flux_uncertainty)
-                    font.bold: true
+                    text: formatStatistic(root.flux_module.current_flux_stats.average_flux_uncertainty, "%")
+                    horizontalAlignment: Text.AlignRight
                 }
             }
 
@@ -303,7 +359,7 @@ Flickable {
                     property vector3d cent: root.flux_module.current_flux_stats.centroid
                     Layout.fillWidth: true
                     text: root.formatCentroid(cent)
-                    font.bold: true
+                    horizontalAlignment: Text.AlignRight
                 }
             }
 
@@ -314,7 +370,7 @@ Flickable {
                     property vector3d cent: root.flux_module.current_flux_stats.local_centroid
                     Layout.fillWidth: true
                     text: root.formatCentroid(cent)
-                    font.bold: true
+                    horizontalAlignment: Text.AlignRight
                 }
             }
         }
@@ -322,6 +378,7 @@ Flickable {
         STFormPanel {
             collapsible: true
             title: "Compute Flux Map"
+            visible: root.flux_module.has_results
 
             STDocumentationSection {
                 key: "analyze.flux.target"
@@ -378,11 +435,30 @@ Flickable {
             }
 
             STDocumentationSection {
+                key: "analyze.flux.contributions"
+            }
+
+            STFormRow {
+                label: "Ray Contributions"
+
+                STButton {
+                    Layout.fillWidth: true
+                    text: root.contributionSummary()
+                    onClicked: contribution_filter_popup.open()
+
+                    FluxRayFilterPopup {
+                        id: contribution_filter_popup
+                        filterModel: root.flux_module.pending_flux_maps
+                    }
+                }
+            }
+
+            STDocumentationSection {
                 key: "analyze.flux.dni"
             }
 
             STFormRow {
-                label: "Solar DNI (W/m^2)"
+                label: "Solar DNI (W/m²)"
 
                 STDoubleSpinBox {
                     Layout.fillWidth: true
@@ -407,50 +483,68 @@ Flickable {
             }
 
             STFormRow {
-                label: "Image Resolution (Pixels)"
+                label: "Flux Grid Resolution"
 
-                RowLayout {
+                STComboBox {
                     Layout.fillWidth: true
-                    spacing: 8
 
-                    STSpinBox {
-                        Layout.fillWidth: true
-                        from: 64
-                        to: 8192
-                        stepSize: 64
-                        value: AppData.flux.pending_flux_maps.image_resolution.width
+                    model: [
+                        { value: 128, text: "128 × 128" },
+                        { value: 256, text: "256 × 256" },
+                        { value: 512, text: "512 × 512" },
+                        { value: 1024, text: "1024 × 1024" },
+                        { value: 2048, text: "2048 × 2048" },
+                        { value: 4096, text: "4096 × 4096" },
+                    ]
+                    textRole: "text"
+                    valueRole: "value"
+                    currentValue: root.closestFluxGridResolution(
+                                      AppData.flux.pending_flux_maps.image_resolution)
 
-                        onValueModified: {
-                            AppData.flux.pending_flux_maps.image_resolution =
-                                    Qt.size(value,
-                                            AppData.flux.pending_flux_maps.image_resolution.height)
-                        }
+                    onActivated: {
+                        AppData.flux.pending_flux_maps.image_resolution =
+                                Qt.size(currentValue, currentValue)
                     }
 
-                    Label {
-                        Layout.alignment: Qt.AlignVCenter
-                        text: "\u00d7"
-                        opacity: 0.7
-                    }
-
-                    STSpinBox {
-                        Layout.fillWidth: true
-                        from: 64
-                        to: 8192
-                        stepSize: 64
-                        value: AppData.flux.pending_flux_maps.image_resolution.height
-
-                        onValueModified: {
+                    Component.onCompleted: {
+                        const size =
+                                AppData.flux.pending_flux_maps.image_resolution
+                        const resolution = root.closestFluxGridResolution(size)
+                        if (size.width !== resolution
+                                || size.height !== resolution) {
                             AppData.flux.pending_flux_maps.image_resolution =
-                                    Qt.size(AppData.flux.pending_flux_maps.image_resolution.width,
-                                            value)
+                                    Qt.size(resolution, resolution)
                         }
                     }
                 }
             }
 
             STFormRow {
-                label: "Surface resolution"
+                label: "Smoothing"
+
+                STComboBox {
+                    Layout.fillWidth: true
+
+                    model: [
+                        { value: 0, text: "None" },
+                        { value: 2, text: "Light (2-bin radius)" },
+                        { value: 4, text: "Medium (4-bin radius)" },
+                        { value: 8, text: "Strong (8-bin radius)" },
+                    ]
+                    textRole: "text"
+                    valueRole: "value"
+                    currentValue:
+                        AppData.flux.pending_flux_maps.smoothing_radius
+
+                    onActivated: {
+                        AppData.flux.pending_flux_maps.smoothing_radius =
+                                currentValue
+                    }
+                }
+            }
+
+            STFormRow {
+                label: "Surface Detail"
 
                 STSpinBox {
                     Layout.fillWidth: true
@@ -509,6 +603,7 @@ Flickable {
 
             STButton {
                 Layout.fillWidth: true
+                enabled: AppData.flux.current_entity.is_valid()
 
                 text: "Compute Map"
                 left_text_icon: "\uf0da"
@@ -518,10 +613,10 @@ Flickable {
                 }
             }
 
-            STDangerousButton {
+            STButton {
                 Layout.fillWidth: true
 
-                text: "Compute All Maps"
+                text: "Compute Maps for All Elements"
                 left_text_icon: "\uf252"
 
                 onClicked: batch_warn.open()
