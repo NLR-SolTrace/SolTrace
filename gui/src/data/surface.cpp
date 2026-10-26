@@ -277,19 +277,28 @@ std::optional<Mesh> make_cone(SD::Cone& item, Mesh2D const& m2d) {
 }
 
 std::optional<Mesh> make_para(SD::Parabola& item, Mesh2D const& m2d) {
-    if (item.focal_length_x == 0.0 || item.focal_length_y == 0.0) {
-        qDebug() << Q_FUNC_INFO << "Focal lengths are zero";
+    if (std::isnan(item.focal_length_x) || std::isnan(item.focal_length_y)) {
+        qDebug() << Q_FUNC_INFO << "Focal lengths contain NaN";
         return {};
     }
 
     auto [bb_min, bb_max] = m2d.bb_2d();
 
-    auto flen = glm::dvec2(item.focal_length_x, item.focal_length_y);
+    auto curvature_from_focal_length = [](double focal_length) {
+        // SolTrace uses a zero focal length to represent a flat axis. Infinite
+        // focal lengths are the equivalent mathematical representation.
+        if (focal_length == 0.0 || std::isinf(focal_length)) return 0.0;
+        return 0.5 / focal_length;
+    };
+
+    auto curvature =
+        glm::dvec2(curvature_from_focal_length(item.focal_length_x),
+                   curvature_from_focal_length(item.focal_length_y));
 
     return m2d.map([&](glm::dvec2 p) {
-        auto z = glm::compAdd(0.25 * (p * p) / flen);
+        auto z = 0.5 * glm::dot(curvature, p * p);
 
-        auto normal = glm::normalize(glm::vec3(-0.5 * p / flen, 1.0));
+        auto normal = glm::normalize(glm::vec3(-curvature * p, 1.0));
 
         return Vertex {
             .position = glm::vec3(p, z),
