@@ -230,6 +230,26 @@ Flickable {
             }
 
             STFormRow {
+                label: "Hit side"
+
+                STComboBox {
+                    Layout.fillWidth: true
+                    enabled: root.ray_geom.entity_filter.is_valid()
+                    currentValue: root.ray_geom.surface_side_filter
+                    textRole: "text"
+                    valueRole: "value"
+
+                    model: [
+                        { text: "Either", value: RayGeometry.Either },
+                        { text: "Front", value: RayGeometry.Front },
+                        { text: "Back", value: RayGeometry.Back }
+                    ]
+
+                    onActivated: root.ray_geom.surface_side_filter = currentValue
+                }
+            }
+
+            STFormRow {
                 label: "Filter types"
 
                 STButton {
