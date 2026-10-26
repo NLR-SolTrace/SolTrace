@@ -35,6 +35,9 @@ struct UIRayRecord {
     /// If it hit an entity, which one?
     qint64 entity = -1;
 
+    /// User-facing name of the entity, when available.
+    QString entity_name;
+
     /// What is the interaction type?
     QString interaction_type;
 
@@ -44,6 +47,7 @@ struct UIRayRecord {
     RECORD_META(SolTrace::GUI::Analysis::UIRayRecord,
                 SM_EXPOSE_RO(has_entity),
                 SM_EXPOSE_RO(entity),
+                SM_EXPOSE_RO(entity_name),
                 SM_EXPOSE_RO(interaction_type),
                 SM_EXPOSE_RO(location), );
 };

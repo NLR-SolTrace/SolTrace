@@ -81,14 +81,17 @@ Item {
             Label {
                 visible: !title_row.is_editing
                 Layout.fillWidth: true
+                Layout.minimumWidth: 0
                 text: control.text
                 font.pointSize: 18
+                elide: Text.ElideRight
             }
 
             STTextField {
                 visible: title_row.is_editing
 
                 Layout.fillWidth: true
+                Layout.minimumWidth: 0
                 text: control.text
 
                 onTextEdited: {

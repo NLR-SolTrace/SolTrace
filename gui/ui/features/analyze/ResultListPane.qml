@@ -16,6 +16,26 @@ ColumnLayout {
         return Number(count).toLocaleString(Qt.locale(), "f", 0) + " rays"
     }
 
+    function formatDetail(value, suffix) {
+        if (!isFinite(value)) {
+            return "--"
+        }
+
+        return Number(value).toLocaleString(Qt.locale(), "G", 6)
+                + (suffix.length ? " " + suffix : "")
+    }
+
+    function formatPowerPerRay() {
+        const ray_area_weight = AppData.intersections.ray_area_weight
+        const dni = AppData.flux.dni
+        if (!isFinite(ray_area_weight) || ray_area_weight <= 0
+                || !isFinite(dni) || dni < 0) {
+            return "--"
+        }
+
+        return formatDetail(dni * ray_area_weight, "W")
+    }
+
     function showResultMode() {
         App.view.simulation_content_view = true
         App.view.workflow_phase = ViewModule.Analyze
@@ -36,6 +56,70 @@ ColumnLayout {
         text: "No simulation results yet."
         opacity: 0.7
         horizontalAlignment: Text.AlignHCenter
+    }
+
+    STFormPanel {
+        Layout.fillWidth: true
+        title: "Selected Result Summary"
+        documentationKey: "analyze.results.summary"
+        visible: AppData.intersections.has_results
+
+        STFormRow {
+            label: "Result"
+
+            Label {
+                Layout.fillWidth: true
+                text: AppData.simulation.current_simulation_result_name
+                elide: Text.ElideRight
+                horizontalAlignment: Text.AlignRight
+            }
+        }
+
+        STFormRow {
+            label: "Recorded Rays"
+
+            Label {
+                Layout.fillWidth: true
+                text: root.formatRayCount(
+                          AppData.intersections.ray_geometry.available_rays)
+                horizontalAlignment: Text.AlignRight
+            }
+        }
+
+        STFormRow {
+            label: "Sun Rays Traced"
+
+            Label {
+                Layout.fillWidth: true
+                text: Number(AppData.intersections.sun_ray_count)
+                          .toLocaleString(Qt.locale(), "f", 0)
+                horizontalAlignment: Text.AlignRight
+            }
+        }
+
+        STFormRow {
+            label: "Sun Plane Box"
+
+            Label {
+                Layout.fillWidth: true
+                text: root.formatDetail(
+                          AppData.intersections.sun_plane_width, "m")
+                      + " × "
+                      + root.formatDetail(
+                          AppData.intersections.sun_plane_height, "m")
+                horizontalAlignment: Text.AlignRight
+            }
+        }
+
+        STFormRow {
+            label: "Power per Ray"
+
+            Label {
+                Layout.fillWidth: true
+                text: root.formatPowerPerRay()
+                horizontalAlignment: Text.AlignRight
+            }
+        }
     }
 
     ListView {

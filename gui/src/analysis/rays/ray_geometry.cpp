@@ -825,9 +825,13 @@ void RayGeometry::selected_ray_change_update_table() {
     }();
 
     for (auto const& event : selected_ray.events) {
+        auto const has_entity = m_database->database->valid(event.entity);
         new_records << UIRayRecord {
-            .has_entity       = m_database->database->valid(event.entity),
-            .entity           = entt::to_integral(event.entity),
+            .has_entity  = has_entity,
+            .entity      = entt::to_integral(event.entity),
+            .entity_name = has_entity
+                               ? m_database->database->name_of(event.entity)
+                               : QString(),
             .interaction_type = names[event.event],
             .location         = convert(event.location),
         };

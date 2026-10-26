@@ -1,42 +1,17 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Controls.Material
-import QtQuick.Effects
 import QtQuick.Layouts
 
 import SolTrace
 
-Flickable {
+STScrollView {
     id: root
     property var intersections_module : AppData.intersections
 
     property var ray_geom: AppData.intersections.ray_geometry
 
     property bool is_selected_ray_valid: ray_geom.selected_ray_id >= 0
-
-    function formatRayCount(count) {
-        return Number(count).toLocaleString(Qt.locale(), "f", 0) + " rays"
-    }
-
-    function formatDetail(value, suffix) {
-        if (!isFinite(value)) {
-            return "--"
-        }
-
-        return Number(value).toLocaleString(Qt.locale(), "G", 6)
-                + (suffix.length ? " " + suffix : "")
-    }
-
-    function formatPowerPerRay() {
-        const ray_area_weight = root.intersections_module.ray_area_weight
-        const dni = AppData.flux.dni
-        if (!isFinite(ray_area_weight) || ray_area_weight <= 0
-                || !isFinite(dni) || dni < 0) {
-            return "--"
-        }
-
-        return root.formatDetail(dni * ray_area_weight, "W")
-    }
 
     function visibleRayCount() {
         const available = ray_geom.available_rays
@@ -50,17 +25,32 @@ Flickable {
                 available > 0 ? count * 100.0 / available : 0.0
     }
 
-    contentWidth: width
-    contentHeight: content_column.implicitHeight
-    clip: true
-    boundsBehavior: Flickable.StopAtBounds
-    ScrollBar.vertical: STScrollBar { }
+    function setVisibleRayPercent(percent) {
+        ray_geom.show_percent = percent
+    }
 
+    function formatInteractionTypes(types) {
+        if (!types || types.length === 0) {
+            return "None"
+        }
+        if (types.length === ray_filter_popup.ray_type_model.length) {
+            return "All"
+        }
 
+        const names = []
+        for (let i = 0; i < types.length; ++i) {
+            const value = String(types[i])
+            names.push(value.charAt(0).toUpperCase() + value.slice(1))
+        }
+        return names.length <= 2 ? names.join(", ")
+                                 : names.length + " selected"
+    }
+
+    contentWidth: availableWidth
 
     ColumnLayout {
         id: content_column
-        width: root.width
+        width: root.availableWidth
 
         InlineDocumentation {
             key: "analyze.intersections"
@@ -68,71 +58,29 @@ Flickable {
 
         Label {
             Layout.fillWidth: true
-            text: root.formatRayCount(
-                      root.ray_geom.available_rays)
-            opacity: 0.75
+            visible: !root.intersections_module.has_results
+            text: "Select a simulation result to inspect its rays."
+            wrapMode: Label.WrapAtWordBoundaryOrAnywhere
             horizontalAlignment: Text.AlignHCenter
+            opacity: 0.7
+            Layout.margins: 12
         }
 
         STFormPanel {
             collapsible: true
-            title: "Trace Details"
+            title: "Display"
+            documentationKey: "analyze.intersections.display"
             visible: root.intersections_module.has_results
-
-            Label {
-                Layout.fillWidth: true
-                text: "Power per ray uses the flux-map DNI of "
-                      + root.formatDetail(AppData.flux.dni, "W/m²") + "."
-                wrapMode: Label.WrapAtWordBoundaryOrAnywhere
-                opacity: 0.75
-            }
-
-            STFormRow {
-                label: "Sun Rays Traced"
-
-                Label {
-                    Layout.fillWidth: true
-                    text: Number(root.intersections_module.sun_ray_count)
-                              .toLocaleString(Qt.locale(), "f", 0)
-                }
-            }
-
-            STFormRow {
-                label: "Sun Plane Box"
-
-                Label {
-                    Layout.fillWidth: true
-                    text: root.formatDetail(
-                              root.intersections_module.sun_plane_width, "m")
-                          + " × "
-                          + root.formatDetail(
-                              root.intersections_module.sun_plane_height, "m")
-                }
-            }
-
-            STFormRow {
-                id: ppi_row
-                label: "Power per Ray"
-
-                Label {
-                    Layout.fillWidth: true
-                    text: root.formatPowerPerRay()
-                }
-            }
-
-
-        }
-
-        STFormPanel {
-            collapsible: true
-            title: "Ray Visibility"
 
 
             STSwitch {
                 Layout.fillWidth: true
 
-                text: "Toggle Interactions"
+                text: "Show Rays"
                 checked: AppData.view.show_intersections
+
+                ToolTip.visible: hovered
+                ToolTip.text: "Show or hide traced rays and interaction points in the viewport."
 
                 onToggled: AppData.view.show_intersections = checked
             }
@@ -142,6 +90,9 @@ Flickable {
 
                 text: "Show Geometry"
                 checked: root.intersections_module.show_geometry
+
+                ToolTip.visible: hovered
+                ToolTip.text: "Show the traced scene geometry behind the rays."
 
                 onToggled: root.intersections_module.show_geometry = checked
             }
@@ -155,6 +106,9 @@ Flickable {
                     currentIndex: root.ray_geom.isect_mode === RayGeometry.Point
                                   ? 1 : 0
                     model: ["Lines", "Points"]
+
+                    ToolTip.visible: hovered
+                    ToolTip.text: "Draw complete ray paths or individual interaction points."
 
                     onCurrentIndexChanged: {
                         root.ray_geom.isect_mode = currentIndex === 0
@@ -182,7 +136,137 @@ Flickable {
             }
 
             STFormRow {
-                label: "Filter element"
+                label: "Color mode"
+
+                STComboBox {
+                    Layout.fillWidth: true
+
+                    currentValue: root.ray_geom.texture_mode
+
+                    model: [
+                        {value: RayGeometry.SolidColor, text: "Solid Color"},
+                        {value: RayGeometry.Length, text: "Length"},
+                        {value: RayGeometry.Segment, text: "Segment"},
+                        {value: RayGeometry.Element, text: "Element"},
+                    ]
+
+                    textRole: "text"
+                    valueRole: "value"
+
+                    ToolTip.visible: hovered
+                    ToolTip.text: currentValue === RayGeometry.Length
+                                      ? "Color each path by distance along the ray."
+                                      : currentValue === RayGeometry.Segment
+                                        ? "Alternate colors between consecutive ray segments."
+                                        : currentValue === RayGeometry.Element
+                                          ? "Color interactions according to the element they hit."
+                                          : "Use one color for every ray."
+
+                    onActivated: root.ray_geom.texture_mode = currentValue
+                }
+            }
+
+            ColorPickerField {
+                id: rayColorPicker
+                Layout.fillWidth: true
+                color: AppData.view.ray_color
+                label: "Ray Color"
+                visible: root.ray_geom.texture_mode === RayGeometry.SolidColor
+                onUpdated: AppData.view.ray_color = rayColorPicker.color
+            }
+
+            STFormRow {
+                label: "Visible Rays"
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+
+                    STDoubleSpinBox {
+                        from: 0.0
+                        to: root.ray_geom.available_rays
+                        value: root.visibleRayCount()
+                        stepSize: 1000
+                        decimals: 0
+                        Layout.fillWidth: true
+                        onValueModified: root.setVisibleRayCount(value)
+
+                        ToolTip.visible: hovered
+                        ToolTip.text: "Limit how many recorded rays are drawn."
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 4
+
+                        Item { Layout.fillWidth: true }
+
+                        STIconButton {
+                            label: "10%"
+                            toolTip: "Show 10% of recorded rays"
+                            onClicked: root.setVisibleRayPercent(10)
+                        }
+
+                        STIconButton {
+                            label: "50%"
+                            toolTip: "Show 50% of recorded rays"
+                            onClicked: root.setVisibleRayPercent(50)
+                        }
+
+                        STIconButton {
+                            label: "100%"
+                            toolTip: "Show all recorded rays"
+                            onClicked: root.setVisibleRayPercent(100)
+                        }
+                    }
+                }
+            }
+
+            STFormRow {
+                label: "Maximum Ray Distance"
+
+                STDoubleSpinBox {
+                    Layout.fillWidth: true
+                    from: 0.0
+                    to: Infinity
+                    value: root.ray_geom.max_ray_distance
+                    stepSize: 100.0
+                    decimals: 0
+                    onValueModified: root.ray_geom.max_ray_distance = value
+
+                    ToolTip.visible: hovered
+                    ToolTip.text: "Clip ray paths beyond this distance from the scene origin."
+                }
+            }
+
+            STFormRow {
+                label: "Ray Opacity"
+
+                STDoubleSpinBox {
+                    Layout.fillWidth: true
+                    from: 0.0
+                    to: 100.0
+                    value: AppData.view.intersection_opacity * 100.0
+                    stepSize: 5.0
+                    decimals: 0
+                    onValueModified: {
+                        AppData.view.intersection_opacity = value / 100.0
+                    }
+
+                    ToolTip.visible: hovered
+                    ToolTip.text: "Set ray visibility from 0 to 100 percent."
+                }
+            }
+
+        }
+
+        STFormPanel {
+            collapsible: true
+            title: "Filters"
+            documentationKey: "analyze.intersections.filters"
+            visible: root.intersections_module.has_results
+
+            STFormRow {
+                label: "Element"
 
                 RowLayout {
                     Layout.fillWidth: true
@@ -209,7 +293,7 @@ Flickable {
 
                     STIconButton {
                         icon: "\uf245"
-                        toolTip: "Pick element from view"
+                        toolTip: "Pick filter element from the viewport"
 
                         onClicked: {
                             App.view.simulation_content_view = true
@@ -221,7 +305,7 @@ Flickable {
 
                     STIconButton {
                         icon: "\uf057"
-                        toolTip: "Clear element filter"
+                        toolTip: "Clear element and side filtering"
                         enabled: root.ray_geom.entity_filter.is_valid()
 
                         onClicked: root.ray_geom.clear_entity_filter()
@@ -230,7 +314,7 @@ Flickable {
             }
 
             STFormRow {
-                label: "Hit side"
+                label: "Hit Side"
 
                 STComboBox {
                     Layout.fillWidth: true
@@ -245,18 +329,22 @@ Flickable {
                         { text: "Back", value: RayGeometry.Back }
                     ]
 
+                    ToolTip.visible: hovered
+                    ToolTip.text: enabled
+                                      ? "Filter by the side on which rays arrive at the selected element."
+                                      : "Select an element to enable side filtering."
+
                     onActivated: root.ray_geom.surface_side_filter = currentValue
                 }
             }
 
             STFormRow {
-                label: "Filter types"
+                label: "Interaction Types"
 
                 STButton {
                     Layout.fillWidth: true
-                    text: root.ray_geom.event_include.length > 0
-                          ? root.ray_geom.event_include.join(", ")
-                          : "None"
+                    text: root.formatInteractionTypes(
+                              root.ray_geom.event_include)
 
                     onClicked: ray_filter_popup.open_with(
                                    root.ray_geom.event_include)
@@ -270,104 +358,38 @@ Flickable {
                     }
                 }
             }
+        }
 
-            STFormRow {
-                label: "Color mode"
+        STFormPanel {
+            collapsible: true
+            title: "Selected Ray"
+            documentationKey: "analyze.intersections.selection"
+            visible: root.intersections_module.has_results
 
-                STComboBox {
-                    Layout.fillWidth: true
-
-                    currentValue: root.ray_geom.texture_mode
-
-                    model: [
-                        {value: RayGeometry.SolidColor, text: "Solid Color"},
-                        {value: RayGeometry.Length, text: "Length"},
-                        {value: RayGeometry.Segment, text: "Segment"},
-                        {value: RayGeometry.Element, text: "Element"},
-                    ]
-
-                    textRole: "text"
-                    valueRole: "value"
-
-                    onActivated: root.ray_geom.texture_mode = currentValue
-                }
-            }
-
-            ColorPickerField {
-                id: rayColorPicker
+            STButton {
                 Layout.fillWidth: true
-                color: AppData.view.ray_color
-                label: "Ray Color"
-                visible: root.ray_geom.texture_mode === RayGeometry.SolidColor
-                onUpdated: AppData.view.ray_color = rayColorPicker.color
-            }
-
-            STFormRow {
-                label: "Visible rays percent"
-
-                STDoubleSpinBox {
-                    from: 0.0
-                    to: 100.0
-                    value: root.ray_geom.show_percent
-                    stepSize: 1.0
-                    decimals: 0
-                    Layout.fillWidth: true
-                    onValueModified: {
-                        root.ray_geom.show_percent = value
-                    }
+                text: root.is_selected_ray_valid
+                      ? "Pick Another Ray From View"
+                      : "Pick Ray From View"
+                left_text_icon: "\uf05b"
+                onClicked: {
+                    App.view.simulation_content_view = true
+                    App.view.mouse_mode = ViewModule.PickRay
                 }
             }
 
-            STFormRow {
-                label: "Visible rays"
-
-                STDoubleSpinBox {
-                    from: 0.0
-                    to: root.ray_geom.available_rays
-                    value: root.visibleRayCount()
-                    stepSize: 1000
-                    decimals: 0
-                    Layout.fillWidth: true
-                    onValueModified: root.setVisibleRayCount(value)
-                }
+            Label {
+                Layout.fillWidth: true
+                visible: !root.is_selected_ray_valid
+                text: "Pick a ray in the viewport to inspect its interaction history."
+                wrapMode: Label.WrapAtWordBoundaryOrAnywhere
+                horizontalAlignment: Text.AlignHCenter
+                opacity: 0.7
+                Layout.margins: 6
             }
 
             STFormRow {
-                label: "Cutoff radius"
-
-                STDoubleSpinBox {
-                    Layout.fillWidth: true
-                    from: 0.0
-                    to: Infinity
-                    value: root.ray_geom.max_ray_distance
-                    stepSize: 100.0
-                    decimals: 0
-                    onValueModified: root.ray_geom.max_ray_distance = value
-                }
-            }
-
-            STFormRow {
-                label: "Opacity percent"
-
-                STDoubleSpinBox {
-                    Layout.fillWidth: true
-                    from: 0.0
-                    to: 100.0
-                    value: AppData.view.intersection_opacity * 100.0
-                    stepSize: 5.0
-                    decimals: 0
-                    onValueModified: {
-                        AppData.view.intersection_opacity = value / 100.0
-                    }
-                }
-            }
-
-            STPropertySeparator {
-                title: "Selection"
-            }
-
-            STFormRow {
-                label: "Selected Ray ID"
+                label: "Ray ID"
                 visible: root.is_selected_ray_valid
 
                 RowLayout {
@@ -380,123 +402,89 @@ Flickable {
 
                     STIconButton {
                         icon: "\uf057"
-
+                        toolTip: "Clear selected ray"
                         onClicked: root.ray_geom.selected_ray_id = -1
                     }
                 }
             }
 
-            ListView {
-                id: interaction_list_view
+            Label {
                 Layout.fillWidth: true
-                Layout.columnSpan: parent.columns
-                Layout.margins: 6
+                visible: root.is_selected_ray_valid
+                text: "Interactions"
+                font.bold: true
+            }
 
-                clip: true
-
-                spacing: 3
-
+            Repeater {
                 model: root.ray_geom.selected_ray_interactions
 
-                Layout.preferredHeight: count > 0
-                                        ? (headerItem ? headerItem.implicitHeight : 0)
-                                          + Math.min(count, 5) * delegate_height
-                                          + Math.max(0, Math.min(count, 5) - 1) * spacing
-                                        : 0
-
-                property int delegate_height: 42
-
-                ScrollBar.vertical: STScrollBar { }
-
-                header: Label {
-                    text: "Interactions"
-                }
-
                 delegate: Rectangle {
-                    id: id_root
+                    id: interaction_delegate
                     required property bool     has_entity
-                    required property var      entity
+                    required property string   entity_name
                     required property string   interaction_type
                     required property vector3d location
 
+                    Layout.fillWidth: true
+                    implicitHeight: interaction_content.implicitHeight + 12
                     radius: 6
-
-                    width: ListView.view.width
-                    height: interaction_content.implicitHeight + 12
-
                     color: Material.dropShadowColor
 
                     ColumnLayout {
                         id: interaction_content
                         anchors.fill: parent
-
                         anchors.margins: 5
-
-                        Label {
-                            Layout.fillWidth: true
-                            text: id_root.interaction_type
-                            font.bold: true
-                        }
 
                         RowLayout {
                             Layout.fillWidth: true
 
                             Label {
                                 Layout.fillWidth: true
-                                Layout.horizontalStretchFactor: 0
-                                text: Number(id_root.location.x).toLocaleString(Qt.locale(), 'f', 3)
+                                Layout.minimumWidth: 0
+                                text: interaction_delegate.interaction_type
+                                font.bold: true
+                                elide: Text.ElideRight
+                            }
+
+                            Label {
+                                visible: interaction_delegate.has_entity
+                                Layout.maximumWidth: interaction_content.width * 0.6
+                                text: interaction_delegate.entity_name
+                                horizontalAlignment: Qt.AlignRight
+                                elide: Text.ElideRight
+                                opacity: 0.75
+                            }
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+
+                            Label {
+                                text: "X " + Number(interaction_delegate.location.x)
+                                      .toLocaleString(Qt.locale(), "f", 3)
                                 color: Qt.tint(Material.foreground,
                                                Qt.alpha(Material.color(Material.Red), 0.25))
                             }
 
                             Label {
-                                text: " "
-                            }
-
-                            Label {
-                                Layout.fillWidth: true
-                                Layout.horizontalStretchFactor: 0
-                                text: Number(id_root.location.y).toLocaleString(Qt.locale(), 'f', 3)
+                                text: "Y " + Number(interaction_delegate.location.y)
+                                      .toLocaleString(Qt.locale(), "f", 3)
                                 color: Qt.tint(Material.foreground,
                                                Qt.alpha(Material.color(Material.Green), 0.25))
                             }
 
                             Label {
-                                text: " "
-                            }
-
-                            Label {
-                                Layout.fillWidth: true
-                                Layout.horizontalStretchFactor: 0
-                                text: Number(id_root.location.z).toLocaleString(Qt.locale(), 'f', 3)
+                                text: "Z " + Number(interaction_delegate.location.z)
+                                      .toLocaleString(Qt.locale(), "f", 3)
                                 color: Qt.tint(Material.foreground,
                                                Qt.alpha(Material.color(Material.Blue), 0.25))
                             }
 
-                            Item {
-                                Layout.fillWidth: true
-                                Layout.horizontalStretchFactor: 1
-                            }
-
-                            Label {
-                                Layout.fillWidth: true
-                                Layout.horizontalStretchFactor: 0
-                                horizontalAlignment: Qt.AlignRight
-                                visible: id_root.has_entity
-                                text: "@ Entity " + id_root.entity
-                            }
+                            Item { Layout.fillWidth: true }
                         }
                     }
                 }
             }
-
-            STButton {
-                Layout.fillWidth: true
-                text: "Pick Ray From View"
-                left_text_icon: "\uf05b"
-                onClicked: App.view.mouse_mode = ViewModule.PickRay
-            }
-
         }
     }
 }
