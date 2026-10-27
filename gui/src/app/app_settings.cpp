@@ -75,6 +75,12 @@ void AppSettings::load_session(AppData& app) {
     sim->set_geometry_color(
         s.value("sim_geometry_color", QColor("white")).value<QColor>());
     view->set_ray_color(s.value("ray_color", QColor("white")).value<QColor>());
+    view->set_ray_color_map(
+        SolTrace::GUI::Data::ColorMapModel::normalized_id(
+            s.value("ray_color_map", QStringLiteral("classic")).toString()));
+    app.flux()->pending_flux_maps()->set_color_map_id(
+        SolTrace::GUI::Data::ColorMapModel::normalized_id(
+            s.value("flux_color_map", QStringLiteral("classic")).toString()));
     sim->set_show_grid(s.value("sim_show_grid", true).toBool());
     s.endGroup();
 
@@ -167,6 +173,9 @@ void AppSettings::save_session(AppData const& app) {
     s.setValue("sim_sun_color", sim->sun_color());
     s.setValue("sim_geometry_color", sim->geometry_color());
     s.setValue("ray_color", view->ray_color());
+    s.setValue("ray_color_map", view->ray_color_map());
+    s.setValue("flux_color_map",
+               app.flux()->pending_flux_maps()->color_map_id());
     s.setValue("sim_show_grid", sim->show_grid());
     s.endGroup();
 

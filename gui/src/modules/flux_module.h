@@ -44,6 +44,8 @@ class FluxModule : public QObject {
     Q_READONLY_PROPERTY(QVector3D, current_entity_position);
     Q_READONLY_PROPERTY(SolTrace::GUI::Data::Entity, current_map_entity);
     Q_READONLY_PROPERTY(SolTrace::GUI::Analysis::BakedFluxMapStats, current_flux_stats);
+    Q_READONLY_PROPERTY(QString, current_color_map_id);
+    Q_READONLY_PROPERTY(QString, current_color_map_source);
 
     Q_WRITABLE_PROPERTY(bool, show_flux_volume, true);
     Q_WRITABLE_PROPERTY(bool, show_other_geometry, true);

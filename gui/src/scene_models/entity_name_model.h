@@ -22,7 +22,8 @@ struct EntityNamePair {
                 SM_EXPOSE_RO(has_children), );
 
     /// Build a display row for an entity using the database name hierarchy.
-    static EntityNamePair record_for_entity(Database& db, SolTrace::GUI::Data::Entity entity);
+    static EntityNamePair record_for_entity(Database&                   db,
+                                            SolTrace::GUI::Data::Entity entity);
 };
 
 /// Observe an entity's name.

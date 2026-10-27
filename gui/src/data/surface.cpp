@@ -484,42 +484,6 @@ Mesh2D generate_annulus_aperture(SD::Annulus const&              annulus,
     return mesh;
 }
 
-void append_subdivided_triangle(Mesh2D&        mesh,
-                                glm::dvec2     a,
-                                glm::dvec2     b,
-                                glm::dvec2     c,
-                                uint32_t const subdivisions) {
-    auto first_vertex = static_cast<uint32_t>(mesh.vertex.size());
-
-    auto index = [first_vertex, subdivisions](uint32_t i, uint32_t j) {
-        uint32_t before_row = i * (subdivisions + 1) - (i * (i - 1)) / 2;
-        return first_vertex + before_row + j;
-    };
-
-    for (uint32_t i = 0; i <= subdivisions; ++i) {
-        for (uint32_t j = 0; j <= subdivisions - i; ++j) {
-            double u = static_cast<double>(i) / subdivisions;
-            double v = static_cast<double>(j) / subdivisions;
-            mesh.vertex.push_back(a + u * (b - a) + v * (c - a));
-        }
-    }
-
-    for (uint32_t i = 0; i < subdivisions; ++i) {
-        for (uint32_t j = 0; j < subdivisions - i; ++j) {
-            uint32_t p00 = index(i, j);
-            uint32_t p10 = index(i + 1, j);
-            uint32_t p01 = index(i, j + 1);
-
-            mesh.triangles.push_back({ p00, p10, p01 });
-
-            if (j + 1 < subdivisions - i) {
-                uint32_t p11 = index(i + 1, j + 1);
-                mesh.triangles.push_back({ p10, p11, p01 });
-            }
-        }
-    }
-}
-
 Mesh2D generate_subdivided_polygon_aperture(
     std::vector<glm::dvec2> const&  corners,
     SurfaceGenerationOptions const& options) {
@@ -534,18 +498,76 @@ Mesh2D generate_subdivided_polygon_aperture(
         center += corner;
     center /= static_cast<double>(corners.size());
 
-    uint32_t subdivisions = std::max<uint32_t>(1, options.radial_subdivisions);
-    uint32_t sector_vertices = ((subdivisions + 1) * (subdivisions + 2)) / 2;
+    uint32_t const subdivisions =
+        std::max<uint32_t>(1, options.radial_subdivisions);
+    uint32_t const sector_vertices =
+        ((subdivisions + 1) * (subdivisions + 2)) / 2;
+    auto const corner_count = static_cast<uint32_t>(corners.size());
 
-    mesh.vertex.reserve(sector_vertices * corners.size());
+    // Adjacent triangular sectors share their center and radial-edge vertices.
+    // Besides reducing duplication, this is required for the thickness builder
+    // to distinguish the polygon perimeter from internal sector seams.
+    mesh.vertex.reserve(1 + corner_count * subdivisions *
+                                (subdivisions + 1) / 2);
     mesh.triangles.reserve(subdivisions * subdivisions * corners.size());
 
-    for (size_t i = 0; i < corners.size(); ++i) {
-        append_subdivided_triangle(mesh,
-                                   center,
-                                   corners[i],
-                                   corners[(i + 1) % corners.size()],
-                                   subdivisions);
+    mesh.vertex.push_back(center);
+
+    std::vector<std::vector<uint32_t>> radial_indices(
+        corner_count, std::vector<uint32_t>(subdivisions + 1, 0));
+
+    for (uint32_t corner_index = 0; corner_index < corner_count;
+         ++corner_index) {
+        for (uint32_t step = 1; step <= subdivisions; ++step) {
+            auto const t = static_cast<double>(step) / subdivisions;
+            radial_indices[corner_index][step] =
+                static_cast<uint32_t>(mesh.vertex.size());
+            mesh.vertex.push_back(
+                glm::mix(center, corners[corner_index], t));
+        }
+    }
+
+    auto local_offset = [subdivisions](uint32_t i, uint32_t j) {
+        return i * (subdivisions + 1) - (i * (i - 1)) / 2 + j;
+    };
+
+    for (uint32_t sector = 0; sector < corner_count; ++sector) {
+        auto const next = (sector + 1) % corner_count;
+        std::vector<uint32_t> indices(sector_vertices);
+
+        for (uint32_t i = 0; i <= subdivisions; ++i) {
+            for (uint32_t j = 0; j <= subdivisions - i; ++j) {
+                auto& index = indices[local_offset(i, j)];
+
+                if (j == 0) {
+                    index = radial_indices[sector][i];
+                } else if (i == 0) {
+                    index = radial_indices[next][j];
+                } else {
+                    auto const u = static_cast<double>(i) / subdivisions;
+                    auto const v = static_cast<double>(j) / subdivisions;
+                    index = static_cast<uint32_t>(mesh.vertex.size());
+                    mesh.vertex.push_back(
+                        center + u * (corners[sector] - center) +
+                        v * (corners[next] - center));
+                }
+            }
+        }
+
+        for (uint32_t i = 0; i < subdivisions; ++i) {
+            for (uint32_t j = 0; j < subdivisions - i; ++j) {
+                auto const p00 = indices[local_offset(i, j)];
+                auto const p10 = indices[local_offset(i + 1, j)];
+                auto const p01 = indices[local_offset(i, j + 1)];
+
+                mesh.triangles.push_back({ p00, p10, p01 });
+
+                if (j + 1 < subdivisions - i) {
+                    auto const p11 = indices[local_offset(i + 1, j + 1)];
+                    mesh.triangles.push_back({ p10, p11, p01 });
+                }
+            }
+        }
     }
 
     return mesh;

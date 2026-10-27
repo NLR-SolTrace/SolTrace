@@ -8,6 +8,7 @@
 #include <QTranslator>
 
 #include "app/logging.h"
+#include "scene_models/color_map_model.h"
 #include "support/notification.h"
 #include "support/qt_helpers.h"
 
@@ -92,6 +93,8 @@ public:
     QOBJECT_WRITABLE_PROPERTY(SolTrace::GUI::Data::Database, current_database)
 
     QOBJECT_WRITABLE_PROPERTY(LogList, log_list)
+
+    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::ColorMapModel, color_maps)
 
     QOBJECT_READONLY_PROPERTY(DatabaseModule, file_source)
 

@@ -122,6 +122,7 @@ public:
     Q_WRITABLE_PROPERTY(bool, show_intersections, true)
     Q_WRITABLE_PROPERTY(double, intersection_opacity, 1.0)
     Q_WRITABLE_PROPERTY(QColor, ray_color, "white")
+    Q_WRITABLE_PROPERTY(QString, ray_color_map, "classic")
     Q_WRITABLE_PROPERTY(int, point_size, 1)
     Q_WRITABLE_PROPERTY(MouseMode, mouse_mode, MouseMode::Camera)
 

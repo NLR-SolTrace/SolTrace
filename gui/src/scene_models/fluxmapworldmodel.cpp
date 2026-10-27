@@ -3,6 +3,7 @@
 #include "analysis/flux/flux_map.h"
 #include "data/components.h"
 #include "data/surface.h"
+#include "scene_models/color_map_model.h"
 
 #include <algorithm>
 #include <limits>
@@ -266,13 +267,18 @@ bool PendingFluxMapModel::start_generate_for(Entity entity) {
         return item.entity == entity;
     });
 
+    auto const selected_color_map =
+        ColorMapModel::normalized_id(this->color_map_id());
+
     auto opts = SolTrace::GUI::Analysis::FluxMapBakeOptions {
         .image_resolution = { this->image_resolution().width(),
                               this->image_resolution().height(), },
         .grid_line_color =
             this->show_mesh_grid() ? this->mesh_line_color() : QColor(),
-        .color_map = QImage(color_map()),
-        .color_map_source = color_map(),
+        .color_map = ColorMapModel::image_for_id(selected_color_map),
+        .color_map_id = selected_color_map,
+        .color_map_name = ColorMapModel::name_for_id(selected_color_map),
+        .color_map_source = ColorMapModel::source_for_id(selected_color_map),
         .dni       = this->dni(),
         .smoothing_radius =
             static_cast<unsigned>(std::max(0, this->smoothing_radius())),
@@ -417,13 +423,15 @@ void FluxMapWorldModel::on_ready(Entity                    e,
     texture_data->set_image(img->bin_map);
 
     store_push_append(FluxMappedItem {
-        .flux_entity       = e,
-        .flux_texture_data = texture_data,
-        .flux_image_path   = "image://fluxmap/" + image_name(e),
-        .flux_position     = position,
-        .flux_rotation     = rotation,
-        .flux_geometry     = geom,
-        .flux_stats        = img->stats,
+        .flux_entity          = e,
+        .flux_texture_data    = texture_data,
+        .flux_image_path      = "image://fluxmap/" + image_name(e),
+        .flux_color_map_id    = img->color_map_id,
+        .flux_color_map_source = img->color_map_source,
+        .flux_position        = position,
+        .flux_rotation        = rotation,
+        .flux_geometry        = geom,
+        .flux_stats           = img->stats,
     });
 }
 

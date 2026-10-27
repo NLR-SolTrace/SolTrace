@@ -99,7 +99,7 @@ Node {
 
         Texture {
             id: b_to_w_texture
-            source: "qrc:/assets/images/b_to_r_wide.png"
+            source: AppData.color_maps.source_for(App.view.ray_color_map)
         }
 
         materials : [

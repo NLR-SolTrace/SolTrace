@@ -73,6 +73,9 @@ void FluxModule::set_results(SolTrace::GUI::Data::SimulationResultPtr p) {
     set_current_entity_position({});
     set_current_flux_stats({});
     set_current_image(QString());
+    set_current_color_map_id(QStringLiteral("classic"));
+    set_current_color_map_source(
+        QStringLiteral("qrc:/assets/images/b_to_r_wide.png"));
     m_entity_model->reset(nullptr);
     m_computed_maps_model->reset(nullptr);
     m_pending_flux_maps->reset(nullptr);
@@ -147,12 +150,17 @@ void FluxModule::refresh_current_flux_stats() {
         if (item.flux_entity == current_map_entity()) {
             set_current_flux_stats(item.flux_stats);
             set_current_image(item.flux_image_path);
+            set_current_color_map_id(item.flux_color_map_id);
+            set_current_color_map_source(item.flux_color_map_source);
             return;
         }
     }
 
     set_current_flux_stats({});
     set_current_image(QString());
+    set_current_color_map_id(QStringLiteral("classic"));
+    set_current_color_map_source(
+        QStringLiteral("qrc:/assets/images/b_to_r_wide.png"));
 }
 
 void FluxModule::flux_map_ready(SolTrace::GUI::Data::Entity              entity,

@@ -176,6 +176,17 @@ STScrollView {
             }
 
             STFormRow {
+                label: "Color Map"
+                visible: root.ray_geom.texture_mode !== RayGeometry.SolidColor
+
+                STColorMapCombo {
+                    Layout.fillWidth: true
+                    currentValue: App.view.ray_color_map
+                    onActivated: App.view.ray_color_map = currentValue
+                }
+            }
+
+            STFormRow {
                 label: "Visible Rays"
 
                 ColumnLayout {

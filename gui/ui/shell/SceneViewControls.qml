@@ -167,6 +167,67 @@ ColumnLayout {
     }
 
     STIconButton {
+        id: background_button
+        icon: "\uf6c4"
+        toolTip: "Scene Background"
+
+        onClicked: background_popup.open()
+
+        SceneViewPopup {
+            id: background_popup
+            title: qsTr("Scene Background")
+            icon: background_button.icon
+
+            GridLayout {
+                Layout.fillWidth: true
+                columns: 2
+
+                STPropertyLabel {
+                    text: qsTr("Background")
+                }
+
+                STComboBox {
+                    Layout.fillWidth: true
+                    model: [
+                        qsTr("Day"),
+                        qsTr("Blueprint"),
+                        qsTr("Adaptive"),
+                        qsTr("Realistic")
+                    ]
+                    currentIndex: App.view.sim.sky
+                    onActivated: App.view.sim.sky = currentIndex
+                }
+
+                STPropertyLabel {
+                    visible: App.view.sim.sky === SimulationViewState.Realistic
+                    text: qsTr("Environment")
+                }
+
+                STComboBox {
+                    Layout.fillWidth: true
+                    visible: App.view.sim.sky === SimulationViewState.Realistic
+                    model: [
+                        qsTr("Clear"),
+                        qsTr("Partly Cloudy"),
+                        qsTr("Low Sun")
+                    ]
+                    currentIndex: App.view.sim.realistic_sky
+                    onActivated: App.view.sim.realistic_sky = currentIndex
+                }
+
+                Label {
+                    Layout.columnSpan: 2
+                    Layout.fillWidth: true
+                    visible: App.view.sim.sky === SimulationViewState.Realistic
+                    text: qsTr("Realistic skies are decorative and do not affect ray tracing.")
+                    wrapMode: Text.WordWrap
+                    opacity: 0.7
+                }
+            }
+        }
+    }
+
+    STIconButton {
         id: performance_button
         icon: "\uf625"
         toolTip: "Performance"

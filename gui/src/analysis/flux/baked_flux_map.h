@@ -85,6 +85,11 @@ struct BakedFluxMap {
 
     /// Summary statistics for the generated map.
     BakedFluxMapStats stats;
+
+    /// Color map used to bake bin_map and its displayed legend.
+    QString color_map_id;
+    QString color_map_name;
+    QString color_map_source;
 };
 
 using BakedFluxMapPtr = std::shared_ptr<BakedFluxMap const>;

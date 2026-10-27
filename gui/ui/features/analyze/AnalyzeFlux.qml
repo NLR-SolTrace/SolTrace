@@ -187,7 +187,7 @@ STScrollView {
 
                         Image {
                             rotation: -90
-                            source: "qrc:/assets/images/b_to_r_wide.png"
+                            source: root.flux_module.current_color_map_source
                             anchors.centerIn: parent
                             width: parent.height
                             height: parent.width
@@ -449,6 +449,20 @@ STScrollView {
                     FluxRayFilterPopup {
                         id: contribution_filter_popup
                         filterModel: root.flux_module.pending_flux_maps
+                    }
+                }
+            }
+
+            STFormRow {
+                label: "Color Map"
+
+                STColorMapCombo {
+                    Layout.fillWidth: true
+                    currentValue:
+                        AppData.flux.pending_flux_maps.color_map_id
+                    onActivated: {
+                        AppData.flux.pending_flux_maps.color_map_id =
+                                currentValue
                     }
                 }
             }

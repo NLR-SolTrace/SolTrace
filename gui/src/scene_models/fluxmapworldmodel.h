@@ -69,7 +69,7 @@ public:
     Q_WRITABLE_PROPERTY(int, smoothing_radius, 2);
     Q_WRITABLE_PROPERTY(QColor, mesh_line_color, "black");
     Q_WRITABLE_PROPERTY(bool, show_mesh_grid, false);
-    Q_WRITABLE_PROPERTY(QString, color_map, "");
+    Q_WRITABLE_PROPERTY(QString, color_map_id, "classic");
     Q_WRITABLE_PROPERTY(double, dni, 1000.0);
     Q_WRITABLE_PROPERTY(bool, include_direct_sun_rays, true);
     Q_WRITABLE_PROPERTY(bool, terminal_interactions_only, false);
@@ -112,6 +112,8 @@ struct FluxMappedItem {
     Entity                               flux_entity;
     std::shared_ptr<QQuick3DTextureData> flux_texture_data;
     QString                              flux_image_path;
+    QString                              flux_color_map_id;
+    QString                              flux_color_map_source;
     QVector3D                            flux_position;
     QQuaternion                          flux_rotation;
     std::shared_ptr<SurfaceGeometry>     flux_geometry;
@@ -121,6 +123,8 @@ struct FluxMappedItem {
                 SM_EXPOSE_RO(flux_entity),
                 SM_EXPOSE_RO(flux_texture_data),
                 SM_EXPOSE_RO(flux_image_path),
+                SM_EXPOSE_RO(flux_color_map_id),
+                SM_EXPOSE_RO(flux_color_map_source),
                 SM_EXPOSE_RO(flux_position),
                 SM_EXPOSE_RO(flux_rotation),
                 SM_EXPOSE_RO(flux_geometry),

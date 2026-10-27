@@ -695,6 +695,9 @@ static void set_generation_metadata(
     image.setText(QStringLiteral("SolTrace.ShowTriangleGrid"),
                   opts.grid_line_color.isValid() ? QStringLiteral("true")
                                                  : QStringLiteral("false"));
+    image.setText(QStringLiteral("SolTrace.ColorMapId"), opts.color_map_id);
+    image.setText(QStringLiteral("SolTrace.ColorMapName"),
+                  opts.color_map_name);
     image.setText(QStringLiteral("SolTrace.ColorMapSource"),
                   opts.color_map_source);
     image.setText(QStringLiteral("SolTrace.SolarDNI.WPerM2"),
@@ -941,7 +944,10 @@ execute_map_generation_for(Support::TaskControl&                    control,
         .face_ray_count = extract_face_ray_counts(triangles),
         .bin_map        = img,
         .point_map      = points_img,
-        .stats          = stats,
+        .stats            = stats,
+        .color_map_id     = opts.color_map_id,
+        .color_map_name   = opts.color_map_name,
+        .color_map_source = opts.color_map_source,
     });
 }
 

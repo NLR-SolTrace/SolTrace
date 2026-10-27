@@ -111,7 +111,22 @@ void SurfaceGeometry::rebuild_geometry() {
     auto surface  = ptr->surface;
     auto aperture = ptr->aperture;
 
-    auto mesh = generate_surface(surface, aperture, surface_generation_options());
+    auto options = surface_generation_options();
+    switch (surface->my_type) {
+    case SD::CONE:
+    case SD::PARABOLA:
+    case SD::SPHERE:
+        options.subdivide_polygon_apertures = true;
+        break;
+    case SD::CYLINDER:
+    case SD::FLAT:
+    case SD::TORUS:
+    case SD::HYPER:
+    case SD::GENERAL_SPENCER_MURTY:
+    case SD::SURFACE_UNKNOWN: break;
+    }
+
+    auto mesh = generate_surface(surface, aperture, options);
     if (!mesh || mesh->vertex.empty() || mesh->triangles.empty()) {
         qWarning() << Q_FUNC_INFO
                    << "Geometry is empty, or unable to be generated";

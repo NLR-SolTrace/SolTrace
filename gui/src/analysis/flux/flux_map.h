@@ -23,8 +23,10 @@ struct FluxMapBakeOptions {
     /// The color map to use. If null, uses a classic blue to red map.
     QImage color_map;
 
-    /// Source identifier for the color map, retained as image metadata.
-    QString color_map_source;
+    /// Stable color-map identity retained with the baked map and metadata.
+    QString color_map_id = "classic";
+    QString color_map_name = "Classic Blue–Red";
+    QString color_map_source = "qrc:/assets/images/b_to_r_wide.png";
 
     /// Solar direct normal irradiance in W/m^2.
     double dni = 1000.0;
