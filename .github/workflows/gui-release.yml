@@ -518,7 +518,7 @@ jobs:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
           LOGICAPP_URL: ${{ secrets.SIGNING_LOGICAPP_URL }}
-          UNSIGNED_BLOB: unsigned/soltrace/${{ github.run_id }}/${{ matrix.msi_name }}
+          UNSIGNED_BLOB: unsigned/soltrace/${{ github.run_id }}/${{ github.run_attempt }}/${{ matrix.msi_name }}
         run: |
           az storage blob upload \
             --container-name "${{ env.SIGNING_CONTAINER }}" \
@@ -529,7 +529,7 @@ jobs:
             --overwrite
           curl --fail --silent --show-error --location "$LOGICAPP_URL" \
             --header 'Content-Type: application/json' \
-            --data "{\"blob\":\"$UNSIGNED_BLOB\",\"repository\":\"$GITHUB_REPOSITORY\",\"run_id\":\"$GITHUB_RUN_ID\"}"
+            --data "{\"blob\":\"$UNSIGNED_BLOB\",\"repository\":\"$GITHUB_REPOSITORY\",\"run_id\":\"$GITHUB_RUN_ID\",\"run_attempt\":\"$GITHUB_RUN_ATTEMPT\"}"
 
       - name: Wait for signed installer
         if: matrix.msi_enabled == 'ON' && startsWith(github.ref, 'refs/tags/')
@@ -537,7 +537,7 @@ jobs:
         env:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
-          SIGNED_BLOB: signed/soltrace/${{ github.run_id }}/${{ matrix.msi_name }}
+          SIGNED_BLOB: signed/soltrace/${{ github.run_id }}/${{ github.run_attempt }}/${{ matrix.msi_name }}
         run: |
           for attempt in $(seq 1 100); do
             exists=$(az storage blob exists \
@@ -558,7 +558,7 @@ jobs:
         env:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
-          SIGNED_BLOB: signed/soltrace/${{ github.run_id }}/${{ matrix.msi_name }}
+          SIGNED_BLOB: signed/soltrace/${{ github.run_id }}/${{ github.run_attempt }}/${{ matrix.msi_name }}
           SIGNED_PATH: ${{ github.workspace }}/${{ matrix.msi_name }}
         run: |
           az storage blob download \
