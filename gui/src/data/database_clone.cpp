@@ -157,9 +157,6 @@ DatabaseCloneResult clone_database_with_entity_map(Database const& from,
 
     copy_plain_component<ColorComponent>(from_registry, mapper, to_registry);
 
-    copy_plain_component<HasFluxMapComponent>(
-        from_registry, mapper, to_registry);
-
     ret->set_modified(false);
 
     return DatabaseCloneResult {

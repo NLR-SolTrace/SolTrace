@@ -3,14 +3,37 @@
 #include "data/mesh.h"
 #include "support/grid2d.h"
 
+#include <QColor>
 #include <QImage>
 #include <QMetaType>
 #include <QObject>
-#include <QtGlobal>
+#include <QSize>
+#include <QString>
 #include <QVector3D>
+#include <QtGlobal>
 #include <qqmlintegration.h>
 
+#include <vector>
+
 namespace SolTrace::GUI::Analysis {
+
+/// Settings and provenance retained with a generated flux map.
+struct FluxMapGenerationInfo {
+    QSize    image_resolution;
+    unsigned smoothing_radius = 0;
+    unsigned surface_detail   = 1;
+    bool     wrap_u           = false;
+    bool     wrap_v           = false;
+    bool     show_mesh_grid   = false;
+    QColor   mesh_line_color;
+    double   dni                        = 1000.0;
+    bool     include_direct_sun_rays    = true;
+    bool     terminal_interactions_only = false;
+    QString  color_map_id;
+    QString  color_map_name;
+    QString  color_map_source;
+    QString  generated_at;
+};
 
 /// Summary statistics computed with the baked flux map.
 struct BakedFluxMapStats {
@@ -63,8 +86,8 @@ public:
     bool operator==(BakedFluxMapStats const&) const = default;
 };
 
-/// A computed flux map
-struct BakedFluxMap {
+/// Numeric flux-map data that can be exported or rendered again.
+struct FluxMapData {
     /// Per-pixel flux values used with a color map to generate images.
     Support::Grid2D<float> counts;
 
@@ -77,19 +100,29 @@ struct BakedFluxMap {
     /// Per-face ray interaction count, ordered with mesh.triangles.
     QVector<quint64> face_ray_count;
 
+    /// Projected interactions retained so the point view can be rerendered.
+    std::vector<glm::vec2> interaction_uvs;
+
+    /// Summary statistics for the generated map.
+    BakedFluxMapStats stats;
+};
+
+/// Disposable presentation derived from FluxMapData.
+struct FluxMapRender {
     /// A generated image using counts and a color map
     QImage bin_map;
 
     /// A generated image showing UV points of intersecting rays
     QImage point_map;
+};
 
-    /// Summary statistics for the generated map.
-    BakedFluxMapStats stats;
+/// A computed flux artifact and its current rendered presentation.
+struct BakedFluxMap {
+    FluxMapData   data;
+    FluxMapRender render;
 
-    /// Color map used to bake bin_map and its displayed legend.
-    QString color_map_id;
-    QString color_map_name;
-    QString color_map_source;
+    /// Complete settings used to produce this artifact.
+    FluxMapGenerationInfo generation;
 };
 
 using BakedFluxMapPtr = std::shared_ptr<BakedFluxMap const>;

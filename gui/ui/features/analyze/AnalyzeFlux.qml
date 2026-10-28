@@ -123,10 +123,11 @@ STScrollView {
                 source: map_selector.currentIndex == 0 ?
                             AppData.flux.current_image
                           :
-                            AppData.flux.current_image + "_point_map"
+                            AppData.flux.current_point_image
                 fillMode: Image.PreserveAspectFit
 
                 mipmap: true
+                cache: false
 
                 STIconButton {
                     icon: "\uf019"
@@ -189,7 +190,7 @@ STScrollView {
                             rotation: -90
                             source: root.flux_module.current_color_map_source
                             anchors.centerIn: parent
-                            width: parent.height
+                             width: parent.height
                             height: parent.width
 
                             Label {

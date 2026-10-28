@@ -1,9 +1,9 @@
 #pragma once
 
+#include "modules/flux_batch_state.h"
+#include "scene_models/element_models.h"
 #include "scene_models/fluxmapworldmodel.h"
 #include "scene_models/mesh_qml_bridge.h"
-#include "scene_models/element_models.h"
-#include "modules/flux_batch_state.h"
 #include "support/notification.h"
 #include "support/qt_helpers.h"
 #include <QObject>
@@ -30,10 +30,14 @@ class FluxModule : public QObject {
 
     SolTrace::GUI::Data::SimulationResultPtr m_results;
 
-    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::AllElementsModel, entity_model);
-    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::AllComputedMapsModel, computed_maps_model);
-    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::PendingFluxMapModel, pending_flux_maps);
-    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::FluxMapWorldModel, flux_map_world_model);
+    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::AllElementsModel,
+                              entity_model);
+    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::AllComputedMapsModel,
+                              computed_maps_model);
+    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::PendingFluxMapModel,
+                              pending_flux_maps);
+    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::FluxMapWorldModel,
+                              flux_map_world_model);
 
     Q_READONLY_PROPERTY(bool, ray_volume_flux_in_progress);
     Q_READONLY_PROPERTY(bool, has_results);
@@ -43,7 +47,8 @@ class FluxModule : public QObject {
     Q_READONLY_PROPERTY(QString, current_entity_name);
     Q_READONLY_PROPERTY(QVector3D, current_entity_position);
     Q_READONLY_PROPERTY(SolTrace::GUI::Data::Entity, current_map_entity);
-    Q_READONLY_PROPERTY(SolTrace::GUI::Analysis::BakedFluxMapStats, current_flux_stats);
+    Q_READONLY_PROPERTY(SolTrace::GUI::Analysis::BakedFluxMapStats,
+                        current_flux_stats);
     Q_READONLY_PROPERTY(QString, current_color_map_id);
     Q_READONLY_PROPERTY(QString, current_color_map_source);
 
@@ -51,8 +56,8 @@ class FluxModule : public QObject {
     Q_WRITABLE_PROPERTY(bool, show_other_geometry, true);
     Q_WRITABLE_PROPERTY(double, dni, 1000.0);
 
-    // Hack
-    Q_WRITABLE_PROPERTY(QString, current_image, { });
+    Q_READONLY_PROPERTY(QString, current_image);
+    Q_READONLY_PROPERTY(QString, current_point_image);
 
     FluxBatchState m_batch;
 
@@ -64,7 +69,8 @@ private:
 private slots:
     void flux_map_ready(Data::Entity,
                         Analysis::BakedFluxMapPtr,
-                        Data::Database const*);
+                        Data::Database const*,
+                        QString image_key);
 
     void flux_vol_ready(QUuid const&, Support::SparseGrid3D<float>);
     void flux_vol_failed(QUuid const&, QString);

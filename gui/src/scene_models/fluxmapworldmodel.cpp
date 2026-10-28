@@ -5,9 +5,9 @@
 #include "data/surface.h"
 #include "scene_models/color_map_model.h"
 
+#include <QVariantMap>
 #include <algorithm>
 #include <limits>
-#include <QVariantMap>
 
 namespace SolTrace::GUI::Data {
 
@@ -47,16 +47,15 @@ QVariantMap bounds_map(QVectorBoundsAccumulator const& bounds) {
 }
 
 void include_transformed_box(QVectorBoundsAccumulator& bounds,
-                             BoundingBox const&       box,
-                             QVector3D const&         position,
-                             QQuaternion const&       rotation) {
+                             BoundingBox const&        box,
+                             QVector3D const&          position,
+                             QQuaternion const&        rotation) {
     for (int ix = 0; ix < 2; ++ix) {
         for (int iy = 0; iy < 2; ++iy) {
             for (int iz = 0; iz < 2; ++iz) {
-                QVector3D corner(
-                    ix ? box.max.x() : box.min.x(),
-                    iy ? box.max.y() : box.min.y(),
-                    iz ? box.max.z() : box.min.z());
+                QVector3D corner(ix ? box.max.x() : box.min.x(),
+                                 iy ? box.max.y() : box.min.y(),
+                                 iz ? box.max.z() : box.min.z());
 
                 bounds.include(position + rotation.rotatedVector(corner));
             }
@@ -70,10 +69,10 @@ static QString image_name(Entity e) {
     return QString::number(entt::to_integral((entt::entity)e));
 }
 
-static QString const POINT_MAP_SUFFIX = QStringLiteral("_point_map");
-
-static QString point_map_name(QString name) {
-    return name + POINT_MAP_SUFFIX;
+static QString
+image_key(SimulationResult const& results, Entity entity, quint64 revision) {
+    return results.id.toString(QUuid::WithoutBraces) + QLatin1Char('/') +
+           image_name(entity) + QLatin1Char('/') + QString::number(revision);
 }
 
 FluxTextureData::FluxTextureData(QQuick3DObject* parent)
@@ -118,18 +117,22 @@ PendingFluxMapModel::PendingFluxMapModel(QObject* parent)
 void PendingFluxMapModel::reset(SolTrace::GUI::Data::SimulationResultPtr res) {
     emit cleared();
 
+    m_results = res;
+    m_latest_requests.clear();
+    m_host = res && res->database ? res->database.get() : nullptr;
     m_compute->set_results(res);
 
     on_changed();
 
     if (res && res->database) {
-        m_host = res->database.get();
-        for (auto const& [e, c] :
-             res->database->as_registry().view<HasFluxMapComponent>().each()) {
-            emit ready(e, c.map_info, res->database.get());
+        for (auto const& [entity, record] : res->flux_maps) {
+            if (!record.artifact) continue;
+            m_latest_requests[entity] = record.revision;
+            emit ready(entity,
+                       record.artifact,
+                       res->database.get(),
+                       image_key(*res, entity, record.revision));
         }
-    } else {
-        m_host = nullptr;
     }
 }
 
@@ -137,41 +140,61 @@ void PendingFluxMapModel::on_changed() {
     store_remove_all();
 }
 
-void PendingFluxMapModel::on_ready(Entity e, SolTrace::GUI::Analysis::BakedFluxMapPtr image) {
-    if (!m_host) {
-        // this really shouldnt happen
-        if (this->rowCount() == 0) { emit all_done(); }
-        return;
-    }
+bool PendingFluxMapModel::is_current(
+    SolTrace::GUI::Analysis::FluxMapRequestId const& request) const {
+    if (!m_results || request.result_id != m_results->id) return false;
+    auto const iter = m_latest_requests.find(request.entity);
+    return iter != m_latest_requests.end() && iter->second == request.revision;
+}
+
+void PendingFluxMapModel::on_ready(
+    SolTrace::GUI::Analysis::FluxMapRequestId request,
+    SolTrace::GUI::Analysis::BakedFluxMapPtr  image) {
+    if (!m_host || !m_results || !is_current(request)) return;
 
     {
-        // super hazardous, but this is how we make sure modification of a
-        // 'frozen' database is kept limited
-
+        // The database only carries a lightweight rendering marker. The
+        // artifact itself is owned by SimulationResult::flux_maps.
         auto* ptr = const_cast<SolTrace::GUI::Data::Database*>(m_host.data());
-
         ptr->as_registry().emplace_or_replace<HasFluxMapComponent>(
-            e, HasFluxMapComponent { .map_info = image });
+            request.entity);
     }
 
+    m_results->flux_maps.insert_or_assign(
+        request.entity,
+        FluxMapRecord { .revision = request.revision, .artifact = image });
 
-    store_remove_by_predicate([e](auto& record) { return record.entity == e; });
+    store_remove_by_predicate(
+        [request](auto& record) { return record.entity == request.entity; });
 
-    emit ready(e, image, m_host);
+    emit ready(request.entity,
+               image,
+               m_host,
+               image_key(*m_results, request.entity, request.revision));
 
     if (this->rowCount() == 0) { emit all_done(); }
 }
 
-void PendingFluxMapModel::on_failed(Entity e, QString reason) {
-    emit failed(e, reason);
+void PendingFluxMapModel::on_failed(
+    SolTrace::GUI::Analysis::FluxMapRequestId request,
+    QString                                   reason) {
+    if (!is_current(request)) return;
+
+    emit failed(request.entity, reason);
 
     this->store_remove_by_predicate(
-        [e](FluxMappedPendingItem const& item) { return item.entity == e; });
+        [request](FluxMappedPendingItem const& item) {
+            return item.entity == request.entity;
+        });
 
     if (this->rowCount() == 0) { emit all_done(); }
 }
 
-void PendingFluxMapModel::on_progress(Entity e, int progress) {
+void PendingFluxMapModel::on_progress(
+    SolTrace::GUI::Analysis::FluxMapRequestId request,
+    int                                       progress) {
+    if (!is_current(request)) return;
+
     // find and update
 
     for (int i = 0; i < this->rowCount(); i++) {
@@ -179,7 +202,7 @@ void PendingFluxMapModel::on_progress(Entity e, int progress) {
 
         if (!p) continue;
 
-        if (p->entity == e) {
+        if (p->entity == request.entity) {
             auto copy = *p;
 
             copy.progress = progress;
@@ -193,35 +216,43 @@ void PendingFluxMapModel::on_progress(Entity e, int progress) {
 
 static std::optional<Mesh>
 find_mesh_for(SolTrace::GUI::Data::SurfaceGenerationOptions surface_options,
-              Database const*              database,
-              Entity                       entity) {
+              Database const*                               database,
+              Entity                                        entity) {
     auto* surface_membership = database->geometry_group_membership.get(entity);
 
-    if (!surface_membership) { return {}; }
+    if (!surface_membership) { return { }; }
 
     auto* surface =
         database->geometry_parameters.get(surface_membership->group);
 
-    if (!surface) { return {}; }
+    if (!surface) { return { }; }
 
     auto mesh = SolTrace::GUI::Data::generate_surface(
         surface->surface, surface->aperture, surface_options);
-    if (!mesh) { return {}; }
+    if (!mesh) { return { }; }
 
     auto global = database->global_transform.get(entity);
-    auto world =
-        global ? *global
-               : GlobalTransformComponent::compute_for(database->as_registry(),
-                                                      entity);
+    auto world  = global ? *global
+                         : GlobalTransformComponent::compute_for(
+                               database->as_registry(), entity);
 
     for (auto& vertex : mesh->vertex) {
-        vertex.position =
-            glm::vec3(world.position + world.rotation * glm::dvec3(vertex.position));
-        vertex.normal =
-            glm::normalize(glm::vec3(world.rotation * glm::dvec3(vertex.normal)));
+        vertex.position = glm::vec3(
+            world.position + world.rotation * glm::dvec3(vertex.position));
+        vertex.normal = glm::normalize(
+            glm::vec3(world.rotation * glm::dvec3(vertex.normal)));
     }
 
     return mesh;
+}
+
+static bool surface_wraps_u(Database const* database, Entity entity) {
+    auto const* membership = database->geometry_group_membership.get(entity);
+    if (!membership) return false;
+
+    auto const* geometry = database->geometry_parameters.get(membership->group);
+    return geometry && geometry->surface &&
+           geometry->surface->my_type == SolTrace::Data::CYLINDER;
 }
 
 // void PendingFluxMapModel::start_debug() {
@@ -239,7 +270,7 @@ find_mesh_for(SolTrace::GUI::Data::SurfaceGenerationOptions surface_options,
 // }
 
 bool PendingFluxMapModel::start_generate_for(Entity entity) {
-    if (!m_host) return false;
+    if (!m_host || !m_results) return false;
 
     qDebug() << Q_FUNC_INFO << entity;
 
@@ -262,10 +293,22 @@ bool PendingFluxMapModel::start_generate_for(Entity entity) {
 
     qDebug() << Q_FUNC_INFO << mesh->vertex.size() << mesh->triangles.size();
 
-    store_remove_by_predicate([this, entity](auto const& item) {
-        if (item.entity == entity) { this->cancel_for(entity); }
-        return item.entity == entity;
-    });
+    quint64 revision = 1;
+    if (auto iter = m_latest_requests.find(entity);
+        iter != m_latest_requests.end()) {
+        revision = iter->second + 1;
+    }
+    if (auto iter = m_results->flux_maps.find(entity);
+        iter != m_results->flux_maps.end()) {
+        revision = std::max(revision, iter->second.revision + 1);
+    }
+
+    // Make the old request stale before asking it to cancel, so its eventual
+    // cancellation callback cannot remove this request's pending row.
+    m_latest_requests[entity] = revision;
+    cancel_for(entity);
+    store_remove_by_predicate(
+        [entity](auto const& item) { return item.entity == entity; });
 
     auto const selected_color_map =
         ColorMapModel::normalized_id(this->color_map_id());
@@ -279,9 +322,10 @@ bool PendingFluxMapModel::start_generate_for(Entity entity) {
         .color_map_id = selected_color_map,
         .color_map_name = ColorMapModel::name_for_id(selected_color_map),
         .color_map_source = ColorMapModel::source_for_id(selected_color_map),
-        .dni       = this->dni(),
+        .dni = this->dni(),
         .smoothing_radius =
             static_cast<unsigned>(std::max(0, this->smoothing_radius())),
+        .wrap_u         = surface_wraps_u(m_host, entity),
         .surface_detail = static_cast<unsigned>(mesh_res),
         .include_direct_sun_rays = this->include_direct_sun_rays(),
         .terminal_interactions_only = this->terminal_interactions_only(),
@@ -292,10 +336,15 @@ bool PendingFluxMapModel::start_generate_for(Entity entity) {
         .progress = 0,
     });
 
-    if (!m_compute->start_generate_for(entity, *mesh, opts)) {
-        store_remove_by_predicate([entity](auto const& item) {
-            return item.entity == entity;
-        });
+    auto request = SolTrace::GUI::Analysis::FluxMapRequestId {
+        .result_id = m_results->id,
+        .entity    = entity,
+        .revision  = revision,
+    };
+
+    if (!m_compute->start_generate_for(request, *mesh, opts)) {
+        store_remove_by_predicate(
+            [entity](auto const& item) { return item.entity == entity; });
         qDebug() << Q_FUNC_INFO << "generation kickoff failed";
         return false;
     }
@@ -383,22 +432,34 @@ void FluxMapWorldModel::set_subdivision_scale(unsigned scale) {
 }
 
 
-void FluxMapWorldModel::on_ready(Entity                    e,
+void FluxMapWorldModel::on_ready(Entity                                   e,
                                  SolTrace::GUI::Analysis::BakedFluxMapPtr img,
-                                 Database const*           db) {
+                                 Database const*                          db,
+                                 QString image_key) {
     // Avoid duplicating map entries; this list should stay small.
 
     if (!db) return;
 
-    qDebug() << Q_FUNC_INFO << e << img->bin_map << db;
+    qDebug() << Q_FUNC_INFO << e << img->render.bin_map << db;
 
-    for (auto const& item : m_records) {
-        if (item.flux_entity == e && item.flux_texture_data) {
-            item.flux_texture_data->deleteLater();
+    for (int i = 0; i < m_records.size(); ++i) {
+        if (m_records[i].flux_entity != e) continue;
+
+        auto updated = m_records[i];
+        if (!updated.flux_texture_data) {
+            updated.flux_texture_data = std::make_shared<FluxTextureData>();
         }
+        updated.flux_texture_data->set_image(img->render.bin_map);
+        updated.flux_image_path       = QStringLiteral("image://fluxmap/") +
+                                        image_key + QStringLiteral("/bins");
+        updated.flux_point_image_path = QStringLiteral("image://fluxmap/") +
+                                        image_key + QStringLiteral("/points");
+        updated.flux_color_map_id     = img->generation.color_map_id;
+        updated.flux_color_map_source = img->generation.color_map_source;
+        updated.flux_stats            = img->data.stats;
+        store_push_update(i, updated);
+        return;
     }
-
-    store_remove_by_predicate([e](auto const& item) { return item.flux_entity == e; });
 
     // get geom params
 
@@ -420,18 +481,21 @@ void FluxMapWorldModel::on_ready(Entity                    e,
                                 global.rotation.z);
 
     auto texture_data = std::make_shared<FluxTextureData>();
-    texture_data->set_image(img->bin_map);
+    texture_data->set_image(img->render.bin_map);
 
     store_push_append(FluxMappedItem {
-        .flux_entity          = e,
-        .flux_texture_data    = texture_data,
-        .flux_image_path      = "image://fluxmap/" + image_name(e),
-        .flux_color_map_id    = img->color_map_id,
-        .flux_color_map_source = img->color_map_source,
-        .flux_position        = position,
-        .flux_rotation        = rotation,
-        .flux_geometry        = geom,
-        .flux_stats           = img->stats,
+        .flux_entity       = e,
+        .flux_texture_data = texture_data,
+        .flux_image_path   = QStringLiteral("image://fluxmap/") + image_key +
+                             QStringLiteral("/bins"),
+        .flux_point_image_path = QStringLiteral("image://fluxmap/") +
+                                 image_key + QStringLiteral("/points"),
+        .flux_color_map_id     = img->generation.color_map_id,
+        .flux_color_map_source = img->generation.color_map_source,
+        .flux_position         = position,
+        .flux_rotation         = rotation,
+        .flux_geometry         = geom,
+        .flux_stats            = img->data.stats,
     });
 }
 
@@ -449,25 +513,27 @@ QImage FluxMapProvider::requestImage(QString const& id,
 
     QImage ret;
 
-    bool needs_point_map = local_id.endsWith(POINT_MAP_SUFFIX);
+    bool needs_point_map = local_id.endsWith(QStringLiteral("/points"));
+    bool needs_bin_map   = local_id.endsWith(QStringLiteral("/bins"));
 
     if (needs_point_map) {
-        local_id = local_id.left(local_id.size() - POINT_MAP_SUFFIX.size());
+        local_id.chop(QStringLiteral("/points").size());
+    } else if (needs_bin_map) {
+        local_id.chop(QStringLiteral("/bins").size());
     }
 
 
     {
-        m_lock.lock();
-        auto iter = m_store.find(local_id);
+        QMutexLocker locker(&m_lock);
+        auto         iter = m_store.find(local_id);
         if (iter != m_store.end()) {
 
             if (needs_point_map) {
-                ret = iter.value()->point_map;
+                ret = iter.value()->render.point_map;
             } else {
-                ret = iter.value()->bin_map;
+                ret = iter.value()->render.bin_map;
             }
         }
-        m_lock.unlock();
     }
 
     if (size) *size = ret.size();
@@ -477,20 +543,30 @@ QImage FluxMapProvider::requestImage(QString const& id,
     return ret;
 }
 
-void FluxMapProvider::on_ready(Entity                    k,
+void FluxMapProvider::on_ready(Entity                                   k,
                                SolTrace::GUI::Analysis::BakedFluxMapPtr v,
-                               Database const*) {
-    auto name = image_name(k);
-    qDebug() << Q_FUNC_INFO << k << v->bin_map << name;
-    m_lock.lock();
-    m_store[name] = v;
-    m_lock.unlock();
+                               Database const*,
+                               QString image_key) {
+    qDebug() << Q_FUNC_INFO << k << v->render.bin_map << image_key;
+    QMutexLocker locker(&m_lock);
+
+    // Drop older revisions for this result/entity so versioned URLs do not
+    // turn the provider into an unbounded image cache.
+    auto const owner =
+        image_key.left(image_key.lastIndexOf('/')) + QLatin1Char('/');
+    for (auto iter = m_store.begin(); iter != m_store.end();) {
+        if (iter.key().startsWith(owner)) {
+            iter = m_store.erase(iter);
+        } else {
+            ++iter;
+        }
+    }
+    m_store[image_key] = v;
 }
 
 void FluxMapProvider::clear() {
-    m_lock.lock();
+    QMutexLocker locker(&m_lock);
     m_store.clear();
-    m_lock.unlock();
 }
 
 // ============================================================================
@@ -500,11 +576,10 @@ QVector<EntityNamePair> AllComputedMapsModel::rebuild_lists() {
     QVector<EntityNamePair> new_recs;
     m_reverse.clear();
 
-    if (!m_host) return {};
+    if (!m_host || !m_results) return { };
 
-    auto view = m_host->as_registry().view<HasFluxMapComponent>();
-
-    for (auto [entity, map] : view.each()) {
+    for (auto const& [entity, map] : m_results->flux_maps) {
+        if (!map.artifact) continue;
         new_recs.push_back(EntityNamePair::record_for_entity(*m_host, entity));
     }
 
@@ -532,31 +607,28 @@ void AllComputedMapsModel::ident_changed(entt::entity entity) {
 AllComputedMapsModel::AllComputedMapsModel(QObject* parent)
     : StructModelAdapter(parent) { }
 
-void AllComputedMapsModel::reset(Database* database) {
-    if (m_host) {
-        disconnect(m_host->identity.self(), nullptr, this, nullptr);
-        disconnect(m_host->flux_map.self(), nullptr, this, nullptr);
-    }
+void AllComputedMapsModel::reset(SimulationResultPtr results) {
+    if (m_host) disconnect(m_host->identity.self(), nullptr, this, nullptr);
 
-    m_host = database;
+    m_results = std::move(results);
+    m_host    = m_results && m_results->database
+                    ? const_cast<Database*>(m_results->database.get())
+                    : nullptr;
     recompute();
 
-    if (!database) return;
+    if (!m_host) return;
 
-    connect(database->identity.self(),
+    connect(m_host->identity.self(),
             &ComponentAPIBase::changed,
             this,
             &AllComputedMapsModel::ident_changed);
+}
 
-    connect(database->flux_map.self(),
-            &ComponentAPIBase::changed,
-            this,
-            &AllComputedMapsModel::recompute);
-
-    connect(database->flux_map.self(),
-            &ComponentAPIBase::removed,
-            this,
-            &AllComputedMapsModel::recompute);
+void AllComputedMapsModel::map_ready(Entity,
+                                     SolTrace::GUI::Analysis::BakedFluxMapPtr,
+                                     Database const* database,
+                                     QString) {
+    if (database == m_host) recompute();
 }
 
 int AllComputedMapsModel::index_of(SolTrace::GUI::Data::Entity entity) const {
@@ -569,7 +641,7 @@ int AllComputedMapsModel::index_of(SolTrace::GUI::Data::Entity entity) const {
 
 SolTrace::GUI::Data::Entity AllComputedMapsModel::entity_at(int index) const {
     auto const& items = vector();
-    if (index < 0 || index >= items.size()) { return {}; }
+    if (index < 0 || index >= items.size()) { return { }; }
 
     return items[index].entity;
 }

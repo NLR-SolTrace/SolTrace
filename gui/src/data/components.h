@@ -8,7 +8,6 @@
 #include <entt/entt.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include "analysis/flux/baked_flux_map.h"
 #include "aperture.hpp"
 #include "entity.h"
 #include "optical_properties.hpp"
@@ -197,10 +196,10 @@ struct ColorComponent {
     QColor color = Qt::white;
 };
 
-/// Marks if this entity has a flux map
-/// Should be hidden during instance rendering
-struct HasFluxMapComponent {
-    SolTrace::GUI::Analysis::BakedFluxMapPtr map_info;
-};
+/// Result-scene rendering marker for an entity with a flux map.
+///
+/// The map artifact is owned by SimulationResult; this marker contains no
+/// analysis data and is intentionally not copied into editable scene clones.
+struct HasFluxMapComponent { };
 
 } // namespace SolTrace::GUI::Data

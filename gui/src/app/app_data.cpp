@@ -1,7 +1,7 @@
 #include "app/app_data.h"
 
-#include "app_build_info.h"
 #include "app/app_settings.h"
+#include "app_build_info.h"
 
 #include <QApplication>
 #include <QClipboard>
@@ -146,8 +146,10 @@ AppData::AppData(QObject*       parent,
             this,
             &AppData::new_results);
 
-    connect(
-        this, &AppData::new_database, m_script, &Scripting::Script::set_database);
+    connect(this,
+            &AppData::new_database,
+            m_script,
+            &Scripting::Script::set_database);
 
     m_script->set_services(m_file_source, m_simulation);
 
@@ -168,7 +170,7 @@ AppData::AppData(QObject*       parent,
     connect(m_flux->pending_flux_maps(),
             &SolTrace::GUI::Data::PendingFluxMapModel::ready,
             m_exporter,
-            &ExportModule::cache_flux_map);
+            &ExportModule::flux_map_ready);
 
     connect(m_simulation,
             &SimulationModule::edit_result_copy_requested,

@@ -9,9 +9,9 @@
 
 #include "analysis/flux/flux_map.h"
 #include "data/database.h"
+#include "data/simulationresult.h"
 #include "editing/geometryeditor.h"
 #include "scene_models/entity_name_model.h"
-#include "data/simulationresult.h"
 
 namespace SolTrace::GUI::Analysis {
 class FluxMapComputer;
@@ -50,15 +50,20 @@ struct FluxMappedPendingItem {
 class PendingFluxMapModel
     : public Support::StructModelAdapter<FluxMappedPendingItem> {
     Q_OBJECT
-    QPointer<Database const>            m_host;
+    QPointer<Database const>                           m_host;
+    SolTrace::GUI::Data::SimulationResultPtr           m_results;
     QPointer<SolTrace::GUI::Analysis::FluxMapComputer> m_compute;
+    std::unordered_map<entt::entity, quint64>          m_latest_requests;
+
+    bool is_current(SolTrace::GUI::Analysis::FluxMapRequestId const&) const;
 
 private slots:
     void on_changed();
 
-    void on_ready(SolTrace::GUI::Data::Entity, SolTrace::GUI::Analysis::BakedFluxMapPtr);
-    void on_failed(SolTrace::GUI::Data::Entity, QString);
-    void on_progress(SolTrace::GUI::Data::Entity, int);
+    void on_ready(SolTrace::GUI::Analysis::FluxMapRequestId,
+                  SolTrace::GUI::Analysis::BakedFluxMapPtr);
+    void on_failed(SolTrace::GUI::Analysis::FluxMapRequestId, QString);
+    void on_progress(SolTrace::GUI::Analysis::FluxMapRequestId, int);
 
 public:
     // TODO: Make sure we have bins counts and bin areas to export
@@ -98,7 +103,10 @@ public slots:
 
 signals:
     /// A new flux map is ready, for an entity, from a given database
-    void ready(SolTrace::GUI::Data::Entity, SolTrace::GUI::Analysis::BakedFluxMapPtr, SolTrace::GUI::Data::Database const*);
+    void ready(SolTrace::GUI::Data::Entity,
+               SolTrace::GUI::Analysis::BakedFluxMapPtr,
+               SolTrace::GUI::Data::Database const*,
+               QString image_key);
     void failed(SolTrace::GUI::Data::Entity, QString);
     void cleared();
 
@@ -109,20 +117,22 @@ signals:
 
 /// One rendered flux map and its transform in the 3D result scene.
 struct FluxMappedItem {
-    Entity                               flux_entity;
-    std::shared_ptr<QQuick3DTextureData> flux_texture_data;
-    QString                              flux_image_path;
-    QString                              flux_color_map_id;
-    QString                              flux_color_map_source;
-    QVector3D                            flux_position;
-    QQuaternion                          flux_rotation;
-    std::shared_ptr<SurfaceGeometry>     flux_geometry;
-    SolTrace::GUI::Analysis::BakedFluxMapStats          flux_stats;
+    Entity                                     flux_entity;
+    std::shared_ptr<FluxTextureData>           flux_texture_data;
+    QString                                    flux_image_path;
+    QString                                    flux_point_image_path;
+    QString                                    flux_color_map_id;
+    QString                                    flux_color_map_source;
+    QVector3D                                  flux_position;
+    QQuaternion                                flux_rotation;
+    std::shared_ptr<SurfaceGeometry>           flux_geometry;
+    SolTrace::GUI::Analysis::BakedFluxMapStats flux_stats;
 
     RECORD_META(FluxMappedItem,
                 SM_EXPOSE_RO(flux_entity),
                 SM_EXPOSE_RO(flux_texture_data),
                 SM_EXPOSE_RO(flux_image_path),
+                SM_EXPOSE_RO(flux_point_image_path),
                 SM_EXPOSE_RO(flux_color_map_id),
                 SM_EXPOSE_RO(flux_color_map_source),
                 SM_EXPOSE_RO(flux_position),
@@ -161,7 +171,10 @@ public slots:
     void on_reset();
 
     /// Add or replace the completed map for an entity.
-    void on_ready(Entity, SolTrace::GUI::Analysis::BakedFluxMapPtr, Database const*);
+    void on_ready(Entity,
+                  SolTrace::GUI::Analysis::BakedFluxMapPtr,
+                  Database const*,
+                  QString image_key);
 };
 
 // ============================================================================
@@ -171,7 +184,7 @@ class FluxMapProvider : public QQuickImageProvider {
     Q_OBJECT
 
     QHash<QString, SolTrace::GUI::Analysis::BakedFluxMapPtr> m_store;
-    QMutex                                    m_lock;
+    QMutex                                                   m_lock;
 
 public:
     FluxMapProvider();
@@ -183,7 +196,10 @@ public:
 
 public slots:
     /// Store a completed flux map under its generated image id.
-    void on_ready(Entity, SolTrace::GUI::Analysis::BakedFluxMapPtr, Database const*);
+    void on_ready(Entity,
+                  SolTrace::GUI::Analysis::BakedFluxMapPtr,
+                  Database const*,
+                  QString image_key);
 
     /// Remove all stored images.
     void clear();
@@ -196,7 +212,8 @@ class AllComputedMapsModel
     : public Support::StructModelAdapter<EntityNamePair> {
     Q_OBJECT
 
-    QPointer<Database> m_host;
+    SolTrace::GUI::Data::SimulationResultPtr m_results;
+    QPointer<Database>                       m_host;
 
     std::unordered_map<entt::entity, int> m_reverse;
 
@@ -210,8 +227,14 @@ public:
     explicit AllComputedMapsModel(QObject* parent = nullptr);
     ~AllComputedMapsModel() override = default;
 
-    /// Observe a database and rebuild the computed-map list.
-    void reset(Database* database);
+    /// Observe a result and rebuild the computed-map list from its map store.
+    void reset(SolTrace::GUI::Data::SimulationResultPtr results);
+
+    /// Refresh after the authoritative result store changes.
+    void map_ready(SolTrace::GUI::Data::Entity,
+                   SolTrace::GUI::Analysis::BakedFluxMapPtr,
+                   SolTrace::GUI::Data::Database const*,
+                   QString);
 
 public slots:
     /// Return the row for a computed flux map entity, or -1 if absent.

@@ -4,8 +4,8 @@
 #include "data/components.h"
 #include "support/asynctask.h"
 
-#include <QQmlEngine>
 #include <QLoggingCategory>
+#include <QQmlEngine>
 #include <QUuid>
 
 using namespace SolTrace::GUI::Support;
@@ -17,7 +17,8 @@ Q_LOGGING_CATEGORY(fluxLog, "soltrace.gui.flux")
 FluxModule::FluxModule(QQmlEngine* engine, QObject* parent)
     : QObject(parent),
       m_entity_model(new SolTrace::GUI::Data::AllElementsModel(this)),
-      m_computed_maps_model(new SolTrace::GUI::Data::AllComputedMapsModel(this)),
+      m_computed_maps_model(
+          new SolTrace::GUI::Data::AllComputedMapsModel(this)),
       m_pending_flux_maps(new SolTrace::GUI::Data::PendingFluxMapModel(this)),
       m_flux_map_world_model(new SolTrace::GUI::Data::FluxMapWorldModel(this)),
       m_ray_iso_volume(new SolTrace::GUI::Data::QMLMesh()) {
@@ -37,6 +38,11 @@ FluxModule::FluxModule(QQmlEngine* engine, QObject* parent)
 
     connect(m_pending_flux_maps,
             &SolTrace::GUI::Data::PendingFluxMapModel::ready,
+            m_computed_maps_model,
+            &SolTrace::GUI::Data::AllComputedMapsModel::map_ready);
+
+    connect(m_pending_flux_maps,
+            &SolTrace::GUI::Data::PendingFluxMapModel::ready,
             this,
             &FluxModule::flux_map_ready);
 
@@ -50,48 +56,53 @@ FluxModule::FluxModule(QQmlEngine* engine, QObject* parent)
             [this](SolTrace::GUI::Data::Entity entity, QString reason) {
                 // we record completion, batch or not
                 maybe_update_batch(entity);
+                if (reason == QStringLiteral("Canceled")) return;
                 this->notify(ANotification::error(reason));
             });
 
-    connect(m_pending_flux_maps, &SolTrace::GUI::Data::PendingFluxMapModel::cleared, this, [this] {
-        set_current_flux_stats({});
-    });
+    connect(m_pending_flux_maps,
+            &SolTrace::GUI::Data::PendingFluxMapModel::cleared,
+            this,
+            [this] { set_current_flux_stats({ }); });
 
-    connect(
-        m_pending_flux_maps, &SolTrace::GUI::Data::PendingFluxMapModel::all_done, this, [this] {
-            m_batch.reset(-1);
-            batch_progress(-1, -1);
-        });
+    connect(m_pending_flux_maps,
+            &SolTrace::GUI::Data::PendingFluxMapModel::all_done,
+            this,
+            [this] {
+                m_batch.reset(-1);
+                batch_progress(-1, -1);
+            });
 }
 
 void FluxModule::set_results(SolTrace::GUI::Data::SimulationResultPtr p) {
     m_results = p;
     set_has_results(p != nullptr);
-    set_current_entity({});
-    set_current_map_entity({});
+    set_current_entity({ });
+    set_current_map_entity({ });
     set_current_entity_name(QString());
-    set_current_entity_position({});
-    set_current_flux_stats({});
+    set_current_entity_position({ });
+    set_current_flux_stats({ });
     set_current_image(QString());
+    set_current_point_image(QString());
     set_current_color_map_id(QStringLiteral("classic"));
     set_current_color_map_source(
         QStringLiteral("qrc:/assets/images/b_to_r_wide.png"));
     m_entity_model->reset(nullptr);
-    m_computed_maps_model->reset(nullptr);
+    m_computed_maps_model->reset({ });
     m_pending_flux_maps->reset(nullptr);
-    m_ray_iso_volume->set_current_mesh({});
+    m_ray_iso_volume->set_current_mesh({ });
+
+    m_batch.reset();
+    emit batch_progress(-1, -1);
 
     if (!p) return;
 
     auto mptr = const_cast<SolTrace::GUI::Data::Database*>(p->database.get());
 
     m_entity_model->reset(mptr);
-    m_computed_maps_model->reset(mptr);
+    m_computed_maps_model->reset(p);
     m_pending_flux_maps->reset(p);
-    m_ray_iso_volume->set_current_mesh({});
-
-    m_batch.reset();
-    emit batch_progress(-1, -1);
+    m_ray_iso_volume->set_current_mesh({ });
 
     // Default to the entity with the most ray hits.
     entt::entity largest = entt::null;
@@ -117,7 +128,7 @@ void FluxModule::select_entity(SolTrace::GUI::Data::Entity entity) {
 
     if (!m_results || !m_results->database || !entity.is_valid()) {
         set_current_entity_name(QString());
-        set_current_entity_position({});
+        set_current_entity_position({ });
         return;
     }
 
@@ -127,12 +138,10 @@ void FluxModule::select_entity(SolTrace::GUI::Data::Entity entity) {
     auto* global   = database->global_transform.get(entity);
     auto  transform =
         global ? *global
-               : SolTrace::GUI::Data::GlobalTransformComponent::compute_for(database->as_registry(),
-                                                           entity);
-    set_current_entity_position(QVector3D(transform.position.x,
-                                          transform.position.y,
-                                          transform.position.z));
-
+               : SolTrace::GUI::Data::GlobalTransformComponent::compute_for(
+                     database->as_registry(), entity);
+    set_current_entity_position(QVector3D(
+        transform.position.x, transform.position.y, transform.position.z));
 }
 
 void FluxModule::select_map(SolTrace::GUI::Data::Entity entity) {
@@ -150,22 +159,25 @@ void FluxModule::refresh_current_flux_stats() {
         if (item.flux_entity == current_map_entity()) {
             set_current_flux_stats(item.flux_stats);
             set_current_image(item.flux_image_path);
+            set_current_point_image(item.flux_point_image_path);
             set_current_color_map_id(item.flux_color_map_id);
             set_current_color_map_source(item.flux_color_map_source);
             return;
         }
     }
 
-    set_current_flux_stats({});
+    set_current_flux_stats({ });
     set_current_image(QString());
+    set_current_point_image(QString());
     set_current_color_map_id(QStringLiteral("classic"));
     set_current_color_map_source(
         QStringLiteral("qrc:/assets/images/b_to_r_wide.png"));
 }
 
-void FluxModule::flux_map_ready(SolTrace::GUI::Data::Entity              entity,
+void FluxModule::flux_map_ready(SolTrace::GUI::Data::Entity entity,
                                 SolTrace::GUI::Analysis::BakedFluxMapPtr,
-                                SolTrace::GUI::Data::Database const*) {
+                                SolTrace::GUI::Data::Database const*,
+                                QString) {
     // we record completion, batch or not
     maybe_update_batch(entity);
 
@@ -205,8 +217,8 @@ void FluxModule::start_generate() {
 
 void FluxModule::start_generate_volume_flux(unsigned resolution) {
     if (ray_volume_flux_in_progress()) {
-        emit notify(ANotification::info(
-            "Volume flux generation is already running."));
+        emit notify(
+            ANotification::info("Volume flux generation is already running."));
         return;
     }
 
@@ -243,13 +255,14 @@ void FluxModule::start_generate_isosurface(float value) {
     }
 
     qCDebug(fluxLog) << Q_FUNC_INFO << "launching volume generation" << value;
-    launch_async_task<SolTrace::GUI::Data::Mesh, QString>(QUuid::createUuid(),
-                                         this,
-                                         &FluxModule::iso_surf_ready,
-                                         &FluxModule::iso_surf_failed,
-                                         SolTrace::GUI::Analysis::volume_to_mesh,
-                                         m_results->ray_volume,
-                                         value);
+    launch_async_task<SolTrace::GUI::Data::Mesh, QString>(
+        QUuid::createUuid(),
+        this,
+        &FluxModule::iso_surf_ready,
+        &FluxModule::iso_surf_failed,
+        SolTrace::GUI::Analysis::volume_to_mesh,
+        m_results->ray_volume,
+        value);
 }
 
 void FluxModule::save_image(QString requested_image, QUrl path) {
@@ -349,7 +362,8 @@ void FluxModule::flux_vol_failed(QUuid const& id, QString reason) {
         QString("Could not generate volume flux: %1").arg(reason)));
 }
 
-void FluxModule::iso_surf_ready(QUuid const& id, SolTrace::GUI::Data::Mesh mesh) {
+void FluxModule::iso_surf_ready(QUuid const&              id,
+                                SolTrace::GUI::Data::Mesh mesh) {
     qCDebug(fluxLog) << Q_FUNC_INFO << id;
     m_ray_iso_volume->set_current_mesh(mesh);
     emit notify(ANotification::info("Isosurface generation complete."));

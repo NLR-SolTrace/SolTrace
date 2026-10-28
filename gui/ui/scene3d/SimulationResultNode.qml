@@ -138,10 +138,6 @@ Node {
             position: flux_position
             rotation: flux_rotation
 
-            Component.onCompleted: {
-                AppData.flux.current_image = flux_image_path
-            }
-
             materials: [
                 PrincipledMaterial {
                     metalness: 1
