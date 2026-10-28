@@ -4,11 +4,8 @@ on:
   # Manual runs are useful while iterating on packaging from a feature branch.
   workflow_dispatch:
   # Tag pushes are the release path. Assets are uploaded to a draft release
-  # named after the tag. Main pushes build artifacts for download without
-  # publishing a GitHub release.
+  # named after the tag.
   push:
-    branches:
-      - main
     tags:
       - "v*"
 
