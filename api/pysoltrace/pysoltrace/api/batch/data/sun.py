@@ -1,6 +1,6 @@
 import ctypes
 
-from pysoltrace import dot_h, Point, soltrace_constants as _STC
+from pysoltrace import dot_h, Point, soltrace_structs as _STS
 from pysoltrace.api.batch.utils import batcher, generate_api_call
 
 # short names
@@ -18,7 +18,7 @@ _VEC = dot_h.st_api_call.CALL_ST_GET_SUN_VECTOR
 ###################################
 class sun(batcher):
     def add(self,
-            args: _STC.sun,
+            args: _STS.sun,
             angle: list[float] = [],
             intensity: list[float] = []) -> None:
         args.npoints = len(angle)
@@ -34,7 +34,7 @@ class sun(batcher):
                                             _intensity))
 
     # TODO:
-    # def get(self) -> tuple[_STC.sun, list[float], list[float]]:
+    # def get(self) -> tuple[_STS.sun, list[float], list[float]]:
     #     args = dot_h.args_sun()
     #     angle = ctypes.c_double()
     #     intensity = ctypes.c_double()
@@ -84,8 +84,8 @@ class sun(batcher):
 
     def az_zen(self,
                calc: int,
-               loc:  _STC.sun_location,
-               dt:   _STC.sun_datetime) -> tuple[float, float]:
+               loc:  _STS.sun_location,
+               dt:   _STS.sun_datetime) -> tuple[float, float]:
         az  = ctypes.c_double()
         zen = ctypes.c_double()
         call = generate_api_call(_AZ,
@@ -98,8 +98,8 @@ class sun(batcher):
 
     def az_el(self,
               calc: int,
-              loc:  _STC.sun_location,
-              dt:   _STC.sun_datetime) -> tuple[float, float]:
+              loc:  _STS.sun_location,
+              dt:   _STS.sun_datetime) -> tuple[float, float]:
         az = ctypes.c_double()
         el = ctypes.c_double()
         call = generate_api_call(_AE,
@@ -112,8 +112,8 @@ class sun(batcher):
 
     def vector(self,
                calc: int,
-               loc:  _STC.sun_location,
-               dt:   _STC.sun_datetime) -> Point:
+               loc:  _STS.sun_location,
+               dt:   _STS.sun_datetime) -> Point:
         sun_x = ctypes.c_double()
         sun_y = ctypes.c_double()
         sun_z = ctypes.c_double()
