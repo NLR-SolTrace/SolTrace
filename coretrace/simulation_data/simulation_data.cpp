@@ -98,13 +98,13 @@ void SimulationData::remove_element_from_group(element_ptr el)
     {
         composite_element_ptr cptr =
             std::dynamic_pointer_cast<CompositeElement>(el);
-        auto cit = cptr->get_iterator();
-        group = cit->second->get_group();
-        if (group < 0) return; // elements are not in a group, do nothing
 
-        for ( ; !cptr->is_at_end(cit); ++cit)
+        for (auto cit = cptr->get_iterator(); !cptr->is_at_end(cit); ++cit)
         {
-            this->my_groups[group].erase(cit->second->get_id());
+            group = cit->second->get_group();
+            // element in a group, remove, otherwise do nothing
+            if (group > 0)
+                this->my_groups[group].erase(cit->second->get_id());
         }
     }
     else
