@@ -329,7 +329,7 @@ jobs:
 
       - name: Verify Apple signing secrets are configured
         id: apple-signing-secrets
-        if: matrix.platform == 'macos' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
+        if: matrix.platform == 'macos' && startsWith(github.ref, 'refs/tags/')
         shell: bash
         env:
           MACOS_DEVELOPER_ID_P12: ${{ secrets.MACOS_DEVELOPER_ID_P12 }}
@@ -447,12 +447,12 @@ jobs:
         run: cosign sign-blob --yes --bundle "$ASSET_PATH.sigstore.json" "$ASSET_PATH"
 
       - name: Verify Linux AppImage Sigstore signature
-        if: matrix.platform == 'linux' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
+        if: startsWith(github.ref, 'refs/tags/')
         shell: bash
         run: >-
           cosign verify-blob
           --bundle "$ASSET_PATH.sigstore.json"
-          --certificate-identity-regexp '^https://github.com/nlr-devops/SolTrace/.github/workflows/gui-release.yml@refs/(tags/.*|heads/main)$'
+          --certificate-identity-regexp '^https://github.com/nlr-devops/SolTrace/.github/workflows/gui-release.yml@refs/tags/.*$'
           --certificate-oidc-issuer https://token.actions.githubusercontent.com
           "$ASSET_PATH"
 
@@ -493,7 +493,7 @@ jobs:
           --upgrade-guid "${{ matrix.msi_upgrade_guid }}"
 
       - name: Stage verified release artifact
-        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/')
         shell: bash
         run: |
           verified_dir="$RUNNER_TEMP/verified-release-artifact"
@@ -504,7 +504,7 @@ jobs:
           fi
 
       - name: Upload verified release artifact
-        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
@@ -512,13 +512,13 @@ jobs:
           if-no-files-found: error
 
       - name: Request MSI signing
-        if: matrix.msi_enabled == 'ON' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
+        if: matrix.msi_enabled == 'ON' && startsWith(github.ref, 'refs/tags/')
         shell: bash
         env:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
           LOGICAPP_URL: ${{ secrets.SIGNING_LOGICAPP_URL }}
-          UNSIGNED_BLOB: unsigned/soltrace/${{ github.run_id }}/${{ github.run_attempt }}/${{ matrix.msi_name }}
+          UNSIGNED_BLOB: unsigned/soltrace/${{ github.run_id }}/${{ matrix.msi_name }}
         run: |
           az storage blob upload \
             --container-name "${{ env.SIGNING_CONTAINER }}" \
@@ -529,15 +529,15 @@ jobs:
             --overwrite
           curl --fail --silent --show-error --location "$LOGICAPP_URL" \
             --header 'Content-Type: application/json' \
-            --data "{\"blob\":\"$UNSIGNED_BLOB\",\"repository\":\"$GITHUB_REPOSITORY\",\"run_id\":\"$GITHUB_RUN_ID\",\"run_attempt\":\"$GITHUB_RUN_ATTEMPT\"}"
+            --data "{\"blob\":\"$UNSIGNED_BLOB\",\"repository\":\"$GITHUB_REPOSITORY\",\"run_id\":\"$GITHUB_RUN_ID\"}"
 
       - name: Wait for signed installer
-        if: matrix.msi_enabled == 'ON' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
+        if: matrix.msi_enabled == 'ON' && startsWith(github.ref, 'refs/tags/')
         shell: bash
         env:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
-          SIGNED_BLOB: signed/soltrace/${{ github.run_id }}/${{ github.run_attempt }}/${{ matrix.msi_name }}
+          SIGNED_BLOB: signed/soltrace/${{ github.run_id }}/${{ matrix.msi_name }}
         run: |
           for attempt in $(seq 1 100); do
             exists=$(az storage blob exists \
@@ -553,22 +553,21 @@ jobs:
           exit 1
 
       - name: Download signed installer
-        if: matrix.msi_enabled == 'ON' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
+        if: matrix.msi_enabled == 'ON' && startsWith(github.ref, 'refs/tags/')
         shell: bash
         env:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
-          SIGNED_BLOB: signed/soltrace/${{ github.run_id }}/${{ github.run_attempt }}/${{ matrix.msi_name }}
+          SIGNED_BLOB: signed/soltrace/${{ github.run_id }}/${{ matrix.msi_name }}
           SIGNED_PATH: ${{ github.workspace }}/${{ matrix.msi_name }}
         run: |
           az storage blob download \
             --container-name "${{ env.SIGNING_CONTAINER }}" \
             --name "$SIGNED_BLOB" \
-            --file "$SIGNED_PATH" \
-            --overwrite true
+            --file "$SIGNED_PATH"
 
       - name: Upload signed installer artifact
-        if: matrix.msi_enabled == 'ON' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
+        if: matrix.msi_enabled == 'ON' && startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}-Installer-Signed
