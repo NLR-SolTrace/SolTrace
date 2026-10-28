@@ -25,7 +25,9 @@ from scripts.release.macos import (
     ad_hoc_sign,
     bundled_dependency_path,
     dependency_is_relocatable,
+    notarize,
     parse_otool_dependencies,
+    sign_bundle,
 )
 from scripts.release.package import package_windows
 from scripts.release.windows import (
@@ -304,6 +306,62 @@ class MacOSTests(unittest.TestCase):
                 commands[-1],
                 ["codesign", "--verify", "--deep", "--strict", "--verbose=4", app],
             )
+
+    def test_developer_id_signing_enables_runtime_and_app_entitlements(self) -> None:
+        """Developer ID signing uses a timestamp, hardened runtime, and app entitlements."""
+        with tempfile.TemporaryDirectory() as temporary:
+            app = Path(temporary) / "dist" / "SolTrace.app"
+            executable = app / "Contents" / "MacOS" / "SolTrace"
+            executable.parent.mkdir(parents=True)
+            executable.write_bytes(b"executable")
+
+            def fake_run(command, **_kwargs):
+                output = "Mach-O 64-bit arm64" if command[0] == "file" else ""
+                return SimpleNamespace(stdout=output)
+
+            with patch("scripts.release.macos.run", side_effect=fake_run) as mocked_run:
+                sign_bundle(
+                    install_dir=Path(temporary) / "dist",
+                    app_name="SolTrace",
+                    identity="Developer ID Application: SolTrace (TEAM123)",
+                )
+
+            signing_commands = [
+                call.args[0]
+                for call in mocked_run.call_args_list
+                if call.args[0][:2] == ["codesign", "--force"]
+            ]
+            app_signing_command = signing_commands[-1]
+            self.assertIn("--options", app_signing_command)
+            self.assertIn("runtime", app_signing_command)
+            self.assertIn("--timestamp", app_signing_command)
+            self.assertIn("Developer ID Application: SolTrace (TEAM123)", app_signing_command)
+            self.assertIn("--entitlements", app_signing_command)
+
+    def test_notarization_staples_and_assesses_bundle(self) -> None:
+        """A successful notary submission is stapled and assessed with Gatekeeper."""
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            app = root / "dist" / "SolTrace.app"
+            app.mkdir(parents=True)
+            api_key = root / "AuthKey.p8"
+            api_key.write_text("key", encoding="utf-8")
+            with patch("scripts.release.macos.run") as mocked_run:
+                notarize(
+                    install_dir=root / "dist",
+                    app_name="SolTrace",
+                    api_key=api_key,
+                    key_id="KEY123",
+                    issuer_id="ISSUER123",
+                    runner_temp=root / "runner-temp",
+                )
+
+            commands = [call.args[0] for call in mocked_run.call_args_list]
+            self.assertEqual(commands[1][:3], ["xcrun", "notarytool", "submit"])
+            self.assertIn("--wait", commands[1])
+            self.assertEqual(commands[2][:3], ["xcrun", "stapler", "staple"])
+            self.assertEqual(commands[3][:3], ["xcrun", "stapler", "validate"])
+            self.assertEqual(commands[4][:2], ["spctl", "--assess"])
 
 
 class LinuxTests(unittest.TestCase):

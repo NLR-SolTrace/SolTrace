@@ -47,6 +47,23 @@ def _parser() -> argparse.ArgumentParser:
     sign_macos.add_argument("--install-dir", required=True, type=_path)
     sign_macos.add_argument("--app-name", required=True)
 
+    sign_macos_developer_id = commands.add_parser(
+        "sign-macos-developer-id", help="Sign a staged macOS app with Developer ID"
+    )
+    sign_macos_developer_id.add_argument("--install-dir", required=True, type=_path)
+    sign_macos_developer_id.add_argument("--app-name", required=True)
+    sign_macos_developer_id.add_argument("--identity", required=True)
+
+    notarize_macos = commands.add_parser(
+        "notarize-macos", help="Notarize and staple a macOS application bundle"
+    )
+    notarize_macos.add_argument("--install-dir", required=True, type=_path)
+    notarize_macos.add_argument("--app-name", required=True)
+    notarize_macos.add_argument("--api-key", required=True, type=_path)
+    notarize_macos.add_argument("--key-id", required=True)
+    notarize_macos.add_argument("--issuer-id", required=True)
+    notarize_macos.add_argument("--runner-temp", required=True, type=_path)
+
     license_parser = commands.add_parser(
         "bundle-licenses", help="Collect redistributable license files"
     )
@@ -113,6 +130,21 @@ def _dispatch(args: argparse.Namespace) -> None:
             windows.stage_runtime(install_dir=args.install_dir, optix_enabled=args.optix_enabled)
     elif args.command == "sign-macos":
         macos.ad_hoc_sign(install_dir=args.install_dir, app_name=args.app_name)
+    elif args.command == "sign-macos-developer-id":
+        macos.sign_bundle(
+            install_dir=args.install_dir,
+            app_name=args.app_name,
+            identity=args.identity,
+        )
+    elif args.command == "notarize-macos":
+        macos.notarize(
+            install_dir=args.install_dir,
+            app_name=args.app_name,
+            api_key=args.api_key,
+            key_id=args.key_id,
+            issuer_id=args.issuer_id,
+            runner_temp=args.runner_temp,
+        )
     elif args.command == "bundle-licenses":
         licenses.bundle(
             platform=args.platform,

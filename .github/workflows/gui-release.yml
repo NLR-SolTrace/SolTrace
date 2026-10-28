@@ -6,6 +6,8 @@ on:
   # Tag pushes are the release path. Assets are uploaded to a draft release
   # named after the tag.
   push:
+    branches:
+      - main
     tags:
       - "v*"
 
@@ -24,6 +26,7 @@ env:
   WIX_VERSION: "4.0.6"
   OPTIX_DEV_REF: "f1f6dd803f3159992d248178f6e09421c6eb8b6d"
   APP_NAME: SolTrace
+  SIGNING_CONTAINER: soltrace-signing
 
 jobs:
   test-release-tools:
@@ -43,6 +46,9 @@ jobs:
     name: ${{ matrix.name }}
     needs: test-release-tools
     runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: write
+      id-token: write
     env:
       BUILD_DIR: ${{ github.workspace }}/build
       INSTALL_DIR: ${{ github.workspace }}/dist
@@ -323,12 +329,80 @@ jobs:
           --app-name "${{ env.APP_NAME }}"
           --optix-enabled "${{ matrix.optix_enabled }}"
 
+      - name: Verify Apple signing secrets are configured
+        id: apple-signing-secrets
+        if: matrix.platform == 'macos' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
+        shell: bash
+        env:
+          MACOS_DEVELOPER_ID_P12: ${{ secrets.MACOS_DEVELOPER_ID_P12 }}
+          MACOS_DEVELOPER_ID_P12_PASSWORD: ${{ secrets.MACOS_DEVELOPER_ID_P12_PASSWORD }}
+          MACOS_DEVELOPER_IDENTITY: ${{ secrets.MACOS_DEVELOPER_IDENTITY }}
+          APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: |
+          missing=()
+          for name in \
+            MACOS_DEVELOPER_ID_P12 \
+            MACOS_DEVELOPER_ID_P12_PASSWORD \
+            MACOS_DEVELOPER_IDENTITY \
+            APP_STORE_CONNECT_API_KEY \
+            APP_STORE_CONNECT_KEY_ID \
+            APP_STORE_CONNECT_ISSUER_ID; do
+            if [[ -z "${!name}" ]]; then
+              missing+=("$name")
+            fi
+          done
+          if (( ${#missing[@]} > 0 )); then
+            printf '::warning::Apple signing secrets unavailable (%s); using ad-hoc signing and skipping notarized tag publication.\n' "${missing[*]}"
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Import Apple Developer ID certificate
+        if: matrix.platform == 'macos' && steps.apple-signing-secrets.outputs.available == 'true'
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.MACOS_DEVELOPER_ID_P12 }}
+          p12-password: ${{ secrets.MACOS_DEVELOPER_ID_P12_PASSWORD }}
+          keychain: signing_temp
+          create-keychain: true
+
       - name: Ad-hoc sign macOS bundle
-        if: matrix.platform == 'macos'
+        if: matrix.platform == 'macos' && (steps.apple-signing-secrets.outputs.available != 'true' || (github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')))
         run: >-
           python -m scripts.release.release_tools sign-macos
           --install-dir "${{ env.INSTALL_DIR }}"
           --app-name "${{ env.APP_NAME }}"
+
+      - name: Sign macOS bundle with Developer ID
+        if: matrix.platform == 'macos' && steps.apple-signing-secrets.outputs.available == 'true'
+        run: >-
+          python -m scripts.release.release_tools sign-macos-developer-id
+          --install-dir "${{ env.INSTALL_DIR }}"
+          --app-name "${{ env.APP_NAME }}"
+          --identity "${{ secrets.MACOS_DEVELOPER_IDENTITY }}"
+
+      - name: Notarize and staple macOS bundle
+        if: matrix.platform == 'macos' && steps.apple-signing-secrets.outputs.available == 'true'
+        shell: bash
+        env:
+          APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: |
+          key_path="$RUNNER_TEMP/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8"
+          trap 'rm -f "$key_path"' EXIT
+          printf '%s' "$APP_STORE_CONNECT_API_KEY" > "$key_path"
+          chmod 600 "$key_path"
+          python -m scripts.release.release_tools notarize-macos \
+            --install-dir "${{ env.INSTALL_DIR }}" \
+            --app-name "${{ env.APP_NAME }}" \
+            --api-key "$key_path" \
+            --key-id "$APP_STORE_CONNECT_KEY_ID" \
+            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
+            --runner-temp "$RUNNER_TEMP"
 
       - name: Validate staged bundle
         if: matrix.platform == 'macos' || matrix.platform == 'windows'
@@ -340,6 +414,7 @@ jobs:
           --optix-enabled "${{ matrix.optix_enabled }}"
 
       - name: Package release artifact
+        if: matrix.platform != 'windows'
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
@@ -351,6 +426,58 @@ jobs:
           --asset "${{ env.ASSET_PATH }}"
           --app-name "${{ env.APP_NAME }}"
           --optix-enabled "${{ matrix.optix_enabled }}"
+
+      - name: Generate and verify release artifact checksum
+        if: matrix.platform != 'windows'
+        shell: bash
+        run: |
+          asset_dir="$(dirname "$ASSET_PATH")"
+          asset_name="$(basename "$ASSET_PATH")"
+          (
+            cd "$asset_dir"
+            shasum -a 256 "$asset_name" > "$asset_name.sha256"
+            shasum -a 256 -c "$asset_name.sha256"
+          )
+
+      - name: Install cosign
+        if: matrix.platform == 'linux'
+        uses: sigstore/cosign-installer@v3
+
+      - name: Sign Linux AppImage with Sigstore
+        if: matrix.platform == 'linux'
+        shell: bash
+        run: cosign sign-blob --yes --bundle "$ASSET_PATH.sigstore.json" "$ASSET_PATH"
+
+      - name: Verify Linux AppImage Sigstore signature
+        if: matrix.platform == 'linux' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: >-
+          cosign verify-blob
+          --bundle "$ASSET_PATH.sigstore.json"
+          --certificate-identity-regexp '^https://github.com/nlr-devops/SolTrace/.github/workflows/gui-release.yml@refs/heads/main$'
+          --certificate-oidc-issuer https://token.actions.githubusercontent.com
+          "$ASSET_PATH"
+
+      - name: Verify macOS signature in release archive
+        if: matrix.platform == 'macos' && steps.apple-signing-secrets.outputs.available == 'true'
+        shell: bash
+        run: |
+          verify_dir="$RUNNER_TEMP/macos-signature-check"
+          mkdir -p "$verify_dir"
+          ditto -x -k "$ASSET_PATH" "$verify_dir"
+          app_path="$verify_dir/${APP_NAME}.app"
+          codesign --verify --deep --strict --verbose=4 "$app_path"
+          xcrun stapler validate "$app_path"
+          spctl --assess --type execute --verbose=4 "$app_path"
+
+      - name: Verify ad-hoc macOS signature in release archive
+        if: matrix.platform == 'macos' && steps.apple-signing-secrets.outputs.available != 'true'
+        shell: bash
+        run: |
+          verify_dir="$RUNNER_TEMP/macos-signature-check"
+          mkdir -p "$verify_dir"
+          ditto -x -k "$ASSET_PATH" "$verify_dir"
+          codesign --verify --deep --strict --verbose=4 "$verify_dir/${APP_NAME}.app"
 
       - name: Package Windows MSI
         if: matrix.msi_enabled == 'ON'
@@ -367,36 +494,90 @@ jobs:
           --package-version "${{ env.APP_VERSION }}"
           --upgrade-guid "${{ matrix.msi_upgrade_guid }}"
 
-      - name: Upload packaged workflow artifact
-        if: matrix.platform != 'windows'
+      - name: Stage verified release artifact
+        if: matrix.platform != 'windows' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          verified_dir="$RUNNER_TEMP/verified-release-artifact"
+          mkdir -p "$verified_dir"
+          cp "$ASSET_PATH" "$ASSET_PATH.sha256" "$verified_dir/"
+          if [[ "${{ matrix.platform }}" == "linux" ]]; then
+            cp "$ASSET_PATH.sigstore.json" "$verified_dir/"
+          fi
+
+      - name: Upload verified release artifact
+        if: matrix.platform != 'windows' && github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
-          path: ${{ env.ASSET_PATH }}
+          path: ${{ runner.temp }}/verified-release-artifact/
           if-no-files-found: error
 
-      # upload-artifact always creates a ZIP. Uploading our Windows ZIP would
-      # therefore produce a ZIP containing another ZIP in manual workflow runs.
-      # The staged tree is safe to archive directly on Windows; tagged releases
-      # still publish ASSET_PATH below as the intentionally packaged ZIP.
-      - name: Upload Windows workflow artifact contents
-        if: matrix.platform == 'windows'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.artifact_name }}
-          path: ${{ env.INSTALL_DIR }}
-          if-no-files-found: error
+      - name: Request MSI signing
+        if: matrix.msi_enabled == 'ON' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
+        shell: bash
+        env:
+          AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
+          AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
+          LOGICAPP_URL: ${{ secrets.SIGNING_LOGICAPP_URL }}
+          UNSIGNED_BLOB: unsigned/soltrace/${{ github.run_id }}/${{ matrix.msi_name }}
+        run: |
+          az storage blob upload \
+            --container-name "${{ env.SIGNING_CONTAINER }}" \
+            --account-name "${{ env.AZURE_STORAGE_ACCOUNT }}" \
+            --account-key "${{ env.AZURE_STORAGE_KEY }}" \
+            --file "$MSI_ASSET_PATH" \
+            --name "$UNSIGNED_BLOB" \
+            --overwrite
+          curl --fail --silent --show-error --location "$LOGICAPP_URL" \
+            --header 'Content-Type: application/json' \
+            --data "{\"blob\":\"$UNSIGNED_BLOB\",\"repository\":\"$GITHUB_REPOSITORY\",\"run_id\":\"$GITHUB_RUN_ID\"}"
 
-      - name: Upload Windows installer artifact
-        if: matrix.msi_enabled == 'ON'
+      - name: Wait for signed installer
+        if: matrix.msi_enabled == 'ON' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
+        shell: bash
+        env:
+          AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
+          AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
+          SIGNED_BLOB: signed/soltrace/${{ github.run_id }}/${{ matrix.msi_name }}
+        run: |
+          for attempt in $(seq 1 100); do
+            exists=$(az storage blob exists \
+              --container-name "${{ env.SIGNING_CONTAINER }}" \
+              --name "$SIGNED_BLOB" \
+              --query exists -o tsv)
+            if [ "$exists" = "true" ]; then
+              exit 0
+            fi
+            sleep 30
+          done
+          echo "::error::Timed out waiting for $SIGNED_BLOB"
+          exit 1
+
+      - name: Download signed installer
+        if: matrix.msi_enabled == 'ON' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
+        shell: bash
+        env:
+          AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
+          AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
+          SIGNED_BLOB: signed/soltrace/${{ github.run_id }}/${{ matrix.msi_name }}
+          SIGNED_PATH: ${{ github.workspace }}/${{ matrix.msi_name }}
+        run: |
+          az storage blob download \
+            --container-name "${{ env.SIGNING_CONTAINER }}" \
+            --name "$SIGNED_BLOB" \
+            --file "$SIGNED_PATH"
+
+      - name: Upload signed installer artifact
+        if: matrix.msi_enabled == 'ON' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name }}-Installer
-          path: ${{ env.MSI_ASSET_PATH }}
+          name: ${{ matrix.artifact_name }}-Installer-Signed
+          path: ${{ github.workspace }}/${{ matrix.msi_name }}
           if-no-files-found: error
 
       - name: Publish draft GitHub release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: matrix.platform != 'windows' && (matrix.platform != 'macos' || steps.apple-signing-secrets.outputs.available == 'true') && startsWith(github.ref, 'refs/tags/')
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
@@ -404,11 +585,33 @@ jobs:
           --tag "${{ github.ref_name }}"
           --asset "${{ env.ASSET_PATH }}"
 
-      - name: Publish Windows installer to draft release
+      - name: Publish Linux AppImage verification files
+        if: matrix.platform == 'linux' && startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          python -m scripts.release.release_tools publish \
+            --tag "${{ github.ref_name }}" \
+            --asset "${{ env.ASSET_PATH }}.sha256"
+          python -m scripts.release.release_tools publish \
+            --tag "${{ github.ref_name }}" \
+            --asset "${{ env.ASSET_PATH }}.sigstore.json"
+
+      - name: Publish macOS checksum
+        if: matrix.platform == 'macos' && steps.apple-signing-secrets.outputs.available == 'true' && startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          python -m scripts.release.release_tools publish
+          --tag "${{ github.ref_name }}"
+          --asset "${{ env.ASSET_PATH }}.sha256"
+
+      - name: Publish signed installer to draft release
         if: matrix.msi_enabled == 'ON' && startsWith(github.ref, 'refs/tags/')
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
           python -m scripts.release.release_tools publish
           --tag "${{ github.ref_name }}"
-          --asset "${{ env.MSI_ASSET_PATH }}"
+          --asset "${{ github.workspace }}/${{ matrix.msi_name }}"

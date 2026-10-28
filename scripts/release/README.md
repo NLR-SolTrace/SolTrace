@@ -15,13 +15,43 @@ The commands use only the Python standard library. Platform commands such as
 `otool`, `dumpbin`, `ditto`, `linuxdeploy`, and `gh` are invoked as subprocesses
 and must be available for the relevant command.
 
-The macOS release is ad-hoc signed only after all frameworks, libraries, and
-licenses have been staged. The signing command signs nested Mach-O code and
-bundles inside-out, then runs strict deep signature verification. This prevents
-the release pipeline from shipping invalid or partially signed code, but it
-does not establish publisher trust: Gatekeeper assessment still requires a
-Developer ID signature and Apple notarization. Consequently, `spctl --assess`
-is not treated as a passing check for the current ad-hoc artifact.
+When Apple signing secrets are configured, macOS artifacts from `main` and
+version tags are signed with a Developer ID Application certificate using the
+hardened runtime, submitted to Apple's notary service, stapled, and assessed
+with Gatekeeper before packaging. The app bundle is signed inside-out after
+runtime libraries and licenses are staged. Without those secrets, macOS builds
+fall back to ad-hoc signing and continue without notarization; tag publication
+is skipped in that case. Ad-hoc artifacts are intended only for local testing.
+
+Configure these GitHub Actions secrets for macOS release signing:
+
+- `MACOS_DEVELOPER_ID_P12`: Base64-encoded Developer ID Application certificate
+   exported as a `.p12` file.
+- `MACOS_DEVELOPER_ID_P12_PASSWORD`: Password used to export the certificate.
+- `MACOS_DEVELOPER_IDENTITY`: Exact signing identity listed by
+   `security find-identity -v -p codesigning`, including the team identifier.
+- `APP_STORE_CONNECT_API_KEY`: Contents of the App Store Connect API `.p8` key.
+- `APP_STORE_CONNECT_KEY_ID`: Key ID corresponding to that API key.
+- `APP_STORE_CONNECT_ISSUER_ID`: App Store Connect issuer ID.
+
+The App Store Connect API key is used only for notarization, not App Store
+submission. The certificate and key are imported or written only on the
+ephemeral macOS runner and are not included in the release artifact.
+
+macOS ZIPs and Linux AppImages are accompanied by SHA-256 checksums. Linux
+AppImages also have a keyless Sigstore signature bundle generated through
+GitHub Actions OIDC. Main-branch CI verifies the macOS bundle signature inside
+the ZIP and the Linux Sigstore signature before uploading the artifacts. For a
+Linux release, verify both files from the same release:
+
+```console
+sha256sum --check "$APPIMAGE.sha256"
+cosign verify-blob \
+   --bundle "$APPIMAGE.sigstore.json" \
+   --certificate-identity-regexp '^https://github.com/nlr-devops/SolTrace/.github/workflows/gui-release.yml@refs/(heads/main|tags/v.*)$' \
+   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+   "$APPIMAGE"
+```
 
 Run the portable unit tests with:
 
