@@ -564,7 +564,8 @@ jobs:
           az storage blob download \
             --container-name "${{ env.SIGNING_CONTAINER }}" \
             --name "$SIGNED_BLOB" \
-            --file "$SIGNED_PATH"
+            --file "$SIGNED_PATH" \
+            --overwrite true
 
       - name: Upload signed installer artifact
         if: matrix.msi_enabled == 'ON' && startsWith(github.ref, 'refs/tags/')
