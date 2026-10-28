@@ -1,6 +1,6 @@
 import ctypes
 
-from pysoltrace import dot_h, Point, soltrace_constants as _STC
+from pysoltrace import dot_h, Point, soltrace_structs as _STS
 from pysoltrace.api.utils import st_function
 from pysoltrace.api.dll import context
 
@@ -10,7 +10,7 @@ from pysoltrace.api.dll import context
 class sun(context):
     @st_function
     def add(self,
-            args: _STC.sun,
+            args: _STS.sun,
             angle: list[float] = [],
             intensity: list[float] = []) -> None:
         args.npoints = len(angle)
@@ -26,7 +26,7 @@ class sun(context):
                                     _intensity)
 
     @st_function
-    def get(self, npoints: int = 0) -> tuple[_STC.sun, list[float], list[float]]:
+    def get(self, npoints: int = 0) -> tuple[_STS.sun, list[float], list[float]]:
         args = dot_h.args_sun()
         expect_userdata = npoints > 0
         angle     = ctypes.cast((ctypes.c_double * npoints)(), ctypes.POINTER(ctypes.c_double)) \
@@ -86,8 +86,8 @@ class sun(context):
     @st_function
     def az_zen(self,
                calc: int,
-               loc:  _STC.sun_location,
-               dt:   _STC.sun_datetime) -> tuple[float, float]:
+               loc:  _STS.sun_location,
+               dt:   _STS.sun_datetime) -> tuple[float, float]:
         az  = ctypes.c_double()
         zen = ctypes.c_double()
         code = self._pdll.st_get_sun_az_zen(self._pcxt,
@@ -101,8 +101,8 @@ class sun(context):
     @st_function
     def az_el(self,
               calc: int,
-              loc:  _STC.sun_location,
-              dt:   _STC.sun_datetime) -> tuple[float, float]:
+              loc:  _STS.sun_location,
+              dt:   _STS.sun_datetime) -> tuple[float, float]:
         az = ctypes.c_double()
         el = ctypes.c_double()
         code = self._pdll.st_get_sun_az_el(self._pcxt,
@@ -116,8 +116,8 @@ class sun(context):
     @st_function
     def vector(self,
                calc: int,
-               loc:  _STC.sun_location,
-               dt:   _STC.sun_datetime) -> Point:
+               loc:  _STS.sun_location,
+               dt:   _STS.sun_datetime) -> Point:
         sun_x = ctypes.c_double()
         sun_y = ctypes.c_double()
         sun_z = ctypes.c_double()
