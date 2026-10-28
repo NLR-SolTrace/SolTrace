@@ -257,12 +257,12 @@ class _Sun:
 
     def Create(self, stapi: api, _do: bool = False):
         npoints = len(self.user_intensity_table)
-        args = _STS.sun(npoints,
-                        self.position.x,
+        args = _STS.sun(self.position.x,
                         self.position.y,
                         self.position.z,
                         self.sigma,
-                        self.shape[0].encode())
+                        self.shape[0].encode(),
+                        npoints)
 
         _angle     = []
         _intensity = []

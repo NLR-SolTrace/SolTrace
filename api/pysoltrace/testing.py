@@ -1,9 +1,6 @@
 import ctypes, unittest, os, sys
 from pathlib import Path
-
-# pysoltrace_path = Path(__file__).parent / 'pysoltrace'
-# sys.path.insert(1, str(pysoltrace_path))
-
+from datetime import datetime
 from math import sin, cos, pi, sqrt
 import orjson
 import numpy as np
@@ -413,9 +410,9 @@ class ConstantsTests(STAPIv2TestCase):
         self.assertEqual(geom_fields[3][1], c_geom_fields[3][1])
 
     def test_args_sun(self):
-        args = (0, 2, 2, 2, .5, b'b')
+        args = (2, 2, 2, .5, b'b') #0, 
         sun = _STS.sun(*args)
-        c_sun = dot_h.args_sun(*args)
+        c_sun = dot_h.args_sun(0, *args)
         self.assertStructEqual(sun.ctype, c_sun)
 
     def test_args_sun_location(self):
@@ -429,6 +426,13 @@ class ConstantsTests(STAPIv2TestCase):
         dt = _STS.sun_datetime(*args)
         c_dt = dot_h.args_sun_datetime(*args)
         self.assertStructEqual(dt.ctype, c_dt)
+
+    def test_sun_conversion(self):
+        dummy_dt = datetime(2026, 10, 28, 10, 30, 47)
+        dummy_st_dt = _STS.sun_datetime(2026, 10, 28, 10, 30, 47)
+
+        self.assertEqual(dummy_st_dt, _STS.sun_datetime.from_datetime(dummy_dt))
+        self.assertEqual(dummy_dt, dummy_st_dt.to_datetime())
 
 class ParametersTests(STAPIv2TestCase):
     def setUp(self):
@@ -803,7 +807,7 @@ class SunTests(STAPIv2TestCase):
         self.good_angles      = [0, 1, 2]
         self.good_intensities = [0, 1, 2]
         self.bad_intensities  = [0, -1]
-        self.args_sun = _STS.sun(3, 608, 303, 1000, 0, b'd')
+        self.args_sun = _STS.sun(608, 303, 1000, 0, b'd', 3)
 
         self.calc = dot_h.SolarPositionCalculationMethod.SPA
         self.loc = _STS.sun_location(40.0, -105.0, -7.0)
@@ -835,7 +839,7 @@ class SunTests(STAPIv2TestCase):
         self.stapi.data.sun.add(self.args_sun, self.good_angles, self.good_intensities)
 
     def test_get_sun(self):
-        sun_args = _STS.sun(0, 608, 303, 1000, .5, b'b')
+        sun_args = _STS.sun(608, 303, 1000, .5, b'b') # 0, 
         self.stapi.data.sun.add(sun_args)
 
         rt_sun_args, rt_angle, rt_intensity = self.stapi.data.sun.get()
@@ -1044,8 +1048,8 @@ class BatchTests(STAPIv2TestCase):
         # set up dummy values
         self.sim_params = _STS.simulation_parameters(35.962278, -106.5122622, 1, 100, .1, True, True, False)
 
-        self.args_sun_buie = _STS.sun(0, 2, 2, 2, .5, b'b')
-        self.args_sun_user = _STS.sun(3, 608, 303, 1000, 5, b' ')
+        self.args_sun_buie = _STS.sun(2, 2, 2, .5, b'b') # 0, 
+        self.args_sun_user = _STS.sun(608, 303, 1000, 5, b' ', 3)
         self.good_angles      = [0, 1, 2]
         self.good_intensities = [0, 1, 2]
         
@@ -1564,7 +1568,7 @@ class LegacyTests(STAPIv2TestCase):
         self.sun.position = Point(608, 303, 1000)
         self.sun.shape = 'b'
         self.sun.sigma = .5
-        self.sun_args = _STS.sun(0, 608, 303, 1000, .5, 'b'.encode())
+        self.sun_args = _STS.sun(608, 303, 1000, .5, 'b'.encode())
 
         # optical property set
         self.opt = self.legacy.add_optic('dummy')

@@ -1,4 +1,5 @@
 import ctypes
+from datetime import datetime
 from dataclasses import dataclass, field
 from pysoltrace import dot_h
 
@@ -6,6 +7,9 @@ def make_c_double_8(params: list[float]) -> ctypes.Array:
     assert isinstance(params, list), f'Expected a list, got {type(params)}'
     assert len(params) <= 8,         f'Expected at most 8 elements, got {len(params)}'
     return (ctypes.c_double * 8)(*params)
+
+ensure_bytes = lambda bytes_or_str: bytes(bytes_or_str) if not isinstance(bytes_or_str, bytes) else bytes_or_str
+"""ensure that a struct value that could be str is converted to bytes"""
 
 # reexport structs in constants so it can be used in type hinting
 class base_args:
@@ -39,7 +43,7 @@ class optical_properties_face(base_args):
     reflectivity:            float
     slope_error:             float
     specularity_error:       float
-    error_distribution_type: str
+    error_distribution_type: bytes
 
     @property
     def ctype(self):
@@ -47,21 +51,21 @@ class optical_properties_face(base_args):
                                                  self.reflectivity,
                                                  self.slope_error,
                                                  self.specularity_error,
-                                                 self.error_distribution_type)
+                                                 ensure_bytes(self.error_distribution_type))
 
 @dataclass
 class optical_properties_set(base_args):
-    name:                   str
+    name:                   bytes
     refraction_index_front: float
     refraction_index_back:  float
     type:                   int
 
     @property
     def ctype(self):
-        return dot_h.args_optical_properties_set(self.name,
-                                                  self.refraction_index_front,
-                                                  self.refraction_index_back,
-                                                  self.type)
+        return dot_h.args_optical_properties_set(ensure_bytes(self.name),
+                                                 self.refraction_index_front,
+                                                 self.refraction_index_back,
+                                                 self.type)
     
 @dataclass
 class element(base_args):
@@ -81,8 +85,6 @@ class element(base_args):
                                   self.zrot,
                                   self.enabled_flag,
                                   self.virtual_flag,
-                                #   self.ap,
-                                #   self.surf,
                                   self.group)
 
 @dataclass
@@ -101,12 +103,12 @@ class geometry(base_args):
 
 @dataclass
 class sun(base_args):
-    npoints:             int    # TODO: make this default 0
     x:                   float
     y:                   float
     z:                   float
     sigma_halfwidth_csr: float
     shape:               bytes
+    npoints:             int = 0
 
     @property
     def ctype(self):
@@ -149,3 +151,20 @@ class sun_datetime(base_args):
                                        self.hour,
                                        self.minute,
                                        self.second)
+
+    def to_datetime(self) -> datetime:
+        return datetime(self.year,
+                        self.month,
+                        self.day,
+                        self.hour,
+                        self.minute,
+                        self.second)
+
+    @staticmethod
+    def from_datetime(dt: datetime) -> sun_datetime:
+        return sun_datetime(dt.year,
+                            dt.month,
+                            dt.day,
+                            dt.hour,
+                            dt.minute,
+                            dt.second)
