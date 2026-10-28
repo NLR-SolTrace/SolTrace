@@ -4,8 +4,11 @@ on:
   # Manual runs are useful while iterating on packaging from a feature branch.
   workflow_dispatch:
   # Tag pushes are the release path. Assets are uploaded to a draft release
-  # named after the tag.
+  # named after the tag. Main pushes build artifacts for download without
+  # publishing a GitHub release.
   push:
+    branches:
+      - main
     tags:
       - "v*"
 
@@ -329,7 +332,7 @@ jobs:
 
       - name: Verify Apple signing secrets are configured
         id: apple-signing-secrets
-        if: matrix.platform == 'macos' && startsWith(github.ref, 'refs/tags/')
+        if: matrix.platform == 'macos' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
         shell: bash
         env:
           MACOS_DEVELOPER_ID_P12: ${{ secrets.MACOS_DEVELOPER_ID_P12 }}
@@ -447,12 +450,12 @@ jobs:
         run: cosign sign-blob --yes --bundle "$ASSET_PATH.sigstore.json" "$ASSET_PATH"
 
       - name: Verify Linux AppImage Sigstore signature
-        if: matrix.platform == 'linux' && startsWith(github.ref, 'refs/tags/')
+        if: matrix.platform == 'linux' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
         shell: bash
         run: >-
           cosign verify-blob
           --bundle "$ASSET_PATH.sigstore.json"
-          --certificate-identity-regexp '^https://github.com/nlr-devops/SolTrace/.github/workflows/gui-release.yml@refs/tags/.*$'
+          --certificate-identity-regexp '^https://github.com/nlr-devops/SolTrace/.github/workflows/gui-release.yml@refs/(tags/.*|heads/main)$'
           --certificate-oidc-issuer https://token.actions.githubusercontent.com
           "$ASSET_PATH"
 
@@ -493,7 +496,7 @@ jobs:
           --upgrade-guid "${{ matrix.msi_upgrade_guid }}"
 
       - name: Stage verified release artifact
-        if: startsWith(github.ref, 'refs/tags/')
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
         shell: bash
         run: |
           verified_dir="$RUNNER_TEMP/verified-release-artifact"
@@ -504,7 +507,7 @@ jobs:
           fi
 
       - name: Upload verified release artifact
-        if: startsWith(github.ref, 'refs/tags/')
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
@@ -512,7 +515,7 @@ jobs:
           if-no-files-found: error
 
       - name: Request MSI signing
-        if: matrix.msi_enabled == 'ON' && startsWith(github.ref, 'refs/tags/')
+        if: matrix.msi_enabled == 'ON' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
         shell: bash
         env:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
@@ -532,7 +535,7 @@ jobs:
             --data "{\"blob\":\"$UNSIGNED_BLOB\",\"repository\":\"$GITHUB_REPOSITORY\",\"run_id\":\"$GITHUB_RUN_ID\",\"run_attempt\":\"$GITHUB_RUN_ATTEMPT\"}"
 
       - name: Wait for signed installer
-        if: matrix.msi_enabled == 'ON' && startsWith(github.ref, 'refs/tags/')
+        if: matrix.msi_enabled == 'ON' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
         shell: bash
         env:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
@@ -553,7 +556,7 @@ jobs:
           exit 1
 
       - name: Download signed installer
-        if: matrix.msi_enabled == 'ON' && startsWith(github.ref, 'refs/tags/')
+        if: matrix.msi_enabled == 'ON' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
         shell: bash
         env:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
@@ -568,7 +571,7 @@ jobs:
             --overwrite true
 
       - name: Upload signed installer artifact
-        if: matrix.msi_enabled == 'ON' && startsWith(github.ref, 'refs/tags/')
+        if: matrix.msi_enabled == 'ON' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}-Installer-Signed
