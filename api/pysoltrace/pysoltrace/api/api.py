@@ -20,7 +20,7 @@ from pysoltrace.api.legacy import legacy
 from pysoltrace.api.batch import batch
 from pysoltrace.api.result import result
 
-def free(dll, pcxt, testing: bool = False):
+def _free_cxt(dll, pcxt, testing: bool = False):
     code = dll.st_free_context(pcxt)
     if not testing:
         sys.stdout.write(f'Freed context ({pcxt:#x}) with code ({code}) from SolTrace DLL ({dll})\n')
@@ -45,12 +45,13 @@ class STAPIv2:
                  'legacy',
                  '__pcxt',
                  '__pdll',
+                 '__testing',
                  '__benchmarking')
     
     def __init__(self, override_path: str = '', testing: bool = False, benchmarking: bool = False):
         self.__pdll, self.__pcxt = self.__create(override_path, testing)
 
-        atexit.register(free, self.__pdll, self.__pcxt, testing)
+        atexit.register(_free_cxt, self.__pdll, self.__pcxt, testing)
 
         self.parameters = parameters(self.__pdll, self.__pcxt)
         self.data       = data(self.__pdll, self.__pcxt)
@@ -59,6 +60,7 @@ class STAPIv2:
         self.batch      = batch(self.__pdll, self.__pcxt)
         self.legacy     = legacy(self.__pdll, self.__pcxt)
 
+        self.__testing      = testing
         self.__benchmarking = benchmarking
 
     def __repr__(self):
@@ -92,6 +94,10 @@ class STAPIv2:
         check_return_code(code)
         if not self.__benchmarking:
             sys.stdout.write(f'Reset context ({self.__pcxt:#x})\n')
+
+    def free(self):
+        _free_cxt(self.__pdll, self.__pcxt, self.__testing)
+        atexit.unregister(_free_cxt)
 
     @staticmethod
     def is_runner_installed(type: int) -> bool:

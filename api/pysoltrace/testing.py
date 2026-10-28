@@ -329,6 +329,10 @@ class STAPIv2TestCase(unittest.TestCase):
         self.stapi = api(testing=True)
         return super().setUp()
 
+    def tearDown(self):
+        self.stapi.free()
+        return super().tearDown()
+
     def assertStructEqual(self, value, check):
         for field in value._fields_:
             self.assertEqual(getattr(value, field[0]),
