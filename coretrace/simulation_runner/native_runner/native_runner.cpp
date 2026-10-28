@@ -27,7 +27,7 @@ namespace SolTrace::NativeRunner
 {
 
     NativeRunner::NativeRunner() : SimulationRunner(),
-                                   as_power_tower(false),
+                                   as_power_tower(-1),
                                    number_of_threads(1),
                                    ready_to_run(false),
                                    ready_to_report(false)
@@ -79,7 +79,8 @@ namespace SolTrace::NativeRunner
         this->tsys.sim_raycount = sim_params.number_of_rays;
         this->tsys.sim_raymax = sim_params.max_number_of_rays;
         this->tsys.seed = sim_params.seed;
-        this->as_power_tower = sim_params.as_power_tower;
+        if (this->as_power_tower == -1)
+            this->as_power_tower = (int8_t)sim_params.as_power_tower;
         return RunnerStatus::SUCCESS;
     }
 
@@ -322,7 +323,7 @@ namespace SolTrace::NativeRunner
             this->tsys.sim_raymax,
             this->tsys.sim_errors_sunshape,
             this->tsys.sim_errors_optical,
-            this->as_power_tower);
+            (bool)this->as_power_tower);
         
         if (sts == RunnerStatus::SUCCESS) this->set_ready_to_report(true);
 

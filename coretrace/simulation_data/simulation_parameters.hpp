@@ -57,6 +57,7 @@ public:
         this->latitude = jnode.at("latitude");
         this->longitude = jnode.at("longitude");
         this->seed = jnode.at("seed");
+        if (jnode.contains("as_power_tower")) this->as_power_tower = jnode.at("as_power_tower");
     }
     ~SimulationParameters() {}
 
