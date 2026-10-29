@@ -14,6 +14,11 @@ set(GUI_UNIT_TEST_SRC
     ../../../gui/src/data_io/database_export.cpp
     ../../../gui/src/data_io/database_notification.cpp
     ../../../gui/src/modules/database_module.cpp
+    ../../../gui/src/scripting/script_db_interface.cpp
+    ../../../gui/src/scripting/script_executor.cpp
+    ../../../gui/src/scripting/script_executor.h
+    ../../../gui/src/scripting/script_references.cpp
+    ../../../gui/src/scripting/script_references.h
     ../../../gui/src/support/asynctask.cpp
     ../../../gui/src/support/euler_angles.cpp
     ../../../gui/src/support/euler_angles.h
@@ -23,6 +28,11 @@ set(GUI_UNIT_TEST_SRC
     database_module_test.cpp
     database_roundtrip_test.cpp
     euler_angles_test.cpp
+    hierarchy_test.cpp
+    heliostat_template_test.cpp
+    script_executor_test.cpp
+    script_references_test.cpp
+    tag_test.cpp
 )
 
 add_executable(GUIUnitTests

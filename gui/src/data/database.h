@@ -76,6 +76,7 @@ public:
     ComponentAPIUpdate<VirtualTagComponent> virtual_tag;
     ComponentAPI<ChildOfComponent>          parent;
     ComponentAPI<TagComponent>              tag_root;
+    ComponentAPIUpdate<HiddenTagComponent>  hidden_tag;
 
     ComponentAPI<ElementComponent> element_tag;
 
@@ -117,8 +118,13 @@ public:
     /// Clear the active parent of an entity
     void unset_parent(entt::entity child);
 
-    /// Set the parent of an entity
-    void set_parent(entt::entity child, entt::entity parent);
+    /// Return whether assigning parent to child would produce a valid element
+    /// hierarchy.
+    bool can_set_parent(Entity child, Entity parent) const;
+
+    /// Set the parent of an entity. Returns false when the relationship is
+    /// invalid or would introduce a hierarchy cycle.
+    bool set_parent(entt::entity child, entt::entity parent);
 
     /// Get the list of children of this entity. Returns an empty list if there
     /// are none.
@@ -139,11 +145,15 @@ public:
     /// Remove an entity from a geometry group
     void remove_geometry(entt::entity child);
 
-    /// Create a new tag. Note that tag names should be unique.
+    /// Create a new tag with a sanitized, unique name.
 
     QString sanitize_tag_name(QString);
 
-    entt::entity create_tag(QString name);
+    entt::entity create_tag(QString name, bool hidden = false);
+
+    /// Query or change whether a tag is hidden from user-facing tag models.
+    bool is_hidden_tag(Entity tag) const;
+    void set_tag_hidden(Entity tag, bool hidden);
 
     /// Ask if an entity has been given a tag
     bool is_tagged(Entity item, Entity tag) const;
@@ -159,6 +169,9 @@ public:
 
     /// Get all the tags for an entity
     std::span<Entity const> tags_for(entt::entity item) const;
+
+    /// Get all valid entities assigned to a tag.
+    QVector<Entity> tagged_with(Entity tag) const;
 
     /// Get the global ray source of the database
     SD::ray_source_ptr get_ray_source() const;

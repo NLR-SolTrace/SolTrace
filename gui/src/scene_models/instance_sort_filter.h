@@ -41,6 +41,9 @@ public slots:
     /// Return the visible row for an entity, or -1 when it is filtered out.
     int index_of(Entity entity) const;
 
+    /// Return the visible proxy index for an entity, including nested rows.
+    QModelIndex index_for_entity(Entity entity) const;
+
     /// Clear the material-group filter.
     void clear_material();
 

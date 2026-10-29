@@ -32,6 +32,9 @@ void InstanceSortFilter::update_geometry_name(Entity entity) {
 InstanceSortFilter::InstanceSortFilter(QObject* parent)
     : QSortFilterProxyModel(parent) {
 
+    setRecursiveFilteringEnabled(true);
+    setAutoAcceptChildRows(true);
+
     connect(this,
             &InstanceSortFilter::geometry_filter_changed,
             this,
@@ -123,21 +126,21 @@ void InstanceSortFilter::reset(Database* database) {
 }
 
 int InstanceSortFilter::index_of(Entity entity) const {
-    if (!sourceModel() or !entity.is_valid()) return -1;
+    auto const model_index = index_for_entity(entity);
+    return model_index.isValid() ? model_index.row() : -1;
+}
 
-    for (int source_row = 0; source_row < sourceModel()->rowCount();
-         ++source_row) {
-        auto const source_index = sourceModel()->index(source_row, 0);
-        auto const candidate =
-            sourceModel()->data(source_index, entity_role).value<Entity>();
+QModelIndex InstanceSortFilter::index_for_entity(Entity entity) const {
+    if (!sourceModel() || !entity.is_valid()) return { };
 
-        if (candidate != entity) continue;
-
-        auto const proxy_index = mapFromSource(source_index);
-        return proxy_index.isValid() ? proxy_index.row() : -1;
-    }
-
-    return -1;
+    auto const matches = sourceModel()->match(sourceModel()->index(0, 0),
+                                               entity_role,
+                                               QVariant::fromValue(entity),
+                                               1,
+                                               Qt::MatchExactly |
+                                                   Qt::MatchRecursive);
+    if (matches.isEmpty()) return { };
+    return mapFromSource(matches.front());
 }
 
 void InstanceSortFilter::clear_material() {

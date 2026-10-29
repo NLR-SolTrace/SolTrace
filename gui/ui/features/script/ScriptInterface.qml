@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Controls.Material
-import QtQuick.Effects
 import QtQuick.Layouts
 import QtQuick.Dialogs
 
@@ -14,10 +13,36 @@ STScrollView {
     id: root
 
     property var module: AppData.script
+    property string sourceLabel: qsTr("No source")
+    property bool sourceModified: false
+    readonly property string displaySourceLabel: sourceModified
+                                                 ? sourceLabel + qsTr(" · Modified")
+                                                 : sourceLabel
+
+    readonly property string starterScript: `/*{
+  "schema_version": 1,
+  "title": "New Script",
+  "description": "Describe what this script creates or changes.",
+  "parameters": []
+}*/
+
+console.log("Script complete.")
+`
 
     contentWidth: availableWidth
 
-    function load_script(url) {
+    function friendlyName(path) {
+        const fileName = String(path).split("/").pop().replace(/\.js$/i, "")
+        return fileName.replace(/[_-]+/g, " ")
+                       .replace(/\b\w/g, letter => letter.toUpperCase())
+    }
+
+    function displayPath(url) {
+        const value = decodeURIComponent(String(url))
+        return value.split("/").pop() || value
+    }
+
+    function load_script(url, label) {
         const requestUrl = String(url).startsWith(":/")
                          ? "qrc" + String(url)
                          : url
@@ -28,6 +53,8 @@ STScrollView {
             if (request.readyState === XMLHttpRequest.DONE) {
                 if (request.status === 0 || request.status === 200) {
                     root.module.code = request.responseText
+                    root.sourceLabel = label || root.displayPath(url)
+                    root.sourceModified = false
                 } else {
                     console.warn("Unable to load script", requestUrl, request.status)
                     root.module.notify_error("Could not load the script.")
@@ -35,6 +62,24 @@ STScrollView {
             }
         }
         request.send()
+    }
+
+    function newScript() {
+        root.sourceLabel = qsTr("Unsaved script")
+        root.sourceModified = false
+        root.module.code = root.starterScript
+        script_editor.open()
+    }
+
+    function outputText() {
+        const lines = []
+        for (let index = 0; index < output_model.count; ++index)
+            lines.push(output_model.get(index).message)
+        return lines.join("\n")
+    }
+
+    function copyOutput() {
+        AppData.copy_text_to_clipboard(outputText())
     }
 
     function pathToFileUrl(path) {
@@ -127,17 +172,37 @@ STScrollView {
 
             title: "Source"
             collapsible: true
+            columns: 1
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 2
+
+                Label {
+                    Layout.fillWidth: true
+                    text: root.module.title.length
+                          ? root.module.title : qsTr("No script loaded")
+                    font.bold: true
+                    elide: Label.ElideRight
+                }
+
+                Label {
+                    Layout.fillWidth: true
+                    text: root.displaySourceLabel
+                    opacity: 0.65
+                    elide: Label.ElideMiddle
+                }
+            }
 
             RowLayout {
-                uniformCellSizes: true
-
                 Layout.fillWidth: true
-                Layout.columnSpan: 2
+                spacing: 6
 
                 STButton {
                     Layout.fillWidth: true
 
                     text: "New"
+                    onClicked: root.newScript()
                 }
 
                 STButton {
@@ -165,8 +230,8 @@ STScrollView {
 
                                 delegate: MenuItem {
                                     implicitWidth: 140
-                                    text: modelData.replace(":/assets/scripts/", "")
-                                    onTriggered: root.load_script(modelData)
+                                    text: root.friendlyName(modelData)
+                                    onTriggered: root.load_script(modelData, text)
                                 }
                                 onObjectAdded: (index, object) => recents_menu.insertItem(index, object)
                                 onObjectRemoved: (index, object) => recents_menu.removeItem(object)
@@ -180,7 +245,7 @@ STScrollView {
                             var str_file = String(selectedFile)
 
                             currentFolder = str_file.substring(0, str_file.lastIndexOf("/"))
-                            root.load_script(str_file)
+                            root.load_script(str_file, root.displayPath(str_file))
                         }
                     }
                 }
@@ -194,6 +259,59 @@ STScrollView {
 
                     ScriptEditor {
                         id: script_editor
+                        sourceLabel: root.displaySourceLabel
+                        onChangesApplied: root.sourceModified = true
+                    }
+                }
+
+                STIconButton {
+                    icon: "\uf02d"
+                    toolTip: qsTr("Show Script API")
+                    onClicked: api_popup.open()
+                }
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                implicitHeight: validation_content.implicitHeight + 12
+                radius: 8
+                color: root.module.valid
+                       ? Qt.rgba(0.25, 0.75, 0.4, 0.10)
+                       : Qt.rgba(0.9, 0.25, 0.25, 0.10)
+                visible: root.module.code.length > 0
+
+                RowLayout {
+                    id: validation_content
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.margins: 6
+                    spacing: 8
+
+                    Label {
+                        text: root.module.valid ? "\uf058" : "\uf071"
+                        font.family: "Font Awesome 7 Free"
+                        color: root.module.valid
+                               ? Material.color(Material.Green)
+                               : Material.color(Material.Red)
+                    }
+
+                    Label {
+                        Layout.fillWidth: true
+                        text: root.module.valid
+                              ? qsTr("Ready to run")
+                              : root.module.parse_errors.join("\n")
+                        color: root.module.valid
+                               ? Material.foreground
+                               : Material.color(Material.Red)
+                        wrapMode: Label.WrapAtWordBoundaryOrAnywhere
+                    }
+
+                    STIconButton {
+                        visible: !root.module.valid
+                        icon: "\uf304"
+                        toolTip: qsTr("Edit Script")
+                        onClicked: script_editor.open()
                     }
                 }
             }
@@ -204,63 +322,42 @@ STScrollView {
 
             title: "Parameters"
             collapsible: true
-
-            Label {
-                Layout.fillWidth: true
-                Layout.columnSpan: 2
-
-                Layout.row: 0
-
-                elide: Label.ElideRight
-
-                property bool has_title: root.module.title.length
-
-                text: has_title ? root.module.title : "Available script parameters will appear here."
-                font.bold: has_title
-            }
+            columns: 1
 
             Label {
                 visible: root.module.description.length
                 Layout.fillWidth: true
-                Layout.columnSpan: 2
-
-                Layout.row: 1
 
                 wrapMode: Label.WrapAtWordBoundaryOrAnywhere
                 text: root.module.description
             }
 
-            Repeater {
-                id: label_repeater
-                model: root.module.properties
-
-                delegate: STPropertyLabel {
-                    required property string name
-                    required property int index
-
-                    Layout.column: 0
-                    Layout.row: index + 2
-                    Layout.fillWidth: true
-                    text: name
-                }
+            Label {
+                visible: parameter_list.count === 0
+                Layout.fillWidth: true
+                text: root.module.valid
+                      ? qsTr("This script has no parameters.")
+                      : qsTr("Valid script parameters will appear here.")
+                opacity: 0.65
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Label.WrapAtWordBoundaryOrAnywhere
             }
 
-            Repeater {
+            ListView {
+                id: parameter_list
+
+                visible: count > 0
+                Layout.fillWidth: true
+                Layout.preferredHeight: Math.min(contentHeight, 6 * 76)
+
                 model: root.module.properties
+                clip: true
+                spacing: 4
 
-                delegate: STTextField {
-                    required property string value
-                    required property int index
-                    required property var model
+                ScrollBar.vertical: STScrollBar { }
 
-                    Layout.column: 1
-                    Layout.row: index + 2
-                    Layout.fillWidth: true
-
-                    text: value
-
-                    onAccepted: model.value = text
-                    onTextEdited: model.value = text
+                delegate: ScriptParameterDelegate {
+                    width: Math.max(0, ListView.view.width - 8)
                 }
             }
         }
@@ -268,43 +365,46 @@ STScrollView {
         STPropertyPanel {
             Layout.fillWidth: true
             title: "Execute"
+            columns: 1
 
-            RowLayout {
+            STFormRow {
                 Layout.fillWidth: true
-                Layout.columnSpan: 2
+                label: qsTr("Working directory")
 
-
-                STTextField {
+                RowLayout {
                     Layout.fillWidth: true
-                    text: root.module.working_directory
 
-                    onAccepted: root.module.working_directory = text
-                    onTextEdited: root.module.working_directory = text
-                }
+                    STTextField {
+                        Layout.fillWidth: true
+                        text: root.module.working_directory
 
-                // The icon button bounds do not match the visual frame here.
-                STIconButton {
-                    icon: "\uf07c"
-                    toolTip: "Select Working Directory"
-                    onClicked: workingDirectoryDialog.open()
+                        onAccepted: root.module.working_directory = text
+                        onTextEdited: root.module.working_directory = text
+                    }
 
+                    STIconButton {
+                        icon: "\uf07c"
+                        toolTip: qsTr("Select Working Directory")
+                        onClicked: workingDirectoryDialog.open()
 
-                    FolderDialog {
-                        id: workingDirectoryDialog
-                        currentFolder: root.pathToFileUrl(root.module.working_directory)
+                        FolderDialog {
+                            id: workingDirectoryDialog
+                            currentFolder: root.pathToFileUrl(
+                                               root.module.working_directory)
 
-                        onAccepted: {
-                            const value = String(selectedFolder)
-                            root.module.working_directory =
-                                    decodeURIComponent(value.replace(/^file:\/\//, ""))
+                            onAccepted: {
+                                const value = String(selectedFolder)
+                                root.module.working_directory = decodeURIComponent(
+                                            value.replace(/^file:\/\//, ""))
+                            }
                         }
                     }
                 }
             }
 
             STButton {
-                text: "Run"
-                Layout.columnSpan: 2
+                text: qsTr("Run Script")
+                left_text_icon: "\uf04b"
                 Layout.fillWidth: true
 
                 enabled: root.module.valid
@@ -323,50 +423,95 @@ STScrollView {
 
             title: "Output"
             collapsible: true
+            columns: 1
 
-            ListView {
+            RowLayout {
                 Layout.fillWidth: true
-                Layout.columnSpan: 2
+                visible: output_model.count > 0
 
-                Layout.preferredHeight: 150
+                Item { Layout.fillWidth: true }
 
-                model: output_model
-                clip: true
-
-                ScrollBar.vertical: STScrollBar { }
-
-                delegate: Label {
-                    required property string message
-                    required property int type
-
-                    width: ListView.view.width
-                    height: implicitHeight
-
-                    text: message
-
-                    wrapMode: Label.WrapAtWordBoundaryOrAnywhere
-
-                    color: {
-                        switch (type) {
-                        case 0: Material.foreground; break;
-                        case 1: Material.color(Material.Yellow); break;
-                        case 2: Material.color(Material.Red); break;
-                        }
-                    }
+                STIconButton {
+                    icon: "\uf0c5"
+                    toolTip: qsTr("Copy All Output")
+                    onClicked: root.copyOutput()
                 }
 
-                onCountChanged: positionViewAtEnd()
+                STIconButton {
+                    icon: "\uf2ed"
+                    toolTip: qsTr("Clear Output")
+                    onClicked: output_model.clear()
+                }
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 160
+                radius: 8
+                color: Qt.rgba(0, 0, 0, 0.12)
+                border.width: 1
+                border.color: Material.dividerColor
+
+                ListView {
+                    id: output_list
+                    anchors.fill: parent
+                    anchors.margins: 8
+
+                    model: output_model
+                    clip: true
+                    spacing: 4
+
+                    ScrollBar.vertical: STScrollBar { }
+
+                    delegate: RowLayout {
+                        id: output_row
+
+                        required property string message
+                        required property int type
+
+                        width: ListView.view.width
+                        spacing: 6
+
+                        Label {
+                            Layout.alignment: Qt.AlignTop
+                            text: output_row.type === 2 ? "\uf057"
+                                                       : output_row.type === 1
+                                                         ? "\uf071" : "\uf05a"
+                            font.family: "Font Awesome 7 Free"
+                            color: output_row.type === 2
+                                   ? Material.color(Material.Red)
+                                   : output_row.type === 1
+                                     ? Material.color(Material.Yellow)
+                                     : Material.foreground
+                        }
+
+                        Label {
+                            Layout.fillWidth: true
+                            text: output_row.message
+                            wrapMode: Label.WrapAtWordBoundaryOrAnywhere
+
+                            color: output_row.type === 2
+                                   ? Material.color(Material.Red)
+                                   : output_row.type === 1
+                                     ? Material.color(Material.Yellow)
+                                     : Material.foreground
+                        }
+                    }
+
+                    onCountChanged: positionViewAtEnd()
+
+                    Label {
+                        anchors.centerIn: parent
+                        width: parent.width - 24
+                        visible: output_model.count === 0
+                        text: qsTr("Script output will appear here.")
+                        opacity: 0.55
+                        horizontalAlignment: Text.AlignHCenter
+                        wrapMode: Label.WrapAtWordBoundaryOrAnywhere
+                    }
+                }
             }
         }
 
-        STIconButton {
-            Layout.alignment: Qt.AlignRight
-            Layout.rightMargin: 6
-
-            icon: "\uf02d"
-            label: "Script API"
-            toolTip: "Show Script API"
-            onClicked: api_popup.open()
-        }
     }
 }

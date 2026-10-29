@@ -62,6 +62,42 @@ static void tf_destroy_callback(entt::registry& reg, entt::entity entity) {
         reg, entity, compute_global_without_local_transform(reg, entity));
 }
 
+/// Keep the per-tag reverse storage in sync even when an entity is destroyed
+/// through a path that does not explicitly know about tags.
+static void tag_membership_destroy_callback(entt::registry& reg,
+                                            entt::entity    entity) {
+    auto const* membership = reg.try_get<TagMembershipComponent>(entity);
+    if (!membership) return;
+
+    for (auto tag : membership->tags) {
+        auto& storage = reg.storage<ATagMemberComponent>(
+            entt::to_integral(tag.value));
+        if (storage.contains(entity)) { storage.erase(entity); }
+    }
+}
+
+/// Removing a tag through the registry directly must not leave stale forward
+/// memberships on its former members.
+static void tag_destroy_callback(entt::registry& reg, entt::entity tag) {
+    QVector<entt::entity> members;
+    for (auto const& [entity, membership] :
+         reg.view<TagMembershipComponent>().each()) {
+        if (membership.tags.contains(Entity(tag))) { members.push_back(entity); }
+    }
+
+    for (auto member : std::as_const(members)) {
+        reg.patch<TagMembershipComponent>(
+            member, [tag](TagMembershipComponent& membership) {
+                erase(membership.tags, Entity(tag));
+            });
+        if (reg.get<TagMembershipComponent>(member).tags.isEmpty()) {
+            reg.remove<TagMembershipComponent>(member);
+        }
+    }
+
+    reg.reset(entt::to_integral(tag));
+}
+
 Database::Database(QString database_name, QObject* p)
     : QObject(p),
       m_registry(),
@@ -73,6 +109,7 @@ Database::Database(QString database_name, QObject* p)
       virtual_tag(m_registry),
       parent(m_registry),
       tag_root(m_registry),
+      hidden_tag(m_registry),
       element_tag(m_registry),
       material_root(m_registry),
       material_parameters(m_registry),
@@ -95,6 +132,10 @@ Database::Database(QString database_name, QObject* p)
         .template connect<&tf_change_callback>();
     m_registry.on_destroy<TransformComponent>()
         .template connect<&tf_destroy_callback>();
+    m_registry.on_destroy<TagMembershipComponent>()
+        .template connect<&tag_membership_destroy_callback>();
+    m_registry.on_destroy<TagComponent>()
+        .template connect<&tag_destroy_callback>();
 
     database_name_resource.set(DatabaseNameResource { .name = database_name });
 
@@ -108,6 +149,7 @@ Database::Database(QString database_name, QObject* p)
         &virtual_tag,
         &parent,
         &tag_root,
+        &hidden_tag,
         &element_tag,
         &material_root,
         &material_parameters,
@@ -191,6 +233,7 @@ bool Database::valid(entt::entity e) const {
 }
 
 void Database::unset_parent(entt::entity child) {
+    if (!m_registry.valid(child)) return;
 
     auto child_comp = m_registry.try_get<ChildOfComponent>(child);
 
@@ -215,11 +258,36 @@ void Database::unset_parent(entt::entity child) {
     update_global_transform_subtree(m_registry, child);
 }
 
-void Database::set_parent(entt::entity child, entt::entity parent) {
-    if (!m_registry.valid(parent) or !m_registry.valid(child)) {
-        qWarning() << "Invalid parent or child in set_parent";
-        return;
+bool Database::can_set_parent(Entity child, Entity parent) const {
+    if (!valid(child) || !valid(parent) || child == parent) return false;
+    if (!m_registry.all_of<ElementComponent>(child) ||
+        !m_registry.all_of<ElementComponent>(parent)) {
+        return false;
     }
+
+    std::unordered_set<Entity> visited;
+    auto                       cursor = parent;
+
+    while (cursor.is_valid() && visited.insert(cursor).second) {
+        if (cursor == child) return false;
+
+        auto const* relationship =
+            m_registry.try_get<ChildOfComponent>(cursor);
+        if (!relationship) return true;
+        cursor = relationship->parent;
+    }
+
+    // Reaching an invalid parent or a pre-existing loop means the hierarchy is
+    // already corrupt; do not attach more content to it.
+    return false;
+}
+
+bool Database::set_parent(entt::entity child, entt::entity parent) {
+    if (!can_set_parent(Entity(child), Entity(parent))) {
+        qWarning() << "Invalid or cyclic parent relationship" << child << parent;
+        return false;
+    }
+    if (parent_of(child) == parent) return true;
 
     // remove existing parent, if any
     unset_parent(child);
@@ -243,9 +311,12 @@ void Database::set_parent(entt::entity child, entt::entity parent) {
                                          ChildOfComponent { .parent = parent });
 
     update_global_transform_subtree(m_registry, child);
+    return true;
 }
 
 std::span<Entity const> Database::children_of(entt::entity parent) const {
+    if (!m_registry.valid(parent)) return { };
+
     auto parent_comp = m_registry.try_get<ChildrenComponent>(parent);
 
     if (!parent_comp) { return { }; }
@@ -257,7 +328,7 @@ entt::entity Database::parent_of(entt::entity child) const {
     if (!m_registry.valid(child)) return entt::null;
     auto* ptr = m_registry.try_get<ChildOfComponent>(child);
 
-    if (!ptr) return entt::null;
+    if (!ptr || !m_registry.valid(ptr->parent)) return entt::null;
 
     return ptr->parent;
 }
@@ -401,81 +472,119 @@ QString Database::sanitize_tag_name(QString name) {
     return sanitize_new_name<TagComponent>(m_registry, name, "Tag");
 }
 
-entt::entity Database::create_tag(QString name) {
+entt::entity Database::create_tag(QString name, bool hidden) {
     auto ret = m_registry.create();
 
     m_registry.emplace<TagComponent>(ret);
     m_registry.emplace<IdentityComponent>(ret,
-                                          IdentityComponent { .name = name });
+                                          IdentityComponent {
+                                              .name = sanitize_tag_name(name),
+                                          });
+    if (hidden) { m_registry.emplace<HiddenTagComponent>(ret); }
 
     return ret;
 }
 
-bool Database::is_tagged(Entity item, Entity tag) const {
-    if (auto* ptr = m_registry.try_get<TagMembershipComponent>(item); ptr) {
-        auto& t = ptr->tags;
+bool Database::is_hidden_tag(Entity tag) const {
+    return valid(tag) && m_registry.all_of<TagComponent, HiddenTagComponent>(tag);
+}
 
-        return std::find(t.begin(), t.end(), tag) != t.end();
+void Database::set_tag_hidden(Entity tag, bool hidden) {
+    if (!valid(tag) || !m_registry.all_of<TagComponent>(tag)) return;
+    if (is_hidden_tag(tag) == hidden) return;
+
+    if (hidden) {
+        hidden_tag.set(tag, HiddenTagComponent {});
+    } else {
+        hidden_tag.remove(tag);
+    }
+}
+
+bool Database::is_tagged(Entity item, Entity tag) const {
+    if (!valid(item) || !valid(tag) ||
+        !m_registry.all_of<TagComponent>(tag)) {
+        return false;
+    }
+
+    if (auto* ptr = m_registry.try_get<TagMembershipComponent>(item); ptr) {
+        auto const& tags = ptr->tags;
+
+        return std::find(tags.begin(), tags.end(), tag) != tags.end();
     }
     return false;
 }
 
 void Database::assign_tag(Entity item, Entity tag) {
-    if (!m_registry.all_of<TagComponent>(tag)) { return; }
-
-    if (is_tagged(item, tag)) return;
+    if (!valid(item) || !valid(tag) || item == tag ||
+        !m_registry.all_of<TagComponent>(tag)) {
+        return;
+    }
 
     auto& storage =
         m_registry.storage<ATagMemberComponent>(entt::to_integral(tag.value));
 
-    storage.emplace(item);
+    // Repair either side if an older or externally modified database has an
+    // incomplete membership relationship.
+    if (!storage.contains(item)) { storage.emplace(item); }
 
-    ::SolTrace::GUI::Data::emplace_patch<TagMembershipComponent>(
-        m_registry, item, [tag](TagMembershipComponent& tc) {
-            tc.tags.push_back(tag);
-        });
+    if (!is_tagged(item, tag)) {
+        ::SolTrace::GUI::Data::emplace_patch<TagMembershipComponent>(
+            m_registry, item, [tag](TagMembershipComponent& membership) {
+                membership.tags.push_back(tag);
+            });
+    }
 }
 
 void Database::unassign_tag(entt::entity item, entt::entity tag) {
-    if (!m_registry.all_of<TagComponent>(tag)) { return; }
-
-    if (!m_registry.all_of<TagMembershipComponent>(item)) { return; }
-
-    m_registry.patch<TagMembershipComponent>(
-        item,
-        [tag](TagMembershipComponent& tc) { erase(tc.tags, Entity(tag)); });
+    if (!m_registry.valid(item) || tag == entt::null) return;
 
     auto& storage =
         m_registry.storage<ATagMemberComponent>(entt::to_integral(tag));
 
     if (storage.contains(item)) { storage.erase(item); }
 
-    // if (storage.empty()) { reg.reset(entt::to_integral(tag)); }
+    if (!m_registry.all_of<TagMembershipComponent>(item)) return;
+
+    m_registry.patch<TagMembershipComponent>(
+        item, [tag](TagMembershipComponent& membership) {
+            erase(membership.tags, Entity(tag));
+        });
+
+    if (m_registry.get<TagMembershipComponent>(item).tags.isEmpty()) {
+        m_registry.remove<TagMembershipComponent>(item);
+    }
 }
 
 void Database::delete_tag(entt::entity tag) {
-    auto& storage =
-        m_registry.storage<ATagMemberComponent>(entt::to_integral(tag));
-
-    for (auto x : storage) {
-
-        m_registry.patch<TagMembershipComponent>(
-            x, [tag](TagMembershipComponent& comp) {
-                erase(comp.tags, Entity(tag));
-            });
-    }
-
-    m_registry.reset(entt::to_integral(tag));
-
+    if (!m_registry.valid(tag) || !m_registry.all_of<TagComponent>(tag)) return;
     m_registry.destroy(tag);
 }
 
 std::span<Entity const> Database::tags_for(entt::entity item) const {
+    if (!m_registry.valid(item)) return { };
+
     if (auto ptr = m_registry.try_get<TagMembershipComponent>(item); ptr) {
         return ptr->tags;
     }
 
     return { };
+}
+
+QVector<Entity> Database::tagged_with(Entity tag) const {
+    QVector<Entity> result;
+    if (!valid(tag) || !m_registry.all_of<TagComponent>(tag)) return result;
+
+    auto const* storage = m_registry.storage<ATagMemberComponent>(
+        entt::to_integral(tag.value));
+    if (!storage) return result;
+
+    result.reserve(static_cast<qsizetype>(storage->size()));
+    for (auto item : *storage) {
+        if (m_registry.valid(item) && is_tagged(item, tag)) {
+            result.push_back(item);
+        }
+    }
+    return result;
 }
 
 QString Database::name_of(Entity item) const {
@@ -600,12 +709,15 @@ SolTrace::GUI::Data::Entity Database::add_material_group(QString             new
     }
 
     auto ent = m_registry.create();
+    // Install parameters before announcing the group component. Models use
+    // MaterialGroupComponent construction as the signal that the group is
+    // complete and immediately attempt to read its parameters.
+    m_registry.emplace<MaterialComponent>(ent, params);
     m_registry.emplace<MaterialGroupComponent>(
         ent,
         MaterialGroupComponent {
             .members = QVector<Entity>(set.begin(), set.end()),
         });
-    m_registry.emplace<MaterialComponent>(ent, params);
 
     m_registry.emplace<IdentityComponent>(
         ent, IdentityComponent { .name = new_name });
@@ -713,12 +825,15 @@ SolTrace::GUI::Data::Entity Database::add_geometry_group(QString             new
     }
 
     auto ent = m_registry.create();
+    // WorldGeometryModel reacts synchronously to GeometryGroupComponent
+    // construction. Make the geometry readable before the group is exposed so
+    // it cannot cache an incomplete render record.
+    m_registry.emplace<GeometryComponent>(ent, params);
     m_registry.emplace<GeometryGroupComponent>(
         ent,
         GeometryGroupComponent {
             .members = QVector<Entity>(set.begin(), set.end()),
         });
-    m_registry.emplace<GeometryComponent>(ent, params);
 
     m_registry.emplace<IdentityComponent>(
         ent, IdentityComponent { .name = new_name });

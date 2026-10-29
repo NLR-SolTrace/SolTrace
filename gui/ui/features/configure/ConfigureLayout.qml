@@ -1,32 +1,33 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Controls.Material
-import QtQuick.Effects
 import QtQuick.Layouts
-import QtQuick.Dialogs
 import SolTrace
 
-InlineListEditor {
+InlineTreeEditor {
     id: root
 
     property var module: App.layout
 
-    property bool has_viewed_entity: module.viewed_element.is_valid()
-
-    model: has_viewed_entity ? module.filtered_child_model : module.filtered_root_elements_model
+    model: module.filtered_element_tree_model
+    selectedEntity: module.edited_element
     emptyListText: qsTr("No elements available")
     helpText: qsTr("Scene elements combine geometry, material, and placement. Select one above, or create one to build the scene.")
 
     function synchronizeSelection() {
         const entity = module.edited_element
         if (!entity || !entity.is_valid()) {
-            root.currentIndex = -1
             root.editing = false
             return
         }
 
-        root.currentIndex = root.model.index_of(entity)
         root.editing = true
+        root.revealEntity(entity)
+    }
+
+    function refreshTree() {
+        if (root.model.has_filter) root.expandAll()
+        Qt.callLater(root.synchronizeSelection)
     }
 
     onModelChanged: Qt.callLater(root.synchronizeSelection)
@@ -58,128 +59,24 @@ InlineListEditor {
         ignoreUnknownSignals: true
 
         function onLayoutChanged() {
-            Qt.callLater(root.synchronizeSelection)
+            root.refreshTree()
         }
 
         function onModelReset() {
-            Qt.callLater(root.synchronizeSelection)
+            root.refreshTree()
         }
 
         function onRowsInserted() {
-            Qt.callLater(root.synchronizeSelection)
+            root.refreshTree()
         }
 
         function onRowsRemoved() {
-            Qt.callLater(root.synchronizeSelection)
+            root.refreshTree()
         }
     }
 
-    onItemClicked: function(index, modelData) {
-        module.edited_element = modelData.entity
-    }
-
-    listHeader: RowLayout {
-        Breadcrumb {
-            Layout.fillWidth: true
-            Layout.margins: 3
-
-            onItemSelected: root.editing = true
-            onItemDeselected: root.clearSelection()
-        }
-
-        STIconButton {
-            icon: "\uf0b0"
-            toolTip: qsTr("Filter Elements")
-            onClicked: filter_popup.open()
-
-            STPopup {
-                id: filter_popup
-
-                GridLayout {
-                    columns: 3
-
-                    Label {
-                        Layout.fillWidth: true
-                        Layout.columnSpan: 3
-
-                        text: qsTr("Filter elements by:")
-                    }
-
-                    Label {
-                        text: qsTr("Material:")
-                    }
-
-                    STClickableLabel {
-                        Layout.fillWidth: true
-                        property string mat_name: root.model.material_filter_name
-                        text: mat_name.length ? mat_name : qsTr("All")
-
-                        onClicked: mat_pop.open()
-
-                        SelectItemPopup {
-                            id: mat_pop
-                            source_model: AppData.materials.materials_list
-
-                            onSelectedEntity: (entity) =>
-                                              root.model.material_filter = entity
-                        }
-                    }
-
-                    STIconButton {
-                        icon: "\uf0e2"
-                        enabled: root.model.material_filter.is_valid()
-                        opacity: enabled ? 1.0 : 0.4
-                        toolTip: qsTr("Clear Material Filter")
-                        onClicked: root.model.clear_material()
-                    }
-
-                    Label {
-                        text: qsTr("Geometry:")
-                    }
-
-                    STClickableLabel {
-                        Layout.fillWidth: true
-                        property string geo_name: root.model.geometry_filter_name
-                        text: geo_name.length ? geo_name : qsTr("All")
-
-                        onClicked: geo_pop.open()
-
-                        SelectItemPopup {
-                            id: geo_pop
-                            source_model: AppData.materials.geometry_list
-
-                            onSelectedEntity: (entity) =>
-                                              root.model.geometry_filter = entity
-                        }
-                    }
-
-                    STIconButton {
-                        icon: "\uf0e2"
-                        enabled: root.model.geometry_filter.is_valid()
-                        opacity: enabled ? 1.0 : 0.4
-                        toolTip: qsTr("Clear Geometry Filter")
-                        onClicked: root.model.clear_geometry()
-                    }
-
-                    STButton {
-                        text: qsTr("Reset All")
-
-                        onClicked: root.model.clear_all_filters()
-                    }
-                }
-            }
-        }
-
-        STIconButton {
-            id: clear_filter_button
-
-            visible: root.model.has_filter
-
-            icon: "\ue17b"
-            toolTip: qsTr("Clear Element Filters")
-
-            onClicked: root.model.clear_all_filters()
-        }
+    onItemClicked: function(entity) {
+        module.edited_element = entity
     }
 
     searchBar: STSearchField {
@@ -201,6 +98,81 @@ InlineListEditor {
             toolTip: root.searchVisible ? qsTr("Hide Search")
                                             : qsTr("Search Elements")
             onClicked: root.searchVisible = !root.searchVisible
+        }
+
+        STIconButton {
+            icon: root.model.has_filter ? "\ue17b" : "\uf0b0"
+            toolTip: root.model.has_filter ? qsTr("Edit or Clear Element Filters")
+                                           : qsTr("Filter Elements")
+            onClicked: filter_popup.open()
+
+            STPopup {
+                id: filter_popup
+
+                GridLayout {
+                    columns: 3
+
+                    Label {
+                        Layout.fillWidth: true
+                        Layout.columnSpan: 3
+                        text: qsTr("Filter elements by:")
+                    }
+
+                    Label { text: qsTr("Material:") }
+
+                    STClickableLabel {
+                        Layout.fillWidth: true
+                        property string mat_name: root.model.material_filter_name
+                        text: mat_name.length ? mat_name : qsTr("All")
+                        onClicked: mat_pop.open()
+
+                        SelectItemPopup {
+                            id: mat_pop
+                            source_model: AppData.materials.materials_list
+                            onSelectedEntity: (entity) =>
+                                                  root.model.material_filter = entity
+                        }
+                    }
+
+                    STIconButton {
+                        icon: "\uf0e2"
+                        enabled: root.model.material_filter.is_valid()
+                        opacity: enabled ? 1.0 : 0.4
+                        toolTip: qsTr("Clear Material Filter")
+                        onClicked: root.model.clear_material()
+                    }
+
+                    Label { text: qsTr("Geometry:") }
+
+                    STClickableLabel {
+                        Layout.fillWidth: true
+                        property string geo_name: root.model.geometry_filter_name
+                        text: geo_name.length ? geo_name : qsTr("All")
+                        onClicked: geo_pop.open()
+
+                        SelectItemPopup {
+                            id: geo_pop
+                            source_model: AppData.materials.geometry_list
+                            onSelectedEntity: (entity) =>
+                                                  root.model.geometry_filter = entity
+                        }
+                    }
+
+                    STIconButton {
+                        icon: "\uf0e2"
+                        enabled: root.model.geometry_filter.is_valid()
+                        opacity: enabled ? 1.0 : 0.4
+                        toolTip: qsTr("Clear Geometry Filter")
+                        onClicked: root.model.clear_geometry()
+                    }
+
+                    STButton {
+                        text: qsTr("Reset All")
+                        enabled: root.model.has_filter
+                        onClicked: root.model.clear_all_filters()
+                    }
+                }
+            }
         }
 
         Rectangle {
@@ -230,14 +202,14 @@ InlineListEditor {
             icon: "\uf0fe"
             label: ""
             toolTip: title
-            enabled: root.has_viewed_entity
+            enabled: root.module.edited_element.is_valid()
             opacity: enabled ? 1.0 : 0.4
 
             onCreateRequested: function(name) {
                 var new_name = AppData.current_database.sanitize_element_name(name)
                 var entity = AppData.current_database.add_element(
                             new_name,
-                            root.module.viewed_element
+                            root.module.edited_element
                             )
                 root.module.edited_element = entity
                 root.editing = true
@@ -305,26 +277,6 @@ InlineListEditor {
             icon: "\uf05b"
             toolTip: qsTr("Select Element From View")
             onClicked: App.view.mouse_mode = ViewModule.SelectElement
-        }
-    }
-
-    listDelegate: STItemDelegate {
-        text: itemModel ? itemModel.name : qsTr("No name")
-        highlighted: itemModel
-                     && itemModel.entity === root.module.edited_element
-
-        STIconButton {
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            visible: itemModel && itemModel.has_children
-            icon: "\uf802"
-            toolTip: qsTr("Open Children")
-
-            onClicked: {
-                root.module.viewed_element = itemModel.entity
-                root.module.clear_edited_element()
-                root.clearSelection()
-            }
         }
     }
 

@@ -40,6 +40,17 @@ static QString load_app_api_docs() {
     return QString::fromUtf8(file.readAll()).trimmed();
 }
 
+static QString load_reference_api_docs() {
+    QFile file(QStringLiteral(":/docs/script/refs_schema.md"));
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qCritical() << "Unable to load script reference docs from resource"
+                    << file.fileName() << file.errorString();
+        return {};
+    }
+
+    return QString::fromUtf8(file.readAll()).trimmed();
+}
+
 static QVector<FunctionExport> parse_exports(QString const& docs) {
     QVector<FunctionExport> ret;
     auto                    lines = docs.split('\n');
@@ -211,19 +222,131 @@ QJsonObject SchemaBuilder::build(ScriptDBInterface* iface, QString task) {
         }.to_object(),
     };
 
+    auto const refs_methods = QJsonArray {
+        FunctionRecord {
+            .name = QStringLiteral("scope"),
+            .desc = QStringLiteral(
+                "Open a shared, database-scoped reference namespace."),
+            .args = { { QStringLiteral("name"),
+                        QStringLiteral("string") } },
+            .return_type = QStringLiteral("ReferenceScope"),
+        }.to_object(),
+        FunctionRecord {
+            .name = QStringLiteral("scopes"),
+            .desc = QStringLiteral(
+                "Return namespaces that currently contain references."),
+            .return_type = QStringLiteral("[string]"),
+        }.to_object(),
+    };
+
+    auto const reference_scope_methods = QJsonArray {
+        FunctionRecord {
+            .name = QStringLiteral("single"),
+            .desc = QStringLiteral("Open a named one-entity reference."),
+            .args = { { QStringLiteral("name"),
+                        QStringLiteral("string") } },
+            .return_type = QStringLiteral("SingleReference"),
+        }.to_object(),
+        FunctionRecord {
+            .name = QStringLiteral("group"),
+            .desc = QStringLiteral("Open a named multi-entity reference."),
+            .args = { { QStringLiteral("name"),
+                        QStringLiteral("string") } },
+            .return_type = QStringLiteral("ReferenceGroup"),
+        }.to_object(),
+        FunctionRecord {
+            .name = QStringLiteral("single_names"),
+            .desc = QStringLiteral(
+                "Return populated single-reference names in the scope."),
+            .return_type = QStringLiteral("[string]"),
+        }.to_object(),
+        FunctionRecord {
+            .name = QStringLiteral("group_names"),
+            .desc = QStringLiteral(
+                "Return populated group-reference names in the scope."),
+            .return_type = QStringLiteral("[string]"),
+        }.to_object(),
+    };
+
+    auto const single_reference_methods = QJsonArray {
+        FunctionRecord {
+            .name = QStringLiteral("get"),
+            .desc = QStringLiteral(
+                "Return the referenced entity, or an invalid entity when "
+                "unset."),
+            .return_type = QStringLiteral("Entity"),
+        }.to_object(),
+        FunctionRecord {
+            .name = QStringLiteral("set"),
+            .desc = QStringLiteral(
+                "Replace the reference without deleting the previous "
+                "entity."),
+            .args = { { QStringLiteral("entity"),
+                        QStringLiteral("Entity") } },
+            .return_type = QStringLiteral("bool"),
+        }.to_object(),
+        FunctionRecord {
+            .name = QStringLiteral("clear"),
+            .desc = QStringLiteral(
+                "Remove the reference without deleting its entity."),
+            .return_type = QStringLiteral("bool"),
+        }.to_object(),
+    };
+
+    auto const reference_group_methods = QJsonArray {
+        FunctionRecord {
+            .name = QStringLiteral("entities"),
+            .desc = QStringLiteral("Return all valid entities in the group."),
+            .return_type = QStringLiteral("[Entity]"),
+        }.to_object(),
+        FunctionRecord {
+            .name = QStringLiteral("add"),
+            .desc = QStringLiteral("Add an entity idempotently."),
+            .args = { { QStringLiteral("entity"),
+                        QStringLiteral("Entity") } },
+            .return_type = QStringLiteral("bool"),
+        }.to_object(),
+        FunctionRecord {
+            .name = QStringLiteral("remove"),
+            .desc = QStringLiteral(
+                "Remove an entity reference without deleting the entity."),
+            .args = { { QStringLiteral("entity"),
+                        QStringLiteral("Entity") } },
+            .return_type = QStringLiteral("bool"),
+        }.to_object(),
+        FunctionRecord {
+            .name = QStringLiteral("contains"),
+            .desc = QStringLiteral("Test whether an entity is in the group."),
+            .args = { { QStringLiteral("entity"),
+                        QStringLiteral("Entity") } },
+            .return_type = QStringLiteral("bool"),
+        }.to_object(),
+        FunctionRecord {
+            .name = QStringLiteral("clear"),
+            .desc = QStringLiteral(
+                "Empty the group without deleting its entities."),
+            .return_type = QStringLiteral("bool"),
+        }.to_object(),
+    };
+
     return QJsonObject {
         { QStringLiteral("app"), QStringLiteral("SolTrace") },
         { QStringLiteral("runtime"),
           QJsonObject {
               { QStringLiteral("language"), QStringLiteral("javascript") },
               { QStringLiteral("global_objects"),
-                QJsonArray() << "db" << "sim" << "scenes" },
+                QJsonArray() << "db" << "refs" << "sim" << "scenes" },
           } },
 
         {
             QStringLiteral("api"),
             QJsonObject {
                 { QStringLiteral("db"), all_methods },
+                { QStringLiteral("refs"), refs_methods },
+                { QStringLiteral("ReferenceScope"), reference_scope_methods },
+                { QStringLiteral("SingleReference"),
+                  single_reference_methods },
+                { QStringLiteral("ReferenceGroup"), reference_group_methods },
                 { QStringLiteral("sim"), sim_methods },
                 { QStringLiteral("scenes"), scenes_methods },
             },
@@ -240,7 +363,7 @@ QString SchemaBuilder::build_markdown(ScriptDBInterface* iface, QString task) {
     QStringList lines;
     lines << QStringLiteral("# SolTrace Script API") << QString {}
           << QStringLiteral("Runtime: JavaScript")
-          << QStringLiteral("Global objects: db, sim, scenes");
+          << QStringLiteral("Global objects: db, refs, sim, scenes");
 
     if (!task.isEmpty()) {
         lines << QString {} << QStringLiteral("Task: %1").arg(task);
@@ -274,6 +397,9 @@ QString SchemaBuilder::build_markdown(ScriptDBInterface* iface, QString task) {
                           args.join(QStringLiteral(", ")), suffix)
               << QString {} << method[QStringLiteral("description")].toString();
     }
+
+    auto reference_docs = load_reference_api_docs();
+    if (!reference_docs.isEmpty()) { lines << QString {} << reference_docs; }
 
     auto app_docs = load_app_api_docs();
     if (!app_docs.isEmpty()) { lines << QString {} << app_docs; }

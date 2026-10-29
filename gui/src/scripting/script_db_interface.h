@@ -31,6 +31,9 @@ public:
     /// Update the base directory used by get_text_content/get_json_content.
     void update_working_directory(QString);
 
+signals:
+    void database_changed(SolTrace::GUI::Data::Database* database);
+
 public slots:
     /// Construct a 3-vector with all components set to value.
     QJsonArray vec3(double value);
@@ -109,6 +112,56 @@ public slots:
 
     /// Destroy an entity and its database-owned relationships.
     void destroy(SolTrace::GUI::Data::Entity entity);
+
+    /// Return an element's parent, or an invalid handle when top-level.
+    SolTrace::GUI::Data::Entity
+    get_parent(SolTrace::GUI::Data::Entity entity);
+
+    /// Return an element's immediate children.
+    QVector<SolTrace::GUI::Data::Entity>
+    get_children(SolTrace::GUI::Data::Entity entity);
+
+    /// Check whether a parent relationship would be valid and acyclic.
+    bool can_set_parent(SolTrace::GUI::Data::Entity child,
+                        SolTrace::GUI::Data::Entity parent);
+
+    /// Assign an element's parent.
+    bool set_parent(SolTrace::GUI::Data::Entity child,
+                    SolTrace::GUI::Data::Entity parent);
+
+    /// Make an element top-level.
+    bool clear_parent(SolTrace::GUI::Data::Entity child);
+
+    /// Return all user-visible tags in the database.
+    QVector<SolTrace::GUI::Data::Entity> get_all_tags();
+
+    /// Create a user-visible tag with a sanitized, unique name.
+    SolTrace::GUI::Data::Entity create_tag(QString name);
+
+    /// Return an exact-name visible tag, creating it when absent.
+    SolTrace::GUI::Data::Entity ensure_tag(QString name);
+
+    /// Find an exact-name visible tag.
+    SolTrace::GUI::Data::Entity find_tag(QString name);
+
+    /// Return the visible tags assigned to an entity.
+    QVector<SolTrace::GUI::Data::Entity>
+    get_tags(SolTrace::GUI::Data::Entity entity);
+
+    /// Return the entities assigned to a visible tag.
+    QVector<SolTrace::GUI::Data::Entity>
+    get_tagged(SolTrace::GUI::Data::Entity tag);
+
+    /// Assign an entity to a visible tag.
+    bool assign_tag(SolTrace::GUI::Data::Entity entity,
+                    SolTrace::GUI::Data::Entity tag);
+
+    /// Remove an entity from a visible tag.
+    bool unassign_tag(SolTrace::GUI::Data::Entity entity,
+                      SolTrace::GUI::Data::Entity tag);
+
+    /// Delete a visible tag without deleting its members.
+    bool delete_tag(SolTrace::GUI::Data::Entity tag);
 
     /// Check whether an entity is valid in the current database.
     bool valid(SolTrace::GUI::Data::Entity entity);

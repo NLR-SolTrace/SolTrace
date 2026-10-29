@@ -194,6 +194,10 @@ void AppData::copy_build_info_to_clipboard() {
         Support::ANotification::info("Copied build info to clipboard."));
 }
 
+void AppData::copy_text_to_clipboard(QString text) {
+    QGuiApplication::clipboard()->setText(std::move(text));
+}
+
 AppData::~AppData() {
     AppSettings::save_session(*this);
 }

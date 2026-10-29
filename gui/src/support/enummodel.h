@@ -34,6 +34,8 @@ struct QRangeModel::RowOptions<SolTrace::GUI::Support::EnumModelRecord> {
 
 namespace SolTrace::GUI::Support {
 
+// TODO: Might be a good idea to move all our models to the range model.
+
 template <class E, E... Excluded>
 class EnumModel : public QRangeModel {
     static_assert(std::is_enum_v<E>);

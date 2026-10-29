@@ -483,34 +483,11 @@ SolTrace::GUI::Data::Entity AnInstanceEditor::parent() const {
 void AnInstanceEditor::set_parent(SolTrace::GUI::Data::Entity newParent) {
     if (parent() == newParent) return;
 
-    if (newParent == m_entity) {
-        emit notify(
-            ANotification::error("An element cannot be its own parent."));
+    if (!m_host || !m_host->set_parent(m_entity, newParent)) {
+        emit notify(ANotification::error(
+            "That parent would create an invalid element hierarchy."));
         return;
     }
-
-    // Guard cycles
-    {
-        auto cursor = newParent;
-
-        while (true) {
-            auto ptr = m_host->parent.get(cursor);
-
-            if (!ptr) { break; }
-
-            if (ptr->parent == m_entity) {
-                // cycle
-                emit notify(
-                    ANotification::error("That parent would create a loop in "
-                                         "the element hierarchy."));
-                return;
-            }
-
-            cursor = ptr->parent;
-        }
-    }
-
-    m_host->set_parent(m_entity, newParent);
 
     emit parent_changed();
     emit parent_name_changed();
@@ -526,22 +503,7 @@ QString AnInstanceEditor::parent_name() const {
 }
 
 bool AnInstanceEditor::can_set_parent(Entity candidate) const {
-    if (!m_host or !m_host->valid(m_entity) or !m_host->valid(candidate)) {
-        return false;
-    }
-
-    std::unordered_set<Entity> visited;
-    auto                       cursor = candidate;
-
-    while (cursor.is_valid() and visited.insert(cursor).second) {
-        if (cursor == m_entity) return false;
-
-        auto const* parent_component = m_host->parent.get(cursor);
-        if (!parent_component) break;
-        cursor = parent_component->parent;
-    }
-
-    return true;
+    return m_host && m_host->can_set_parent(m_entity, candidate);
 }
 
 QVector<SolTrace::GUI::Data::Entity> AnInstanceEditor::tags() const {

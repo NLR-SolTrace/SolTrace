@@ -1,13 +1,12 @@
 #pragma once
 
+#include "scripting/script_executor.h"
 #include "scripting/script_db_interface.h"
 #include "support/notification.h"
 #include "support/qt_helpers.h"
 #include "support/structmodel.h"
 
-#include <QJSValue>
 #include <QObject>
-#include <QQmlEngine>
 #include <QStringList>
 
 namespace SolTrace::GUI::App {
@@ -26,12 +25,16 @@ struct ScriptProperty {
     QString name;
     QString identifier;
     QString type;
+    QString description;
+    QStringList choices;
     QString extra;
     bool    min_bounded   = false;
     bool    max_bounded   = false;
     bool    max_inclusive = false;
     double  min           = 0.0;
     double  max           = 0.0;
+    double  step          = 1.0;
+    int     decimals      = 4;
     QString unit;
     QString error;
 
@@ -41,12 +44,16 @@ struct ScriptProperty {
                 SM_EXPOSE_RO(name),
                 SM_EXPOSE_RO(identifier),
                 SM_EXPOSE_RO(type),
+                SM_EXPOSE_RO(description),
+                SM_EXPOSE_RO(choices),
                 SM_EXPOSE_RO(extra),
                 SM_EXPOSE_RO(min_bounded),
                 SM_EXPOSE_RO(max_bounded),
                 SM_EXPOSE_RO(max_inclusive),
                 SM_EXPOSE_RO(min),
                 SM_EXPOSE_RO(max),
+                SM_EXPOSE_RO(step),
+                SM_EXPOSE_RO(decimals),
                 SM_EXPOSE_RO(unit),
                 SM_EXPOSE_RO(error),
                 SM_EXPOSE_RW(value));
@@ -57,51 +64,6 @@ class ScriptPropertyModel : public Support::StructTableModel<ScriptProperty> {
 
 public:
     explicit ScriptPropertyModel(QObject* parent = nullptr);
-};
-
-/// Severity for messages emitted by user scripts.
-enum class ScriptLogLevel { Log, Warn, Error };
-
-/// Console object exposed to scripts for log/warn/error output.
-class ScriptConsole : public QObject {
-    Q_OBJECT
-
-public:
-    explicit ScriptConsole(QObject*);
-
-public slots:
-    /// Emit a log-level message built from up to eight JavaScript values.
-    void log(QJSValue a = { },
-             QJSValue b = { },
-             QJSValue c = { },
-             QJSValue d = { },
-             QJSValue e = { },
-             QJSValue f = { },
-             QJSValue g = { },
-             QJSValue h = { });
-
-    /// Emit a warning-level message built from up to eight JavaScript values.
-    void warn(QJSValue a = { },
-              QJSValue b = { },
-              QJSValue c = { },
-              QJSValue d = { },
-              QJSValue e = { },
-              QJSValue f = { },
-              QJSValue g = { },
-              QJSValue h = { });
-
-    /// Emit an error-level message built from up to eight JavaScript values.
-    void error(QJSValue a = { },
-               QJSValue b = { },
-               QJSValue c = { },
-               QJSValue d = { },
-               QJSValue e = { },
-               QJSValue f = { },
-               QJSValue g = { },
-               QJSValue h = { });
-
-signals:
-    void logged(int, QString);
 };
 
 /// Script-facing simulation controls exposed as `sim`.
@@ -153,27 +115,47 @@ public slots:
 /// User-authored script plus parsed metadata and execution state.
 ///
 /// Script source must start with a comment header block. No whitespace or code
-/// may appear before it. Both block comments and consecutive line comments are
-/// accepted:
+/// may appear before it. The preferred header format is an embedded JSON
+/// manifest:
 ///
-///     /*
-///     TITLE Example Script
-///     DESC Creates a few entities.
-///     DESC Additional DESC lines are concatenated with newlines.
-///     PROPERTY mirror_count integer 12 1..=100
-///     PROPERTY radius real 10.0 0.1..
-///     PROPERTY label string Demo
-///     PROPERTY direction vec3 [0,0,1] unit
+///     /*{
+///       "schema_version": 1,
+///       "title": "Example Script",
+///       "description": "Creates a few entities.",
+///       "parameters": [
+///         {
+///           "id": "mirror_count",
+///           "name": "Mirror count",
+///           "description": "Number of mirrors to create.",
+///           "type": "integer",
+///           "default": 12,
+///           "minimum": 1,
+///           "maximum": 100
+///         },
+///         {
+///           "id": "mode",
+///           "type": "string",
+///           "default": "Flat",
+///           "choices": ["Flat", "Curved"]
+///         },
+///         {
+///           "id": "direction",
+///           "type": "vec3",
+///           "default": [0, 0, 1],
+///           "unit": "direction"
+///         }
+///       ]
+///     }
 ///     *\/
 ///     const e = db.create()
 ///     return e
 ///
-///     // TITLE Example Script
-///     // DESC Equivalent line-comment form.
-///     // PROPERTY count integer 4 1..=10
-///     return db.create()
+/// Every JSON parameter requires `id`, `type`, and `default`. Optional fields
+/// include `name`, `description`, `minimum`, `maximum`, `step`, `decimals`,
+/// `choices`, and `unit`. Supported types are `integer`, `real`, `string`, and
+/// `vec3`/`vector3d`; choices are currently supported for strings.
 ///
-/// Header directives:
+/// The older TITLE/DESC/PROPERTY format remains supported. Its directives are:
 /// - TITLE text
 ///   Required. Must be the first non-empty directive in the header. The
 ///   remaining text becomes Script::title.
@@ -210,7 +192,6 @@ public slots:
 class Script : public QObject {
     Q_OBJECT
 
-    QPointer<ScriptDBInterface> m_interface;
     QPointer<SolTrace::GUI::Data::Database>      m_database;
     QPointer<App::DatabaseModule>   m_databases;
     QPointer<App::SimulationModule> m_simulation;
@@ -249,6 +230,10 @@ public slots:
 
     /// Generate markdown documentation for the script database API.
     QString api_markdown();
+
+    /// Save code to a path. This is not the same as our code property
+    /// As it could be modified and not committed. True on success.
+    bool save_to(QString path, QString code);
 
 signals:
     void notify(Support::ANotification);

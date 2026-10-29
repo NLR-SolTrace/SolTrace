@@ -399,13 +399,23 @@ QVector<SolTrace::GUI::Data::Entity> collect_entities(entt::registry const& regi
     return ret;
 }
 
+bool is_visible_tag(SolTrace::GUI::Data::Database const* database,
+                    SolTrace::GUI::Data::Entity          tag) {
+    return database && database->valid(tag) &&
+           database->as_registry().all_of<
+               SolTrace::GUI::Data::TagComponent>(tag) &&
+           !database->is_hidden_tag(tag);
+}
+
 } // namespace
 
 ScriptDBInterface::ScriptDBInterface(SolTrace::GUI::Data::Database* database, QObject* parent)
     : QObject { parent }, m_database { database } { }
 
 void ScriptDBInterface::set_database(SolTrace::GUI::Data::Database* database) {
+    if (m_database == database) return;
     m_database = database;
+    emit database_changed(database);
 }
 
 void ScriptDBInterface::update_working_directory(QString directory) {
@@ -673,6 +683,10 @@ void ScriptDBInterface::destroy(SolTrace::GUI::Data::Entity entity) {
     }
 
     if (reg.all_of<SolTrace::GUI::Data::TagComponent>(entity)) {
+        if (m_database->is_hidden_tag(entity)) {
+            qWarning() << "Scripts cannot destroy hidden tags" << entity;
+            return;
+        }
         m_database->delete_tag(entity);
         return;
     }
@@ -705,6 +719,151 @@ void ScriptDBInterface::destroy(SolTrace::GUI::Data::Entity entity) {
     reg.destroy(entity);
 }
 
+SolTrace::GUI::Data::Entity
+ScriptDBInterface::get_parent(SolTrace::GUI::Data::Entity entity) {
+    if (!m_database || !m_database->valid(entity)) return { };
+    return m_database->parent_of(entity);
+}
+
+QVector<SolTrace::GUI::Data::Entity>
+ScriptDBInterface::get_children(SolTrace::GUI::Data::Entity entity) {
+    QVector<SolTrace::GUI::Data::Entity> result;
+    if (!m_database || !m_database->valid(entity)) return result;
+
+    auto const children = m_database->children_of(entity);
+    result.reserve(static_cast<qsizetype>(children.size()));
+    for (auto child : children) {
+        if (m_database->valid(child)) result.push_back(child);
+    }
+    return result;
+}
+
+bool ScriptDBInterface::can_set_parent(SolTrace::GUI::Data::Entity child,
+                                       SolTrace::GUI::Data::Entity parent) {
+    return m_database && m_database->can_set_parent(child, parent);
+}
+
+bool ScriptDBInterface::set_parent(SolTrace::GUI::Data::Entity child,
+                                   SolTrace::GUI::Data::Entity parent) {
+    return m_database && m_database->set_parent(child, parent);
+}
+
+bool ScriptDBInterface::clear_parent(SolTrace::GUI::Data::Entity child) {
+    if (!m_database || !m_database->valid(child) ||
+        !m_database->as_registry().all_of<
+            SolTrace::GUI::Data::ElementComponent>(child)) {
+        return false;
+    }
+
+    m_database->unset_parent(child);
+    return m_database->parent_of(child) == entt::null;
+}
+
+QVector<SolTrace::GUI::Data::Entity> ScriptDBInterface::get_all_tags() {
+    QVector<SolTrace::GUI::Data::Entity> result;
+    if (!m_database) return result;
+
+    for (auto tag : m_database->as_registry().view<
+             SolTrace::GUI::Data::TagComponent>(
+             entt::exclude<SolTrace::GUI::Data::HiddenTagComponent>)) {
+        result.push_back(tag);
+    }
+    return result;
+}
+
+SolTrace::GUI::Data::Entity ScriptDBInterface::create_tag(QString name) {
+    if (!m_database) return { };
+    return m_database->create_tag(std::move(name));
+}
+
+SolTrace::GUI::Data::Entity ScriptDBInterface::ensure_tag(QString name) {
+    name = name.trimmed();
+    if (name.isEmpty()) name = QStringLiteral("Tag");
+
+    auto const existing = find_tag(name);
+    if (existing.is_valid()) return existing;
+
+    // Do not repeatedly manufacture suffixed visible tags when an internal
+    // tag reserves the requested exact name.
+    if (m_database) {
+        auto const view = m_database->as_registry().view<
+            SolTrace::GUI::Data::TagComponent,
+            SolTrace::GUI::Data::IdentityComponent,
+            SolTrace::GUI::Data::HiddenTagComponent>();
+        for (auto const& [tag, identity] : view.each()) {
+            if (identity.name == name) {
+                qWarning() << "A hidden tag reserves the requested name" << name;
+                return { };
+            }
+        }
+    }
+
+    return create_tag(std::move(name));
+}
+
+SolTrace::GUI::Data::Entity ScriptDBInterface::find_tag(QString name) {
+    if (!m_database) return { };
+    name = name.trimmed();
+    if (name.isEmpty()) name = QStringLiteral("Tag");
+
+    auto const view = m_database->as_registry().view<
+        SolTrace::GUI::Data::TagComponent,
+        SolTrace::GUI::Data::IdentityComponent>(
+        entt::exclude<SolTrace::GUI::Data::HiddenTagComponent>);
+    for (auto const& [tag, identity] : view.each()) {
+        if (identity.name == name) return tag;
+    }
+    return { };
+}
+
+QVector<SolTrace::GUI::Data::Entity>
+ScriptDBInterface::get_tags(SolTrace::GUI::Data::Entity entity) {
+    QVector<SolTrace::GUI::Data::Entity> result;
+    if (!m_database || !m_database->valid(entity)) return result;
+
+    for (auto tag : m_database->tags_for(entity)) {
+        if (m_database->valid(tag) && !m_database->is_hidden_tag(tag)) {
+            result.push_back(tag);
+        }
+    }
+    return result;
+}
+
+QVector<SolTrace::GUI::Data::Entity>
+ScriptDBInterface::get_tagged(SolTrace::GUI::Data::Entity tag) {
+    if (!is_visible_tag(m_database, tag)) return { };
+    return m_database->tagged_with(tag);
+}
+
+bool ScriptDBInterface::assign_tag(SolTrace::GUI::Data::Entity entity,
+                                   SolTrace::GUI::Data::Entity tag) {
+    if (!m_database || !m_database->valid(entity) ||
+        !is_visible_tag(m_database, tag)) {
+        return false;
+    }
+
+    m_database->assign_tag(entity, tag);
+    return m_database->is_tagged(entity, tag);
+}
+
+bool ScriptDBInterface::unassign_tag(SolTrace::GUI::Data::Entity entity,
+                                     SolTrace::GUI::Data::Entity tag) {
+    if (!m_database || !m_database->valid(entity) ||
+        !is_visible_tag(m_database, tag)) {
+        return false;
+    }
+
+    m_database->unassign_tag(entity, tag);
+    return !m_database->is_tagged(entity, tag);
+}
+
+bool ScriptDBInterface::delete_tag(SolTrace::GUI::Data::Entity tag) {
+    if (!is_visible_tag(m_database, tag)) return false;
+
+    m_database->delete_tag(tag);
+    return !m_database->valid(tag);
+}
+
 bool ScriptDBInterface::valid(SolTrace::GUI::Data::Entity entity) {
     return m_database && m_database->valid(entity);
 }
@@ -716,6 +875,12 @@ QString ScriptDBInterface::get_identity(SolTrace::GUI::Data::Entity entity) {
 
 void ScriptDBInterface::set_identity(SolTrace::GUI::Data::Entity entity, QString name) {
     if (!m_database || !m_database->valid(entity)) return;
+    // Tags use a dedicated unique-name lifecycle; do not let the generic
+    // identity setter bypass it.
+    if (m_database->as_registry().all_of<
+            SolTrace::GUI::Data::TagComponent>(entity)) {
+        return;
+    }
     m_database->identity.set(entity, SolTrace::GUI::Data::IdentityComponent { .name = name });
 }
 

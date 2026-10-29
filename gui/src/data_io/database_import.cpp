@@ -312,7 +312,7 @@ struct StageComponent {
 void Database::import(SD::SimulationData& data, bool legacy_import) {
 
     // Assuming we are not re-using registries, which we are not for the moment
-    auto imported_tag = create_tag("imported");
+    auto imported_tag = create_tag("imported", true);
 
     // we use pointers as element IDs are scoped to global AND composite
     std::unordered_map<SD::Element*, entt::entity> element_to_entity;
