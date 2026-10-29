@@ -522,6 +522,13 @@ bool read_element(FILE*                                      fp,
         throw std::invalid_argument(ss.str());
     }
     surface_ptr surf_ptr = make_surface_from_type(surface_type, surface_params);
+    if (surf_ptr == nullptr)
+    { 
+        std::stringstream ss;
+        ss << "Surface type not implemented " << SurfaceTypeMap.at(surface_type);
+        throw std::invalid_argument(ss.str());
+    }
+
     el->set_surface(surf_ptr);
     if (surface_type == SurfaceType::CYLINDER)
     {
