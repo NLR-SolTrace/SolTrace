@@ -412,7 +412,6 @@ jobs:
           --optix-enabled "${{ matrix.optix_enabled }}"
 
       - name: Package release artifact
-        if: matrix.platform != 'windows'
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
@@ -426,7 +425,6 @@ jobs:
           --optix-enabled "${{ matrix.optix_enabled }}"
 
       - name: Generate and verify release artifact checksum
-        if: matrix.platform != 'windows'
         shell: bash
         run: |
           asset_dir="$(dirname "$ASSET_PATH")"
