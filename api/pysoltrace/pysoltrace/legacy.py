@@ -44,7 +44,7 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 
-from pysoltrace import api, dot_h, soltrace_json as st_json, math_utils, Point, soltrace_structs as _STS
+from pysoltrace import api, dot_h, soltrace_json as st_json, math_utils, Point, soltrace_structs as _STS, STAPIv2Warning
 
 _default_cls_arg = lambda arg, default_cls, *args: arg if arg != None else default_cls(*args)
 
@@ -311,7 +311,7 @@ class _Element:
     }
 
     def __init__(self, 
-                 parent_stage:    _Stage, 
+                 parent_stage_id: int, 
                  element_id:      int,
                  enabled:         bool = True,
                  virtual:         bool = False,
@@ -325,7 +325,7 @@ class _Element:
                  surface_file:    str = None,
                  interaction:     Literal[1, 2] = 1, #1=refract, 2=reflect
                  optic:           _Optics = None):
-        self.stage_id        = parent_stage.id
+        self.stage_id        = parent_stage_id
         self.id              = element_id
         self.enabled         = enabled
         self.virtual         = virtual
@@ -630,7 +630,7 @@ class _Stage:
         return [el.Create(stapi, unstager, _do) for el in self.elements]
 
     def add_element(self, enew: _Element = None) -> _Element:
-        enew    = _default_cls_arg(enew, _Element, self, None)
+        enew    = _default_cls_arg(enew, _Element, self.id, None)
         enew.id = len(self.elements)
         self.elements.append(enew)
         return enew
@@ -665,6 +665,7 @@ class legacy:
         self.raydata = None
         self.sunstats = None
         self.powerperray = None
+        self._elements = []
         self.__op_registry = st_json.OpticalPropertyRegistry()
 
     def copy(self, stnew: legacy = None) -> legacy:
@@ -689,10 +690,11 @@ class legacy:
                                                as_power_tower),
             self.stapi.batch.parameters.errors(self.is_sunshape,
                                                self.is_surface_errors),
-            self.sun.Create(self.stapi),
-            *[op.Create(self.stapi) for op in self.optics]
+            self.sun.Create(self.stapi, _do),
+            *[op.Create(self.stapi, _do) for op in self.optics],
+            *[el.Create(self.stapi, None, _do) for el in self._elements]
         ]
-        for s in self.stages: calls.extend(s.Create(self.stapi))
+        for s in self.stages: calls.extend(s.Create(self.stapi, _do))
 
         if _do: self.stapi.batch()
         return calls
@@ -718,6 +720,11 @@ class legacy:
         return self.sun
 
     def add_stage(self, snew: _Stage = None) -> _Stage:
+        if not self.testing:
+            STAPIv2Warning('N/A', 'Stages Deprecated',
+                           'Stages have been depricated but were used. '
+                           'The simulation should run, however inspect '
+                           'the results as they may be different.')
         snew    = _default_cls_arg(snew, _Stage, len(self.stages))
         snew.id = len(self.stages)
         self.stages.append(snew)
@@ -726,6 +733,14 @@ class legacy:
     def clear_stages(self):
         self.stages = []
     
+    def add_element(self, enew: _Element = None) -> _Element:
+        enew    = _default_cls_arg(enew, _Element, -1, None)
+        enew.id = len(self._elements)
+        self._elements.append(enew)
+        return enew
+
+    def clear_elements(self):
+        self._elements = []
 
     def get_ray_dataframe(self):
         """

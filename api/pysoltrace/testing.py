@@ -1642,7 +1642,7 @@ class TowerDemoTest(STAPIv2TestCase):
     def setUp(self):
         super().setUp()
 
-    def test(self):
+    def test_with_stages(self):
         PT = PySolTrace(testing = True)
         # this object has data from previous legacy tests?
         PT.clear_optics()
@@ -1689,6 +1689,69 @@ class TowerDemoTest(STAPIv2TestCase):
         sta = PT.add_stage()
         # flat absorber element
         ela = sta.add_element()
+        ela.position = abs_pos
+        ela.aim.z = 0.
+        ela.aim.x = 0.
+        ela.aim.y = 5.
+        ela.optic = opt_abs
+        ela.surface_flat()
+        ela.aperture_rectangle(2,2)  
+
+        # set simulation parameters
+        PT.num_ray_hits = 1e3
+        PT.max_rays_traced = PT.num_ray_hits*100
+        PT.is_sunshape = True 
+        PT.is_surface_errors = True
+
+        PT.run(-1, True, 4)
+    
+    def test_without_stages(self):
+        PT = PySolTrace(testing = True)
+        # this object has data from previous legacy tests?
+        PT.clear_optics()
+        PT.clear_stages()
+        # Create two optics types - one for reflector, and one for absorber.
+        opt_ref = PT.add_optic("Reflector")
+        opt_ref.front.reflectivity = 1.
+        opt_abs = PT.add_optic("Absorber")
+        opt_abs.front.reflectivity = 0.
+
+        # Sun
+        sun = PT.add_sun()
+        # Give sun an arbitrary position
+        sun.position.x = 1.
+        sun.position.y = -1.
+        sun.position.z = 99.
+
+        # Reflector stage
+        # st = PT.add_stage()
+
+        #absorber element height
+        abs_pos = Point(0., 0., 10.)
+
+        # Create a heliostat at some random x,y position, reflecting to the receiver
+        for i in range(-1,2):
+            hpos = [sin(i*pi/2)*5, cos(i*pi/2)*5]
+            # hpos = [random.uniform(-10,10), random.uniform(-10,10)]
+            el = PT.add_element()
+            el.optic = opt_ref
+            el.position.x = hpos[0]
+            el.position.y = hpos[1]
+            # calculate the vectors - receiver, sun, and aim
+            rvec = (abs_pos - el.position).unitize()
+            svec = sun.position.unitize()
+            avec = (rvec + svec)/2.
+            # assign the aim vector. scale by a large number
+            el.aim = el.position + avec*100.
+            # compute surface z rotation to align with plane of the ground
+            el.zrot = PT.util_calc_zrot_azel(avec)
+            # Set surface and aperture characteristics
+            el.surface_flat()
+            el.aperture_rectangle(1.0,1.95)
+
+        # sta = PT.add_stage()
+        # flat absorber element
+        ela = PT.add_element()
         ela.position = abs_pos
         ela.aim.z = 0.
         ela.aim.x = 0.

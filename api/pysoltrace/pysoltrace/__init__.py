@@ -19,7 +19,7 @@ from pysoltrace import soltrace_json
 from pysoltrace import math_utils # Point
 from pysoltrace import soltrace_constants # dot_h
 from pysoltrace import soltrace_structs # dot_h
-from pysoltrace.api import api, STAPIv2Exception # soltrace_constants, soltrace_structs
+from pysoltrace.api import api, STAPIv2Exception, STAPIv2Warning # soltrace_constants, soltrace_structs
 
 from pysoltrace.legacy import legacy as PySolTrace # api, dot_h, soltrace_json, math_utils, Point
 
@@ -36,6 +36,7 @@ __all__ = [
     'soltrace_structs',
     'api',
     'STAPIv2Exception',
+    'STAPIv2Warning',
     'cst'
 ]
 
