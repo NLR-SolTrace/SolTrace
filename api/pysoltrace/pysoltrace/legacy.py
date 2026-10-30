@@ -936,7 +936,7 @@ class legacy:
         #     self.powerperray = (self.sunstats['xmax']-self.sunstats['xmin'])*(self.sunstats['ymax'] - self.sunstats['ymin']) / self.sunstats['nsunrays'] * self.dni
 
         #     return 1
-        pass
+        return 1
 
     def write_soltrace_input_file(self, path: str):
         """
