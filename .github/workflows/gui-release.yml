@@ -452,7 +452,7 @@ jobs:
         run: >-
           cosign verify-blob
           --bundle "$ASSET_PATH.sigstore.json"
-          --certificate-identity-regexp '^https://github.com/nlr-devops/SolTrace/.github/workflows/gui-release.yml@refs/tags/.*$'
+          --certificate-identity-regexp '^https://github.com/${{ github.repository }}/.github/workflows/gui-release.yml@refs/tags/.*$'
           --certificate-oidc-issuer https://token.actions.githubusercontent.com
           "$ASSET_PATH"
 
