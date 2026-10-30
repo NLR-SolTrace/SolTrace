@@ -33,6 +33,7 @@ set(GUI_UNIT_TEST_SRC
     script_executor_test.cpp
     script_references_test.cpp
     tag_test.cpp
+    test_main.cpp
 )
 
 add_executable(GUIUnitTests
@@ -64,7 +65,7 @@ target_link_libraries(GUIUnitTests
         simdata
         simresult
         native_runner
-        GTest::gtest_main
+        GTest::gtest
 )
 
 target_compile_definitions(GUIUnitTests

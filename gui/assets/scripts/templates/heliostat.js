@@ -458,7 +458,9 @@ const totalPanels = panels_x * panels_y
 
 // Remove only facets previously assigned a numbered role by this template.
 // Other scripts may intentionally place additional entities in the group.
-for (const name of field.single_names()) {
+const referenceNames = field.single_names()
+for (let nameIndex = 0; nameIndex < referenceNames.length; ++nameIndex) {
+    const name = referenceNames[nameIndex]
     if (name.indexOf(FACET_PREFIX) !== 0) {
         continue
     }
@@ -472,7 +474,7 @@ for (const name of field.single_names()) {
     reference.clear()
     if (db.valid(facet)) {
         facets.remove(facet)
-        db.destroy(facet)
+        db.destroy_entity(facet)
     }
 }
 

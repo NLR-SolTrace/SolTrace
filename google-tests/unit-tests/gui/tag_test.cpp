@@ -133,7 +133,7 @@ TEST(ScriptDatabaseTags, ExposesVisibleTagsAndProtectsHiddenTags) {
     EXPECT_EQ(script.get_tagged(visible).front(), element);
     EXPECT_TRUE(script.get_tagged(hidden).empty());
 
-    script.destroy(hidden);
+    script.destroy_entity(hidden);
     EXPECT_TRUE(database.valid(hidden));
     EXPECT_FALSE(script.delete_tag(hidden));
 

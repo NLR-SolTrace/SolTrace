@@ -191,13 +191,13 @@ Inputs: none. Output: Entity handle for a new scene element with an identity tra
 
 Example: const element = db.create()
 ---
-destroy
+destroy_entity
 
 Destroy an entity or remove a material, geometry, or tag group.
 
 Input: entity handle returned by this API. For material and geometry groups, related assignments are cleaned up through the database API. For scene elements, children are promoted to top-level elements. Output: none.
 
-Example: db.destroy(element)
+Example: db.destroy_entity(element)
 ---
 get_parent
 

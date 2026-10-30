@@ -111,7 +111,7 @@ public slots:
     SolTrace::GUI::Data::Entity create();
 
     /// Destroy an entity and its database-owned relationships.
-    void destroy(SolTrace::GUI::Data::Entity entity);
+    void destroy_entity(SolTrace::GUI::Data::Entity entity);
 
     /// Return an element's parent, or an invalid handle when top-level.
     SolTrace::GUI::Data::Entity

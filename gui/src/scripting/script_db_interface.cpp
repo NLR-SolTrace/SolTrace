@@ -671,7 +671,7 @@ SolTrace::GUI::Data::Entity ScriptDBInterface::create() {
     return SolTrace::GUI::Data::Entity { entity };
 }
 
-void ScriptDBInterface::destroy(SolTrace::GUI::Data::Entity entity) {
+void ScriptDBInterface::destroy_entity(SolTrace::GUI::Data::Entity entity) {
     if (!m_database || !m_database->valid(entity)) return;
 
     auto& reg = m_database->as_registry();

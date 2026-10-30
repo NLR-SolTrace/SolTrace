@@ -91,7 +91,9 @@ DatabaseCloneResult clone_database_with_entity_map(Database const& from,
         from_registry, mapper, to_registry);
 
 
-    ret->ray_source_resource.set(from.ray_source_resource.require().clone());
+    if (auto const* ray_source = from.ray_source_resource.get()) {
+        ret->ray_source_resource.set(ray_source->clone());
+    }
     ret->simulation_parameters_resource.set(
         from.simulation_parameters_resource.require());
 

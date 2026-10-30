@@ -1059,8 +1059,6 @@ void Script::run() {
             .working_directory = working_directory(),
             .arguments         = std::move(arguments),
             .database          = m_database,
-            .expose_scenes     = true,
-            .expose_simulation = true,
             .scene_api_factory =
                 [this](ScriptDBInterface* database_api, QObject* parent) {
                     return new ScriptSceneInterface(m_databases,

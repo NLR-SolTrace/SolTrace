@@ -79,7 +79,7 @@ TEST(ScriptReferences, DeletedEntitiesDisappearAndNamesAreDiscoverable)
               QStringList({ QStringLiteral("receiver") }));
     EXPECT_EQ(scope->group_names(), QStringList({ QStringLiteral("mirrors") }));
 
-    db.destroy(entity);
+    db.destroy_entity(entity);
     EXPECT_FALSE(scope->single(QStringLiteral("receiver"))->get().is_valid());
     EXPECT_TRUE(scope->group(QStringLiteral("mirrors"))->entities().isEmpty());
     EXPECT_TRUE(references.scopes().isEmpty());

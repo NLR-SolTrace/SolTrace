@@ -48,14 +48,12 @@ ScriptExecutionResult script_error(QString const&          phase,
     auto const error_name = value.property("name").toString();
     auto const line       = value.property("lineNumber").toInt();
     auto const detail     = value.toString();
-    auto const heading = QStringLiteral("Script %1 exception: %2")
-                             .arg(phase,
-                                  error_name.isEmpty()
-                                      ? QStringLiteral("Error")
-                                      : error_name);
-    auto const location = QStringLiteral("Line number %1: %2")
-                              .arg(line)
-                              .arg(detail);
+    auto const heading =
+        QStringLiteral("Script %1 exception: %2")
+            .arg(phase,
+                 error_name.isEmpty() ? QStringLiteral("Error") : error_name);
+    auto const location =
+        QStringLiteral("Line number %1: %2").arg(line).arg(detail);
 
     qCritical().noquote() << "[Script]" << heading;
     qCritical().noquote() << "[Script]" << location;
@@ -114,7 +112,7 @@ void ScriptConsole::error(QJSValue a,
 
 ScriptExecutionResult
 ScriptExecutor::execute(ScriptExecutionRequest const& request,
-                        ScriptLogHandler const&      log_handler) {
+                        ScriptLogHandler const&       log_handler) {
     if (!request.database) {
         auto const message = QStringLiteral("No database available.");
         qCritical().noquote() << "[Script]" << message;
@@ -126,55 +124,61 @@ ScriptExecutor::execute(ScriptExecutionRequest const& request,
     engine->installExtensions(QJSEngine::TranslationExtension |
                               QJSEngine::GarbageCollectionExtension);
 
-    auto database_api =
-        std::make_unique<ScriptDBInterface>(request.database);
+    // HACK
+    // QJSEngine does not currently provide the standard globalThis alias.
+    // Expose it explicitly so scripts can address their invocation's global
+    // object without relying on non-strict assignment or call-site `this`.
+    engine->globalObject().setProperty(QStringLiteral("globalThis"),
+                                       engine->globalObject());
+
+    auto database_api = std::make_unique<ScriptDBInterface>(request.database);
+
     database_api->update_working_directory(request.working_directory);
-    engine->globalObject().setProperty(
-        QStringLiteral("db"), engine->newQObject(database_api.get()));
+
+    engine->globalObject().setProperty(QStringLiteral("db"),
+                                       engine->newQObject(database_api.get()));
 
     auto references =
         std::make_unique<ScriptReferenceInterface>(request.database);
+
     QObject::connect(database_api.get(),
                      &ScriptDBInterface::database_changed,
                      references.get(),
                      &ScriptReferenceInterface::set_database);
-    engine->globalObject().setProperty(
-        QStringLiteral("refs"), engine->newQObject(references.get()));
 
-    if (request.expose_simulation) {
-        if (!request.simulation_api_factory) {
-            auto const message =
-                QStringLiteral("Simulation script API is unavailable.");
-            report(log_handler, ScriptLogLevel::Error, message);
-            return { .success = false, .error = message };
-        }
+    engine->globalObject().setProperty(QStringLiteral("refs"),
+                                       engine->newQObject(references.get()));
+
+    if (request.simulation_api_factory) {
+
         auto* simulation_api = request.simulation_api_factory(engine.get());
+
         if (!simulation_api) {
             auto const message =
                 QStringLiteral("Simulation script API creation failed.");
             report(log_handler, ScriptLogLevel::Error, message);
             return { .success = false, .error = message };
         }
+
         if (!simulation_api->parent()) simulation_api->setParent(engine.get());
+
         engine->globalObject().setProperty(QStringLiteral("sim"),
                                            engine->newQObject(simulation_api));
     }
 
-    if (request.expose_scenes) {
-        if (!request.scene_api_factory) {
-            auto const message = QStringLiteral("Scene script API is unavailable.");
-            report(log_handler, ScriptLogLevel::Error, message);
-            return { .success = false, .error = message };
-        }
+    if (request.scene_api_factory) {
         auto* scene_api =
             request.scene_api_factory(database_api.get(), engine.get());
+
         if (!scene_api) {
             auto const message =
                 QStringLiteral("Scene script API creation failed.");
             report(log_handler, ScriptLogLevel::Error, message);
             return { .success = false, .error = message };
         }
+
         if (!scene_api->parent()) scene_api->setParent(engine.get());
+
         engine->globalObject().setProperty(QStringLiteral("scenes"),
                                            engine->newQObject(scene_api));
     }
@@ -184,22 +188,17 @@ ScriptExecutor::execute(ScriptExecutionRequest const& request,
         console.get(),
         &ScriptConsole::logged,
         [log_handler](int level, QString const& message) {
-            report(log_handler,
-                   static_cast<ScriptLogLevel>(level),
-                   message);
+            report(log_handler, static_cast<ScriptLogLevel>(level), message);
         });
-    engine->globalObject().setProperty(
-        QStringLiteral("console"), engine->newQObject(console.get()));
+    engine->globalObject().setProperty(QStringLiteral("console"),
+                                       engine->newQObject(console.get()));
 
     QStringList stack_trace;
-    auto callable = engine->evaluate(request.source,
-                                     request.source_name,
-                                     1,
-                                     &stack_trace);
+    auto        callable =
+        engine->evaluate(request.source, request.source_name, 1, &stack_trace);
     if (callable.isError() || !stack_trace.isEmpty()) {
-        return script_error(QStringLiteral("evaluation"),
-                            callable,
-                            log_handler);
+        return script_error(
+            QStringLiteral("evaluation"), callable, log_handler);
     }
 
     if (!callable.isCallable()) {
@@ -213,8 +212,7 @@ ScriptExecutor::execute(ScriptExecutionRequest const& request,
     QJSValueList arguments;
     arguments.reserve(request.arguments.size());
     for (auto const& argument : request.arguments) {
-        arguments.push_back(
-            engine->toScriptValue(argument.toVariant()));
+        arguments.push_back(engine->toScriptValue(argument.toVariant()));
     }
 
     auto result = callable.call(arguments);
