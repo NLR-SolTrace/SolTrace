@@ -1299,7 +1299,7 @@ st_return_t call_stapi_v2_sim_setup(st_context_v2_t pcxt)
 
     if (code != st_return_code::SUCCESS) return code;
 
-    code =  st_sim_setup(pcxt, st_runner_type_t::NATIVE), num_threads_for_test();
+    code =  st_sim_setup(pcxt, st_runner_type_t::NATIVE, num_threads_for_test());
     unsigned int *seeds_test = new unsigned int[2] { 608, 303, };
     code += st_sim_setup(pcxt, st_runner_type_t::NATIVE, 3, seeds_test, 2);
     code += st_sim_setup(pcxt, st_runner_type_t::EMBREE, num_threads_for_test());
