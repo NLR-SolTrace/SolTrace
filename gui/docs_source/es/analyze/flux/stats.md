@@ -1,0 +1,7 @@
+---
+title: "Estadísticas del Mapa"
+---
+
+Impactos contribuyentes es la cantidad de interacciones filtradas incluidas en el mapa. El valor máximo, mínimo, promedio, la desviación estándar y la uniformidad se calculan a partir de los valores mostrados.
+
+El centroide global usa coordenadas de la escena; el centroide local expresa el mismo punto con relación al elemento del mapa.

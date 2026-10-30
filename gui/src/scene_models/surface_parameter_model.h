@@ -1,7 +1,8 @@
 #pragma once
 
 #include <QObject>
-#include <QStringListModel>
+#include <QRangeModel>
+#include <QtTypes>
 #include <limits>
 #include <vector>
 
@@ -18,17 +19,19 @@ namespace SolTrace::GUI::Data {
 
 /// UI presentation hint for a surface parameter.
 enum SurfaceParameterType {
-    GenericSurfaceParameter = 0,
-    AngleSurfaceParameter   = 1,
+    GenericSurfaceParameter     = 0,
+    AngleSurfaceParameter       = 1,
+    FocalLengthSurfaceParameter = 2,
 };
 
 /// One editable surface parameter exposed to QML.
 struct SurfaceParameter {
     QString name;
-    double  content = 0.0;
-    double  min     = std::numeric_limits<double>::lowest();
-    double  max     = std::numeric_limits<double>::max();
-    int     type    = GenericSurfaceParameter;
+    double  content  = 0.0;
+    double  min      = std::numeric_limits<double>::lowest();
+    double  max      = std::numeric_limits<double>::max();
+    int     type     = GenericSurfaceParameter;
+    bool    editable = true;
 
 
     RECORD_META(SurfaceParameter,
@@ -36,7 +39,8 @@ struct SurfaceParameter {
                 SM_EXPOSE_RW(content),
                 SM_EXPOSE_RO(min),
                 SM_EXPOSE_RO(max),
-                SM_EXPOSE_RO(type));
+                SM_EXPOSE_RO(type),
+                SM_EXPOSE_RO(editable));
 };
 
 
@@ -48,11 +52,14 @@ class SurfaceParameterModel
 
     entt::entity m_current_group         = entt::null;
     bool         m_syncing_from_database = false;
+    bool         m_syncing_parameters    = false;
 
     void set_new_database_connections(Database* ptr) override;
 
-    Q_WRITABLE_PROPERTY(QString, surface_kind, "SURFACE_UNKNOWN");
-    QOBJECT_READONLY_PROPERTY(QStringListModel, surface_type_model);
+    Q_WRITABLE_PROPERTY(qint32,
+                        surface_kind,
+                        static_cast<qint32>(SD::SurfaceType::SURFACE_UNKNOWN));
+    QOBJECT_READONLY_PROPERTY(QRangeModel, surface_type_model);
 
     void make_new_surface(SD::SurfaceType);
 

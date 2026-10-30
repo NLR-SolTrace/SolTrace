@@ -3,18 +3,14 @@ import QtQuick.Controls
 import QtQuick.Controls.Material
 import QtQuick.Effects
 import QtQuick.Layouts
-import QtGraphs
 
 import SolTrace
 
 Flickable {
     id: root
-    property var left_panel_size: App.view.left_panel.size
     property var sun_module : App.sun
     readonly property real radToDeg: 180 / Math.PI
     readonly property real degToRad: Math.PI / 180
-    property bool singleColumn: App.view.left_panel.size === SplitPanelData.Small
-
     function clamp(value, lo, hi) {
         return Math.max(lo, Math.min(hi, value))
     }
@@ -60,21 +56,172 @@ Flickable {
             Layout.margins: 8
         }
 
-        SunPreview {
-            id: sun_preview
+        Item {
+            id: sunPreview
             Layout.fillWidth: true
-            Layout.preferredHeight: 148
+            Layout.preferredHeight: 240
+
+            property int currentGraph: 0
+
+            Item {
+                id: graphHeader
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                height: Math.max(graphTitle.implicitHeight,
+                                 graphControls.implicitHeight)
+
+                Rectangle {
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: emissionTypeLabel.implicitWidth + 18
+                    height: emissionTypeLabel.implicitHeight + 10
+                    radius: height / 2
+                    color: Qt.rgba(0, 0, 0, 0.46)
+                    border.width: 1
+                    border.color: Qt.alpha(App.theme.fontColor, 0.22)
+
+                    Label {
+                        id: emissionTypeLabel
+                        anchors.centerIn: parent
+                        text: App.sun.type === SunModule.PointSource
+                              ? qsTr("Point source")
+                              : qsTr("Directional sun")
+                        color: App.theme.fontColor
+                        font.pointSize: App.theme.labelSize
+                    }
+                }
+
+                Label {
+                    id: graphTitle
+                    anchors.centerIn: parent
+                    text: "Emission Profile"
+                    font.bold: true
+                }
+
+                Row {
+                    id: graphControls
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 2
+
+                    STIconButton {
+                        icon: sunPreview.currentGraph === 0 ? "\uf1b2" : "\uf201"
+                        label: sunPreview.currentGraph === 0 ? "3D" : "2D"
+                        toolTip: sunPreview.currentGraph === 0
+                                 ? qsTr("Show 3D emission profile")
+                                 : qsTr("Show 2D emission profile")
+                        onClicked: sunPreview.currentGraph = sunPreview.currentGraph === 0 ? 1 : 0
+                    }
+
+                    STIconButton {
+                        icon: "\uf1de"
+                        toolTip: qsTr("Graph settings")
+                        onClicked: graphSettings.open()
+
+                        STPopup {
+                            id: graphSettings
+
+                            StackLayout {
+                                width: 240
+                                currentIndex: sunPreview.currentGraph
+
+                                ColumnLayout {
+                                    Label {
+                                        text: qsTr("2D graph")
+                                        font.bold: true
+                                    }
+
+                                    STSpinBoxField {
+                                        label: qsTr("Line Width")
+                                        Layout.fillWidth: true
+                                        value: App.theme.sunShapeGraphLineWidth
+                                        onValueChanged: App.theme.sunShapeGraphLineWidth = value
+                                        from: 1
+                                        to: 10
+                                    }
+
+                                    ColorPickerField {
+                                        label: qsTr("Color")
+                                        Layout.fillWidth: true
+                                        color: App.theme.sunShapeGraphLineColor
+                                        onColorChanged: App.theme.sunShapeGraphLineColor = color
+                                    }
+                                }
+
+                                ColumnLayout {
+                                    Label {
+                                        text: qsTr("3D graph")
+                                        font.bold: true
+                                    }
+
+                                    RowLayout {
+                                        Label {
+                                            Layout.fillWidth: true
+                                            text: qsTr("Wireframe")
+                                        }
+                                        STSwitch {
+                                            checked: surfaceGraph.wireframeVisible
+                                            onToggled: surfaceGraph.wireframeVisible = checked
+                                        }
+                                    }
+
+                                    RowLayout {
+                                        Label {
+                                            Layout.fillWidth: true
+                                            text: qsTr("Orthographic")
+                                        }
+                                        STSwitch {
+                                            checked: surfaceGraph.orthographicProjection
+                                            onToggled: surfaceGraph.orthographicProjection = checked
+                                        }
+                                    }
+
+                                    RowLayout {
+                                        Label {
+                                            Layout.fillWidth: true
+                                            text: qsTr("Grid")
+                                        }
+                                        STSwitch {
+                                            checked: surfaceGraph.gridVisible
+                                            onToggled: surfaceGraph.gridVisible = checked
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            StackLayout {
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: graphHeader.bottom
+                anchors.bottom: parent.bottom
+                currentIndex: sunPreview.currentGraph
+
+                SunShapeGraph {
+                    title: "Emission Profile"
+                    xAxisTitle: "Angle (mrad)"
+                    yAxisTitle: "Intensity"
+                    headerVisible: false
+                }
+
+                SunPreview {
+                    id: surfaceGraph
+                }
+            }
         }
 
-        STPipelineBar {
+        STTabBar {
             id: bar
+            secondary: true
             currentIndex: App.view.sun_section
             onCurrentIndexChanged: App.view.sun_section = currentIndex
             Layout.fillWidth: true
-            collapseLabels: App.view.left_panel.size === SplitPanelData.Small
+            Layout.leftMargin: 12
             model: ["Type & Position", "Emission Profile"]
-            prefixModel: ["3a1", "3a2"]
-            iconModel: ["\uf124", "\uf1fe"]
         }
 
         StackLayout {
@@ -136,8 +283,7 @@ Flickable {
                     color: Material.dividerColor
                 }
 
-                InlineDocumentation {
-                    Layout.fillWidth: true
+                STDocumentationSection {
                     Layout.margins: 8
                     key: "configure.sun.type." + ["directional", "point_source"][App.sun.type]
                 }
@@ -148,12 +294,13 @@ Flickable {
                         Layout.fillWidth: true
 
                         visible: (App.sun.type === SunModule.Directional
-                                     && App.sun.ds_position_type === 0)
+                                  && App.sun.ds_position_type === 0)
                     }
 
                     GridLayout {
                         Layout.fillWidth: true
-                        columns: App.view.left_panel.size === SplitPanelData.Small ? 1 : 2
+                        columns: 1
+                        visible: App.sun.type === SunModule.Directional
 
                         STSpinBoxField {
                             id: azimuthField
@@ -213,8 +360,8 @@ Flickable {
                         }
 
                         STSpinBoxField {
-                            Layout.row: App.view.left_panel.size < 1 ? 1 : 0
-                            Layout.column: App.view.left_panel.size < 1 ? 0 : 1
+                            Layout.row: 1
+                            Layout.column: 0
                             Layout.fillWidth: true
                             Layout.preferredWidth: 100
                             label: "Y"
@@ -229,8 +376,8 @@ Flickable {
                         }
 
                         STSpinBoxField {
-                            Layout.row: App.view.left_panel.size < 1 ? 2 : 0
-                            Layout.column: App.view.left_panel.size < 1 ? 0 : 2
+                            Layout.row: 2
+                            Layout.column: 0
                             Layout.fillWidth: true
                             Layout.preferredWidth: 100
                             label: "Z"
@@ -273,21 +420,19 @@ Flickable {
                     }
                 }
 
-                InlineDocumentation {
-                    Layout.fillWidth: true
+                STDocumentationSection {
                     Layout.margins: 8
                     key: "configure.sun.shape." + ["gaussian", "pillbox", "csr", "custom", "limb_darkened"][App.sun.shape.shape]
                 }
 
                 GridLayout {
-                    rows: 2
-                    columns: 2
+                    columns: 1
                     Layout.margins: 12
 
                     StackLayout {
                         currentIndex: App.sun.shape.shape
-                        Layout.row: App.view.left_panel.size < 2 ? 1 : 0
-                        Layout.column: App.view.left_panel.size < 2 ? 0 : 1
+                        Layout.row: 0
+                        Layout.column: 0
                         Layout.alignment: Qt.AlignHCenter
                         Layout.preferredWidth: 200
 
@@ -296,7 +441,7 @@ Flickable {
                             label: "Standard Deviation (mrad)"
                             value: App.sun.shape.sigma
                             decimals: 3
-                            onValueChanged: { App.sun.shape.sigma = value }
+                            onValueModified: App.sun.shape.sigma = value
                         }
 
                         STSpinBoxField {
@@ -304,7 +449,7 @@ Flickable {
                             label: "Half-width (mrad)"
                             value: App.sun.shape.half_width
                             decimals: 3
-                            onValueChanged: { App.sun.shape.half_width = value }
+                            onValueModified: App.sun.shape.half_width = value
                         }
 
                         STSpinBoxField {
@@ -315,7 +460,7 @@ Flickable {
                             from: 0
                             to: 0.8
                             stepSize: 0.1
-                            onValueChanged: { App.sun.shape.csr = value }
+                            onValueModified: App.sun.shape.csr = value
                         }
 
                         CustomSunShapeTable { }
@@ -328,18 +473,6 @@ Flickable {
                         }
                     }
 
-                    SunShapeGraph {
-                        Layout.row: 0
-                        Layout.column: 0
-                        Layout.preferredWidth: 300
-                        Layout.preferredHeight: 400
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-
-                        title: "Emission Profile"
-                        xAxisTitle: "Angle (mrad)"
-                        yAxisTitle: "Intensity"
-                    }
                 }
             }
         }

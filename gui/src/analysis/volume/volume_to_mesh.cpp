@@ -63,7 +63,7 @@ InterpolatedVertex interpolate_vertex(glm::vec3 const& p0,
     return { position, normal };
 }
 
-void append_polygon(SolTrace::GUI::Data::Mesh&                              mesh,
+void append_polygon(SolTrace::GUI::Data::Mesh&             mesh,
                     std::vector<InterpolatedVertex> const& polygon,
                     glm::vec3 const&                       preferred_normal) {
     if (polygon.size() < 3) { return; }
@@ -124,9 +124,7 @@ void append_polygon(SolTrace::GUI::Data::Mesh&                              mesh
 
     auto emit_vertex = [&](InterpolatedVertex const& vertex) -> uint32_t {
         auto normal = vertex.normal;
-        if (glm::dot(normal, plane_normal) < 0.0f) {
-            normal = -normal;
-        }
+        if (glm::dot(normal, plane_normal) < 0.0f) { normal = -normal; }
 
         mesh.vertex.push_back(SolTrace::GUI::Data::Vertex {
             .position = vertex.position,
@@ -146,7 +144,7 @@ void append_polygon(SolTrace::GUI::Data::Mesh&                              mesh
 
 
 /// Given a tetrahedra, extract faces for a given iso val
-void polygonize_tetrahedron(SolTrace::GUI::Data::Mesh&                        mesh,
+void polygonize_tetrahedron(SolTrace::GUI::Data::Mesh&       mesh,
                             std::vector<InterpolatedVertex>& cached_polygon,
                             std::array<glm::vec3, 4> const&  positions,
                             std::array<glm::vec3, 4> const&  gradients,
@@ -219,8 +217,7 @@ volume_to_mesh(Support::TaskControl&        output,
     auto reader = Support::SparseGrid3DLookupCache(input_volume);
 
     if (active_span.x < 2 || active_span.y < 2 || active_span.z < 2 ||
-        grid_scale.x == 0.0f || grid_scale.y == 0.0f ||
-        grid_scale.z == 0.0f) {
+        grid_scale.x == 0.0f || grid_scale.y == 0.0f || grid_scale.z == 0.0f) {
         qDebug() << Q_FUNC_INFO << "invalid volume dimensions";
         return QStringLiteral("Invalid volume dimensions");
     }

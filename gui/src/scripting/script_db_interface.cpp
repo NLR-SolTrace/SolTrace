@@ -9,8 +9,8 @@
 #include <QJsonValue>
 
 #include <glm/geometric.hpp>
-#include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/constants.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include "sun.hpp"
 
@@ -50,9 +50,9 @@ bool read_vec3(QJsonValue const& value, glm::dvec3& out) {
     if (value.isObject()) {
         auto obj = value.toObject();
         out      = glm::dvec3 {
-            obj.value("x").toDouble(),
-            obj.value("y").toDouble(),
-            obj.value("z").toDouble(),
+                 obj.value("x").toDouble(),
+                 obj.value("y").toDouble(),
+                 obj.value("z").toDouble(),
         };
         return obj.contains("x") && obj.contains("y") && obj.contains("z");
     }
@@ -86,10 +86,10 @@ bool read_quat(QJsonValue const& value, glm::dquat& out) {
     if (value.isObject()) {
         auto obj = value.toObject();
         out      = glm::dquat {
-            obj.value("w").toDouble(),
-            obj.value("x").toDouble(),
-            obj.value("y").toDouble(),
-            obj.value("z").toDouble(),
+                 obj.value("w").toDouble(),
+                 obj.value("x").toDouble(),
+                 obj.value("y").toDouble(),
+                 obj.value("z").toDouble(),
         };
         return obj.contains("w") && obj.contains("x") && obj.contains("y") &&
                obj.contains("z");
@@ -166,7 +166,7 @@ QJsonArray user_distribution_to_json(SD::ray_source_ptr const& source) {
     return ret;
 }
 
-bool read_user_distribution(QJsonValue const& value,
+bool read_user_distribution(QJsonValue const&    value,
                             std::vector<double>& angles,
                             std::vector<double>& intensities) {
     if (!value.isArray()) return false;
@@ -209,25 +209,24 @@ void ensure_sun(SolTrace::GUI::Data::RaySourceResource& resource) {
         resource.source = SD::make_ray_source<SD::Sun>();
         resource.source->set_position(0.0, 0.0, 1.0);
         resource.source->set_shape(
-            SD::SunShape::GAUSSIAN, 4.65, 4.65, 0.1, {}, {});
+            SD::SunShape::GAUSSIAN, 4.65, 4.65, 0.1, { }, { });
         resource.source->set_gen_type(SD::GenType::RANDOM);
     }
 }
 
 void patch_sun_shape(SD::ray_source_ptr const& source,
-                     QJsonObject const& object) {
+                     QJsonObject const&        object) {
     auto shape = source->get_shape();
     if (object.contains(QStringLiteral("shape"))) {
-        if (auto parsed =
-                shape_from_string(object.value(QStringLiteral("shape"))
-                                      .toString())) {
+        if (auto parsed = shape_from_string(
+                object.value(QStringLiteral("shape")).toString())) {
             shape = *parsed;
         }
     }
 
-    auto sigma     = source->get_sigma();
+    auto sigma      = source->get_sigma();
     auto half_width = source->get_half_width();
-    auto csr       = source->get_circumsolar_ratio();
+    auto csr        = source->get_circumsolar_ratio();
 
     if (std::isnan(sigma)) { sigma = 4.65; }
     if (std::isnan(half_width)) { half_width = 4.65; }
@@ -250,9 +249,10 @@ void patch_sun_shape(SD::ray_source_ptr const& source,
     std::vector<double> intensities;
     source->get_user_data(angles, intensities);
     if (object.contains(QStringLiteral("user_distribution"))) {
-        read_user_distribution(object.value(QStringLiteral("user_distribution")),
-                               angles,
-                               intensities);
+        read_user_distribution(
+            object.value(QStringLiteral("user_distribution")),
+            angles,
+            intensities);
     }
     if (object.contains(QStringLiteral("userDistribution"))) {
         read_user_distribution(object.value(QStringLiteral("userDistribution")),
@@ -266,17 +266,17 @@ void patch_sun_shape(SD::ray_source_ptr const& source,
 QString resolve_script_content_path(QString const& working_directory,
                                     QString const& relative_path) {
     if (relative_path.isEmpty() || QFileInfo(relative_path).isAbsolute()) {
-        return {};
+        return { };
     }
 
-    auto base_dir = QDir(working_directory.isEmpty() ? QDir::currentPath()
-                                                     : working_directory);
+    auto base_dir  = QDir(working_directory.isEmpty() ? QDir::currentPath()
+                                                      : working_directory);
     auto base_path = QDir::cleanPath(base_dir.absolutePath());
     auto file_path = QDir::cleanPath(base_dir.filePath(relative_path));
 
     if (file_path == base_path ||
         !file_path.startsWith(base_path + QDir::separator())) {
-        return {};
+        return { };
     }
 
     return file_path;
@@ -304,9 +304,8 @@ QJsonObject to_qjson(SD::OpticalPropertySet const& properties,
           QString::fromStdString(
               SD::InteractionTypeMap.at(properties.get_interaction_type())) },
         { "error_distribution_type",
-          QString::fromStdString(
-              SD::DistributionTypeMap.at(
-                  properties.get_error_distribution(side))) },
+          QString::fromStdString(SD::DistributionTypeMap.at(
+              properties.get_error_distribution(side))) },
         { "transmissivity", properties.get_transmissivity(side) },
         { "reflectivity", properties.get_reflectivity(side) },
         { "slope_error", properties.get_slope_error(side) },
@@ -321,7 +320,8 @@ void patch_optical_properties(SD::OpticalPropertySet& properties,
                               QJsonObject const&      object) {
     if (object.contains("my_type")) {
         auto key = object.value("my_type").toString().toStdString();
-        if (auto value = SolTrace::GUI::Data::reverse_lookup(SD::InteractionTypeMap, key)) {
+        if (auto value = SolTrace::GUI::Data::reverse_lookup(
+                SD::InteractionTypeMap, key)) {
             properties.set_interaction_type(*value);
         }
     }
@@ -329,7 +329,8 @@ void patch_optical_properties(SD::OpticalPropertySet& properties,
     if (object.contains("error_distribution_type")) {
         auto key =
             object.value("error_distribution_type").toString().toStdString();
-        if (auto value = SolTrace::GUI::Data::reverse_lookup(SD::DistributionTypeMap, key)) {
+        if (auto value = SolTrace::GUI::Data::reverse_lookup(
+                SD::DistributionTypeMap, key)) {
             auto slope_error = properties.get_slope_error(side);
             auto spec_error  = properties.get_specularity_error(side);
             properties.set_errors(side, *value, slope_error, spec_error);
@@ -341,30 +342,28 @@ void patch_optical_properties(SD::OpticalPropertySet& properties,
             side, object.value("transmissivity").toDouble());
     }
     if (object.contains("transmitivity")) {
-        properties.set_transmissivity(
-            side, object.value("transmitivity").toDouble());
+        properties.set_transmissivity(side,
+                                      object.value("transmitivity").toDouble());
     }
     if (object.contains("reflectivity")) {
-        properties.set_reflectivity(
-            side, object.value("reflectivity").toDouble());
+        properties.set_reflectivity(side,
+                                    object.value("reflectivity").toDouble());
     }
     if (object.contains("slope_error")) {
         auto distribution = properties.get_error_distribution(side);
         auto spec_error   = properties.get_specularity_error(side);
-        properties.set_errors(
-            side,
-            distribution,
-            object.value("slope_error").toDouble(),
-            spec_error);
+        properties.set_errors(side,
+                              distribution,
+                              object.value("slope_error").toDouble(),
+                              spec_error);
     }
     if (object.contains("specularity_error")) {
         auto distribution = properties.get_error_distribution(side);
         auto slope_error  = properties.get_slope_error(side);
-        properties.set_errors(
-            side,
-            distribution,
-            slope_error,
-            object.value("specularity_error").toDouble());
+        properties.set_errors(side,
+                              distribution,
+                              slope_error,
+                              object.value("specularity_error").toDouble());
     }
 
     double refraction_index_front;
@@ -391,7 +390,8 @@ void patch_optical_properties(SD::OpticalPropertySet& properties,
 }
 
 template <class Component>
-QVector<SolTrace::GUI::Data::Entity> collect_entities(entt::registry const& registry) {
+QVector<SolTrace::GUI::Data::Entity>
+collect_entities(entt::registry const& registry) {
     QVector<SolTrace::GUI::Data::Entity> ret;
     for (auto entity : registry.view<Component const>()) {
         ret.push_back(SolTrace::GUI::Data::Entity { entity });
@@ -399,13 +399,24 @@ QVector<SolTrace::GUI::Data::Entity> collect_entities(entt::registry const& regi
     return ret;
 }
 
+bool is_visible_tag(SolTrace::GUI::Data::Database const* database,
+                    SolTrace::GUI::Data::Entity          tag) {
+    return database && database->valid(tag) &&
+           database->as_registry().all_of<SolTrace::GUI::Data::TagComponent>(
+               tag) &&
+           !database->is_hidden_tag(tag);
+}
+
 } // namespace
 
-ScriptDBInterface::ScriptDBInterface(SolTrace::GUI::Data::Database* database, QObject* parent)
+ScriptDBInterface::ScriptDBInterface(SolTrace::GUI::Data::Database* database,
+                                     QObject*                       parent)
     : QObject { parent }, m_database { database } { }
 
 void ScriptDBInterface::set_database(SolTrace::GUI::Data::Database* database) {
+    if (m_database == database) return;
     m_database = database;
+    emit database_changed(database);
 }
 
 void ScriptDBInterface::update_working_directory(QString directory) {
@@ -423,34 +434,37 @@ QJsonArray ScriptDBInterface::vec3(double x, double y, double z) {
 QJsonArray ScriptDBInterface::vec3_add(QJsonValue a, QJsonValue b) {
     glm::dvec3 lhs;
     glm::dvec3 rhs;
-    if (!read_vec3_or_scalar(a, lhs) || !read_vec3_or_scalar(b, rhs)) return {};
+    if (!read_vec3_or_scalar(a, lhs) || !read_vec3_or_scalar(b, rhs))
+        return { };
     return to_json(lhs + rhs);
 }
 
 QJsonArray ScriptDBInterface::vec3_sub(QJsonValue a, QJsonValue b) {
     glm::dvec3 lhs;
     glm::dvec3 rhs;
-    if (!read_vec3_or_scalar(a, lhs) || !read_vec3_or_scalar(b, rhs)) return {};
+    if (!read_vec3_or_scalar(a, lhs) || !read_vec3_or_scalar(b, rhs))
+        return { };
     return to_json(lhs - rhs);
 }
 
 QJsonArray ScriptDBInterface::vec3_scale(QJsonValue value, double scale) {
     glm::dvec3 vector;
-    if (!read_vec3_or_scalar(value, vector)) return {};
+    if (!read_vec3_or_scalar(value, vector)) return { };
     return to_json(vector * scale);
 }
 
 double ScriptDBInterface::vec3_dot(QJsonValue a, QJsonValue b) {
     glm::dvec3 lhs;
     glm::dvec3 rhs;
-    if (!read_vec3_or_scalar(a, lhs) || !read_vec3_or_scalar(b, rhs)) return 0.0;
+    if (!read_vec3_or_scalar(a, lhs) || !read_vec3_or_scalar(b, rhs))
+        return 0.0;
     return glm::dot(lhs, rhs);
 }
 
 QJsonArray ScriptDBInterface::vec3_cross(QJsonValue a, QJsonValue b) {
     glm::dvec3 lhs;
     glm::dvec3 rhs;
-    if (!read_vec3(a, lhs) || !read_vec3(b, rhs)) return {};
+    if (!read_vec3(a, lhs) || !read_vec3(b, rhs)) return { };
     return to_json(glm::cross(lhs, rhs));
 }
 
@@ -469,9 +483,9 @@ double ScriptDBInterface::vec3_distance(QJsonValue a, QJsonValue b) {
 
 QJsonArray ScriptDBInterface::vec3_normalize(QJsonValue value) {
     glm::dvec3 vector;
-    if (!read_vec3(value, vector)) return {};
+    if (!read_vec3(value, vector)) return { };
     auto length = glm::length(vector);
-    if (length <= 0.0) return {};
+    if (length <= 0.0) return { };
     return to_json(vector / length);
 }
 
@@ -486,9 +500,9 @@ QJsonArray ScriptDBInterface::quat_identity() {
 QJsonArray ScriptDBInterface::quat_from_axis_angle(QJsonValue axis,
                                                    double     degrees) {
     glm::dvec3 axis_vector;
-    if (!read_vec3(axis, axis_vector)) return {};
+    if (!read_vec3(axis, axis_vector)) return { };
     auto length = glm::length(axis_vector);
-    if (length <= 0.0) return {};
+    if (length <= 0.0) return { };
 
     return to_json(glm::angleAxis(deg_to_rad(degrees), axis_vector / length));
 }
@@ -496,29 +510,29 @@ QJsonArray ScriptDBInterface::quat_from_axis_angle(QJsonValue axis,
 QJsonArray ScriptDBInterface::quat_mul(QJsonValue a, QJsonValue b) {
     glm::dquat lhs;
     glm::dquat rhs;
-    if (!read_quat(a, lhs) || !read_quat(b, rhs)) return {};
+    if (!read_quat(a, lhs) || !read_quat(b, rhs)) return { };
     return to_json(lhs * rhs);
 }
 
 QJsonArray ScriptDBInterface::quat_conjugate(QJsonValue value) {
     glm::dquat q;
-    if (!read_quat(value, q)) return {};
+    if (!read_quat(value, q)) return { };
     return to_json(glm::conjugate(q));
 }
 
 QJsonArray ScriptDBInterface::quat_inverse(QJsonValue value) {
     glm::dquat q;
-    if (!read_quat(value, q)) return {};
+    if (!read_quat(value, q)) return { };
     auto length = glm::length(q);
-    if (length <= 0.0) return {};
+    if (length <= 0.0) return { };
     return to_json(glm::inverse(q));
 }
 
 QJsonArray ScriptDBInterface::quat_normalize(QJsonValue value) {
     glm::dquat q;
-    if (!read_quat(value, q)) return {};
+    if (!read_quat(value, q)) return { };
     auto length = glm::length(q);
-    if (length <= 0.0) return {};
+    if (length <= 0.0) return { };
     return to_json(glm::normalize(q));
 }
 
@@ -526,20 +540,24 @@ QJsonArray ScriptDBInterface::quat_rotate_vec3(QJsonValue rotation,
                                                QJsonValue value) {
     glm::dquat q;
     glm::dvec3 vector;
-    if (!read_quat(rotation, q) || !read_vec3(value, vector)) return {};
+    if (!read_quat(rotation, q) || !read_vec3(value, vector)) return { };
     auto length = glm::length(q);
-    if (length <= 0.0) return {};
+    if (length <= 0.0) return { };
     return to_json(glm::normalize(q) * vector);
 }
 
 QJsonObject ScriptDBInterface::get_ray_source() {
-    if (!m_database) return {};
+    if (!m_database) return { };
 
-    auto source = m_database->get_ray_source();
-    if (!source) return {};
+    auto const* resource = m_database->ray_source_resource.get();
+    auto        source   = resource ? resource->source : nullptr;
+    if (!source) return { };
 
     return QJsonObject {
-        { QStringLiteral("type"), QStringLiteral("directional") },
+        { QStringLiteral("type"),
+          resource->type == SolTrace::GUI::Data::RaySourceType::PointSource
+              ? QStringLiteral("point_source")
+              : QStringLiteral("directional") },
         { QStringLiteral("position"), to_json(source->get_position()) },
         { QStringLiteral("generation"),
           gen_type_to_string(source->get_gen_type()) },
@@ -567,7 +585,8 @@ void ScriptDBInterface::set_ray_source(QJsonObject object) {
                     resource.source->set_position(position);
                 }
 
-                auto generation_value = object.value(QStringLiteral("generation"));
+                auto generation_value =
+                    object.value(QStringLiteral("generation"));
                 if (generation_value.isUndefined()) {
                     generation_value = object.value(QStringLiteral("gen_type"));
                 }
@@ -636,12 +655,13 @@ void ScriptDBInterface::set_sun_shape(QJsonObject object) {
 }
 
 QVector<SolTrace::GUI::Data::Entity> ScriptDBInterface::get_all_elements() {
-    if (!m_database) return {};
-    return collect_entities<SolTrace::GUI::Data::ElementComponent>(m_database->as_registry());
+    if (!m_database) return { };
+    return collect_entities<SolTrace::GUI::Data::ElementComponent>(
+        m_database->as_registry());
 }
 
 SolTrace::GUI::Data::Entity ScriptDBInterface::create() {
-    if (!m_database) return {};
+    if (!m_database) return { };
 
     auto  entity = m_database->create();
     auto& reg    = m_database->as_registry();
@@ -657,7 +677,7 @@ SolTrace::GUI::Data::Entity ScriptDBInterface::create() {
     return SolTrace::GUI::Data::Entity { entity };
 }
 
-void ScriptDBInterface::destroy(SolTrace::GUI::Data::Entity entity) {
+void ScriptDBInterface::destroy_entity(SolTrace::GUI::Data::Entity entity) {
     if (!m_database || !m_database->valid(entity)) return;
 
     auto& reg = m_database->as_registry();
@@ -673,6 +693,10 @@ void ScriptDBInterface::destroy(SolTrace::GUI::Data::Entity entity) {
     }
 
     if (reg.all_of<SolTrace::GUI::Data::TagComponent>(entity)) {
+        if (m_database->is_hidden_tag(entity)) {
+            qWarning() << "Scripts cannot destroy hidden tags" << entity;
+            return;
+        }
         m_database->delete_tag(entity);
         return;
     }
@@ -705,40 +729,199 @@ void ScriptDBInterface::destroy(SolTrace::GUI::Data::Entity entity) {
     reg.destroy(entity);
 }
 
+SolTrace::GUI::Data::Entity
+ScriptDBInterface::get_parent(SolTrace::GUI::Data::Entity entity) {
+    if (!m_database || !m_database->valid(entity)) return { };
+    return m_database->parent_of(entity);
+}
+
+QVector<SolTrace::GUI::Data::Entity>
+ScriptDBInterface::get_children(SolTrace::GUI::Data::Entity entity) {
+    QVector<SolTrace::GUI::Data::Entity> result;
+    if (!m_database || !m_database->valid(entity)) return result;
+
+    auto const children = m_database->children_of(entity);
+    result.reserve(static_cast<qsizetype>(children.size()));
+    for (auto child : children) {
+        if (m_database->valid(child)) result.push_back(child);
+    }
+    return result;
+}
+
+bool ScriptDBInterface::can_set_parent(SolTrace::GUI::Data::Entity child,
+                                       SolTrace::GUI::Data::Entity parent) {
+    return m_database && m_database->can_set_parent(child, parent);
+}
+
+bool ScriptDBInterface::set_parent(SolTrace::GUI::Data::Entity child,
+                                   SolTrace::GUI::Data::Entity parent) {
+    return m_database && m_database->set_parent(child, parent);
+}
+
+bool ScriptDBInterface::clear_parent(SolTrace::GUI::Data::Entity child) {
+    if (!m_database || !m_database->valid(child) ||
+        !m_database->as_registry()
+             .all_of<SolTrace::GUI::Data::ElementComponent>(child)) {
+        return false;
+    }
+
+    m_database->unset_parent(child);
+    return m_database->parent_of(child) == entt::null;
+}
+
+QVector<SolTrace::GUI::Data::Entity> ScriptDBInterface::get_all_tags() {
+    QVector<SolTrace::GUI::Data::Entity> result;
+    if (!m_database) return result;
+
+    for (auto tag :
+         m_database->as_registry().view<SolTrace::GUI::Data::TagComponent>(
+             entt::exclude<SolTrace::GUI::Data::HiddenTagComponent>)) {
+        result.push_back(tag);
+    }
+    return result;
+}
+
+SolTrace::GUI::Data::Entity ScriptDBInterface::create_tag(QString name) {
+    if (!m_database) return { };
+    return m_database->create_tag(std::move(name));
+}
+
+SolTrace::GUI::Data::Entity ScriptDBInterface::ensure_tag(QString name) {
+    name = name.trimmed();
+    if (name.isEmpty()) name = QStringLiteral("Tag");
+
+    auto const existing = find_tag(name);
+    if (existing.is_valid()) return existing;
+
+    // Do not repeatedly manufacture suffixed visible tags when an internal
+    // tag reserves the requested exact name.
+    if (m_database) {
+        auto const view = m_database->as_registry()
+                              .view<SolTrace::GUI::Data::TagComponent,
+                                    SolTrace::GUI::Data::IdentityComponent,
+                                    SolTrace::GUI::Data::HiddenTagComponent>();
+        for (auto const& [tag, identity] : view.each()) {
+            if (identity.name == name) {
+                qWarning() << "A hidden tag reserves the requested name"
+                           << name;
+                return { };
+            }
+        }
+    }
+
+    return create_tag(std::move(name));
+}
+
+SolTrace::GUI::Data::Entity ScriptDBInterface::find_tag(QString name) {
+    if (!m_database) return { };
+    name = name.trimmed();
+    if (name.isEmpty()) name = QStringLiteral("Tag");
+
+    auto const view =
+        m_database->as_registry()
+            .view<SolTrace::GUI::Data::TagComponent,
+                  SolTrace::GUI::Data::IdentityComponent>(
+                entt::exclude<SolTrace::GUI::Data::HiddenTagComponent>);
+    for (auto const& [tag, identity] : view.each()) {
+        if (identity.name == name) return tag;
+    }
+    return { };
+}
+
+QVector<SolTrace::GUI::Data::Entity>
+ScriptDBInterface::get_tags(SolTrace::GUI::Data::Entity entity) {
+    QVector<SolTrace::GUI::Data::Entity> result;
+    if (!m_database || !m_database->valid(entity)) return result;
+
+    for (auto tag : m_database->tags_for(entity)) {
+        if (m_database->valid(tag) && !m_database->is_hidden_tag(tag)) {
+            result.push_back(tag);
+        }
+    }
+    return result;
+}
+
+QVector<SolTrace::GUI::Data::Entity>
+ScriptDBInterface::get_tagged(SolTrace::GUI::Data::Entity tag) {
+    if (!is_visible_tag(m_database, tag)) return { };
+    return m_database->tagged_with(tag);
+}
+
+bool ScriptDBInterface::assign_tag(SolTrace::GUI::Data::Entity entity,
+                                   SolTrace::GUI::Data::Entity tag) {
+    if (!m_database || !m_database->valid(entity) ||
+        !is_visible_tag(m_database, tag)) {
+        return false;
+    }
+
+    m_database->assign_tag(entity, tag);
+    return m_database->is_tagged(entity, tag);
+}
+
+bool ScriptDBInterface::unassign_tag(SolTrace::GUI::Data::Entity entity,
+                                     SolTrace::GUI::Data::Entity tag) {
+    if (!m_database || !m_database->valid(entity) ||
+        !is_visible_tag(m_database, tag)) {
+        return false;
+    }
+
+    m_database->unassign_tag(entity, tag);
+    return !m_database->is_tagged(entity, tag);
+}
+
+bool ScriptDBInterface::delete_tag(SolTrace::GUI::Data::Entity tag) {
+    if (!is_visible_tag(m_database, tag)) return false;
+
+    m_database->delete_tag(tag);
+    return !m_database->valid(tag);
+}
+
 bool ScriptDBInterface::valid(SolTrace::GUI::Data::Entity entity) {
     return m_database && m_database->valid(entity);
 }
 
 QString ScriptDBInterface::get_identity(SolTrace::GUI::Data::Entity entity) {
-    if (!m_database || !m_database->valid(entity)) return {};
+    if (!m_database || !m_database->valid(entity)) return { };
     return m_database->name_of(entity);
 }
 
-void ScriptDBInterface::set_identity(SolTrace::GUI::Data::Entity entity, QString name) {
+void ScriptDBInterface::set_identity(SolTrace::GUI::Data::Entity entity,
+                                     QString                     name) {
     if (!m_database || !m_database->valid(entity)) return;
-    m_database->identity.set(entity, SolTrace::GUI::Data::IdentityComponent { .name = name });
+    // Tags use a dedicated unique-name lifecycle; do not let the generic
+    // identity setter bypass it.
+    if (m_database->as_registry().all_of<SolTrace::GUI::Data::TagComponent>(
+            entity)) {
+        return;
+    }
+    m_database->identity.set(
+        entity, SolTrace::GUI::Data::IdentityComponent { .name = name });
 }
 
 bool ScriptDBInterface::get_invisible(SolTrace::GUI::Data::Entity entity) {
     if (!m_database || !m_database->valid(entity)) return false;
-    return m_database->as_registry().all_of<SolTrace::GUI::Data::InvisibleComponent>(entity);
+    return m_database->as_registry()
+        .all_of<SolTrace::GUI::Data::InvisibleComponent>(entity);
 }
 
-void ScriptDBInterface::set_invisible(SolTrace::GUI::Data::Entity entity, bool invisible) {
+void ScriptDBInterface::set_invisible(SolTrace::GUI::Data::Entity entity,
+                                      bool                        invisible) {
     if (!m_database || !m_database->valid(entity)) return;
 
     if (invisible) {
-        m_database->invisible.set(entity, SolTrace::GUI::Data::InvisibleComponent {});
+        m_database->invisible.set(entity,
+                                  SolTrace::GUI::Data::InvisibleComponent { });
     } else if (get_invisible(entity)) {
         m_database->invisible.remove(entity);
     }
 }
 
-QJsonObject ScriptDBInterface::get_transform(SolTrace::GUI::Data::Entity entity) {
-    if (!m_database) return {};
+QJsonObject
+ScriptDBInterface::get_transform(SolTrace::GUI::Data::Entity entity) {
+    if (!m_database) return { };
 
     auto* transform = m_database->transform.get(entity);
-    if (!transform) return {};
+    if (!transform) return { };
 
     return QJsonObject {
         { "position", to_json(transform->position) },
@@ -746,40 +929,44 @@ QJsonObject ScriptDBInterface::get_transform(SolTrace::GUI::Data::Entity entity)
     };
 }
 
-void ScriptDBInterface::set_transform(SolTrace::GUI::Data::Entity entity, QJsonObject object) {
+void ScriptDBInterface::set_transform(SolTrace::GUI::Data::Entity entity,
+                                      QJsonObject                 object) {
     if (!m_database || !m_database->valid(entity)) return;
 
-    m_database->transform.patch(entity, [&](SolTrace::GUI::Data::TransformComponent& transform) {
-        glm::dvec3 position;
-        if (object.contains("position") &&
-            read_vec3(object.value("position"), position)) {
-            transform.position = position;
-        }
+    m_database->transform.patch(
+        entity, [&](SolTrace::GUI::Data::TransformComponent& transform) {
+            glm::dvec3 position;
+            if (object.contains("position") &&
+                read_vec3(object.value("position"), position)) {
+                transform.position = position;
+            }
 
-        glm::dquat rotation;
-        if (object.contains("rotation") &&
-            read_quat(object.value("rotation"), rotation)) {
-            transform.rotation = glm::normalize(rotation);
-        }
-    });
+            glm::dquat rotation;
+            if (object.contains("rotation") &&
+                read_quat(object.value("rotation"), rotation)) {
+                transform.rotation = glm::normalize(rotation);
+            }
+        });
 }
 
 QVector<SolTrace::GUI::Data::Entity> ScriptDBInterface::get_all_materials() {
-    if (!m_database) return {};
+    if (!m_database) return { };
     return collect_entities<SolTrace::GUI::Data::MaterialGroupComponent>(
         m_database->as_registry());
 }
 
 SolTrace::GUI::Data::Entity ScriptDBInterface::create_material() {
-    if (!m_database) return {};
-    return SolTrace::GUI::Data::Entity { m_database->add_material_group("Material", {}) };
+    if (!m_database) return { };
+    return SolTrace::GUI::Data::Entity { m_database->add_material_group(
+        "Material", { }) };
 }
 
-QJsonObject ScriptDBInterface::get_material_properties(SolTrace::GUI::Data::Entity entity) {
-    if (!m_database) return {};
+QJsonObject
+ScriptDBInterface::get_material_properties(SolTrace::GUI::Data::Entity entity) {
+    if (!m_database) return { };
 
     auto* material = m_database->material_parameters.get(entity);
-    if (!material) return {};
+    if (!material) return { };
 
     return QJsonObject {
         { "front", to_qjson(material->optics, SD::OpticalSide::Front) },
@@ -787,8 +974,9 @@ QJsonObject ScriptDBInterface::get_material_properties(SolTrace::GUI::Data::Enti
     };
 }
 
-void ScriptDBInterface::set_material_properties(SolTrace::GUI::Data::Entity  entity,
-                                                QJsonObject object) {
+void ScriptDBInterface::set_material_properties(
+    SolTrace::GUI::Data::Entity entity,
+    QJsonObject                 object) {
     if (!m_database || !m_database->valid(entity)) return;
 
     m_database->material_parameters.try_patch(
@@ -813,21 +1001,23 @@ void ScriptDBInterface::remove_material(SolTrace::GUI::Data::Entity entity) {
 }
 
 QVector<SolTrace::GUI::Data::Entity> ScriptDBInterface::get_all_geometries() {
-    if (!m_database) return {};
+    if (!m_database) return { };
     return collect_entities<SolTrace::GUI::Data::GeometryGroupComponent>(
         m_database->as_registry());
 }
 
 SolTrace::GUI::Data::Entity ScriptDBInterface::create_geometry() {
-    if (!m_database) return {};
-    return SolTrace::GUI::Data::Entity { m_database->add_geometry_group("Geometry", {}) };
+    if (!m_database) return { };
+    return SolTrace::GUI::Data::Entity { m_database->add_geometry_group(
+        "Geometry", { }) };
 }
 
-QJsonObject ScriptDBInterface::get_geometry_properties(SolTrace::GUI::Data::Entity entity) {
-    if (!m_database) return {};
+QJsonObject
+ScriptDBInterface::get_geometry_properties(SolTrace::GUI::Data::Entity entity) {
+    if (!m_database) return { };
 
     auto* geometry = m_database->geometry_parameters.get(entity);
-    if (!geometry) return {};
+    if (!geometry) return { };
 
     QJsonObject ret;
 
@@ -846,8 +1036,9 @@ QJsonObject ScriptDBInterface::get_geometry_properties(SolTrace::GUI::Data::Enti
     return ret;
 }
 
-void ScriptDBInterface::set_geometry_properties(SolTrace::GUI::Data::Entity  entity,
-                                                QJsonObject object) {
+void ScriptDBInterface::set_geometry_properties(
+    SolTrace::GUI::Data::Entity entity,
+    QJsonObject                 object) {
     if (!m_database || !m_database->valid(entity)) return;
 
     m_database->geometry_parameters.try_patch(
@@ -873,8 +1064,9 @@ void ScriptDBInterface::remove_geometry(SolTrace::GUI::Data::Entity entity) {
     m_database->delete_geometry_group(entity);
 }
 
-SolTrace::GUI::Data::Entity ScriptDBInterface::get_material_of(SolTrace::GUI::Data::Entity entity) {
-    if (!m_database || !m_database->valid(entity)) return {};
+SolTrace::GUI::Data::Entity
+ScriptDBInterface::get_material_of(SolTrace::GUI::Data::Entity entity) {
+    if (!m_database || !m_database->valid(entity)) return { };
     return SolTrace::GUI::Data::Entity { m_database->material_of(entity) };
 }
 
@@ -884,8 +1076,9 @@ void ScriptDBInterface::set_material_of(SolTrace::GUI::Data::Entity entity,
     m_database->assign_material(entity, material);
 }
 
-SolTrace::GUI::Data::Entity ScriptDBInterface::get_geometry_of(SolTrace::GUI::Data::Entity entity) {
-    if (!m_database || !m_database->valid(entity)) return {};
+SolTrace::GUI::Data::Entity
+ScriptDBInterface::get_geometry_of(SolTrace::GUI::Data::Entity entity) {
+    if (!m_database || !m_database->valid(entity)) return { };
     return SolTrace::GUI::Data::Entity { m_database->geometry_of(entity) };
 }
 
@@ -901,7 +1094,7 @@ QString ScriptDBInterface::get_text_content(QString relative_path) {
         resolve_script_content_path(m_working_directory, relative_path);
     if (target_file_path.isEmpty()) {
         qWarning() << "Invalid script content path:" << relative_path;
-        return {};
+        return { };
     }
 
     auto target_file = QFile(target_file_path);
@@ -919,14 +1112,14 @@ QJsonValue ScriptDBInterface::get_json_content(QString relative_path) {
         resolve_script_content_path(m_working_directory, relative_path);
     if (target_file_path.isEmpty()) {
         qWarning() << "Invalid script content path:" << relative_path;
-        return {};
+        return { };
     }
 
     auto target_file = QFile(target_file_path);
 
     if (!target_file.open(QFile::ReadOnly)) {
         qWarning() << "Unable to open requested file:" << target_file_path;
-        return {};
+        return { };
     }
 
     QJsonParseError error;
@@ -936,7 +1129,7 @@ QJsonValue ScriptDBInterface::get_json_content(QString relative_path) {
     if (error.error != QJsonParseError::NoError) {
         qWarning() << "Requested JSON content parse error:"
                    << error.errorString();
-        return {};
+        return { };
     }
 
     return document.isArray() ? (QJsonValue)document.array()

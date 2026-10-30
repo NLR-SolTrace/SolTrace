@@ -8,16 +8,32 @@ import SolTrace
 ColumnLayout {
     id: root
 
-    property int selected_result_index: -1
-    readonly property bool has_current_result: selected_result_index >= 0
-                                               && selected_result_index < result_list.count
-
     signal closeRequested()
 
     spacing: 8
 
     function formatRayCount(count) {
         return Number(count).toLocaleString(Qt.locale(), "f", 0) + " rays"
+    }
+
+    function formatDetail(value, suffix) {
+        if (!isFinite(value)) {
+            return "--"
+        }
+
+        return Number(value).toLocaleString(Qt.locale(), "G", 6)
+                + (suffix.length ? " " + suffix : "")
+    }
+
+    function formatPowerPerRay() {
+        const ray_area_weight = AppData.intersections.ray_area_weight
+        const dni = AppData.flux.dni
+        if (!isFinite(ray_area_weight) || ray_area_weight <= 0
+                || !isFinite(dni) || dni < 0) {
+            return "--"
+        }
+
+        return formatDetail(dni * ray_area_weight, "W")
     }
 
     function showResultMode() {
@@ -29,93 +45,9 @@ ColumnLayout {
         App.view.simulation_content_view = false
     }
 
-    Label {
-        text: "Current Result"
-        font.bold: true
-    }
-
-    RowLayout {
-        Layout.fillWidth: true
-        enabled: root.has_current_result
-        spacing: 8
-
-        Label {
-            Layout.alignment: Qt.AlignVCenter
-            font.family: "Font Awesome 7 Free"
-            font.pointSize: 16
-            text: "\uf303"
-        }
-
-        STTextField {
-            Layout.fillWidth: true
-            text: root.has_current_result ?
-                      AppData.simulation.current_simulation_result_name : ""
-
-            onTextEdited: {
-                if (root.has_current_result) {
-                    AppData.simulation.rename_result(root.selected_result_index,
-                                                     text)
-                }
-            }
-        }
-    }
-
-    RowLayout {
-        Layout.fillWidth: true
-
-        STIconButton {
-            enabled: root.has_current_result
-            icon: "\uf2ed"
-            toolTip: "Delete Result"
-            onClicked: AppData.simulation.delete_result(root.selected_result_index)
-        }
-
-        Item {
-            Layout.fillWidth: true
-        }
-
-        STIconButton {
-            enabled: root.has_current_result
-            icon: "\uf24d"
-            label: "Create Scene"
-            toolTip: "Create Scene from Result"
-
-            onClicked: {
-                AppData.simulation.duplicate_current_result_for_edit()
-                root.showSceneMode()
-                root.closeRequested()
-            }
-        }
-
-        STIconButton {
-            enabled: root.has_current_result
-            icon: "\uf019"
-            label: "Export"
-            toolTip: "Export Result"
-            onClicked: {
-                AppData.simulation.select_result(root.selected_result_index)
-                AppData.exporter.export_current()
-            }
-        }
-    }
-
-    Rectangle {
-        color: Material.dividerColor
-        Layout.preferredHeight: 1
-        Layout.fillWidth: true
-        Layout.leftMargin: 3
-        Layout.rightMargin: 3
-    }
-
     InlineDocumentation {
         key: "analyze.results"
         Layout.fillWidth: true
-    }
-
-    Label {
-        Layout.fillWidth: true
-        text: "Simulation Results"
-        font.bold: true
     }
 
     Label {
@@ -124,6 +56,70 @@ ColumnLayout {
         text: "No simulation results yet."
         opacity: 0.7
         horizontalAlignment: Text.AlignHCenter
+    }
+
+    STFormPanel {
+        Layout.fillWidth: true
+        title: "Selected Result Summary"
+        documentationKey: "analyze.results.summary"
+        visible: AppData.intersections.has_results
+
+        STFormRow {
+            label: "Result"
+
+            Label {
+                Layout.fillWidth: true
+                text: AppData.simulation.current_simulation_result_name
+                elide: Text.ElideRight
+                horizontalAlignment: Text.AlignRight
+            }
+        }
+
+        STFormRow {
+            label: "Recorded Rays"
+
+            Label {
+                Layout.fillWidth: true
+                text: root.formatRayCount(
+                          AppData.intersections.ray_geometry.available_rays)
+                horizontalAlignment: Text.AlignRight
+            }
+        }
+
+        STFormRow {
+            label: "Sun Rays Traced"
+
+            Label {
+                Layout.fillWidth: true
+                text: Number(AppData.intersections.sun_ray_count)
+                          .toLocaleString(Qt.locale(), "f", 0)
+                horizontalAlignment: Text.AlignRight
+            }
+        }
+
+        STFormRow {
+            label: "Sun Plane Box"
+
+            Label {
+                Layout.fillWidth: true
+                text: root.formatDetail(
+                          AppData.intersections.sun_plane_width, "m")
+                      + " × "
+                      + root.formatDetail(
+                          AppData.intersections.sun_plane_height, "m")
+                horizontalAlignment: Text.AlignRight
+            }
+        }
+
+        STFormRow {
+            label: "Power per Ray"
+
+            Label {
+                Layout.fillWidth: true
+                text: root.formatPowerPerRay()
+                horizontalAlignment: Text.AlignRight
+            }
+        }
     }
 
     ListView {
@@ -140,15 +136,15 @@ ColumnLayout {
         onCountChanged: {
             if (count > previousCount) {
                 currentIndex = count - 1
-                root.selected_result_index = currentIndex
-            } else if (currentIndex >= count) {
+            } else if (count === 0) {
+                currentIndex = -1
+            } else if (currentIndex < 0 || currentIndex >= count) {
                 currentIndex = count - 1
-                root.selected_result_index = currentIndex
             }
             previousCount = count
         }
 
-        delegate: ItemDelegate {
+        delegate: STExpandingItemDelegate {
             id: resultDelegate
             required property int index
 
@@ -156,61 +152,99 @@ ColumnLayout {
             required property var when
             required property var ray_count
 
-            width: result_list.width
-            implicitHeight: 64
-            highlighted: ListView.isCurrent ? ListView.isCurrent : false
-            hoverEnabled: true
+            text: name
+            highlighted: result_list.currentIndex === index
 
-            background: Rectangle {
-                opacity: resultDelegate.enabled ? 1 : 0.3
-                color: resultDelegate.down
-                       ? Material.rippleColor
-                       : resultDelegate.highlighted
-                         ? Material.highlightedRippleColor
-                         : resultDelegate.hovered
-                           ? Qt.alpha(Material.highlightedRippleColor, 0.35)
-                           : "transparent"
-                radius: 14
-            }
+            onDeleteRequested: AppData.simulation.delete_result(index)
 
-            contentItem: RowLayout {
-                spacing: 10
-
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignVCenter
-                    spacing: 2
-
-                    Label {
-                        Layout.fillWidth: true
-                        text: resultDelegate.name
-                        font.bold: true
-                        font.pointSize: 18
-                        elide: Text.ElideRight
-                    }
-
-                    Label {
-                        Layout.fillWidth: true
-                        text: Qt.formatDateTime(resultDelegate.when,
-                                                "yyyy-MM-dd hh:mm:ss")
-                        opacity: 0.7
-                        elide: Text.ElideRight
-                    }
-                }
-
-                Label {
-                    Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
-                    text: root.formatRayCount(resultDelegate.ray_count)
-                    opacity: 0.85
-                    horizontalAlignment: Text.AlignRight
-                }
+            onRename: function(text) {
+                AppData.simulation.rename_result(index, text)
             }
 
             onClicked: {
                 result_list.currentIndex = index
-                root.selected_result_index = index
                 AppData.simulation.select_result(index)
                 root.showResultMode()
+            }
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 2
+
+                Label {
+                    Layout.fillWidth: true
+                    text: Qt.formatDateTime(resultDelegate.when,
+                                            "yyyy-MM-dd hh:mm:ss")
+                    opacity: 0.7
+                    elide: Text.ElideRight
+                }
+
+                Label {
+                    Layout.fillWidth: true
+                    text: root.formatRayCount(resultDelegate.ray_count)
+                    opacity: 0.85
+                    elide: Text.ElideRight
+                }
+            }
+
+            STIconButton {
+                icon: "\uf24d"
+                label: "Create Scene"
+                toolTip: "Create Scene from Result"
+
+                onClicked: {
+                    AppData.simulation.select_result(index)
+                    AppData.simulation.duplicate_current_result_for_edit()
+                    root.showSceneMode()
+                    root.closeRequested()
+                }
+            }
+
+            STIconButton {
+                icon: "\uf019"
+                label: "Export"
+                toolTip: "Export Result"
+
+                onClicked: {
+                    AppData.simulation.select_result(index)
+                    AppData.exporter.export_current()
+                }
+            }
+
+            STIconButton {
+                icon: "\uf2ed"
+                label: "Delete"
+                toolTip: "Delete Result"
+                onClicked: confirmDelete.open()
+
+                STDialog {
+                    id: confirmDelete
+                    title: "Confirm Deletion"
+
+                    ColumnLayout {
+                        Label {
+                            Layout.fillWidth: true
+                            text: "Are you sure you wish to delete the following simulation result?"
+                            wrapMode: Text.Wrap
+                        }
+
+                        Label {
+                            Layout.fillWidth: true
+                            text: resultDelegate.name
+                            font.bold: true
+                            elide: Text.ElideRight
+                        }
+
+                        Label {
+                            Layout.fillWidth: true
+                            text: "This cannot be undone."
+                            opacity: 0.7
+                        }
+                    }
+
+                    standardButtons: Dialog.Ok | Dialog.Cancel
+                    onAccepted: resultDelegate.deleteRequested()
+                }
             }
         }
     }

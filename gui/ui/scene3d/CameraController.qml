@@ -370,9 +370,9 @@ Item {
 
 
     function mousePressed(coord, pan) {
-        console.debug("[CameraController] mousePressed coord=" + coord
-                      + " pan=" + pan
-                      + " use_wasd=" + root.use_wasd)
+        // console.debug("[CameraController] mousePressed coord=" + coord
+        //               + " pan=" + pan
+        //               + " use_wasd=" + root.use_wasd)
         forceActiveFocus()
 
         // The gesture mode is captured here and preserved until release. That
@@ -391,9 +391,9 @@ Item {
     }
 
     function mouseReleased(coord) {
-        console.debug("[CameraController] mouseReleased coord=" + coord
-                      + " wasMouseDown=" + internal.is_mouse_down
-                      + " wasPanning=" + internal.is_panning)
+        // console.debug("[CameraController] mouseReleased coord=" + coord
+        //               + " wasMouseDown=" + internal.is_mouse_down
+        //               + " wasPanning=" + internal.is_panning)
         internal.is_mouse_down = false
         internal.is_panning = false
         internal.mouse_delta_pos = Qt.vector2d(0,0)
@@ -410,10 +410,10 @@ Item {
         internal.mouse_delta_pos = coord.minus(internal.last_pos)
         internal.last_pos = coord
 
-        console.debug("[CameraController] mouseMoved coord=" + coord
-                      + " delta=" + internal.mouse_delta_pos
-                      + " panning=" + internal.is_panning
-                      + " use_wasd=" + root.use_wasd)
+        // console.debug("[CameraController] mouseMoved coord=" + coord
+        //               + " delta=" + internal.mouse_delta_pos
+        //               + " panning=" + internal.is_panning
+        //               + " use_wasd=" + root.use_wasd)
 
         // Pan is handled outside current_controller because it is not a general
         // navigation mode. It is an orbit gesture modifier that translates the

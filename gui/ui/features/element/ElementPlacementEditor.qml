@@ -7,65 +7,52 @@ STFormPanel {
     id: root
 
     property var module
-    property bool singleColumn: false
-    property int labelAlignment: Qt.AlignRight | Qt.AlignVCenter
-
-    STPropertySeparator {
-        title: "Placement"
-    }
+    title: qsTr("Placement")
 
     STSwitch {
-        text: "Use 3D widget"
+        text: qsTr("Use 3D Widget")
         checked: App.view.mouse_mode === ViewModule.EditElement
         onToggled: App.view.mouse_mode = checked ? ViewModule.EditElement
                                                   : ViewModule.Camera
     }
 
-    InlineDocumentation {
+    STDocumentationSection {
         key: "configure.layout.coordinates"
-        Layout.fillWidth: true
     }
 
     STFormRow {
-        label: "Coordinates"
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
+        label: qsTr("Coordinates")
 
-        STComboBox {
-            id: positionModeCombo
+        STTabBar {
+            id: positionModeBar
+            secondary: true
             Layout.fillWidth: true
-            model: ["Local", "Global"]
+            model: [qsTr("Local"), qsTr("Global")]
         }
     }
 
     StackLayout {
         id: positionSwipe
         Layout.fillWidth: true
-        currentIndex: positionModeCombo.currentIndex
+        currentIndex: positionModeBar.currentIndex
 
         ElementPositionEditor {
             Layout.preferredWidth: positionSwipe.width
             module: root.module
-            singleColumn: root.singleColumn
-            labelAlignment: root.labelAlignment
             targetProperty: "position"
-            resetText: "Reset Local Default Position"
+            resetText: qsTr("Reset Local Position")
         }
 
         ElementPositionEditor {
             Layout.preferredWidth: positionSwipe.width
             module: root.module
-            singleColumn: root.singleColumn
-            labelAlignment: root.labelAlignment
             targetProperty: "global_position"
-            resetText: "Reset Global Default Position"
+            resetText: qsTr("Reset Global Position")
         }
     }
 
     ElementRotationEditor {
         Layout.fillWidth: true
         module: root.module
-        singleColumn: root.singleColumn
-        labelAlignment: root.labelAlignment
     }
 }

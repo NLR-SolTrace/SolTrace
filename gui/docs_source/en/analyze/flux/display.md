@@ -4,4 +4,8 @@ title: "Flux Map Display"
 
 The Bins view shows the computed flux map as a surface texture. The Points view shows the projected ray interaction locations and is useful for checking whether the selected element, ray count, and surface parameterization are behaving as expected.
 
-Show Whole Scene keeps the rest of the traced scene visible while the flux map is displayed. Turn it off when the mapped surface is hidden behind other geometry.
+The color map selected when the map was computed is baked into the image and retained with its color bar. Changing the generation selection affects newly computed maps only.
+
+Scene geometry is shown by default to keep the map in context. Enable **Hide Scene Geometry** when the mapped surface is obscured by other elements.
+
+Flux-map values are scaled by solar DNI when ray-area metadata is available. Changing the computation settings does not alter an existing map; compute it again to apply the new settings. Saved PNG images embed their generation settings and key ray and power values as image metadata.

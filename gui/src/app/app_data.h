@@ -8,6 +8,7 @@
 #include <QTranslator>
 
 #include "app/logging.h"
+#include "scene_models/color_map_model.h"
 #include "support/notification.h"
 #include "support/qt_helpers.h"
 
@@ -76,6 +77,7 @@ public:
     Q_READONLY_PROPERTY(QString, current_build_info);
     Q_READONLY_PROPERTY(bool, is_prerelease);
     Q_WRITABLE_PROPERTY(bool, show_get_started_on_start, true);
+    Q_WRITABLE_PROPERTY(bool, recording_mode, false);
 
     static AppData* create(QQmlEngine* qmlEngine, QJSEngine*);
 
@@ -86,11 +88,14 @@ public:
     ~AppData();
 
     Q_INVOKABLE void copy_build_info_to_clipboard();
+    Q_INVOKABLE void copy_text_to_clipboard(QString text);
     Q_INVOKABLE void reset_all_settings();
 
     QOBJECT_WRITABLE_PROPERTY(SolTrace::GUI::Data::Database, current_database)
 
     QOBJECT_WRITABLE_PROPERTY(LogList, log_list)
+
+    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::ColorMapModel, color_maps)
 
     QOBJECT_READONLY_PROPERTY(DatabaseModule, file_source)
 

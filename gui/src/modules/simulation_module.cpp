@@ -1,9 +1,11 @@
 #include "simulation_module.h"
 
-#include <algorithm>
-#include <thread>
+#include "magic_enum/magic_enum.hpp"
+
 #include <QLoggingCategory>
 #include <QVariantMap>
+#include <algorithm>
+#include <thread>
 
 using namespace SolTrace::GUI::Support;
 
@@ -27,7 +29,7 @@ SimulationRunnerModel::SimulationRunnerModel(QObject* parent)
 
 #ifdef SOLTRACE_HAS_OPTIX_RUNNER
     store_push_append(SimulationRunnerRecord {
-        .name   = "GPU Runner",
+        .name   = "NVIDIA GPU Runner",
         .runner = SimulationModule::GPU,
     });
 #endif
@@ -50,9 +52,11 @@ int SimulationRunnerModel::index_of(SimulationModule::Runner runner) const {
     return 0;
 }
 
-void SimulationModule::update_result_world(SolTrace::GUI::Data::SimulationResultPtr results) {
-    auto* database =
-        results ? const_cast<SolTrace::GUI::Data::Database*>(results->database.get()) : nullptr;
+void SimulationModule::update_result_world(
+    SolTrace::GUI::Data::SimulationResultPtr results) {
+    auto* database = results ? const_cast<SolTrace::GUI::Data::Database*>(
+                                   results->database.get())
+                             : nullptr;
     m_world_geometry_model->reset(database);
 
     QVector3D sun_position(0.0f, 0.0f, 1.0f);
@@ -61,7 +65,8 @@ void SimulationModule::update_result_world(SolTrace::GUI::Data::SimulationResult
     if (database) {
         auto const* resource = database->ray_source_resource.get();
         if (resource) {
-            is_point_source = resource->type == SolTrace::GUI::Data::RaySourceType::PointSource;
+            is_point_source = resource->type ==
+                              SolTrace::GUI::Data::RaySourceType::PointSource;
 
             if (resource->source) {
                 auto const& position = resource->source->get_position();
@@ -109,12 +114,13 @@ void SimulationModule::publish_completed_result(
         results->sun_ray_count >= m_running_requested_max_ray_count &&
         static_cast<uint64_t>(results->records.size()) <
             m_running_requested_ray_count) {
-        emit notify(ANotification::warning(QString(
-            "Simulation reached the maximum traced ray limit (%1) before "
-            "collecting the requested %2 result rays. Increase Max # Rays "
-            "Traced to collect more rays.")
-                                               .arg(m_running_requested_max_ray_count)
-                                               .arg(m_running_requested_ray_count)));
+        emit notify(ANotification::warning(
+            QString(
+                "Simulation reached the maximum traced ray limit (%1) before "
+                "collecting the requested %2 result rays. Increase Max # Rays "
+                "Traced to collect more rays.")
+                .arg(m_running_requested_max_ray_count)
+                .arg(m_running_requested_ray_count)));
     } else {
         emit notify(ANotification::info(QString(
             "A simulation has completed. Check analysis for new data.")));
@@ -159,7 +165,8 @@ SimulationModule::SimulationModule(QObject* parent)
     : QObject { parent },
       m_runners(new SimulationRunnerModel(this)),
       m_results(new SolTrace::GUI::Data::SimulationResultModel(this)),
-      m_world_geometry_model(new SolTrace::GUI::Data::WorldGeometryModel(this)) {
+      m_world_geometry_model(
+          new SolTrace::GUI::Data::WorldGeometryModel(this)) {
 
     auto thread_count = std::thread::hardware_concurrency();
     set_max_threads(thread_count <= 0 ? 1 : thread_count);
@@ -187,13 +194,11 @@ SimulationModule::~SimulationModule() {
 }
 
 QVariantMap SimulationModule::current_result_bounds() const {
-    const bool valid = m_current_result &&
-                       m_current_result->bounds_min.x <
-                           m_current_result->bounds_max.x &&
-                       m_current_result->bounds_min.y <
-                           m_current_result->bounds_max.y &&
-                       m_current_result->bounds_min.z <
-                           m_current_result->bounds_max.z;
+    const bool valid =
+        m_current_result &&
+        m_current_result->bounds_min.x < m_current_result->bounds_max.x &&
+        m_current_result->bounds_min.y < m_current_result->bounds_max.y &&
+        m_current_result->bounds_min.z < m_current_result->bounds_max.z;
 
     return QVariantMap {
         { QStringLiteral("valid"), valid },
@@ -244,19 +249,24 @@ void SimulationModule::run() {
     auto backend = selected_backend();
     qCDebug(simulationLog) << Q_FUNC_INFO << magic_enum::enum_name(backend);
 
-    m_running =
-        new SolTrace::GUI::Jobs::RunningJob(sim_data, effective_thread_count(), backend, this);
+    m_running = new SolTrace::GUI::Jobs::RunningJob(
+        sim_data, effective_thread_count(), backend, this);
     connect_running_job(m_running);
     set_is_running(true);
 }
 
-SolTrace::GUI::Jobs::ThreadRunnerBackend SimulationModule::selected_backend() const {
+SolTrace::GUI::Jobs::ThreadRunnerBackend
+SimulationModule::selected_backend() const {
     auto backend = SolTrace::GUI::Jobs::ThreadRunnerBackend::Native;
 #ifdef SOLTRACE_HAS_EMBREE_RUNNER
-    if (m_runner == Runner::Embree) { backend = SolTrace::GUI::Jobs::ThreadRunnerBackend::Embree; }
+    if (m_runner == Runner::Embree) {
+        backend = SolTrace::GUI::Jobs::ThreadRunnerBackend::Embree;
+    }
 #endif
 #ifdef SOLTRACE_HAS_OPTIX_RUNNER
-    if (m_runner == Runner::GPU) { backend = SolTrace::GUI::Jobs::ThreadRunnerBackend::Optix; }
+    if (m_runner == Runner::GPU) {
+        backend = SolTrace::GUI::Jobs::ThreadRunnerBackend::Optix;
+    }
 #endif
     return backend;
 }
@@ -287,7 +297,8 @@ SimulationModule::prepare_simulation_data() {
     return sim_data;
 }
 
-void SimulationModule::connect_running_job(SolTrace::GUI::Jobs::RunningJob* job) {
+void SimulationModule::connect_running_job(
+    SolTrace::GUI::Jobs::RunningJob* job) {
     connect(job,
             &SolTrace::GUI::Jobs::RunningJob::progress_update,
             this,
@@ -297,11 +308,26 @@ void SimulationModule::connect_running_job(SolTrace::GUI::Jobs::RunningJob* job)
             this,
             &SimulationModule::set_current_stage);
 
-    connect(job, &SolTrace::GUI::Jobs::RunningJob::finished, this, &SimulationModule::job_done);
-    connect(job, &SolTrace::GUI::Jobs::RunningJob::error, this, &SimulationModule::job_failed);
-    connect(job, &SolTrace::GUI::Jobs::RunningJob::finished, job, &SolTrace::GUI::Jobs::RunningJob::deleteLater);
-    connect(job, &SolTrace::GUI::Jobs::RunningJob::error, job, &SolTrace::GUI::Jobs::RunningJob::deleteLater);
-    connect(this, &QObject::destroyed, job, &SolTrace::GUI::Jobs::RunningJob::cancel);
+    connect(job,
+            &SolTrace::GUI::Jobs::RunningJob::finished,
+            this,
+            &SimulationModule::job_done);
+    connect(job,
+            &SolTrace::GUI::Jobs::RunningJob::error,
+            this,
+            &SimulationModule::job_failed);
+    connect(job,
+            &SolTrace::GUI::Jobs::RunningJob::finished,
+            job,
+            &SolTrace::GUI::Jobs::RunningJob::deleteLater);
+    connect(job,
+            &SolTrace::GUI::Jobs::RunningJob::error,
+            job,
+            &SolTrace::GUI::Jobs::RunningJob::deleteLater);
+    connect(this,
+            &QObject::destroyed,
+            job,
+            &SolTrace::GUI::Jobs::RunningJob::cancel);
 }
 
 void SimulationModule::cancel() {
@@ -331,7 +357,7 @@ void SimulationModule::delete_result(int index) {
     if (!deleting_current) return;
 
     SolTrace::GUI::Data::SimulationResultPtr replacement;
-    QString                 replacement_name = "No Simulation Result";
+    QString replacement_name = "No Simulation Result";
     if (m_results->rowCount() > 0) {
         auto replacement_index = std::min(index, m_results->rowCount() - 1);
         replacement            = m_results->result_at(replacement_index);

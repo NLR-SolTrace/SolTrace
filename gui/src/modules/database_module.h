@@ -20,10 +20,29 @@ struct DatabaseRecord {
     RECORD_META(DatabaseRecord, SM_EXPOSE_RO(database), );
 };
 
+/// One persisted file URL exposed to QML's recent-files menu.
+struct RecentFileRecord {
+    QString url;
+
+    RECORD_META(RecentFileRecord, SM_EXPOSE_RO(url), );
+};
+
+/// Shared recent-files model with a role name that does not conflict with QML
+/// controls' final properties.
+class RecentFileModel : public Support::StructModelAdapter<RecentFileRecord> {
+    Q_OBJECT
+
+public:
+    explicit RecentFileModel(QObject* parent = nullptr);
+
+    QStringList urls() const;
+    void        reset_urls(QStringList const& urls);
+};
+
 /// Successful result from asynchronous database loading.
 struct LoadedFile {
     // TODO: Store this in the DB
-    QString                       provenance = { };
+    QString                                        provenance = { };
     std::unique_ptr<SolTrace::GUI::Data::Database> ptr;
 };
 
@@ -45,6 +64,7 @@ class DatabaseModule : public Support::StructModelAdapter<DatabaseRecord> {
     QML_ELEMENT
 
     QOBJECT_WRITABLE_PROPERTY(SolTrace::GUI::Data::Database, current_database)
+    QOBJECT_READONLY_PROPERTY(RecentFileModel, recent_files)
     Q_PROPERTY(QUrl examples_folder READ examples_folder CONSTANT)
     Q_WRITABLE_PROPERTY(QString,
                         default_example_filename,
@@ -58,6 +78,7 @@ class DatabaseModule : public Support::StructModelAdapter<DatabaseRecord> {
 
     void file_ready(QUrl, LoadedFile);
     void file_failed(QUrl, LoadFileFailed);
+    void save_recent_files() const;
 
 public:
     DatabaseModule(QObject* parent = nullptr);
@@ -71,6 +92,15 @@ public slots:
 
     /// Load a database from a URL. name_override is used for display only.
     void load_url(QUrl, QString name_override = "");
+
+    /// Check whether a URL names a readable local SolTrace input file.
+    bool validate_file(QUrl url) const;
+
+    /// Move a valid file to the front of the persisted recent-files list.
+    void add_recent_file(QUrl url);
+
+    /// Remove every entry from the persisted recent-files list.
+    void clear_recent_files();
 
     /// Replace the current selection with a new blank database.
     void load_new();
@@ -87,8 +117,8 @@ public slots:
     /// Export current_database to a JSON file path.
     bool export_current_json(QString path);
 
-    /// Remove current_database from the open database list.
-    void delete_current();
+    /// Remove the database at index from the open database list.
+    void delete_db_at_index(int index);
 
     /// Add a new blank database to the open database list.
     void append_new(QString);

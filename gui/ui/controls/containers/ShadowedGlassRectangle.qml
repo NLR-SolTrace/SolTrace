@@ -12,6 +12,10 @@ Item {
 
     property real radius: 10
 
+    property bool show_border: true
+
+    property bool show_shadow: true
+
     default property alias content: background.children
 
     RectangularShadow {
@@ -22,6 +26,7 @@ Item {
         blur: 30
         spread: 3
         color: Material.dropShadowColor
+        visible: control.show_shadow
     }
 
     GlassRectangle {
@@ -31,5 +36,7 @@ Item {
         anchors.fill: parent
 
         radius: control.radius
+
+        show_border: control.show_border
     }
 }

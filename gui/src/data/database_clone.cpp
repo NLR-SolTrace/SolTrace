@@ -91,7 +91,9 @@ DatabaseCloneResult clone_database_with_entity_map(Database const& from,
         from_registry, mapper, to_registry);
 
 
-    ret->ray_source_resource.set(from.ray_source_resource.require().clone());
+    if (auto const* ray_source = from.ray_source_resource.get()) {
+        ret->ray_source_resource.set(ray_source->clone());
+    }
     ret->simulation_parameters_resource.set(
         from.simulation_parameters_resource.require());
 
@@ -119,35 +121,39 @@ DatabaseCloneResult clone_database_with_entity_map(Database const& from,
         from_registry, mapper, to_registry);
 
     copy_marker_component<TagComponent>(from_registry, mapper, to_registry);
+    copy_marker_component<HiddenTagComponent>(
+        from_registry, mapper, to_registry);
 
-    // ATagMemberComponent
-    {
-        // we need to know what all tags are out there
+    // Script references are session metadata rather than simulation data, but
+    // an in-memory database clone should retain them and point at the cloned
+    // entities on which the components live.
+    copy_plain_component<ScriptReferenceComponent>(
+        from_registry, mapper, to_registry);
 
-        auto all_tags = QSet<entt::entity>();
-
-        for (auto [e, c] :
-             from_registry.view<TagMembershipComponent>().each()) {
-            for (auto const& t : c.tags) {
-                all_tags.insert(t);
+    // Rebuild both sides of valid tag membership from the forward relation.
+    // This deliberately does not copy stale entries from dynamic tag storage.
+    for (auto const& [entity, membership] :
+         from_registry.view<TagMembershipComponent>().each()) {
+        TagMembershipComponent membership_copy;
+        for (auto tag : membership.tags) {
+            if (!from_registry.valid(tag) ||
+                !from_registry.all_of<TagComponent>(tag)) {
+                continue;
             }
+            membership_copy.tags.push_back(mapper(tag));
         }
 
-        for (auto tag_ent : std::as_const(all_tags)) {
-            auto from_storage = from_registry.storage<ATagMemberComponent>(
-                entt::to_integral(tag_ent));
+        if (membership_copy.tags.isEmpty()) continue;
 
-            auto& to_storage = to_registry.storage<ATagMemberComponent>(
-                entt::to_integral(mapper(tag_ent)));
-
-            for (auto element : *from_storage) {
-                to_storage.emplace(mapper(element));
-            }
+        auto const copied_entity = mapper(entity);
+        to_registry.emplace<TagMembershipComponent>(copied_entity,
+                                                    membership_copy);
+        for (auto copied_tag : membership_copy.tags) {
+            auto& storage = to_registry.storage<ATagMemberComponent>(
+                entt::to_integral(copied_tag.value));
+            storage.emplace(copied_entity);
         }
     }
-
-    copy_nested_component<TagMembershipComponent>(
-        from_registry, mapper, to_registry);
 
     copy_plain_component<ImportErrorComponent>(
         from_registry, mapper, to_registry);
@@ -157,8 +163,7 @@ DatabaseCloneResult clone_database_with_entity_map(Database const& from,
 
     copy_plain_component<ColorComponent>(from_registry, mapper, to_registry);
 
-    copy_plain_component<HasFluxMapComponent>(
-        from_registry, mapper, to_registry);
+    ret->set_modified(false);
 
     return DatabaseCloneResult {
         .database       = std::move(ret),

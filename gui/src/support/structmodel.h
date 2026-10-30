@@ -12,7 +12,7 @@ namespace SolTrace::GUI::Support {
 template <class T>
 struct SMRecordMeta {
     using SMGetter = QVariant (*)(T const&);
-    using SMSetter = void     (*)(T&, QVariant const&);
+    using SMSetter = void (*)(T&, QVariant const&);
 
 
     const char* name   = "";
@@ -89,7 +89,7 @@ QVariant _sm_to_variant(QPointer<T> const& t) {
 
 template <class Record>
 QStringList get_header() {
-    QStringList ret;
+    QStringList    ret;
     constexpr auto meta = Record::sm_meta_getter();
     for (auto const& m : meta) {
         ret << m.name;
@@ -148,16 +148,16 @@ struct is_shared_qobject<std::shared_ptr<T>> {
 
 template <class Record>
 QVariant _record_runtime_get(Record const& r, int i) {
-    constexpr auto        meta   = Record::sm_meta_getter();
-    auto                  getter = meta.at(i).getter;
+    constexpr auto meta   = Record::sm_meta_getter();
+    auto           getter = meta.at(i).getter;
     if (getter) { return std::invoke(getter, r); }
-    return {};
+    return { };
 }
 
 template <class Record>
 bool _record_runtime_set(Record& r, int i, QVariant const& v) {
-    constexpr auto        meta   = Record::sm_meta_getter();
-    auto                  setter = meta.at(i).setter;
+    constexpr auto meta   = Record::sm_meta_getter();
+    auto           setter = meta.at(i).setter;
 
     if (setter) {
         std::invoke(setter, r, v);
@@ -192,8 +192,8 @@ public:
     QVariant headerData(int             section,
                         Qt::Orientation orientation,
                         int             role = Qt::DisplayRole) const override {
-        if (orientation != Qt::Orientation::Horizontal) return {};
-        if (role != Qt::DisplayRole) return {};
+        if (orientation != Qt::Orientation::Horizontal) return { };
+        if (role != Qt::DisplayRole) return { };
 
         return m_header.value(section);
     }
@@ -211,10 +211,9 @@ public:
     QVariant data(QModelIndex const& index,
                   int                role = Qt::DisplayRole) const override {
 
-        if (!index.isValid()) return {};
-        if (index.row() < 0 || index.row() >= m_records.size()) return {};
-        if (index.column() < 0 || index.column() >= m_header.size())
-            return {};
+        if (!index.isValid()) return { };
+        if (index.row() < 0 || index.row() >= m_records.size()) return { };
+        if (index.column() < 0 || index.column() >= m_header.size()) return { };
 
         auto const& item = m_records[index.row()];
 
@@ -227,12 +226,12 @@ public:
 
             assert(local_role >= 0);
 
-            if (local_role >= m_header.size()) return {};
+            if (local_role >= m_header.size()) return { };
 
             return _record_runtime_get(item, local_role);
         }
 
-        return {};
+        return { };
     }
 
 
@@ -296,7 +295,7 @@ public:
         if (row > m_records.size()) return false;
 
         beginInsertRows(p, row, row + count - 1);
-        m_records.insert(row, count, Record {});
+        m_records.insert(row, count, Record { });
         endInsertRows();
         return true;
     }
@@ -313,7 +312,7 @@ public:
         return true;
     }
 
-    void reset(QVector<Record> new_records = {}) {
+    void reset(QVector<Record> new_records = { }) {
         beginResetModel();
         m_records = new_records;
         endResetModel();
@@ -322,7 +321,7 @@ public:
     // this emits a remove signal, instead of a reset
     void remove_all() {
         if (m_records.isEmpty()) return;
-        beginRemoveRows({}, 0, rowCount() - 1);
+        beginRemoveRows({ }, 0, rowCount() - 1);
         m_records.clear();
         endRemoveRows();
     }
@@ -335,7 +334,7 @@ public:
 
     void append(Record const& r) {
         int rc = rowCount();
-        beginInsertRows({}, rc, rc);
+        beginInsertRows({ }, rc, rc);
         m_records << r;
         endInsertRows();
     }
@@ -343,12 +342,12 @@ public:
     void append(QVector<Record> r) {
         if (r.isEmpty()) return;
         int rc = rowCount();
-        beginInsertRows({}, rc, rc + r.size() - 1);
+        beginInsertRows({ }, rc, rc + r.size() - 1);
         m_records << r;
         endInsertRows();
     }
 
-    void replace(QVector<Record> r = {}) {
+    void replace(QVector<Record> r = { }) {
         remove_all();
         append(r);
     }
@@ -376,8 +375,8 @@ public:
 
     void insert_at(int index, std::span<Record> records) {
         if (records.empty()) return;
-        beginInsertRows({}, index, index + records.size() - 1);
-        m_records.insert(index, records.size(), Record {});
+        beginInsertRows({ }, index, index + records.size() - 1);
+        m_records.insert(index, records.size(), Record { });
         for (int i = 0; i < records.size(); i++) {
             m_records[index + i] = records[i];
         }
@@ -421,7 +420,7 @@ struct StructModelAdapter : public StructTableModelBase {
 
 protected:
     virtual QVector<Record> request_insert_blank(int row, int count) {
-        return {};
+        return { };
     }
     virtual bool request_reset(std::span<Record>) { return false; }
     virtual bool request_remove(int i, int count) { return false; }
@@ -431,38 +430,37 @@ protected:
 
     // these must be infallible
     void store_push_insert(int at, std::span<Record> list) {
-        this->beginInsertRows({}, at, at + list.size() - 1);
+        this->beginInsertRows({ }, at, at + list.size() - 1);
         this->m_records.insert(at, list);
         this->endInsertRows();
     }
 
     void store_push_append(Record r) {
         auto at = rowCount();
-        this->beginInsertRows({}, at, at);
+        this->beginInsertRows({ }, at, at);
         this->m_records.insert(at, r);
         this->endInsertRows();
     }
 
     void store_push_remove(int at, int count) {
-        this->beginRemoveRows({}, at, at + count - 1);
+        this->beginRemoveRows({ }, at, at + count - 1);
         this->m_records.remove(at, count);
         this->endRemoveRows();
     }
     void store_push_update(int i, Record const& item) {
         this->m_records[i] = item;
 
-        auto col_count = this->columnCount();
+        auto         col_count = this->columnCount();
         QVector<int> roles { Qt::DisplayRole, Qt::EditRole };
 
         for (int role = 0; role < col_count; role++) {
             roles.push_back(Qt::UserRole + role);
         }
 
-        Q_EMIT this->dataChanged(this->index(i, 0),
-                                 this->index(i, col_count - 1),
-                                 roles);
+        Q_EMIT this->dataChanged(
+            this->index(i, 0), this->index(i, col_count - 1), roles);
     }
-    void store_reset(QVector<Record> new_records = {}) {
+    void store_reset(QVector<Record> new_records = { }) {
         this->beginResetModel();
         this->m_records = new_records;
         this->endResetModel();
@@ -472,7 +470,7 @@ protected:
     void store_remove_all() {
         if (this->m_records.empty()) { return; }
 
-        beginRemoveRows({}, 0, this->rowCount() - 1);
+        beginRemoveRows({ }, 0, this->rowCount() - 1);
         this->m_records.clear();
         this->endRemoveRows();
     }
@@ -505,8 +503,8 @@ public:
     QVariant headerData(int             section,
                         Qt::Orientation orientation,
                         int             role = Qt::DisplayRole) const override {
-        if (orientation != Qt::Orientation::Horizontal) return {};
-        if (role != Qt::DisplayRole) return {};
+        if (orientation != Qt::Orientation::Horizontal) return { };
+        if (role != Qt::DisplayRole) return { };
 
         return m_header.value(section);
     }
@@ -524,8 +522,8 @@ public:
     QVariant data(QModelIndex const& index,
                   int                role = Qt::DisplayRole) const override {
 
-        if (!index.isValid()) return {};
-        if (index.row() >= m_records.size()) return {};
+        if (!index.isValid()) return { };
+        if (index.row() >= m_records.size()) return { };
 
         auto const& item = m_records[index.row()];
 
@@ -538,12 +536,12 @@ public:
 
             assert(local_role >= 0);
 
-            if (local_role >= m_header.size()) return {};
+            if (local_role >= m_header.size()) return { };
 
             return _record_runtime_get(item, local_role);
         }
 
-        return {};
+        return { };
     }
 
 
@@ -636,7 +634,7 @@ public:
         if (!this->request_append({ r })) { return false; }
 
         int rc = this->rowCount();
-        this->beginInsertRows({}, rc, rc);
+        this->beginInsertRows({ }, rc, rc);
         this->m_records << r;
         this->endInsertRows();
 
@@ -648,7 +646,7 @@ public:
         if (!this->request_append(r)) { return false; }
 
         int rc = this->rowCount();
-        this->beginInsertRows({}, rc, rc + r.size() - 1);
+        this->beginInsertRows({ }, rc, rc + r.size() - 1);
         this->m_records << r;
         this->endInsertRows();
         return true;

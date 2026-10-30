@@ -44,6 +44,30 @@ ApplicationWindow {
         onActivated: file_controller.open_file()
     }
 
+    Shortcut {
+        sequences: ["Ctrl+1"]
+        context: Qt.ApplicationShortcut
+        onActivated: App.view.workflow_phase = ViewModule.Load
+    }
+
+    Shortcut {
+        sequences: ["Ctrl+2"]
+        context: Qt.ApplicationShortcut
+        onActivated: App.view.workflow_phase = ViewModule.Configure
+    }
+
+    Shortcut {
+        sequences: ["Ctrl+3"]
+        context: Qt.ApplicationShortcut
+        onActivated: App.view.workflow_phase = ViewModule.Simulate
+    }
+
+    Shortcut {
+        sequences: ["Ctrl+4"]
+        context: Qt.ApplicationShortcut
+        onActivated: App.view.workflow_phase = ViewModule.Analyze
+    }
+
     SimulationScene {
         id: simulation_scene
 
@@ -57,6 +81,10 @@ ApplicationWindow {
 
     GetStartedDialog {
         id: get_started_dialog
+    }
+
+    DragAndDrop {
+
     }
 
     Component.onCompleted: {

@@ -63,7 +63,7 @@ MouseArea {
     // The result is intentionally approximate. It makes drag direction feel
     // aligned with the handle on screen; it is not ray/plane intersection math.
     function projectMouseToAxis(dx, dy, axisDir) {
-        var ie = App.layout.instance_edit
+        var ie = root.transformTarget
         if (!ie) return 0
         var worldPos = ie.position
         var cam = controller.active_camera
@@ -88,7 +88,7 @@ MouseArea {
     // Rotation handles use this angle difference rather than x/y deltas so a
     // circular mouse motion maps naturally to a rotation amount.
     function screenAngleToObject(mx, my) {
-        var ie = App.layout.instance_edit
+        var ie = root.transformTarget
         if (!ie) return 0
         var cam = controller.active_camera
         var sp = cam.mapToViewport(ie.position)
@@ -140,6 +140,7 @@ MouseArea {
                                   + " x=" + mouse.x + " y=" + mouse.y)
 
         if (mouse.button === Qt.RightButton) {
+            if (App.view.mouse_mode === ViewModule.EditPosition) return
             pickController.selectEditableElementAt(mouse.x, mouse.y)
             return
         }
@@ -173,7 +174,8 @@ MouseArea {
         // First priority: transform gizmo handles. When a handle is hit, this
         // starts a drag operation and records enough state to interpret later
         // onPositionChanged events.
-        if (App.view.mouse_mode === ViewModule.EditElement
+        if ((App.view.mouse_mode === ViewModule.EditElement
+                || App.view.mouse_mode === ViewModule.EditPosition)
                 && root.showGizmo
                 && mouse.button === Qt.LeftButton) {
             var gizmoResult = gizmoOverlay.pick(mouse.x, mouse.y)
@@ -183,6 +185,7 @@ MouseArea {
 
                 // Center handle switches between translate and rotate modes.
                 if (name === "mode_toggle") {
+                    if (!root.allowGizmoRotation) return
                     root.gizmoMode = (root.gizmoMode === 0) ? 1 : 0
                     root.activeAxis = -1
                     return
@@ -219,7 +222,7 @@ MouseArea {
                     root.isDragging = true
                     root.lastMousePos = Qt.point(mouse.x, mouse.y)
                     root.initialAngle = screenAngleToObject(mouse.x, mouse.y)
-                    var ie = App.layout.instance_edit
+                    var ie = root.transformTarget
                     if (ie) {
                         root.initialRotation = ie.euler_angles_xyz
                     }
@@ -242,6 +245,11 @@ MouseArea {
             pickController.tracePick("deferred edit press x=" + mouse.x
                                       + " y=" + mouse.y
                                       + " pan=" + pendingCameraPan)
+            return
+        }
+
+        if (App.view.mouse_mode === ViewModule.EditPosition
+                && mouse.button === Qt.LeftButton) {
             return
         }
 
@@ -269,7 +277,7 @@ MouseArea {
             return
         }
 
-        var ie = App.layout.instance_edit
+        var ie = root.transformTarget
         if (!ie) return
 
         var dx = mouse.x - root.lastMousePos.x

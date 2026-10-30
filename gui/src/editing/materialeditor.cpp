@@ -1,20 +1,30 @@
 #include "materialeditor.h"
 
 #include "data/database.h"
+#include "support/enummodel.h"
 
 namespace SolTrace::GUI::Data {
+
+using DistributionModel = Support::EnumModel<SD::DistributionType,
+                                             SD::DistributionType::USER_DEFINED,
+                                             SD::DistributionType::UNKNOWN>;
 
 
 MaterialEditor::MaterialEditor(QObject* parent)
     : QObject { parent },
       m_back_editor(new OpticalPropertiesObject(true, this)),
       m_front_editor(new OpticalPropertiesObject(false, this)),
-      m_interaction_type_model(new QStringListModel(this)),
-      m_distribution_type_model(new QStringListModel(this)) {
+      m_interaction_type_model(
+          new Support::EnumModel<SD::InteractionType,
+                                 SD::InteractionType::UNKNOWN>(this)),
+      m_distribution_type_model(
+          new DistributionModel(this, [](SD::DistributionType value) {
+              if (value == SD::DistributionType::NONE) {
+                  return MaterialEditor::tr("No errors");
+              }
 
-    build_options<SD::InteractionType>(*m_interaction_type_model);
-    build_options<SD::DistributionType>(*m_distribution_type_model);
-}
+              return DistributionModel::default_display_name(value);
+          })) { }
 
 MaterialEditor::~MaterialEditor() = default;
 

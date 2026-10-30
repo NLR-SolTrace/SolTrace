@@ -385,12 +385,12 @@ class PackageTests(unittest.TestCase):
                 output,
                 {
                     "APP_NAME": "SolTrace",
-                    "INSTALL_DIRECTORY": "SolTrace OptiX",
+                    "INSTALL_DIRECTORY": "SolTrace NVIDIA GPU",
                     "INSTALLER_ROOT": root / "installer-root",
                     "LICENSE_FILE": root / "LICENSE.txt",
                     "PACKAGE_DIRECTORY": root,
-                    "PACKAGE_FILE_NAME": "SolTrace-Windows-x64-Embree",
-                    "PACKAGE_NAME": "SolTrace OptiX",
+                    "PACKAGE_FILE_NAME": "SolTrace-Windows-x64-NVIDIA-GPU",
+                    "PACKAGE_NAME": "SolTrace NVIDIA GPU",
                     "PACKAGE_VERSION": "4.0.0",
                     "PRODUCT_ICON": root / "SolTrace.ico",
                     "UPGRADE_GUID": "D4AB6CD5-6276-5377-8E41-53D1DE59BD33",
@@ -399,9 +399,12 @@ class PackageTests(unittest.TestCase):
             rendered = output.read_text()
             self.assertIn('set(CPACK_WIX_SIZEOF_VOID_P "8")', rendered)
             self.assertIn('set(CPACK_SYSTEM_NAME "win64")', rendered)
-            self.assertIn('set(CPACK_PACKAGE_NAME "SolTrace OptiX")', rendered)
             self.assertIn(
-                'set(CPACK_PACKAGE_INSTALL_DIRECTORY "SolTrace OptiX")', rendered
+                'set(CPACK_PACKAGE_NAME "SolTrace NVIDIA GPU")', rendered
+            )
+            self.assertIn(
+                'set(CPACK_PACKAGE_INSTALL_DIRECTORY "SolTrace NVIDIA GPU")',
+                rendered,
             )
             self.assertIn(
                 'set(CPACK_WIX_UPGRADE_GUID '
@@ -439,8 +442,8 @@ class PackageTests(unittest.TestCase):
                 installer_root=Path("installer-root"),
                 asset=Path("SolTrace.msi"),
                 app_name="SolTrace",
-                package_name="SolTrace OptiX",
-                install_directory="SolTrace OptiX",
+                package_name="SolTrace NVIDIA GPU",
+                install_directory="SolTrace NVIDIA GPU",
                 package_version="4.0.0",
                 upgrade_guid="not-a-guid",
             )

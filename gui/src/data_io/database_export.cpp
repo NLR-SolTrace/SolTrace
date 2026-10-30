@@ -1,6 +1,6 @@
-#include "data/database.h"
 #include "conversion.h"
 #include "data/components.h"
+#include "data/database.h"
 #include "data/database_clone.h"
 
 #include "simulation_data_api.hpp"
@@ -124,11 +124,11 @@ Database::export_to_simdata() {
     std::unordered_map<entt::entity, SD::OpticalPropertySetReference> prop_map;
 
     {
-        auto view = m_registry.view<const MaterialGroupComponent,
-                                    const MaterialComponent>();
+        auto view =
+            m_registry
+                .view<const MaterialGroupComponent, const MaterialComponent>();
         for (auto const& [e, mat_members, mat_data] : view.each()) {
-            auto named_optics =
-                with_optical_name(mat_data.optics, name_of(e));
+            auto named_optics = with_optical_name(mat_data.optics, name_of(e));
             auto ref = ret.find_or_add_optical_property_set(named_optics);
 
             prop_map.try_emplace(e, ref);
@@ -245,7 +245,7 @@ Database::export_to_simdata() {
 
     DatabaseExport export_ret;
     export_ret.data = std::make_shared<SD::SimulationData>(std::move(ret));
-    export_ret.element_map = std::move(entity_rev_map);
+    export_ret.element_map     = std::move(entity_rev_map);
     export_ret.source_database = std::move(clone_result.database);
 
     return std::make_shared<DatabaseExport>(std::move(export_ret));

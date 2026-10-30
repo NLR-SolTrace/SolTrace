@@ -34,6 +34,6 @@ struct SurfaceGenerationOptions {
 std::optional<Mesh>
 generate_surface(SD::surface_ptr const&          surface,
                  SD::aperture_ptr const&         aperture,
-                 SurfaceGenerationOptions const& options = {});
+                 SurfaceGenerationOptions const& options = { });
 
 } // namespace SolTrace::GUI::Data
