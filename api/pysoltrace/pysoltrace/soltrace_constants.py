@@ -63,8 +63,8 @@ ST_RETURN_CODE_ERROR_MSG = {
     dot_h.st_return_code.DATA_INSERTION_FAILURE:                       'Unable to insert data into SimulationData.',
     dot_h.st_return_code.DATA_VALUE_NOT_FOUND:                         'Data required for function was not found in SimulationData',
     dot_h.st_return_code.RUNNER_INILIALIZE_FAILURE:                    'SimulationRunner could not be initialized.',
-    dot_h.st_return_code.RUNNER_NUMBER_THREADS_SEEDS_MISMATCH_FAILURE: 'Number of threads requested and length of seeds list are not '
-                                                                       'equal. Include the same number of seeds as threads requested.',
+    dot_h.st_return_code.RUNNER_NUMBER_THREADS_SEEDS_MISMATCH_FAILURE: 'Requested more threads than number of seeds provided. Include the at '
+                                                                       'least as many seeds as threads.',
     dot_h.st_return_code.RUNNER_SETUP_ERROR:                           'A runtime error was thrown when setting up SimulationRunner.',
     dot_h.st_return_code.RUNNER_SETUP_FAILURE:                         'SimulationRunner could not be set up based on SimulationData provided.',
     dot_h.st_return_code.RUNNER_NOT_READY_TO_RUN:                      'SimulationRunner is not ready to run. Set up the SimulationRunner.',
@@ -77,6 +77,9 @@ ST_RETURN_CODE_ERROR_MSG = {
 ST_RETURN_CODE_WARNING_MSG = {
     dot_h.st_return_code.WARNING_FELLBACK_FROM_EMBREE:       'Requested EmbreeRunner, but is not installed. Fellback to NativeRunner.',
     dot_h.st_return_code.WARNING_FELLBACK_FROM_OPTIX:        'Requested OptixRunner, but is not installed. Fellback to NativeRunner.',
+    dot_h.st_return_code.WARNING_MORE_THREADS_THAN_HARDWARE: 'Requested more than or equal to the maximum number of threads detected '
+                                                             'on hardware, using one less than maximum.',
+    dot_h.st_return_code.WARNING_HARDWARE_SINGLE_THREADED:   'Requested multi-threaded simulation on single threaded hardware, using one thread.',
     dot_h.st_return_code.WARNING_ARGUMENT_IGNORED_BY_RUNNER: 'Requested a number of threads for OptixRunner. The argument does not apply '
                                                              'to this runner type and was ignored.',
     dot_h.st_return_code.WARNING_SUN_SHAPE_IGNORED:          'Requested invalid sun shape. Default sun created with a Gaussian '

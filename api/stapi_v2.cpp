@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <system_error>
+#include <thread>
 
 #include "../coretrace/simulation_runner/simulation_runner.hpp"
 #include "../coretrace/simulation_runner/native_runner/native_runner.hpp"
@@ -1370,22 +1371,47 @@ STAPI_V2 st_return_t st_sim_setup(st_context_v2_t  pcxt,
        in either case, set the number of threads for the runner */
     if (!use_optix || rt == st_return_code::WARNING_FELLBACK_FROM_OPTIX)
     {
+        // check that num_threads argument is a reasonable number of threads
+        unsigned int nt_hardware = std::thread::hardware_concurrency();
+        uint_fast64_t _num_threads = num_threads;
+
+        // if the hardware's number of threads can be determined and it's more than one
+        // and the requested number of threads is greater than or equal to that
+        // then set the actual threads used to one less than hardware number 
+        if (nt_hardware > 1 && num_threads >= nt_hardware)
+        {
+            rt = st_return_code::WARNING_MORE_THREADS_THAN_HARDWARE;
+            _num_threads = nt_hardware - 1;
+        }
+        // if the hardware only has one thread, then use it
+        else if (nt_hardware == 1)
+        {
+            if (num_threads > 1)
+                rt = st_return_code::WARNING_HARDWARE_SINGLE_THREADED;
+            _num_threads = 1;
+        }
+        // else either nt_hardware > 1 and num_threads < nt_hardware, so use num_threads
+        //      or     nt_hardware == 0, so undetermined so assume num_threads is good
+
         NativeRunner *temp_native = dynamic_cast<NativeRunner*>(runner);
         if (seeds != nullptr)
         {
             // ensures runtime_error won't be raised
-            if (num_threads != num_seeds)
+            // after above thread check, _num_threads <= num_threads
+            // so check that there are at least as many seeds as threads 
+            if (_num_threads > num_seeds)
             {
                 delete runner;
                 return st_return_code::RUNNER_NUMBER_THREADS_SEEDS_MISMATCH_FAILURE;
             }
 
-            const std::vector<st_uint_t> temp_seeds(seeds, seeds + num_seeds);
-            temp_native->set_number_of_threads(num_threads, temp_seeds);
+            // in case that _num_threads < num_seeds, truncate seeds vector to match _num_threads
+            const std::vector<st_uint_t> temp_seeds(seeds, seeds + _num_threads);
+            temp_native->set_number_of_threads(_num_threads, temp_seeds);
         }
         else
         {
-            temp_native->set_number_of_threads(num_threads);
+            temp_native->set_number_of_threads(_num_threads);
         }
         // by default disable stages
         temp_native->disable_stages();

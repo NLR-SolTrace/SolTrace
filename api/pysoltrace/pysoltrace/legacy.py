@@ -828,25 +828,25 @@ class legacy:
         self.stapi = api(testing = self.testing)
 
         if seed<0:
-            runseed = random.randint(1,int(1e9))
-        else:
-            runseed = seed
+            seed = random.randint(1,int(1e9))
 
-        if nthread in [0,1]:
-            sim_data_calls = self.Create(as_power_tower)
-            self.stapi.batch.runner.setup(runner_type, 1, [runseed])
-            self.stapi.batch.runner.run()
-            self.stapi.batch.runner.report()
-            # _seeds = (ctypes.c_uint * 1)(*[runseed])
-            # set_up_call = self.stapi.generate_api_call(dot_h.st_api_call.CALL_ST_SIM_SETUP, runner_type, 1, _seeds, 1)
-            # run_call = self.stapi.generate_api_call(dot_h.st_api_call.CALL_ST_SIM_RUN_V2)
-            # report_call = self.stapi.generate_api_call(dot_h.st_api_call.CALL_ST_SIM_REPORT, 0)
+        if nthread <= 1:
+            runthread = 1
+            runseed = [seed]
+        elif nthread > 1:
+            runthread = nthread
+            runseed = [seed + 608 * i for i in range(nthread)]
 
-            self.stapi.batch(True)
+        sim_data_calls = self.Create(as_power_tower)
+        self.stapi.batch.runner.setup(runner_type, runthread, runseed)
+        self.stapi.batch.runner.run()
+        self.stapi.batch.runner.report()
 
-            self.get_ray_dataframe()
-            self.get_sun_stats()
-            self.powerperray = self.sunstats['area'] * self.dni / self.sunstats['nsunrays']
+        self.stapi.batch(True)
+
+        self.get_ray_dataframe()
+        self.get_sun_stats()
+        self.powerperray = self.sunstats['area'] * self.dni / self.sunstats['nsunrays']
 
             # print(raydata)
 

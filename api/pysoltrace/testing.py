@@ -1703,7 +1703,7 @@ class TowerDemoTest(STAPIv2TestCase):
         PT.is_sunshape = True 
         PT.is_surface_errors = True
 
-        PT.run(-1, True, 1)
+        PT.run(-1, True, 4)
 
 if __name__ == '__main__':
     # print(f'\n\n\n\n{found_in(dot_h)}\n\n\n\n')

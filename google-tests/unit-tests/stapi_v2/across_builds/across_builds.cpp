@@ -6,6 +6,7 @@ intended to be called from tests inside different api build tests, those manage 
 
 #include <fstream>
 #include <vector>
+#include <thread>
 
 #include "across_builds.hpp"
 
@@ -1290,9 +1291,17 @@ st_return_t call_stapi_v2_sim_setup(st_context_v2_t pcxt)
 
     code =  st_sim_setup(pcxt, st_runner_type_t::NATIVE);
     unsigned int *seeds_test = new unsigned int[2] { 608, 303, };
-    code += st_sim_setup(pcxt, st_runner_type_t::NATIVE, 1, seeds_test, 2);
+    code += st_sim_setup(pcxt, st_runner_type_t::NATIVE, 3, seeds_test, 2);
     code += st_sim_setup(pcxt, st_runner_type_t::EMBREE);
     code += st_sim_setup(pcxt, st_runner_type_t::OPTIX);
+
+    // test bad number of threads if possible
+    unsigned int nt_hardware = std::thread::hardware_concurrency();
+    if (nt_hardware > 1) 
+    {
+        st_return_t tmp_code = st_sim_setup(pcxt, st_runner_type_t::NATIVE, nt_hardware + 1);
+        code += check(tmp_code, st_return_code::WARNING_MORE_THREADS_THAN_HARDWARE);
+    }
 
     return code;
 }
