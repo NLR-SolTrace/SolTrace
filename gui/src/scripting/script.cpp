@@ -4,13 +4,13 @@
 #include <QDebug>
 #include <QDir>
 #include <QDirIterator>
-#include <QFile>
 #include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
 #include <QRegularExpression>
+#include <QSaveFile>
 #include <QSet>
 #include <QUrl>
 
@@ -384,7 +384,8 @@ ScriptProperty parse_json_property(QJsonObject const& object) {
         return property;
     }
 
-    if (property.type == QStringLiteral("vec3")) {
+    if (property.type == QStringLiteral("vec3") ||
+        property.type == QStringLiteral("position")) {
         if (!default_value.isArray() || default_value.toArray().size() != 3) {
             property.error =
                 QStringLiteral("default must be an array of three numbers");
@@ -437,7 +438,7 @@ ScriptProperty parse_json_property(QJsonObject const& object) {
     }
 
     property.error = QStringLiteral(
-        "type must be integer, real, string, vec3, or vector3d");
+        "type must be integer, real, string, vec3, vector3d, or position");
     return property;
 }
 
@@ -562,6 +563,80 @@ QString resolve_script_file_path(QString const& working_directory,
 
 ScriptPropertyModel::ScriptPropertyModel(QObject* parent)
     : StructTableModel(parent) { }
+
+ScriptPositionEditor::ScriptPositionEditor(ScriptPropertyModel* properties,
+                                           QObject* parent)
+    : QObject(parent), m_properties(properties) { }
+
+bool ScriptPositionEditor::begin(QString identifier) {
+    if (!m_properties) return false;
+
+    for (int row = 0; row < m_properties->rowCount(); ++row) {
+        auto const* property = m_properties->get_at(row);
+        if (!property || property->identifier != identifier ||
+            property->type != QStringLiteral("position")) {
+            continue;
+        }
+
+        QJsonParseError error;
+        auto const document =
+            QJsonDocument::fromJson(property->value.toUtf8(), &error);
+        auto const vector = document.array();
+        if (error.error != QJsonParseError::NoError || vector.size() != 3) {
+            return false;
+        }
+
+        auto const position = QVector3D(static_cast<float>(vector[0].toDouble()),
+                                        static_cast<float>(vector[1].toDouble()),
+                                        static_cast<float>(vector[2].toDouble()));
+
+        m_row = row;
+        if (m_name != property->name) {
+            m_name = property->name;
+            emit name_changed();
+        }
+        if (m_step != property->step || m_decimals != property->decimals) {
+            m_step     = property->step;
+            m_decimals = property->decimals;
+            emit metadata_changed();
+        }
+        if (m_position != position) {
+            m_position = position;
+            emit position_changed();
+        }
+        if (!m_active) {
+            m_active = true;
+            emit active_changed();
+        }
+        return true;
+    }
+
+    return false;
+}
+
+void ScriptPositionEditor::set_position(QVector3D position) {
+    if (!m_active || !m_properties || m_row < 0) return;
+    if (m_position == position) return;
+
+    m_position = position;
+    emit position_changed();
+
+    auto const value = QString::fromUtf8(
+        QJsonDocument(QJsonArray { position.x(), position.y(), position.z() })
+            .toJson(QJsonDocument::Compact));
+    m_properties->setData(m_properties->index(m_row, 0),
+                          value,
+                          value_role);
+}
+
+void ScriptPositionEditor::end() {
+    if (!m_active && m_row < 0) return;
+    m_row = -1;
+    if (m_active) {
+        m_active = false;
+        emit active_changed();
+    }
+}
 
 
 // =============================================================================
@@ -723,7 +798,9 @@ static QStringList get_builtin_scripts() {
 }
 
 Script::Script(QObject* parent)
-    : QObject { parent }, m_properties { new ScriptPropertyModel(this) } {
+    : QObject { parent },
+      m_properties { new ScriptPropertyModel(this) },
+      m_position_editor { new ScriptPositionEditor(m_properties, this) } {
     connect(this, &Script::code_changed, this, &Script::parse);
 
     set_working_directory(QDir::homePath());
@@ -732,6 +809,7 @@ Script::Script(QObject* parent)
 
 void Script::set_database(SolTrace::GUI::Data::Database* db) {
     qDebug() << Q_FUNC_INFO << db;
+    m_position_editor->end();
     m_database = db;
 }
 
@@ -742,6 +820,8 @@ void Script::set_services(App::DatabaseModule* databases,
 }
 
 bool Script::parse() {
+    m_position_editor->end();
+
     QStringList             errors;
     QVector<ScriptProperty> properties;
     QString                 title;
@@ -927,7 +1007,7 @@ void Script::run() {
         } else if (arg.type == "string") {
             arguments.push_back(arg.value);
             ok = true;
-        } else if (arg.type == "vec3") {
+        } else if (arg.type == "vec3" || arg.type == "position") {
             auto value = arg.value;
             value.replace('{', ' ');
             value.replace('}', ' ');
@@ -1008,19 +1088,26 @@ QString Script::api_markdown() {
     return SchemaBuilder::build_markdown(&api);
 }
 
-bool Script::save_to(QString path, QString code) {
-    auto file = QFile(path);
+bool Script::save_to(QUrl path, QString code) {
+    auto file = QSaveFile(path.toLocalFile());
 
     if (!file.open(QFile::WriteOnly)) {
         qCritical() << Q_FUNC_INFO << "Unable to open write path " << path;
         return false;
     }
 
-    auto stream = QTextStream(&file);
+    {
+        auto stream = QTextStream(&file);
 
-    stream << code;
+        stream << code;
 
-    stream.flush();
+        stream.flush();
+    }
+
+    if (!file.commit()) {
+        qCritical() << Q_FUNC_INFO << "Unable to commit write " << path;
+        return false;
+    }
 
     return true;
 }

@@ -545,11 +545,15 @@ QJsonArray ScriptDBInterface::quat_rotate_vec3(QJsonValue rotation,
 QJsonObject ScriptDBInterface::get_ray_source() {
     if (!m_database) return {};
 
-    auto source = m_database->get_ray_source();
+    auto const* resource = m_database->ray_source_resource.get();
+    auto source = resource ? resource->source : nullptr;
     if (!source) return {};
 
     return QJsonObject {
-        { QStringLiteral("type"), QStringLiteral("directional") },
+        { QStringLiteral("type"),
+          resource->type == SolTrace::GUI::Data::RaySourceType::PointSource
+              ? QStringLiteral("point_source")
+              : QStringLiteral("directional") },
         { QStringLiteral("position"), to_json(source->get_position()) },
         { QStringLiteral("generation"),
           gen_type_to_string(source->get_gen_type()) },

@@ -11,6 +11,7 @@ Item {
     id: root
 
     required property string name
+    required property string identifier
     required property string type
     required property string description
     required property var choices
@@ -24,6 +25,7 @@ Item {
     required property string unit
     required property string value
     required property var model
+    required property var scriptModule
 
     implicitHeight: content.implicitHeight + 12
 
@@ -74,6 +76,8 @@ Item {
                 if (root.type === "real"
                         && (root.min_bounded || root.max_bounded))
                     return realEditor
+                if (root.type === "position")
+                    return positionEditor
                 if (root.type === "vec3")
                     return vectorEditor
                 return textEditor
@@ -141,6 +145,27 @@ Item {
     }
 
     Component {
+        id: positionEditor
+
+        STButton {
+
+            property string sanitizedValue : {
+                return root.value
+                    .replace(/[\[\]{}]/g, "")
+                    .split(/[\s,]+/)
+                    .filter(part => part.length > 0)
+                    .map(Number)
+                    .map(v => Number(v.toFixed(1)).toString())
+                    .join()
+            }
+
+            text: sanitizedValue
+            right_text_icon: "\uf3c5"
+            onClicked: root.scriptModule.position_editor.begin(root.identifier)
+        }
+    }
+
+    Component {
         id: vectorEditor
 
         STButton {
@@ -159,7 +184,17 @@ Item {
                 }
             }
 
-            text: root.value
+            property string sanitizedValue : {
+                return root.value
+                    .replace(/[\[\]{}]/g, "")
+                    .split(/[\s,]+/)
+                    .filter(part => part.length > 0)
+                    .map(Number)
+                    .map(v => Number(v.toFixed(1)).toString())
+                    .join()
+            }
+
+            text: sanitizedValue
             right_text_icon: "\uf304"
             onClicked: {
                 loadEditor()

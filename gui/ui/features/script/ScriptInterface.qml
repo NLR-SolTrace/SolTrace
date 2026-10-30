@@ -101,6 +101,22 @@ console.log("Script complete.")
         }
     }
 
+    ScriptPositionEditor {
+        id: position_editor_popup
+        module: root.module.position_editor
+    }
+
+    Connections {
+        target: root.module.position_editor
+
+        function onActive_changed() {
+            if (root.module.position_editor.active)
+                position_editor_popup.open()
+            else
+                position_editor_popup.close()
+        }
+    }
+
     STPopup {
         id: api_popup
         parent: Overlay.overlay
@@ -260,7 +276,19 @@ console.log("Script complete.")
                     ScriptEditor {
                         id: script_editor
                         sourceLabel: root.displaySourceLabel
-                        onChangesApplied: root.sourceModified = true
+                        onChangesApplied: function(savedUrl) {
+                            if (savedUrl) {
+                                root.sourceLabel = root.displayPath(savedUrl)
+                                root.sourceModified = false
+                            } else {
+                                root.sourceModified = true
+                            }
+                        }
+                        onScriptSaved: function(fileUrl, activeScript) {
+                            if (!activeScript) return
+                            root.sourceLabel = root.displayPath(fileUrl)
+                            root.sourceModified = false
+                        }
                     }
                 }
 
@@ -358,6 +386,7 @@ console.log("Script complete.")
 
                 delegate: ScriptParameterDelegate {
                     width: Math.max(0, ListView.view.width - 8)
+                    scriptModule: root.module
                 }
             }
         }

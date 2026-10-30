@@ -139,7 +139,7 @@ get_ray_source
 
 Read the current ray source position, shape, and ray generation mode.
 
-Inputs: none. Output: object {type, position, generation, shape, sigma, half_width, csr, user_distribution}. position is [x, y, z]. generation is random or halton. shape is gaussian, pillbox, limb_darkened, buie_csr, user_defined, none, or unknown. user_distribution is an array of {angle, intensity}.
+Inputs: none. Output: object {type, position, generation, shape, sigma, half_width, csr, user_distribution}. type is directional or point_source. position is the sun direction for a directional source and the global source position for a point source. generation is random or halton. shape is gaussian, pillbox, limb_darkened, buie_csr, user_defined, none, or unknown. user_distribution is an array of {angle, intensity}.
 
 Example: const source = db.get_ray_source()
 ---

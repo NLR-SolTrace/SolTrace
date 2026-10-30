@@ -130,16 +130,16 @@ STScrollView {
                         }
                     }
 
-                    Label {
-                        anchors.centerIn: parent
-                        anchors.margins: 12
-                        width: parent.width - 24
-                        horizontalAlignment: Text.AlignHCenter
-                        wrapMode: Label.WrapAtWordBoundaryOrAnywhere
-                        text: root.emptyListText
-                        opacity: 0.5
-                        visible: root.visibleRowCount === 0
-                    }
+                }
+
+                Label {
+                    anchors.centerIn: parent
+                    width: Math.max(0, parent.width - 24)
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Label.WrapAtWordBoundaryOrAnywhere
+                    text: root.emptyListText
+                    opacity: 0.5
+                    visible: root.visibleRowCount === 0
                 }
             }
 

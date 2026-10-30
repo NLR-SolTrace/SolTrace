@@ -1,13 +1,14 @@
 #pragma once
 
-#include "scripting/script_executor.h"
 #include "scripting/script_db_interface.h"
+#include "scripting/script_executor.h"
 #include "support/notification.h"
 #include "support/qt_helpers.h"
 #include "support/structmodel.h"
 
 #include <QObject>
 #include <QStringList>
+#include <QVector3D>
 
 namespace SolTrace::GUI::App {
 class DatabaseModule;
@@ -22,21 +23,21 @@ namespace SolTrace::GUI::Scripting {
 /// ScriptPropertyModel. The `value` field is editable; the remaining fields
 /// describe how the UI should present and validate that value.
 struct ScriptProperty {
-    QString name;
-    QString identifier;
-    QString type;
-    QString description;
+    QString     name;
+    QString     identifier;
+    QString     type;
+    QString     description;
     QStringList choices;
-    QString extra;
-    bool    min_bounded   = false;
-    bool    max_bounded   = false;
-    bool    max_inclusive = false;
-    double  min           = 0.0;
-    double  max           = 0.0;
-    double  step          = 1.0;
-    int     decimals      = 4;
-    QString unit;
-    QString error;
+    QString     extra;
+    bool        min_bounded   = false;
+    bool        max_bounded   = false;
+    bool        max_inclusive = false;
+    double      min           = 0.0;
+    double      max           = 0.0;
+    double      step          = 1.0;
+    int         decimals      = 4;
+    QString     unit;
+    QString     error;
 
     QString value;
 
@@ -66,6 +67,54 @@ public:
     explicit ScriptPropertyModel(QObject* parent = nullptr);
 };
 
+/// Session state for editing one script position parameter in the viewport.
+class ScriptPositionEditor : public QObject {
+    Q_OBJECT
+
+    QPointer<ScriptPropertyModel> m_properties;
+    int                           m_row = -1;
+    QVector3D                     m_position;
+    bool                          m_active = false;
+    QString                       m_name;
+    double                        m_step     = 0.1;
+    int                           m_decimals = 4;
+
+    static constexpr int value_role =
+        ROLE_FOR_MEMBER(ScriptProperty, value);
+
+public:
+    explicit ScriptPositionEditor(ScriptPropertyModel* properties,
+                                  QObject* parent = nullptr);
+
+    Q_PROPERTY(QVector3D position READ position WRITE set_position NOTIFY
+                   position_changed FINAL)
+    Q_PROPERTY(bool active READ active NOTIFY active_changed FINAL)
+    Q_PROPERTY(QString name READ name NOTIFY name_changed FINAL)
+    Q_PROPERTY(double step READ step NOTIFY metadata_changed FINAL)
+    Q_PROPERTY(int decimals READ decimals NOTIFY metadata_changed FINAL)
+
+    QVector3D position() const { return m_position; }
+    bool      active() const { return m_active; }
+    QString   name() const { return m_name; }
+    double    step() const { return m_step; }
+    int       decimals() const { return m_decimals; }
+
+    void set_position(QVector3D position);
+
+public slots:
+    /// Begin editing the position parameter with this manifest identifier.
+    bool begin(QString identifier);
+
+    /// End the current viewport position-editing session.
+    void end();
+
+signals:
+    void position_changed();
+    void active_changed();
+    void name_changed();
+    void metadata_changed();
+};
+
 /// Script-facing simulation controls exposed as `sim`.
 class ScriptSimulationInterface : public QObject {
     Q_OBJECT
@@ -78,7 +127,7 @@ public:
 
 public slots:
     /// Start a simulation using the selected runner and optional config patch.
-    bool start(QJsonObject config = {});
+    bool start(QJsonObject config = { });
 };
 
 /// Script-facing open-scene controls exposed as `scenes`.
@@ -92,7 +141,7 @@ class ScriptSceneInterface : public QObject {
 public:
     explicit ScriptSceneInterface(App::DatabaseModule*,
                                   ScriptDBInterface*,
-                                  QString working_directory,
+                                  QString  working_directory,
                                   QObject* parent = nullptr);
 
 public slots:
@@ -108,7 +157,8 @@ public slots:
     /// Load a scene file relative to the script working directory.
     bool new_from_file(QString relative_path, QString name_override = "");
 
-    /// Export the current scene to JSON relative to the script working directory.
+    /// Export the current scene to JSON relative to the script working
+    /// directory.
     bool export_json(QString relative_path);
 };
 
@@ -153,7 +203,9 @@ public slots:
 /// Every JSON parameter requires `id`, `type`, and `default`. Optional fields
 /// include `name`, `description`, `minimum`, `maximum`, `step`, `decimals`,
 /// `choices`, and `unit`. Supported types are `integer`, `real`, `string`, and
-/// `vec3`/`vector3d`; choices are currently supported for strings.
+/// `vec3`/`vector3d`, and `position`. Position parameters have the same
+/// JavaScript value as a vec3, but can also be edited in the 3D viewport;
+/// choices are currently supported for strings.
 ///
 /// The older TITLE/DESC/PROPERTY format remains supported. Its directives are:
 /// - TITLE text
@@ -192,9 +244,9 @@ public slots:
 class Script : public QObject {
     Q_OBJECT
 
-    QPointer<SolTrace::GUI::Data::Database>      m_database;
-    QPointer<App::DatabaseModule>   m_databases;
-    QPointer<App::SimulationModule> m_simulation;
+    QPointer<SolTrace::GUI::Data::Database> m_database;
+    QPointer<App::DatabaseModule>           m_databases;
+    QPointer<App::SimulationModule>         m_simulation;
 
     Q_WRITABLE_PROPERTY(QString, code, { });
     Q_READONLY_PROPERTY(QString, title);
@@ -202,6 +254,7 @@ class Script : public QObject {
     Q_READONLY_PROPERTY(bool, valid);
     Q_READONLY_PROPERTY(QStringList, parse_errors);
     QOBJECT_READONLY_PROPERTY(ScriptPropertyModel, properties);
+    QOBJECT_READONLY_PROPERTY(ScriptPositionEditor, position_editor);
 
 
     // Directory where scripts can pull additional content from
@@ -233,7 +286,7 @@ public slots:
 
     /// Save code to a path. This is not the same as our code property
     /// As it could be modified and not committed. True on success.
-    bool save_to(QString path, QString code);
+    bool save_to(QUrl path, QString code);
 
 signals:
     void notify(Support::ANotification);

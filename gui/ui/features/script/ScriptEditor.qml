@@ -15,8 +15,17 @@ STPopup {
     property string sourceLabel: qsTr("Unsaved script")
     property string workingCode: ""
     property bool dirty: workingCode !== module.code
+    property var lastSavedUrl: null
+    property string lastSavedCode: ""
+    property string savedSourceLabel: ""
+    readonly property string displayedSourceLabel: savedSourceLabel.length > 0
+                                                    ? savedSourceLabel
+                                                      + (workingCode !== lastSavedCode
+                                                         ? qsTr(" · Modified") : "")
+                                                    : sourceLabel
 
-    signal changesApplied
+    signal changesApplied(var savedUrl)
+    signal scriptSaved(var fileUrl, bool activeScript)
 
     modal: true
     focus: true
@@ -30,6 +39,9 @@ STPopup {
 
     onOpened: {
         workingCode = module.code
+        lastSavedUrl = null
+        lastSavedCode = ""
+        savedSourceLabel = ""
         text_edit_area.forceActiveFocus()
     }
 
@@ -39,8 +51,15 @@ STPopup {
     }
 
     function applyChanges() {
+        const matchingSavedUrl = workingCode === lastSavedCode
+                                 ? lastSavedUrl : null
         module.code = workingCode
-        changesApplied()
+        changesApplied(matchingSavedUrl)
+    }
+
+    function fileName(url) {
+        const value = decodeURIComponent(String(url))
+        return value.split("/").pop() || value
     }
 
     contentItem: ColumnLayout {
@@ -62,7 +81,7 @@ STPopup {
 
                 Label {
                     Layout.fillWidth: true
-                    text: root.sourceLabel
+                    text: root.displayedSourceLabel
                     opacity: 0.65
                     elide: Label.ElideMiddle
                 }
@@ -163,7 +182,7 @@ STPopup {
                     id: save_script_pop
 
                     fileMode: FileDialog.SaveFile
-                    currentFile: StandardPaths.standardLocations(
+                    currentFolder: StandardPaths.standardLocations(
                                      StandardPaths.DocumentsLocation
                                      )[0]
                     nameFilters: ["JavaScript files (*.js)"]
@@ -172,7 +191,13 @@ STPopup {
                         var ret = root.module.save_to(selectedFile,
                                                     text_edit_area.text)
 
-                        if (ret) return;
+                        if (ret) {
+                            root.lastSavedUrl = selectedFile
+                            root.lastSavedCode = root.workingCode
+                            root.savedSourceLabel = root.fileName(selectedFile)
+                            root.scriptSaved(selectedFile, !root.dirty)
+                            return
+                        }
 
                         save_failed_pop.open()
                     }
@@ -189,7 +214,7 @@ STPopup {
                         text: qsTr("Save failed, check permissions and try again.")
                     }
 
-                    standardButtons: STDialog.Ok
+                    standardButtons: Dialog.Ok
                 }
             }
 

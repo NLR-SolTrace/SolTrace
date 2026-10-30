@@ -24,7 +24,7 @@
       "id": "position",
       "name": "Position",
       "description": "Global position of the heliostat tracking origin.",
-      "type": "vector3d",
+      "type": "position",
       "default": [0, 0, 0],
       "step": 0.1,
       "decimals": 3
@@ -33,32 +33,10 @@
       "id": "target_position",
       "name": "Target position",
       "description": "Global point toward which reflected sunlight is directed.",
-      "type": "vector3d",
+      "type": "position",
       "default": [0, 0, 100],
       "step": 0.1,
       "decimals": 3
-    },
-    {
-      "id": "sun_azimuth",
-      "name": "Sun azimuth",
-      "description": "Current solar azimuth in degrees, clockwise from north.",
-      "type": "real",
-      "default": 180,
-      "minimum": -180,
-      "maximum": 180,
-      "step": 1,
-      "decimals": 2
-    },
-    {
-      "id": "sun_elevation",
-      "name": "Sun elevation",
-      "description": "Current solar elevation above the horizon in degrees.",
-      "type": "real",
-      "default": 45,
-      "minimum": 0,
-      "maximum": 90,
-      "step": 1,
-      "decimals": 2
     },
     {
       "id": "aperture_width",
@@ -330,13 +308,13 @@ function quaternionFromDirection(direction, gamma) {
     return quaternionFromAxes(xAxis, yAxis, aim)
 }
 
-function trackingRotation(origin, target, azimuth, elevation) {
+function trackingRotation(origin, target, sunDirection) {
     const targetDirection = normalize(
         subtract(target, origin),
         "Target position relative to the heliostat"
     )
     const aim = normalize(
-        add(targetDirection, sunVector(azimuth, elevation)),
+        add(targetDirection, sunDirection),
         "Tracking bisector"
     )
 
@@ -356,6 +334,25 @@ function trackingRotation(origin, target, azimuth, elevation) {
         gamma = -Math.atan2(elevationAxis[1], heliostatYAxis[1])
     }
     return quaternionFromDirection(aim, gamma)
+}
+
+function currentSunDirection(origin) {
+    const source = db.get_ray_source()
+    if (!source.position || source.position.length !== 3) {
+        console.warn(
+            "No sun is stored in this scene; using the overhead default."
+        )
+        return [0.0, 0.0, 1.0]
+    }
+
+    if (source.type === "point_source") {
+        return normalize(
+            subtract(source.position, origin),
+            "Point-source position relative to the heliostat"
+        )
+    }
+
+    return normalize(source.position, "Sun direction")
 }
 
 function ensureSingle(scope, name, factory) {
@@ -453,8 +450,7 @@ db.set_transform(root, {
     rotation: trackingRotation(
         position,
         target_position,
-        sun_azimuth,
-        sun_elevation
+        currentSunDirection(position)
     ),
 })
 

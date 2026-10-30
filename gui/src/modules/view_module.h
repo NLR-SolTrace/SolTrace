@@ -88,7 +88,8 @@ public:
         SelectGeometry = 3,
         EditElement    = 4,
         PickRay        = 5,
-        SelectRayFilterElement = 6
+        SelectRayFilterElement = 6,
+        EditPosition   = 7
     };
 
     Q_ENUM(MouseMode)
