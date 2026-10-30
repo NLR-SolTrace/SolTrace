@@ -503,7 +503,7 @@ jobs:
           fi
 
       - name: Upload verified release artifact
-        if: startsWith(github.ref, 'refs/tags/')
+        if: matrix.platform != 'windows' && startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
