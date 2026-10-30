@@ -103,12 +103,12 @@ jobs:
             msi_package_name: SolTrace
             msi_install_directory: SolTrace
             msi_upgrade_guid: 4F2CA469-A426-5378-BB8C-4E6EA7A23702
-            # RenderKit's Windows binary archive is expected to contain the DLLs
+            # RenderKit's  binary archive is expected to contain the DLLs
             # and bundled CMake config used by find_package(embree 4 REQUIRED).
-            embree_asset_regex: ".*x64.*windows.*\\.zip$"
-            artifact_name: SolTrace-Windows-x64-Embree
-            asset_name: SolTrace-Windows-x64-Embree.zip
-            msi_name: SolTrace-Windows-x64-Embree.msi
+            embree_asset_regex: ".*x64.*.*\\.zip$"
+            artifact_name: SolTrace--x64-Embree
+            asset_name: SolTrace--x64-Embree.zip
+            msi_name: SolTrace--x64-Embree.msi
 
           - name: Linux x64 Embree AppImage
             id: linux-x64-embree
@@ -133,8 +133,8 @@ jobs:
             asset_name: SolTrace-Linux-x86_64-Embree.AppImage
             msi_name: ""
 
-          - name: Windows x64 Embree OptiX bundle
-            id: windows-x64-embree-optix
+          - name:  x64 Embree OptiX bundle
+            id: -x64-embree-optix
             platform: windows
             runner: windows-2022
             qt_host: windows
@@ -425,6 +425,7 @@ jobs:
           --optix-enabled "${{ matrix.optix_enabled }}"
 
       - name: Generate and verify release artifact checksum
+        if: matrix.platform != 'windows'
         shell: bash
         run: |
           asset_dir="$(dirname "$ASSET_PATH")"
@@ -491,6 +492,7 @@ jobs:
           --upgrade-guid "${{ matrix.msi_upgrade_guid }}"
 
       - name: Stage verified release artifact
+        if: matrix.platform != 'windows'
         if: startsWith(github.ref, 'refs/tags/')
         shell: bash
         run: |
