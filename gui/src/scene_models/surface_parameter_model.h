@@ -27,9 +27,9 @@ enum SurfaceParameterType {
 /// One editable surface parameter exposed to QML.
 struct SurfaceParameter {
     QString name;
-    double  content = 0.0;
-    double  min     = std::numeric_limits<double>::lowest();
-    double  max     = std::numeric_limits<double>::max();
+    double  content  = 0.0;
+    double  min      = std::numeric_limits<double>::lowest();
+    double  max      = std::numeric_limits<double>::max();
     int     type     = GenericSurfaceParameter;
     bool    editable = true;
 
@@ -56,10 +56,9 @@ class SurfaceParameterModel
 
     void set_new_database_connections(Database* ptr) override;
 
-    Q_WRITABLE_PROPERTY(
-        qint32,
-        surface_kind,
-        static_cast<qint32>(SD::SurfaceType::SURFACE_UNKNOWN));
+    Q_WRITABLE_PROPERTY(qint32,
+                        surface_kind,
+                        static_cast<qint32>(SD::SurfaceType::SURFACE_UNKNOWN));
     QOBJECT_READONLY_PROPERTY(QRangeModel, surface_type_model);
 
     void make_new_surface(SD::SurfaceType);

@@ -189,39 +189,47 @@ public slots:
     QString sanitize_element_name(QString);
     QString sanitize_entity_name(QString);
 
-    SolTrace::GUI::Data::Entity add_element(QString new_name, SolTrace::GUI::Data::Entity parent = { });
+    SolTrace::GUI::Data::Entity
+    add_element(QString new_name, SolTrace::GUI::Data::Entity parent = { });
 
     void delete_element(SolTrace::GUI::Data::Entity to_delete);
 
     bool is_virtual_element(SolTrace::GUI::Data::Entity element) const;
-    void set_virtual_element(SolTrace::GUI::Data::Entity element, bool is_virtual);
+    void set_virtual_element(SolTrace::GUI::Data::Entity element,
+                             bool                        is_virtual);
 
     /// Materials
     QString sanitize_material_name(QString);
 
-    SolTrace::GUI::Data::Entity add_material_group(QString             new_name,
-                                  QVector<SolTrace::GUI::Data::Entity> members    = { },
-                                  SolTrace::GUI::Data::Entity          clone_from = { });
+    SolTrace::GUI::Data::Entity
+    add_material_group(QString                              new_name,
+                       QVector<SolTrace::GUI::Data::Entity> members    = { },
+                       SolTrace::GUI::Data::Entity          clone_from = { });
 
     size_t material_use_count(SolTrace::GUI::Data::Entity material);
 
-    void delete_material_group(SolTrace::GUI::Data::Entity to_delete, SolTrace::GUI::Data::Entity move_to = { });
+    void delete_material_group(SolTrace::GUI::Data::Entity to_delete,
+                               SolTrace::GUI::Data::Entity move_to = { });
 
-    SolTrace::GUI::Data::Entity material_of(SolTrace::GUI::Data::Entity element) const;
+    SolTrace::GUI::Data::Entity
+    material_of(SolTrace::GUI::Data::Entity element) const;
 
     /// Geometry
 
     QString sanitize_geometry_name(QString);
 
-    SolTrace::GUI::Data::Entity add_geometry_group(QString             new_name,
-                                  QVector<SolTrace::GUI::Data::Entity> members    = { },
-                                  SolTrace::GUI::Data::Entity          clone_from = { });
+    SolTrace::GUI::Data::Entity
+    add_geometry_group(QString                              new_name,
+                       QVector<SolTrace::GUI::Data::Entity> members    = { },
+                       SolTrace::GUI::Data::Entity          clone_from = { });
 
     size_t geometry_use_count(SolTrace::GUI::Data::Entity geometry);
 
-    void delete_geometry_group(SolTrace::GUI::Data::Entity to_delete, SolTrace::GUI::Data::Entity move_to = { });
+    void delete_geometry_group(SolTrace::GUI::Data::Entity to_delete,
+                               SolTrace::GUI::Data::Entity move_to = { });
 
-    SolTrace::GUI::Data::Entity geometry_of(SolTrace::GUI::Data::Entity element) const;
+    SolTrace::GUI::Data::Entity
+    geometry_of(SolTrace::GUI::Data::Entity element) const;
 
     /// Selection methods
     void select(SolTrace::GUI::Data::Entity to_select);

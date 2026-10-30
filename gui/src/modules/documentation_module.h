@@ -91,9 +91,9 @@ private:
                     const QString& key_prefix = "",
                     int            depth      = 0);
 
-    QString                                          locale_string();
-    QString                                          locale_name_string();
-    QString                                          locale_directory();
+    QString locale_string();
+    QString locale_name_string();
+    QString locale_directory();
     QHash<Locale, QHash<QString, Support::MarkdownDocument*>> m_docs;
 };
 

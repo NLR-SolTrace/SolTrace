@@ -315,10 +315,10 @@ static void splat_energy(Support::Grid2D<float>&       energy,
     auto const width  = int(energy.size_x());
     auto const height = int(energy.size_y());
     auto const p      = uv_to_pixel(uv, QSize(width, height));
-    auto const px = wrap_u ? double(uv.x) * width - 0.5
-                           : std::clamp(p.x(), 0.0, double(width - 1));
-    auto const py = wrap_v ? double(uv.y) * height - 0.5
-                           : std::clamp(p.y(), 0.0, double(height - 1));
+    auto const px     = wrap_u ? double(uv.x) * width - 0.5
+                               : std::clamp(p.x(), 0.0, double(width - 1));
+    auto const py     = wrap_v ? double(uv.y) * height - 0.5
+                               : std::clamp(p.y(), 0.0, double(height - 1));
     auto const x0     = int(std::floor(px));
     auto const y0     = int(std::floor(py));
     auto const tx     = float(px - x0);
@@ -468,8 +468,8 @@ raster_flux(std::vector<glm::vec2> const& uvs,
     Support::Grid2D<float> smoothed_area;
 
     if (smoothing_radius > 0) {
-        flux = smooth_raster(energy, smoothing_radius, wrap_u, wrap_v);
-        energy        = Support::Grid2D<float>();
+        flux   = smooth_raster(energy, smoothing_radius, wrap_u, wrap_v);
+        energy = Support::Grid2D<float>();
         smoothed_area =
             smooth_raster(surface_area, smoothing_radius, wrap_u, wrap_v);
     } else {

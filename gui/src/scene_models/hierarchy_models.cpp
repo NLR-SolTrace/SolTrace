@@ -7,10 +7,10 @@
 namespace SolTrace::GUI::Data {
 
 namespace {
-constexpr int name_role = ROLE_FOR_MEMBER(EntityNamePair, name);
-constexpr int entity_role = ROLE_FOR_MEMBER(EntityNamePair, entity);
+constexpr int name_role         = ROLE_FOR_MEMBER(EntityNamePair, name);
+constexpr int entity_role       = ROLE_FOR_MEMBER(EntityNamePair, entity);
 constexpr int has_children_role = ROLE_FOR_MEMBER(EntityNamePair, has_children);
-}
+} // namespace
 
 quintptr ElementTreeModel::encode(Entity entity) {
     return static_cast<quintptr>(entt::to_integral(entity.value)) + 1;
@@ -88,7 +88,8 @@ int ElementTreeModel::columnCount(QModelIndex const&) const {
     return 1;
 }
 
-QVariant ElementTreeModel::data(QModelIndex const& model_index, int role) const {
+QVariant ElementTreeModel::data(QModelIndex const& model_index,
+                                int                role) const {
     if (!m_host || !model_index.isValid()) return { };
 
     auto const entity = decode(model_index);
@@ -125,7 +126,8 @@ void ElementTreeModel::rebuild() {
         auto view = m_host->as_registry().view<ElementComponent>(
             entt::exclude<ChildOfComponent>);
         m_roots.reserve(static_cast<qsizetype>(view.size_hint()));
-        for (auto [entity] : view.each()) m_roots.push_back(Entity(entity));
+        for (auto [entity] : view.each())
+            m_roots.push_back(Entity(entity));
     }
     endResetModel();
 }

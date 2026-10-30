@@ -141,22 +141,22 @@ SurfaceParameterModel::SurfaceParameterModel(QObject* parent)
 
                 switch (row) {
                 case 0:
-                    paired_row   = 1;
+                    paired_row = 1;
                     paired_value =
                         focal_length_from_curvature(m_records[0].content);
                     break;
                 case 1:
-                    paired_row   = 0;
+                    paired_row = 0;
                     paired_value =
                         curvature_from_focal_length(m_records[1].content);
                     break;
                 case 2:
-                    paired_row   = 3;
+                    paired_row = 3;
                     paired_value =
                         focal_length_from_curvature(m_records[2].content);
                     break;
                 case 3:
-                    paired_row   = 2;
+                    paired_row = 2;
                     paired_value =
                         curvature_from_focal_length(m_records[3].content);
                     break;
@@ -170,12 +170,9 @@ SurfaceParameterModel::SurfaceParameterModel(QObject* parent)
                 m_syncing_parameters = false;
             });
 
-    connect(this,
-            &SurfaceParameterModel::dataChanged,
-            this,
-            [this] {
-                if (!m_syncing_parameters) emit updated();
-            });
+    connect(this, &SurfaceParameterModel::dataChanged, this, [this] {
+        if (!m_syncing_parameters) emit updated();
+    });
 
     connect(this,
             &SurfaceParameterModel::dataChanged,
@@ -336,11 +333,11 @@ void SurfaceParameterModel::make_new_surface(SD::SurfaceType type) {
 
             auto valid_apertures =
                 ApertureParameterModel::valid_apertures_for_surf(type);
-            auto aperture_is_valid = params.aperture
-                                     && std::find(valid_apertures.begin(),
-                                                  valid_apertures.end(),
-                                                  params.aperture->my_type)
-                                            != valid_apertures.end();
+            auto aperture_is_valid =
+                params.aperture &&
+                std::find(valid_apertures.begin(),
+                          valid_apertures.end(),
+                          params.aperture->my_type) != valid_apertures.end();
 
             if (!aperture_is_valid) {
                 params.aperture = SD::Aperture::make_aperture_from_type(

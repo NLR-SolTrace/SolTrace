@@ -147,7 +147,7 @@ DatabaseCloneResult clone_database_with_entity_map(Database const& from,
 
         auto const copied_entity = mapper(entity);
         to_registry.emplace<TagMembershipComponent>(copied_entity,
-                                                     membership_copy);
+                                                    membership_copy);
         for (auto copied_tag : membership_copy.tags) {
             auto& storage = to_registry.storage<ATagMemberComponent>(
                 entt::to_integral(copied_tag.value));

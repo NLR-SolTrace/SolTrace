@@ -27,9 +27,9 @@ enum ApertureParameterType {
 /// TODO: make friendier for coordinates, etc.
 struct ApertureParameter {
     QString name;
-    double  content = 0.0;
-    double  min     = std::numeric_limits<double>::lowest();
-    double  max     = std::numeric_limits<double>::max();
+    double  content  = 0.0;
+    double  min      = std::numeric_limits<double>::lowest();
+    double  max      = std::numeric_limits<double>::max();
     int     type     = GenericApertureParameter;
     bool    editable = true;
 
@@ -48,13 +48,10 @@ struct ApertureTypeRecord {
 
     bool operator==(ApertureTypeRecord const&) const = default;
 
-    RECORD_META(ApertureTypeRecord,
-                SM_EXPOSE_RO(name),
-                SM_EXPOSE_RO(value));
+    RECORD_META(ApertureTypeRecord, SM_EXPOSE_RO(name), SM_EXPOSE_RO(value));
 };
 
-class ApertureTypeModel
-    : public Support::StructTableModel<ApertureTypeRecord> {
+class ApertureTypeModel : public Support::StructTableModel<ApertureTypeRecord> {
     Q_OBJECT
 
 public:

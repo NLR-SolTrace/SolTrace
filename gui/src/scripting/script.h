@@ -79,12 +79,11 @@ class ScriptPositionEditor : public QObject {
     double                        m_step     = 0.1;
     int                           m_decimals = 4;
 
-    static constexpr int value_role =
-        ROLE_FOR_MEMBER(ScriptProperty, value);
+    static constexpr int value_role = ROLE_FOR_MEMBER(ScriptProperty, value);
 
 public:
     explicit ScriptPositionEditor(ScriptPropertyModel* properties,
-                                  QObject* parent = nullptr);
+                                  QObject*             parent = nullptr);
 
     Q_PROPERTY(QVector3D position READ position WRITE set_position NOTIFY
                    position_changed FINAL)

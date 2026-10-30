@@ -205,7 +205,7 @@ void SunShape::sample_limb_darkened() {
     }
 
     points.push_back({
-        .angle = disk_edge + 1.e-3,
+        .angle     = disk_edge + 1.e-3,
         .intensity = 0.0,
     });
 

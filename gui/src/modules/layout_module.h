@@ -1,8 +1,8 @@
 #pragma once
 
+#include "scene_models/element_models.h"
 #include "scene_models/hierarchy_models.h"
 #include "scene_models/instance_editor.h"
-#include "scene_models/element_models.h"
 #include "scene_models/instance_sort_filter.h"
 #include "scene_models/world_geometry_model.h"
 #include "support/notification.h"
@@ -36,13 +36,17 @@ public:
 
     QOBJECT_WRITABLE_PROPERTY(SolTrace::GUI::Data::Database, current_database)
 
-    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::AllElementsModel, all_elements_model);
+    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::AllElementsModel,
+                              all_elements_model);
 
-    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::ElementTreeModel, element_tree_model);
+    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::ElementTreeModel,
+                              element_tree_model);
     QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::InstanceSortFilter,
                               filtered_element_tree_model);
-    QOBJECT_WRITABLE_PROPERTY(SolTrace::GUI::Data::AnInstanceEditor, instance_edit);
-    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::WorldGeometryModel, world_geometry_model);
+    QOBJECT_WRITABLE_PROPERTY(SolTrace::GUI::Data::AnInstanceEditor,
+                              instance_edit);
+    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::WorldGeometryModel,
+                              world_geometry_model);
 
     Q_WRITABLE_PROPERTY(SolTrace::GUI::Data::Entity, edited_element, { })
     Q_READONLY_PROPERTY(QString, edited_element_name);

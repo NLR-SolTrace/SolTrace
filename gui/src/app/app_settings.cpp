@@ -30,8 +30,7 @@ void AppSettings::load_session(AppData& app) {
     s.endGroup();
 
     s.beginGroup("View");
-    view->left_panel()->set_visible(
-        s.value("show_left_panel", true).toBool());
+    view->left_panel()->set_visible(s.value("show_left_panel", true).toBool());
     view->right_panel()->set_visible(
         s.value("show_right_panel", true).toBool());
     view->left_panel()->set_width(
@@ -75,9 +74,8 @@ void AppSettings::load_session(AppData& app) {
     sim->set_geometry_color(
         s.value("sim_geometry_color", QColor("white")).value<QColor>());
     view->set_ray_color(s.value("ray_color", QColor("white")).value<QColor>());
-    view->set_ray_color_map(
-        SolTrace::GUI::Data::ColorMapModel::normalized_id(
-            s.value("ray_color_map", QStringLiteral("classic")).toString()));
+    view->set_ray_color_map(SolTrace::GUI::Data::ColorMapModel::normalized_id(
+        s.value("ray_color_map", QStringLiteral("classic")).toString()));
     app.flux()->pending_flux_maps()->set_color_map_id(
         SolTrace::GUI::Data::ColorMapModel::normalized_id(
             s.value("flux_color_map", QStringLiteral("classic")).toString()));
@@ -147,8 +145,7 @@ void AppSettings::save_session(AppData const& app) {
     s.setValue("left_panel_width", view->left_panel()->width());
     s.setValue("right_panel_width", view->right_panel()->width());
 
-    s.setValue("show_get_started_on_start",
-               app.show_get_started_on_start());
+    s.setValue("show_get_started_on_start", app.show_get_started_on_start());
 
     auto workflow_phase = view->workflow_phase();
     if (workflow_phase == ViewModule::WorkflowPhase::Start) {

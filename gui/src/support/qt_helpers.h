@@ -2,7 +2,8 @@
 
 #include <QPointer>
 
-//─── Property Macros ───────────────────────────────────────────────────────────────────
+// ─── Property Macros
+// ───────────────────────────────────────────────────────────────────
 
 #define QOBJECT_WRITABLE_PROPERTY(TYPE, PROPERTY_NAME)                         \
 public:                                                                        \

@@ -1,8 +1,8 @@
 #include "database.h"
-#include "data_io/conversion.h"
 #include "data/components.h"
-#include "data_io/database_notification.h"
 #include "data/database_clone.h"
+#include "data_io/conversion.h"
+#include "data_io/database_notification.h"
 
 #include "simulation_data_api.hpp"
 
@@ -70,8 +70,8 @@ static void tag_membership_destroy_callback(entt::registry& reg,
     if (!membership) return;
 
     for (auto tag : membership->tags) {
-        auto& storage = reg.storage<ATagMemberComponent>(
-            entt::to_integral(tag.value));
+        auto& storage =
+            reg.storage<ATagMemberComponent>(entt::to_integral(tag.value));
         if (storage.contains(entity)) { storage.erase(entity); }
     }
 }
@@ -82,7 +82,9 @@ static void tag_destroy_callback(entt::registry& reg, entt::entity tag) {
     QVector<entt::entity> members;
     for (auto const& [entity, membership] :
          reg.view<TagMembershipComponent>().each()) {
-        if (membership.tags.contains(Entity(tag))) { members.push_back(entity); }
+        if (membership.tags.contains(Entity(tag))) {
+            members.push_back(entity);
+        }
     }
 
     for (auto member : std::as_const(members)) {
@@ -139,7 +141,7 @@ Database::Database(QString database_name, QObject* p)
 
     database_name_resource.set(DatabaseNameResource { .name = database_name });
 
-    simulation_parameters_resource.set({});
+    simulation_parameters_resource.set({ });
 
     ComponentAPIBase* const persistent_components[] = {
         &identity,
@@ -271,8 +273,7 @@ bool Database::can_set_parent(Entity child, Entity parent) const {
     while (cursor.is_valid() && visited.insert(cursor).second) {
         if (cursor == child) return false;
 
-        auto const* relationship =
-            m_registry.try_get<ChildOfComponent>(cursor);
+        auto const* relationship = m_registry.try_get<ChildOfComponent>(cursor);
         if (!relationship) return true;
         cursor = relationship->parent;
     }
@@ -284,7 +285,8 @@ bool Database::can_set_parent(Entity child, Entity parent) const {
 
 bool Database::set_parent(entt::entity child, entt::entity parent) {
     if (!can_set_parent(Entity(child), Entity(parent))) {
-        qWarning() << "Invalid or cyclic parent relationship" << child << parent;
+        qWarning() << "Invalid or cyclic parent relationship" << child
+                   << parent;
         return false;
     }
     if (parent_of(child) == parent) return true;
@@ -412,17 +414,13 @@ void Database::assign_geometry(entt::entity child, entt::entity group) {
 }
 
 SD::ray_source_ptr Database::get_ray_source() const {
-    if (auto ptr = ray_source_resource.get(); ptr) {
-        return ptr->source;
-    }
+    if (auto ptr = ray_source_resource.get(); ptr) { return ptr->source; }
 
     return { };
 }
 
 SD::SimulationParameters const& Database::get_sim_params() const {
-    if (auto ptr = simulation_parameters_resource.get(); ptr) {
-        return *ptr;
-    }
+    if (auto ptr = simulation_parameters_resource.get(); ptr) { return *ptr; }
 
     throw std::runtime_error("missing simulation parameters");
 }
@@ -486,7 +484,8 @@ entt::entity Database::create_tag(QString name, bool hidden) {
 }
 
 bool Database::is_hidden_tag(Entity tag) const {
-    return valid(tag) && m_registry.all_of<TagComponent, HiddenTagComponent>(tag);
+    return valid(tag) &&
+           m_registry.all_of<TagComponent, HiddenTagComponent>(tag);
 }
 
 void Database::set_tag_hidden(Entity tag, bool hidden) {
@@ -494,15 +493,14 @@ void Database::set_tag_hidden(Entity tag, bool hidden) {
     if (is_hidden_tag(tag) == hidden) return;
 
     if (hidden) {
-        hidden_tag.set(tag, HiddenTagComponent {});
+        hidden_tag.set(tag, HiddenTagComponent { });
     } else {
         hidden_tag.remove(tag);
     }
 }
 
 bool Database::is_tagged(Entity item, Entity tag) const {
-    if (!valid(item) || !valid(tag) ||
-        !m_registry.all_of<TagComponent>(tag)) {
+    if (!valid(item) || !valid(tag) || !m_registry.all_of<TagComponent>(tag)) {
         return false;
     }
 
@@ -574,8 +572,8 @@ QVector<Entity> Database::tagged_with(Entity tag) const {
     QVector<Entity> result;
     if (!valid(tag) || !m_registry.all_of<TagComponent>(tag)) return result;
 
-    auto const* storage = m_registry.storage<ATagMemberComponent>(
-        entt::to_integral(tag.value));
+    auto const* storage =
+        m_registry.storage<ATagMemberComponent>(entt::to_integral(tag.value));
     if (!storage) return result;
 
     result.reserve(static_cast<qsizetype>(storage->size()));
@@ -612,7 +610,8 @@ QString Database::sanitize_entity_name(QString name) {
     return sanitize_element_name(name);
 }
 
-SolTrace::GUI::Data::Entity Database::add_element(QString new_name, SolTrace::GUI::Data::Entity parent) {
+SolTrace::GUI::Data::Entity
+Database::add_element(QString new_name, SolTrace::GUI::Data::Entity parent) {
     auto entity = create();
 
     m_registry.emplace<ElementComponent>(entity);
@@ -622,11 +621,10 @@ SolTrace::GUI::Data::Entity Database::add_element(QString new_name, SolTrace::GU
             .position = glm::dvec3 { 0.0 },
             .rotation = glm::dquat { 1.0, 0.0, 0.0, 0.0 },
         });
-    m_registry.emplace<IdentityComponent>(
-        entity,
-        IdentityComponent {
-            .name = new_name,
-        });
+    m_registry.emplace<IdentityComponent>(entity,
+                                          IdentityComponent {
+                                              .name = new_name,
+                                          });
 
     if (parent.is_valid()) { set_parent(entity, parent); }
 
@@ -653,7 +651,7 @@ void Database::delete_element(SolTrace::GUI::Data::Entity to_delete) {
     remove_material(to_delete);
     remove_geometry(to_delete);
 
-    auto tags = tags_for(to_delete);
+    auto            tags = tags_for(to_delete);
     QVector<Entity> tag_copy;
     tag_copy.reserve(tags.size());
     for (auto tag : tags) {
@@ -670,13 +668,14 @@ bool Database::is_virtual_element(SolTrace::GUI::Data::Entity element) const {
     return valid(element) && m_registry.all_of<VirtualTagComponent>(element);
 }
 
-void Database::set_virtual_element(SolTrace::GUI::Data::Entity element, bool is_virtual) {
+void Database::set_virtual_element(SolTrace::GUI::Data::Entity element,
+                                   bool                        is_virtual) {
     if (!valid(element)) return;
     if (!m_registry.all_of<ElementComponent>(element)) return;
     if (is_virtual_element(element) == is_virtual) return;
 
     if (is_virtual) {
-        virtual_tag.set(element, VirtualTagComponent {});
+        virtual_tag.set(element, VirtualTagComponent { });
     } else {
         virtual_tag.remove(element);
     }
@@ -686,9 +685,10 @@ QString Database::sanitize_material_name(QString name) {
     return sanitize_new_name<MaterialComponent>(m_registry, name, "Material");
 }
 
-SolTrace::GUI::Data::Entity Database::add_material_group(QString             new_name,
-                                        QVector<SolTrace::GUI::Data::Entity> members,
-                                        SolTrace::GUI::Data::Entity          clone_from) {
+SolTrace::GUI::Data::Entity
+Database::add_material_group(QString                              new_name,
+                             QVector<SolTrace::GUI::Data::Entity> members,
+                             SolTrace::GUI::Data::Entity          clone_from) {
     auto set = std::unordered_set(members.begin(), members.end());
 
     MaterialComponent params;
@@ -738,7 +738,8 @@ size_t Database::material_use_count(SolTrace::GUI::Data::Entity material) {
     return ptr->members.size();
 }
 
-void Database::delete_material_group(SolTrace::GUI::Data::Entity to_delete, SolTrace::GUI::Data::Entity move_to) {
+void Database::delete_material_group(SolTrace::GUI::Data::Entity to_delete,
+                                     SolTrace::GUI::Data::Entity move_to) {
     qDebug() << Q_FUNC_INFO << to_delete << move_to;
     if (to_delete == move_to) {
         qWarning()
@@ -783,20 +784,22 @@ void Database::delete_material_group(SolTrace::GUI::Data::Entity to_delete, SolT
     }
 }
 
-SolTrace::GUI::Data::Entity Database::material_of(SolTrace::GUI::Data::Entity element) const {
+SolTrace::GUI::Data::Entity
+Database::material_of(SolTrace::GUI::Data::Entity element) const {
     if (auto* m = m_registry.try_get<MaterialGroupMemberComponent>(element)) {
         return m->group;
     }
-    return {};
+    return { };
 }
 
 QString Database::sanitize_geometry_name(QString name) {
     return sanitize_new_name<GeometryComponent>(m_registry, name, "Geometry");
 }
 
-SolTrace::GUI::Data::Entity Database::add_geometry_group(QString             new_name,
-                                        QVector<SolTrace::GUI::Data::Entity> members,
-                                        SolTrace::GUI::Data::Entity          clone_from) {
+SolTrace::GUI::Data::Entity
+Database::add_geometry_group(QString                              new_name,
+                             QVector<SolTrace::GUI::Data::Entity> members,
+                             SolTrace::GUI::Data::Entity          clone_from) {
     auto set = std::unordered_set(members.begin(), members.end());
 
     GeometryComponent params;
@@ -854,7 +857,8 @@ size_t Database::geometry_use_count(SolTrace::GUI::Data::Entity geometry) {
     return ptr->members.size();
 }
 
-void Database::delete_geometry_group(SolTrace::GUI::Data::Entity to_delete, SolTrace::GUI::Data::Entity move_to) {
+void Database::delete_geometry_group(SolTrace::GUI::Data::Entity to_delete,
+                                     SolTrace::GUI::Data::Entity move_to) {
     if (to_delete == move_to) {
         qWarning()
             << "Trying to delete a group and move members to the same group!";
@@ -893,11 +897,12 @@ void Database::delete_geometry_group(SolTrace::GUI::Data::Entity to_delete, SolT
     }
 }
 
-SolTrace::GUI::Data::Entity Database::geometry_of(SolTrace::GUI::Data::Entity element) const {
+SolTrace::GUI::Data::Entity
+Database::geometry_of(SolTrace::GUI::Data::Entity element) const {
     if (auto* m = m_registry.try_get<GeometryGroupMemberComponent>(element)) {
         return m->group;
     }
-    return {};
+    return { };
 }
 
 void Database::select(SolTrace::GUI::Data::Entity to_select) {
@@ -913,7 +918,8 @@ void Database::deselect(SolTrace::GUI::Data::Entity to_deselect) {
     selected.remove(to_deselect);
 }
 
-void Database::toggle_selection(SolTrace::GUI::Data::Entity to_toggle_selection) {
+void Database::toggle_selection(
+    SolTrace::GUI::Data::Entity to_toggle_selection) {
     if (m_registry.all_of<SelectedComponent>(to_toggle_selection)) {
         selected.remove(to_toggle_selection);
     } else {
@@ -952,23 +958,30 @@ void Database::select_all_with_geometry(SolTrace::GUI::Data::Entity geometry) {
     }
 }
 
-void Database::deselect_all_with_material(SolTrace::GUI::Data::Entity material) {
+void Database::deselect_all_with_material(
+    SolTrace::GUI::Data::Entity material) {
     if (material.value == entt::null) return;
     auto view = m_registry.view<GeometryGroupMemberComponent>();
     for (auto e : view) {
-        if (material_of(e) == SolTrace::GUI::Data::Entity(material.value)) { deselect(e); }
+        if (material_of(e) == SolTrace::GUI::Data::Entity(material.value)) {
+            deselect(e);
+        }
     }
 }
 
-void Database::deselect_all_with_geometry(SolTrace::GUI::Data::Entity geometry) {
+void Database::deselect_all_with_geometry(
+    SolTrace::GUI::Data::Entity geometry) {
     if (geometry.value == entt::null) return;
     auto view = m_registry.view<GeometryGroupMemberComponent>();
     for (auto e : view) {
-        if (geometry_of(e) == SolTrace::GUI::Data::Entity(geometry.value)) { deselect(e); }
+        if (geometry_of(e) == SolTrace::GUI::Data::Entity(geometry.value)) {
+            deselect(e);
+        }
     }
 }
 
-void Database::set_color(SolTrace::GUI::Data::Entity to_color, QColor new_color) {
+void Database::set_color(SolTrace::GUI::Data::Entity to_color,
+                         QColor                      new_color) {
     this->color.set(to_color, ColorComponent { .color = new_color });
 }
 

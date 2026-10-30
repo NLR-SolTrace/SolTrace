@@ -102,10 +102,10 @@ void raster_segment(QVector<glm::ivec3>& grid,
     }
 }
 
-void compute_raster_chunk(QPromise<QVector<glm::ivec3>>& promise,
-                          glm::vec3                      grid_scale,
-                          SolTrace::GUI::Data::SimulationResultPtr        results,
-                          std::span<SolTrace::GUI::Data::RayRecord>       records) {
+void compute_raster_chunk(QPromise<QVector<glm::ivec3>>&            promise,
+                          glm::vec3                                 grid_scale,
+                          SolTrace::GUI::Data::SimulationResultPtr  results,
+                          std::span<SolTrace::GUI::Data::RayRecord> records) {
 
     qDebug() << Q_FUNC_INFO << records.size();
 
@@ -150,11 +150,11 @@ void compute_raster_chunk(QPromise<QVector<glm::ivec3>>& promise,
 
             if (last_p == this_interaction_p) continue;
 
-            SolTrace::GUI::Analysis::raster_segment(grid, last_p, this_interaction_p);
+            SolTrace::GUI::Analysis::raster_segment(
+                grid, last_p, this_interaction_p);
 
             last_p = this_interaction_p;
         }
-
     }
 
     promise.emplaceResult(grid);

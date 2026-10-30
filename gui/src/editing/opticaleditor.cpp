@@ -32,8 +32,7 @@ bool AngularOpticalTableModel::setData(QModelIndex const& index,
 
     if (index.column() == 0) {
         if (candidate < 0.0 || candidate > kMaximumAngleMrad) return false;
-        if (index.row() > 0 &&
-            candidate <= m_records[index.row() - 1].angle) {
+        if (index.row() > 0 && candidate <= m_records[index.row() - 1].angle) {
             return false;
         }
         if (index.row() + 1 < m_records.size() &&
@@ -88,8 +87,7 @@ void AngularOpticalTableModel::append() {
 
     if (!m_records.isEmpty()) {
         if (m_records.back().angle >= kMaximumAngleMrad) return;
-        angle = std::min(m_records.back().angle + 100.0,
-                         kMaximumAngleMrad);
+        angle = std::min(m_records.back().angle + 100.0, kMaximumAngleMrad);
         value = m_records.back().value;
     }
 
@@ -149,8 +147,8 @@ void OpticalPropertiesObject::sync_table_models() {
     auto const* properties = get_properties();
 
     if (!properties) {
-        m_reflectivity_table->reset_points({});
-        m_transmissivity_table->reset_points({});
+        m_reflectivity_table->reset_points({ });
+        m_transmissivity_table->reset_points({ });
         return;
     }
 
@@ -239,7 +237,7 @@ qint32 OpticalPropertiesObject::error_distribution_type() const {
 double OpticalPropertiesObject::transmissivity() const {
     auto* ptr = get_properties();
 
-    if (!ptr) return {};
+    if (!ptr) return { };
 
     return ptr->get_transmissivity(m_side);
 }
@@ -247,7 +245,7 @@ double OpticalPropertiesObject::transmissivity() const {
 double OpticalPropertiesObject::reflectivity() const {
     auto* ptr = get_properties();
 
-    if (!ptr) return {};
+    if (!ptr) return { };
 
     return ptr->get_reflectivity(m_side);
 }
@@ -265,7 +263,7 @@ bool OpticalPropertiesObject::transmissivity_uses_table() const {
 double OpticalPropertiesObject::slope_error() const {
     auto* ptr = get_properties();
 
-    if (!ptr) return {};
+    if (!ptr) return { };
 
     return ptr->get_slope_error(m_side);
 }
@@ -273,7 +271,7 @@ double OpticalPropertiesObject::slope_error() const {
 double OpticalPropertiesObject::specularity_error() const {
     auto* ptr = get_properties();
 
-    if (!ptr) return {};
+    if (!ptr) return { };
 
     return ptr->get_specularity_error(m_side);
 }
@@ -281,7 +279,7 @@ double OpticalPropertiesObject::specularity_error() const {
 double OpticalPropertiesObject::refraction_index_front() const {
     auto* ptr = get_properties();
 
-    if (!ptr) return {};
+    if (!ptr) return { };
 
     double front;
     double back;
@@ -294,7 +292,7 @@ double OpticalPropertiesObject::refraction_index_front() const {
 double OpticalPropertiesObject::refraction_index_back() const {
     auto* ptr = get_properties();
 
-    if (!ptr) return {};
+    if (!ptr) return { };
 
     double front;
     double back;
@@ -363,14 +361,14 @@ void OpticalPropertiesObject::set_reflectivity_uses_table(bool enabled) {
     }
 
     auto points = m_reflectivity_table->points();
-    patch_properties([this, enabled, &points](SD::OpticalPropertySet& prop,
-                                              auto) {
-        if (enabled) {
-            prop.set_reflectivity_table(m_side, points);
-        } else {
-            prop.disable_reflectivity_table(m_side);
-        }
-    });
+    patch_properties(
+        [this, enabled, &points](SD::OpticalPropertySet& prop, auto) {
+            if (enabled) {
+                prop.set_reflectivity_table(m_side, points);
+            } else {
+                prop.disable_reflectivity_table(m_side);
+            }
+        });
 }
 
 void OpticalPropertiesObject::set_transmissivity_uses_table(bool enabled) {
@@ -383,14 +381,14 @@ void OpticalPropertiesObject::set_transmissivity_uses_table(bool enabled) {
     }
 
     auto points = m_transmissivity_table->points();
-    patch_properties([this, enabled, &points](SD::OpticalPropertySet& prop,
-                                              auto) {
-        if (enabled) {
-            prop.set_transmissivity_table(m_side, points);
-        } else {
-            prop.disable_transmissivity_table(m_side);
-        }
-    });
+    patch_properties(
+        [this, enabled, &points](SD::OpticalPropertySet& prop, auto) {
+            if (enabled) {
+                prop.set_transmissivity_table(m_side, points);
+            } else {
+                prop.disable_transmissivity_table(m_side);
+            }
+        });
 }
 
 void OpticalPropertiesObject::set_slope_error(double v) {
@@ -464,10 +462,9 @@ void OpticalPropertiesObject::set_ideal_transmission_with_indices(
     double n_front,
     double n_back) {
 
-    patch_properties(
-        [n_front, n_back](SD::OpticalPropertySet& prop, auto) {
-            prop.set_ideal_transmission(n_front, n_back);
-        });
+    patch_properties([n_front, n_back](SD::OpticalPropertySet& prop, auto) {
+        prop.set_ideal_transmission(n_front, n_back);
+    });
     trigger_all_changed();
 }
 

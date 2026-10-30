@@ -33,7 +33,7 @@ void ViewModule::fit_panels(int  available_width,
 
     constexpr int left_minimum  = 400;
     constexpr int right_minimum = 250;
-    const int expanding_minimum =
+    const int     expanding_minimum =
         expanding_right_panel ? right_minimum : left_minimum;
     const int collapsing_minimum =
         expanding_right_panel ? left_minimum : right_minimum;
@@ -58,8 +58,8 @@ void ViewModule::fit_panels(int  available_width,
     }
 
     if (overflow > 0 && resizing_window) {
-        const int shrink = qMin(overflow,
-                                expanding->width() - expanding_minimum);
+        const int shrink =
+            qMin(overflow, expanding->width() - expanding_minimum);
         if (shrink > 0) expanding->set_width(expanding->width() - shrink);
     }
 }

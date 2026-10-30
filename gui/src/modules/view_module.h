@@ -82,14 +82,14 @@ public:
     enum WorkflowPhase { Start, Load, Configure, Simulate, Analyze };
 
     enum MouseMode {
-        Camera         = 0,
-        SelectElement  = 1,
-        SelectMaterial = 2,
-        SelectGeometry = 3,
-        EditElement    = 4,
-        PickRay        = 5,
+        Camera                 = 0,
+        SelectElement          = 1,
+        SelectMaterial         = 2,
+        SelectGeometry         = 3,
+        EditElement            = 4,
+        PickRay                = 5,
         SelectRayFilterElement = 6,
-        EditPosition   = 7
+        EditPosition           = 7
     };
 
     Q_ENUM(MouseMode)

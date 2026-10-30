@@ -33,14 +33,13 @@ public:
     explicit ElementTreeModel(QObject* parent = nullptr);
     ~ElementTreeModel() override = default;
 
-    QModelIndex index(int                row,
-                      int                column,
-                      QModelIndex const& parent = { }) const override;
+    QModelIndex
+    index(int row, int column, QModelIndex const& parent = { }) const override;
     QModelIndex parent(QModelIndex const& child) const override;
-    int rowCount(QModelIndex const& parent = { }) const override;
-    int columnCount(QModelIndex const& parent = { }) const override;
-    QVariant data(QModelIndex const& index,
-                  int                role = Qt::DisplayRole) const override;
+    int         rowCount(QModelIndex const& parent = { }) const override;
+    int         columnCount(QModelIndex const& parent = { }) const override;
+    QVariant    data(QModelIndex const& index,
+                     int                role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
 
     /// Observe a database and rebuild the hierarchy.

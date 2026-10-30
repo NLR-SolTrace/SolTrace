@@ -17,8 +17,8 @@
 #include "modules/database_module.h"
 #include "modules/simulation_module.h"
 
-#include <initializer_list>
 #include <cmath>
+#include <initializer_list>
 #include <limits>
 #include <optional>
 #include <utility>
@@ -28,9 +28,9 @@ namespace SolTrace::GUI::Scripting {
 namespace {
 
 struct HeaderBlock {
-    QString text;
+    QString   text;
     qsizetype body_start = 0;
-    QString error;
+    QString   error;
 };
 
 QString normalize_header_line(QString line) {
@@ -42,14 +42,12 @@ QString normalize_header_line(QString line) {
 HeaderBlock first_comment_block(QString const& code) {
     if (code.startsWith("/*")) {
         auto end = code.indexOf("*/", 2);
-        if (end < 0) {
-            return { {}, 0, "Unterminated block comment header" };
-        }
-        return { code.mid(2, end - 2), end + 2, {} };
+        if (end < 0) { return { { }, 0, "Unterminated block comment header" }; }
+        return { code.mid(2, end - 2), end + 2, { } };
     }
 
     if (!code.startsWith("//")) {
-        return { {}, 0, "Script must start with a comment header" };
+        return { { }, 0, "Script must start with a comment header" };
     }
 
     QStringList lines;
@@ -66,7 +64,7 @@ HeaderBlock first_comment_block(QString const& code) {
         position = line_end < code.size() ? line_end + 1 : line_end;
     }
 
-    return { lines.join('\n'), position, {} };
+    return { lines.join('\n'), position, { } };
 }
 
 bool parse_number(QString const& text, double& value) {
@@ -128,14 +126,12 @@ ScriptProperty parse_property(QString const& line) {
         return property;
     }
 
-    static QRegularExpression const identifier_pattern {
-        QStringLiteral("^[A-Za-z_$][A-Za-z0-9_$]*$")
-    };
+    static QRegularExpression const identifier_pattern { QStringLiteral(
+        "^[A-Za-z_$][A-Za-z0-9_$]*$") };
 
     property.identifier = parts[1];
     if (!identifier_pattern.match(property.identifier).hasMatch()) {
-        property.error =
-            "PROPERTY name must be a valid JavaScript identifier";
+        property.error = "PROPERTY name must be a valid JavaScript identifier";
         return property;
     }
 
@@ -143,8 +139,8 @@ ScriptProperty parse_property(QString const& line) {
     name.replace("_", " ");
     name[0] = name[0].toUpper();
 
-    property.name = name;
-    property.type = parts[2].toLower();
+    property.name  = name;
+    property.type  = parts[2].toLower();
     property.value = parts[3];
     if (parts.size() > 4) { property.extra = parts.mid(4).join(' '); }
 
@@ -205,9 +201,8 @@ ScriptProperty parse_json_property(QJsonObject const& object) {
     }
 
     property.identifier = id_value.toString().trimmed();
-    static QRegularExpression const identifier_pattern {
-        QStringLiteral("^[A-Za-z_$][A-Za-z0-9_$]*$")
-    };
+    static QRegularExpression const identifier_pattern { QStringLiteral(
+        "^[A-Za-z_$][A-Za-z0-9_$]*$") };
     if (!identifier_pattern.match(property.identifier).hasMatch()) {
         property.error =
             QStringLiteral("id must be a valid JavaScript identifier");
@@ -224,8 +219,7 @@ ScriptProperty parse_json_property(QJsonObject const& object) {
         property.name = property_display_name(property.identifier);
     }
 
-    auto const description_value =
-        object.value(QStringLiteral("description"));
+    auto const description_value = object.value(QStringLiteral("description"));
     if (!description_value.isUndefined() && !description_value.isString()) {
         property.error = QStringLiteral("description must be a string");
         return property;
@@ -300,9 +294,9 @@ ScriptProperty parse_json_property(QJsonObject const& object) {
                     (std::trunc(bound.toDouble()) != bound.toDouble() ||
                      bound.toDouble() < std::numeric_limits<int>::min() ||
                      bound.toDouble() > std::numeric_limits<int>::max())) {
-                    property.error = QStringLiteral(
-                        "%1 must fit in a 32-bit integer")
-                                         .arg(QLatin1String(bound_name));
+                    property.error =
+                        QStringLiteral("%1 must fit in a 32-bit integer")
+                            .arg(QLatin1String(bound_name));
                     return property;
                 }
             }
@@ -328,11 +322,10 @@ ScriptProperty parse_json_property(QJsonObject const& object) {
                 property.step <= 0.0 ||
                 (property.type == QStringLiteral("integer") &&
                  std::trunc(property.step) != property.step)) {
-                property.error = property.type == QStringLiteral("integer")
-                                     ? QStringLiteral(
-                                           "step must be a positive integer")
-                                     : QStringLiteral(
-                                           "step must be a positive number");
+                property.error =
+                    property.type == QStringLiteral("integer")
+                        ? QStringLiteral("step must be a positive integer")
+                        : QStringLiteral("step must be a positive number");
                 return property;
             }
         }
@@ -369,8 +362,8 @@ ScriptProperty parse_json_property(QJsonObject const& object) {
             }
             for (auto const& choice : choices.toArray()) {
                 if (!choice.isString()) {
-                    property.error = QStringLiteral(
-                        "choices must contain only strings");
+                    property.error =
+                        QStringLiteral("choices must contain only strings");
                     return property;
                 }
                 property.choices.push_back(choice.toString());
@@ -407,11 +400,9 @@ ScriptProperty parse_json_property(QJsonObject const& object) {
         property.step = 0.1;
 
         auto const step = object.value(QStringLiteral("step"));
-        if (!step.isUndefined() &&
-            (!json_finite_number(step, property.step) ||
-             property.step <= 0.0)) {
-            property.error =
-                QStringLiteral("step must be a positive number");
+        if (!step.isUndefined() && (!json_finite_number(step, property.step) ||
+                                    property.step <= 0.0)) {
+            property.error = QStringLiteral("step must be a positive number");
             return property;
         }
 
@@ -442,8 +433,8 @@ ScriptProperty parse_json_property(QJsonObject const& object) {
     return property;
 }
 
-QString script_function(QString const& code,
-                        qsizetype      body_start,
+QString script_function(QString const&                 code,
+                        qsizetype                      body_start,
                         QVector<ScriptProperty> const& properties) {
     QStringList arguments;
     for (auto const& property : properties) {
@@ -473,7 +464,7 @@ QString normalize_config_key(QString key) {
     return key.trimmed().toLower().replace('-', "_").replace(' ', "_");
 }
 
-QJsonValue config_value(QJsonObject const& config,
+QJsonValue config_value(QJsonObject const&             config,
                         std::initializer_list<QString> keys) {
     for (auto const& key : keys) {
         auto value = config.value(key);
@@ -487,7 +478,7 @@ QJsonValue config_value(QJsonObject const& config,
         }
     }
 
-    return {};
+    return { };
 }
 
 bool json_bool(QJsonValue const& value, bool fallback) {
@@ -502,7 +493,7 @@ uint32_t json_uint(QJsonValue const& value, uint32_t fallback) {
 }
 
 std::optional<App::SimulationModule::Runner>
-runner_from_value(QJsonValue const& value,
+runner_from_value(QJsonValue const&                 value,
                   App::SimulationRunnerModel const* runners) {
     if (value.isUndefined()) return std::nullopt;
 
@@ -540,20 +531,20 @@ QString resolve_script_file_path(QString const& working_directory,
                                  QString const& relative_path,
                                  bool           must_exist) {
     if (relative_path.isEmpty() || QFileInfo(relative_path).isAbsolute()) {
-        return {};
+        return { };
     }
 
-    auto base_dir = QDir(working_directory.isEmpty() ? QDir::currentPath()
-                                                     : working_directory);
+    auto base_dir  = QDir(working_directory.isEmpty() ? QDir::currentPath()
+                                                      : working_directory);
     auto base_path = QDir::cleanPath(base_dir.absolutePath());
     auto file_path = QDir::cleanPath(base_dir.filePath(relative_path));
 
     if (file_path == base_path ||
         !file_path.startsWith(base_path + QDir::separator())) {
-        return {};
+        return { };
     }
 
-    if (must_exist && !QFileInfo(file_path).isFile()) return {};
+    if (must_exist && !QFileInfo(file_path).isFile()) return { };
     return file_path;
 }
 
@@ -565,7 +556,7 @@ ScriptPropertyModel::ScriptPropertyModel(QObject* parent)
     : StructTableModel(parent) { }
 
 ScriptPositionEditor::ScriptPositionEditor(ScriptPropertyModel* properties,
-                                           QObject* parent)
+                                           QObject*             parent)
     : QObject(parent), m_properties(properties) { }
 
 bool ScriptPositionEditor::begin(QString identifier) {
@@ -579,16 +570,17 @@ bool ScriptPositionEditor::begin(QString identifier) {
         }
 
         QJsonParseError error;
-        auto const document =
+        auto const      document =
             QJsonDocument::fromJson(property->value.toUtf8(), &error);
         auto const vector = document.array();
         if (error.error != QJsonParseError::NoError || vector.size() != 3) {
             return false;
         }
 
-        auto const position = QVector3D(static_cast<float>(vector[0].toDouble()),
-                                        static_cast<float>(vector[1].toDouble()),
-                                        static_cast<float>(vector[2].toDouble()));
+        auto const position =
+            QVector3D(static_cast<float>(vector[0].toDouble()),
+                      static_cast<float>(vector[1].toDouble()),
+                      static_cast<float>(vector[2].toDouble()));
 
         m_row = row;
         if (m_name != property->name) {
@@ -624,9 +616,7 @@ void ScriptPositionEditor::set_position(QVector3D position) {
     auto const value = QString::fromUtf8(
         QJsonDocument(QJsonArray { position.x(), position.y(), position.z() })
             .toJson(QJsonDocument::Compact));
-    m_properties->setData(m_properties->index(m_row, 0),
-                          value,
-                          value_role);
+    m_properties->setData(m_properties->index(m_row, 0), value, value_role);
 }
 
 void ScriptPositionEditor::end() {
@@ -658,11 +648,11 @@ bool ScriptSimulationInterface::start(QJsonObject config) {
     auto old_optical_errors = m_simulation->optical_errors();
     auto old_point_focus    = m_simulation->point_focus_system();
 
-    if (auto runner = runner_from_value(
-            config_value(config,
-                         { QStringLiteral("runner"),
-                           QStringLiteral("runner_name") }),
-            m_simulation->runners())) {
+    if (auto runner =
+            runner_from_value(config_value(config,
+                                           { QStringLiteral("runner"),
+                                             QStringLiteral("runner_name") }),
+                              m_simulation->runners())) {
         m_simulation->set_runner(*runner);
     }
 
@@ -673,29 +663,33 @@ bool ScriptSimulationInterface::start(QJsonObject config) {
     }
 
     m_simulation->set_ray_count(json_uint(
-        config_value(config, { QStringLiteral("ray_count"),
-                               QStringLiteral("rays") }),
+        config_value(config,
+                     { QStringLiteral("ray_count"), QStringLiteral("rays") }),
         m_simulation->ray_count()));
-    m_simulation->set_max_ray_count(json_uint(
-        config_value(config, { QStringLiteral("max_ray_count"),
-                               QStringLiteral("max_rays_traced") }),
-        m_simulation->max_ray_count()));
-    m_simulation->set_max_threads(json_uint(
-        config_value(config, { QStringLiteral("max_threads"),
-                               QStringLiteral("threads") }),
-        m_simulation->max_threads()));
+    m_simulation->set_max_ray_count(
+        json_uint(config_value(config,
+                               { QStringLiteral("max_ray_count"),
+                                 QStringLiteral("max_rays_traced") }),
+                  m_simulation->max_ray_count()));
+    m_simulation->set_max_threads(
+        json_uint(config_value(config,
+                               { QStringLiteral("max_threads"),
+                                 QStringLiteral("threads") }),
+                  m_simulation->max_threads()));
     m_simulation->set_seed_value(json_uint(
-        config_value(config, { QStringLiteral("seed_value"),
-                               QStringLiteral("seed") }),
+        config_value(config,
+                     { QStringLiteral("seed_value"), QStringLiteral("seed") }),
         m_simulation->seed_value()));
-    m_simulation->set_sun_shape(json_bool(
-        config_value(config, { QStringLiteral("sun_shape"),
-                               QStringLiteral("include_sun_shape_errors") }),
-        m_simulation->sun_shape()));
-    m_simulation->set_optical_errors(json_bool(
-        config_value(config, { QStringLiteral("optical_errors"),
-                               QStringLiteral("include_optical_errors") }),
-        m_simulation->optical_errors()));
+    m_simulation->set_sun_shape(
+        json_bool(config_value(config,
+                               { QStringLiteral("sun_shape"),
+                                 QStringLiteral("include_sun_shape_errors") }),
+                  m_simulation->sun_shape()));
+    m_simulation->set_optical_errors(
+        json_bool(config_value(config,
+                               { QStringLiteral("optical_errors"),
+                                 QStringLiteral("include_optical_errors") }),
+                  m_simulation->optical_errors()));
     m_simulation->set_point_focus_system(json_bool(
         config_value(config, { QStringLiteral("point_focus_system") }),
         m_simulation->point_focus_system()));
@@ -715,10 +709,11 @@ bool ScriptSimulationInterface::start(QJsonObject config) {
     return started;
 }
 
-ScriptSceneInterface::ScriptSceneInterface(App::DatabaseModule* databases,
-                                           ScriptDBInterface* database_interface,
-                                           QString working_directory,
-                                           QObject* parent)
+ScriptSceneInterface::ScriptSceneInterface(
+    App::DatabaseModule* databases,
+    ScriptDBInterface*   database_interface,
+    QString              working_directory,
+    QObject*             parent)
     : QObject(parent),
       m_databases(databases),
       m_database_interface(database_interface),
@@ -737,8 +732,7 @@ bool ScriptSceneInterface::set_current_name(QString name) {
 
     for (int i = 0; i < m_databases->rowCount(); ++i) {
         auto const* record = m_databases->get_at(i);
-        if (record && record->database &&
-            record->database->name() == name) {
+        if (record && record->database && record->database->name() == name) {
             return set_current_index(i);
         }
     }
@@ -759,9 +753,8 @@ bool ScriptSceneInterface::new_from_file(QString relative_path,
                                          QString name_override) {
     if (!m_databases) return false;
 
-    auto path = resolve_script_file_path(m_working_directory,
-                                         relative_path,
-                                         true /* must_exist */);
+    auto path = resolve_script_file_path(
+        m_working_directory, relative_path, true /* must_exist */);
     if (path.isEmpty()) return false;
 
     m_databases->load_url(QUrl::fromLocalFile(path), name_override);
@@ -771,9 +764,8 @@ bool ScriptSceneInterface::new_from_file(QString relative_path,
 bool ScriptSceneInterface::export_json(QString relative_path) {
     if (!m_databases) return false;
 
-    auto path = resolve_script_file_path(m_working_directory,
-                                         relative_path,
-                                         false /* must_exist */);
+    auto path = resolve_script_file_path(
+        m_working_directory, relative_path, false /* must_exist */);
     if (path.isEmpty()) return false;
 
     return m_databases->export_current_json(path);
@@ -813,7 +805,7 @@ void Script::set_database(SolTrace::GUI::Data::Database* db) {
     m_database = db;
 }
 
-void Script::set_services(App::DatabaseModule* databases,
+void Script::set_services(App::DatabaseModule*   databases,
                           App::SimulationModule* simulation) {
     m_databases  = databases;
     m_simulation = simulation;
@@ -830,20 +822,19 @@ bool Script::parse() {
     auto header = first_comment_block(code());
     if (!header.error.isEmpty()) { errors << header.error; }
 
-    auto const json_header = header.text.trimmed().startsWith('{');
+    auto const json_header   = header.text.trimmed().startsWith('{');
     bool       saw_directive = false;
     bool       saw_title     = false;
 
     if (errors.isEmpty() && json_header) {
         QJsonParseError parse_error;
-        auto document =
+        auto            document =
             QJsonDocument::fromJson(header.text.toUtf8(), &parse_error);
         if (parse_error.error != QJsonParseError::NoError) {
             errors << QStringLiteral("Invalid JSON header: %1")
                           .arg(parse_error.errorString());
         } else if (!document.isObject()) {
-            errors << QStringLiteral(
-                "JSON header must contain an object");
+            errors << QStringLiteral("JSON header must contain an object");
         } else {
             auto const manifest = document.object();
 
@@ -896,16 +887,15 @@ bool Script::parse() {
                         continue;
                     }
 
-                    auto property = parse_json_property(value.toObject());
-                    auto const label = property.identifier.isEmpty()
-                                           ? QStringLiteral("<unknown>")
-                                           : property.identifier;
+                    auto       property = parse_json_property(value.toObject());
+                    auto const label    = property.identifier.isEmpty()
+                                              ? QStringLiteral("<unknown>")
+                                              : property.identifier;
                     if (!property.error.isEmpty()) {
                         errors << QStringLiteral("Parameter %1: %2")
                                       .arg(label, property.error);
                     } else if (identifiers.contains(property.identifier)) {
-                        errors << QStringLiteral(
-                                      "Duplicate parameter id: %1")
+                        errors << QStringLiteral("Duplicate parameter id: %1")
                                       .arg(property.identifier);
                     } else {
                         identifiers.insert(property.identifier);
@@ -923,7 +913,7 @@ bool Script::parse() {
             auto keyword_end = line.indexOf(QRegularExpression("\\s"));
             auto keyword     = keyword_end < 0 ? line : line.left(keyword_end);
             auto rest =
-                keyword_end < 0 ? QString {} : line.mid(keyword_end).trimmed();
+                keyword_end < 0 ? QString { } : line.mid(keyword_end).trimmed();
             keyword = keyword.toUpper();
 
             if (!saw_directive) {
@@ -992,8 +982,8 @@ void Script::run() {
     auto header = first_comment_block(code());
     auto source = looks_like_legacy_function_script(code(), header.body_start)
                       ? code()
-                      : script_function(code(), header.body_start,
-                                        m_properties->vector());
+                      : script_function(
+                            code(), header.body_start, m_properties->vector());
 
     QVector<QJsonValue> arguments;
     arguments.reserve(m_properties->rowCount());
@@ -1061,14 +1051,13 @@ void Script::run() {
             .database          = m_database,
             .scene_api_factory =
                 [this](ScriptDBInterface* database_api, QObject* parent) {
-                    return new ScriptSceneInterface(m_databases,
-                                                    database_api,
-                                                    working_directory(),
-                                                    parent);
+                    return new ScriptSceneInterface(
+                        m_databases, database_api, working_directory(), parent);
                 },
-            .simulation_api_factory = [this](QObject* parent) {
-                return new ScriptSimulationInterface(m_simulation, parent);
-            },
+            .simulation_api_factory =
+                [this](QObject* parent) {
+                    return new ScriptSimulationInterface(m_simulation, parent);
+                },
         },
         [this](ScriptLogLevel level, QString const& message) {
             emit logged(static_cast<int>(level), message);

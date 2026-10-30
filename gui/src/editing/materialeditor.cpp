@@ -5,10 +5,9 @@
 
 namespace SolTrace::GUI::Data {
 
-using DistributionModel =
-    Support::EnumModel<SD::DistributionType,
-                       SD::DistributionType::USER_DEFINED,
-                       SD::DistributionType::UNKNOWN>;
+using DistributionModel = Support::EnumModel<SD::DistributionType,
+                                             SD::DistributionType::USER_DEFINED,
+                                             SD::DistributionType::UNKNOWN>;
 
 
 MaterialEditor::MaterialEditor(QObject* parent)

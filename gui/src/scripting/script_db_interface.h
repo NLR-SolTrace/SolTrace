@@ -20,10 +20,11 @@ class ScriptDBInterface : public QObject {
     Q_OBJECT
 
     QPointer<SolTrace::GUI::Data::Database> m_database;
-    QString                m_working_directory;
+    QString                                 m_working_directory;
 
 public:
-    explicit ScriptDBInterface(SolTrace::GUI::Data::Database*, QObject* parent = nullptr);
+    explicit ScriptDBInterface(SolTrace::GUI::Data::Database*,
+                               QObject* parent = nullptr);
 
     /// Retarget the API to a new current database.
     void set_database(SolTrace::GUI::Data::Database*);
@@ -114,8 +115,7 @@ public slots:
     void destroy_entity(SolTrace::GUI::Data::Entity entity);
 
     /// Return an element's parent, or an invalid handle when top-level.
-    SolTrace::GUI::Data::Entity
-    get_parent(SolTrace::GUI::Data::Entity entity);
+    SolTrace::GUI::Data::Entity get_parent(SolTrace::GUI::Data::Entity entity);
 
     /// Return an element's immediate children.
     QVector<SolTrace::GUI::Data::Entity>
@@ -182,7 +182,8 @@ public slots:
     QJsonObject get_transform(SolTrace::GUI::Data::Entity entity);
 
     /// Set local transform from JSON.
-    void set_transform(SolTrace::GUI::Data::Entity entity, QJsonObject transform);
+    void set_transform(SolTrace::GUI::Data::Entity entity,
+                       QJsonObject                 transform);
 
     /// Return all material group entities.
     QVector<SolTrace::GUI::Data::Entity> get_all_materials();
@@ -194,7 +195,8 @@ public slots:
     QJsonObject get_material_properties(SolTrace::GUI::Data::Entity material);
 
     /// Set material optical properties from JSON.
-    void set_material_properties(SolTrace::GUI::Data::Entity material, QJsonObject properties);
+    void set_material_properties(SolTrace::GUI::Data::Entity material,
+                                 QJsonObject                 properties);
 
     /// Remove a material group.
     void remove_material(SolTrace::GUI::Data::Entity material);
@@ -209,22 +211,27 @@ public slots:
     QJsonObject get_geometry_properties(SolTrace::GUI::Data::Entity geometry);
 
     /// Set geometry surface/aperture properties from JSON.
-    void set_geometry_properties(SolTrace::GUI::Data::Entity geometry, QJsonObject properties);
+    void set_geometry_properties(SolTrace::GUI::Data::Entity geometry,
+                                 QJsonObject                 properties);
 
     /// Remove a geometry group.
     void remove_geometry(SolTrace::GUI::Data::Entity geometry);
 
     /// Get the material group assigned to an element.
-    SolTrace::GUI::Data::Entity get_material_of(SolTrace::GUI::Data::Entity entity);
+    SolTrace::GUI::Data::Entity
+    get_material_of(SolTrace::GUI::Data::Entity entity);
 
     /// Assign a material group to an element.
-    void set_material_of(SolTrace::GUI::Data::Entity entity, SolTrace::GUI::Data::Entity material);
+    void set_material_of(SolTrace::GUI::Data::Entity entity,
+                         SolTrace::GUI::Data::Entity material);
 
     /// Get the geometry group assigned to an element.
-    SolTrace::GUI::Data::Entity get_geometry_of(SolTrace::GUI::Data::Entity entity);
+    SolTrace::GUI::Data::Entity
+    get_geometry_of(SolTrace::GUI::Data::Entity entity);
 
     /// Assign a geometry group to an element.
-    void set_geometry_of(SolTrace::GUI::Data::Entity entity, SolTrace::GUI::Data::Entity geometry);
+    void set_geometry_of(SolTrace::GUI::Data::Entity entity,
+                         SolTrace::GUI::Data::Entity geometry);
 
     /// Read a text file relative to the current working directory.
     QString get_text_content(QString relative_path);

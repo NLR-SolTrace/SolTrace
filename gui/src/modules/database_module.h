@@ -29,8 +29,7 @@ struct RecentFileRecord {
 
 /// Shared recent-files model with a role name that does not conflict with QML
 /// controls' final properties.
-class RecentFileModel
-    : public Support::StructModelAdapter<RecentFileRecord> {
+class RecentFileModel : public Support::StructModelAdapter<RecentFileRecord> {
     Q_OBJECT
 
 public:
@@ -43,7 +42,7 @@ public:
 /// Successful result from asynchronous database loading.
 struct LoadedFile {
     // TODO: Store this in the DB
-    QString                       provenance = { };
+    QString                                        provenance = { };
     std::unique_ptr<SolTrace::GUI::Data::Database> ptr;
 };
 

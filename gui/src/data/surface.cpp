@@ -102,14 +102,15 @@ bool front_winding_matches_vertex_normals(Mesh const& mesh) {
         auto const& b = mesh.vertex[triangle.y];
         auto const& c = mesh.vertex[triangle.z];
 
-        geometric_normal_sum += glm::cross(b.position - a.position,
-                                           c.position - a.position);
+        geometric_normal_sum +=
+            glm::cross(b.position - a.position, c.position - a.position);
         vertex_normal_sum += a.normal + b.normal + c.normal;
     }
 
     if (glm::length(geometric_normal_sum) <=
             std::numeric_limits<float>::epsilon() ||
-        glm::length(vertex_normal_sum) <= std::numeric_limits<float>::epsilon()) {
+        glm::length(vertex_normal_sum) <=
+            std::numeric_limits<float>::epsilon()) {
         return true;
     }
 
@@ -131,7 +132,7 @@ Mesh add_height_field_thickness(Mesh mesh, double thickness) {
     std::map<std::pair<uint32_t, uint32_t>, BoundaryEdge> edges;
 
     auto add_edge = [&edges](uint32_t a, uint32_t b) {
-        auto key = std::make_pair(std::min(a, b), std::max(a, b));
+        auto  key  = std::make_pair(std::min(a, b), std::max(a, b));
         auto& edge = edges[key];
         if (edge.count == 0) {
             edge.a = a;
@@ -148,8 +149,7 @@ Mesh add_height_field_thickness(Mesh mesh, double thickness) {
 
     bool winding_matches_normals = front_winding_matches_vertex_normals(mesh);
 
-    uint32_t original_vertex_count =
-        static_cast<uint32_t>(mesh.vertex.size());
+    uint32_t original_vertex_count = static_cast<uint32_t>(mesh.vertex.size());
     uint32_t original_triangle_count =
         static_cast<uint32_t>(mesh.triangles.size());
 
@@ -169,8 +169,8 @@ Mesh add_height_field_thickness(Mesh mesh, double thickness) {
         mesh.vertex.push_back(Vertex {
             .position = front_vertex.position -
                         front_normal * static_cast<float>(thickness),
-            .normal = -front_normal,
-            .uv     = front_vertex.uv,
+            .normal   = -front_normal,
+            .uv       = front_vertex.uv,
         });
     }
 
@@ -249,7 +249,7 @@ std::optional<Mesh> make_flat(SD::Flat& flat, Mesh2D const& m2d) {
 std::optional<Mesh> make_cone(SD::Cone& item, Mesh2D const& m2d) {
     if (item.half_angle <= 0.0) {
         qDebug() << Q_FUNC_INFO << "Half angle is <= 0";
-        return {};
+        return { };
     }
 
     auto [bb_min, bb_max] = m2d.bb_2d();
@@ -279,7 +279,7 @@ std::optional<Mesh> make_cone(SD::Cone& item, Mesh2D const& m2d) {
 std::optional<Mesh> make_para(SD::Parabola& item, Mesh2D const& m2d) {
     if (std::isnan(item.focal_length_x) || std::isnan(item.focal_length_y)) {
         qDebug() << Q_FUNC_INFO << "Focal lengths contain NaN";
-        return {};
+        return { };
     }
 
     auto [bb_min, bb_max] = m2d.bb_2d();
@@ -484,9 +484,9 @@ Mesh2D generate_annulus_aperture(SD::Annulus const&              annulus,
     return mesh;
 }
 
-Mesh2D generate_subdivided_polygon_aperture(
-    std::vector<glm::dvec2> const&  corners,
-    SurfaceGenerationOptions const& options) {
+Mesh2D
+generate_subdivided_polygon_aperture(std::vector<glm::dvec2> const&  corners,
+                                     SurfaceGenerationOptions const& options) {
     Mesh2D mesh;
     if (corners.size() < 3) {
         qDebug() << Q_FUNC_INFO << "Polygon aperture has <3 vertex";
@@ -507,8 +507,8 @@ Mesh2D generate_subdivided_polygon_aperture(
     // Adjacent triangular sectors share their center and radial-edge vertices.
     // Besides reducing duplication, this is required for the thickness builder
     // to distinguish the polygon perimeter from internal sector seams.
-    mesh.vertex.reserve(1 + corner_count * subdivisions *
-                                (subdivisions + 1) / 2);
+    mesh.vertex.reserve(1 +
+                        corner_count * subdivisions * (subdivisions + 1) / 2);
     mesh.triangles.reserve(subdivisions * subdivisions * corners.size());
 
     mesh.vertex.push_back(center);
@@ -522,8 +522,7 @@ Mesh2D generate_subdivided_polygon_aperture(
             auto const t = static_cast<double>(step) / subdivisions;
             radial_indices[corner_index][step] =
                 static_cast<uint32_t>(mesh.vertex.size());
-            mesh.vertex.push_back(
-                glm::mix(center, corners[corner_index], t));
+            mesh.vertex.push_back(glm::mix(center, corners[corner_index], t));
         }
     }
 
@@ -532,7 +531,7 @@ Mesh2D generate_subdivided_polygon_aperture(
     };
 
     for (uint32_t sector = 0; sector < corner_count; ++sector) {
-        auto const next = (sector + 1) % corner_count;
+        auto const            next = (sector + 1) % corner_count;
         std::vector<uint32_t> indices(sector_vertices);
 
         for (uint32_t i = 0; i <= subdivisions; ++i) {
@@ -546,10 +545,10 @@ Mesh2D generate_subdivided_polygon_aperture(
                 } else {
                     auto const u = static_cast<double>(i) / subdivisions;
                     auto const v = static_cast<double>(j) / subdivisions;
-                    index = static_cast<uint32_t>(mesh.vertex.size());
-                    mesh.vertex.push_back(
-                        center + u * (corners[sector] - center) +
-                        v * (corners[next] - center));
+                    index        = static_cast<uint32_t>(mesh.vertex.size());
+                    mesh.vertex.push_back(center +
+                                          u * (corners[sector] - center) +
+                                          v * (corners[next] - center));
                 }
             }
         }
@@ -826,8 +825,8 @@ generate_cylinder_surface(SD::surface_ptr const&          surface,
     mesh.vertex.reserve(thick ? outer_vertex_count * 2 + angular_steps * 8
                               : outer_vertex_count);
     mesh.triangles.reserve(thick ? angular_steps * length_steps * 4 +
-                                      angular_steps * 4
-                                : angular_steps * length_steps * 2);
+                                       angular_steps * 4
+                                 : angular_steps * length_steps * 2);
 
     for (uint32_t iy = 0; iy <= length_steps; ++iy) {
         double v = static_cast<double>(iy) / length_steps;
@@ -888,12 +887,12 @@ generate_cylinder_surface(SD::surface_ptr const&          surface,
         }
     }
 
-    auto add_cylinder_cap_quad = [&mesh](Vertex outer_a,
-                                         Vertex outer_b,
-                                         Vertex inner_a,
-                                         Vertex inner_b,
+    auto add_cylinder_cap_quad = [&mesh](Vertex    outer_a,
+                                         Vertex    outer_b,
+                                         Vertex    inner_a,
+                                         Vertex    inner_b,
                                          glm::vec3 normal,
-                                         bool top_cap) {
+                                         bool      top_cap) {
         outer_a.normal = normal;
         outer_b.normal = normal;
         inner_a.normal = normal;

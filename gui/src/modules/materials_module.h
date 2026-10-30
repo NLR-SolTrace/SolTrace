@@ -36,11 +36,15 @@ public:
     explicit MaterialsModule(QObject* parent = nullptr);
 
     QOBJECT_WRITABLE_PROPERTY(SolTrace::GUI::Data::Database, current_database)
-    QOBJECT_WRITABLE_PROPERTY(SolTrace::GUI::Data::MaterialGroupsModel, materials_list)
-    QOBJECT_WRITABLE_PROPERTY(SolTrace::GUI::Data::GeometryGroupsModel, geometry_list)
+    QOBJECT_WRITABLE_PROPERTY(SolTrace::GUI::Data::MaterialGroupsModel,
+                              materials_list)
+    QOBJECT_WRITABLE_PROPERTY(SolTrace::GUI::Data::GeometryGroupsModel,
+                              geometry_list)
 
-    QOBJECT_WRITABLE_PROPERTY(SolTrace::GUI::Data::MaterialEditor, material_edit);
-    QOBJECT_WRITABLE_PROPERTY(SolTrace::GUI::Data::GeometryEditor, geometry_edit);
+    QOBJECT_WRITABLE_PROPERTY(SolTrace::GUI::Data::MaterialEditor,
+                              material_edit);
+    QOBJECT_WRITABLE_PROPERTY(SolTrace::GUI::Data::GeometryEditor,
+                              geometry_edit);
 
     Q_WRITABLE_PROPERTY(SolTrace::GUI::Data::Entity, current_material, { })
     Q_READONLY_PROPERTY(QString, current_material_name)

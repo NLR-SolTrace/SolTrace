@@ -133,12 +133,12 @@ int InstanceSortFilter::index_of(Entity entity) const {
 QModelIndex InstanceSortFilter::index_for_entity(Entity entity) const {
     if (!sourceModel() || !entity.is_valid()) return { };
 
-    auto const matches = sourceModel()->match(sourceModel()->index(0, 0),
-                                               entity_role,
-                                               QVariant::fromValue(entity),
-                                               1,
-                                               Qt::MatchExactly |
-                                                   Qt::MatchRecursive);
+    auto const matches =
+        sourceModel()->match(sourceModel()->index(0, 0),
+                             entity_role,
+                             QVariant::fromValue(entity),
+                             1,
+                             Qt::MatchExactly | Qt::MatchRecursive);
     if (matches.isEmpty()) return { };
     return mapFromSource(matches.front());
 }

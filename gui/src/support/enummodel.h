@@ -2,11 +2,11 @@
 
 #include "magic_enum/magic_enum.hpp"
 
-#include <QRangeModel>
 #include <QObject>
+#include <QRangeModel>
 #include <QString>
-#include <QtTypes>
 #include <QVector>
+#include <QtTypes>
 
 #include <functional>
 #include <type_traits>
@@ -50,15 +50,12 @@ public:
 
         fixed_name.replace('_', ' ');
 
-        if (!fixed_name.isEmpty()) {
-            fixed_name[0] = fixed_name[0].toUpper();
-        }
+        if (!fixed_name.isEmpty()) { fixed_name[0] = fixed_name[0].toUpper(); }
 
         return fixed_name;
     }
 
 private:
-
     static constexpr bool is_excluded(E value) {
         return ((value == Excluded) || ... || false);
     }
@@ -71,8 +68,8 @@ private:
             auto value = entry.first;
             if (is_excluded(value)) continue;
 
-            auto display_name = formatter ? formatter(value)
-                                          : default_display_name(value);
+            auto display_name =
+                formatter ? formatter(value) : default_display_name(value);
 
             ret.push_back(EnumModelRecord {
                 .name = display_name,
@@ -84,8 +81,7 @@ private:
     }
 
 public:
-    explicit EnumModel(QObject*      parent    = nullptr,
-                       NameFormatter formatter = {})
+    explicit EnumModel(QObject* parent = nullptr, NameFormatter formatter = { })
         : QRangeModel(make_all_records(formatter), parent) { }
 };
 

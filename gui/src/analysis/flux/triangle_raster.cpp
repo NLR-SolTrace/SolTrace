@@ -4,9 +4,8 @@
 
 namespace SolTrace::GUI::Analysis {
 
-static double edge_function(QPointF const& a,
-                            QPointF const& b,
-                            QPointF const& p) {
+static double
+edge_function(QPointF const& a, QPointF const& b, QPointF const& p) {
     return (p.x() - a.x()) * (b.y() - a.y()) -
            (p.y() - a.y()) * (b.x() - a.x());
 }
@@ -25,20 +24,17 @@ bool contains_with_edge_ownership(QPointF const& p,
     auto bb = b;
     auto cc = c;
 
-    if (edge_function(aa, bb, cc) < 0.0) {
-        std::swap(bb, cc);
-    }
+    if (edge_function(aa, bb, cc) < 0.0) { std::swap(bb, cc); }
 
-    auto accepts_edge = [](double edge_value,
-                           QPointF const& edge_a,
-                           QPointF const& edge_b) {
-        constexpr double edge_epsilon = 1e-10;
+    auto accepts_edge =
+        [](double edge_value, QPointF const& edge_a, QPointF const& edge_b) {
+            constexpr double edge_epsilon = 1e-10;
 
-        if (edge_value > edge_epsilon) return true;
-        if (edge_value < -edge_epsilon) return false;
+            if (edge_value > edge_epsilon) return true;
+            if (edge_value < -edge_epsilon) return false;
 
-        return is_top_left_edge(edge_a, edge_b);
-    };
+            return is_top_left_edge(edge_a, edge_b);
+        };
 
     return accepts_edge(edge_function(aa, bb, p), aa, bb) &&
            accepts_edge(edge_function(bb, cc, p), bb, cc) &&

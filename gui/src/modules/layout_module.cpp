@@ -13,8 +13,8 @@ void LayoutModule::edited_entity_changed() {
 
     m_current_database->clear_selection();
     if (m_edited_element.is_valid() &&
-        m_current_database->as_registry().all_of<SolTrace::GUI::Data::ElementComponent>(
-            m_edited_element)) {
+        m_current_database->as_registry()
+            .all_of<SolTrace::GUI::Data::ElementComponent>(m_edited_element)) {
         m_current_database->add_to_selection(m_edited_element);
     }
 
@@ -28,7 +28,7 @@ void LayoutModule::reset(SolTrace::GUI::Data::Database* database) {
     }
 
     m_observed_database = database;
-    set_edited_element({});
+    set_edited_element({ });
 
     if (!database) {
         set_edited_element_name(QString());
@@ -58,17 +58,18 @@ void LayoutModule::delete_edited_element() {
     auto to_delete = m_edited_element;
 
     m_current_database->delete_element(to_delete);
-    set_edited_element({});
-
+    set_edited_element({ });
 }
 
 LayoutModule::LayoutModule(QObject* parent)
     : QObject(parent),
       m_all_elements_model(new SolTrace::GUI::Data::AllElementsModel(this)),
       m_element_tree_model(new SolTrace::GUI::Data::ElementTreeModel(this)),
-      m_filtered_element_tree_model(new SolTrace::GUI::Data::InstanceSortFilter(this)),
+      m_filtered_element_tree_model(
+          new SolTrace::GUI::Data::InstanceSortFilter(this)),
       m_instance_edit(new SolTrace::GUI::Data::AnInstanceEditor(this)),
-      m_world_geometry_model(new SolTrace::GUI::Data::WorldGeometryModel(this)) {
+      m_world_geometry_model(
+          new SolTrace::GUI::Data::WorldGeometryModel(this)) {
 
     m_filtered_element_tree_model->setSourceModel(m_element_tree_model);
 

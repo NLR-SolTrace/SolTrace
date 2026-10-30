@@ -6,8 +6,8 @@
 #include "support/structmodel.h"
 
 #include <QObject>
-#include <QtTypes>
 #include <QVector>
+#include <QtTypes>
 #include <entt/entity/fwd.hpp>
 
 #include <vector>
@@ -20,9 +20,7 @@ struct AngularOpticalPoint {
 
     bool operator==(AngularOpticalPoint const&) const = default;
 
-    RECORD_META(AngularOpticalPoint,
-                SM_EXPOSE_RW(angle),
-                SM_EXPOSE_RW(value))
+    RECORD_META(AngularOpticalPoint, SM_EXPOSE_RW(angle), SM_EXPOSE_RW(value))
 };
 
 class AngularOpticalTableModel
@@ -91,9 +89,9 @@ private:
     Q_PROPERTY(double reflectivity READ reflectivity WRITE set_reflectivity
                    NOTIFY reflectivity_changed)
 
-    Q_PROPERTY(bool reflectivity_uses_table READ reflectivity_uses_table WRITE
-                   set_reflectivity_uses_table NOTIFY
-                       reflectivity_uses_table_changed)
+    Q_PROPERTY(
+        bool reflectivity_uses_table READ reflectivity_uses_table WRITE
+            set_reflectivity_uses_table NOTIFY reflectivity_uses_table_changed)
 
     Q_PROPERTY(bool transmissivity_uses_table READ transmissivity_uses_table
                    WRITE set_transmissivity_uses_table NOTIFY

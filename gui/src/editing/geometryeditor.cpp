@@ -1,8 +1,8 @@
 #include "geometryeditor.h"
 
-#include "editing/apertureeditor.h"
 #include "data/components.h"
 #include "data/surface.h"
+#include "editing/apertureeditor.h"
 
 #include <magic_enum/magic_enum.hpp>
 
@@ -61,12 +61,9 @@ SurfaceGenerationOptions SurfaceGeometry::surface_generation_options() const {
 
     auto scale = [this](uint32_t value) {
         switch (quality()) {
-        case Quality::Low:
-            return std::max<uint32_t>(1, value / 2);
-        case Quality::Normal:
-            return value;
-        case Quality::High:
-            return value * 2;
+        case Quality::Low: return std::max<uint32_t>(1, value / 2);
+        case Quality::Normal: return value;
+        case Quality::High: return value * 2;
         }
 
         return value;
@@ -76,10 +73,12 @@ SurfaceGenerationOptions SurfaceGeometry::surface_generation_options() const {
         scale(options.height_field_resolution.x),
         scale(options.height_field_resolution.y),
     };
-    options.radial_subdivisions           = scale(options.radial_subdivisions);
-    options.perimeter_subdivisions        = scale(options.perimeter_subdivisions);
-    options.cylinder_angular_subdivisions = scale(options.cylinder_angular_subdivisions);
-    options.cylinder_length_subdivisions  = scale(options.cylinder_length_subdivisions);
+    options.radial_subdivisions    = scale(options.radial_subdivisions);
+    options.perimeter_subdivisions = scale(options.perimeter_subdivisions);
+    options.cylinder_angular_subdivisions =
+        scale(options.cylinder_angular_subdivisions);
+    options.cylinder_length_subdivisions =
+        scale(options.cylinder_length_subdivisions);
 
     return options;
 }
@@ -87,8 +86,8 @@ SurfaceGenerationOptions SurfaceGeometry::surface_generation_options() const {
 void SurfaceGeometry::rebuild_geometry() {
     clear();
     set_vertex_count(0);
-    set_bounding_box({});
-    setBounds(QVector3D {}, QVector3D {});
+    set_bounding_box({ });
+    setBounds(QVector3D { }, QVector3D { });
     update();
 
     if (!database()) {
@@ -115,9 +114,7 @@ void SurfaceGeometry::rebuild_geometry() {
     switch (surface->my_type) {
     case SD::CONE:
     case SD::PARABOLA:
-    case SD::SPHERE:
-        options.subdivide_polygon_apertures = true;
-        break;
+    case SD::SPHERE: options.subdivide_polygon_apertures = true; break;
     case SD::CYLINDER:
     case SD::FLAT:
     case SD::TORUS:
@@ -223,8 +220,7 @@ GeometryEditor::GeometryEditor(QObject* parent)
             &GeometryEditor::updated);
 }
 
-GeometryEditor::~GeometryEditor() {
-}
+GeometryEditor::~GeometryEditor() { }
 
 void GeometryEditor::set_new_database_connections(Database* ptr) {
     add_connection(connect(ptr->geometry_parameters.self(),
@@ -240,8 +236,9 @@ void GeometryEditor::geometry_parameters_changed(entt::entity group) {
 void GeometryEditor::recompute_geometry_errors() {
     QStringList errors;
 
-    auto* params = database() ? database()->geometry_parameters.get(m_current_group)
-                              : nullptr;
+    auto* params = database()
+                       ? database()->geometry_parameters.get(m_current_group)
+                       : nullptr;
     if (!params) {
         m_geometry_error_model->setStringList(errors);
         return;
@@ -263,12 +260,12 @@ void GeometryEditor::recompute_geometry_errors() {
             "Cone surfaces are not supported by the simulation runners.");
         break;
     case SD::HYPER:
-        errors.push_back(
-            "Hyperboloid surfaces are not supported by the simulation runners.");
+        errors.push_back("Hyperboloid surfaces are not supported by the "
+                         "simulation runners.");
         break;
     case SD::GENERAL_SPENCER_MURTY:
-        errors.push_back(
-            "General Spencer-Murty surfaces are not supported by the simulation runners.");
+        errors.push_back("General Spencer-Murty surfaces are not supported by "
+                         "the simulation runners.");
         break;
     case SD::TORUS:
         errors.push_back(
@@ -279,11 +276,12 @@ void GeometryEditor::recompute_geometry_errors() {
         break;
     }
 
-    auto valid_apertures =
-        ApertureParameterModel::valid_apertures_for_surf(params->surface->my_type);
-    auto is_valid = std::find(valid_apertures.begin(),
-                              valid_apertures.end(),
-                              params->aperture->my_type) != valid_apertures.end();
+    auto valid_apertures = ApertureParameterModel::valid_apertures_for_surf(
+        params->surface->my_type);
+    auto is_valid =
+        std::find(valid_apertures.begin(),
+                  valid_apertures.end(),
+                  params->aperture->my_type) != valid_apertures.end();
 
     if (!is_valid) {
         auto surface_name =
@@ -291,9 +289,8 @@ void GeometryEditor::recompute_geometry_errors() {
         auto aperture_name =
             QString(magic_enum::enum_name(params->aperture->my_type).data());
 
-        errors.push_back(
-            QString("%1 is not a valid aperture for %2 surfaces.")
-                .arg(aperture_name, surface_name));
+        errors.push_back(QString("%1 is not a valid aperture for %2 surfaces.")
+                             .arg(aperture_name, surface_name));
     }
 
     // Special case here...
@@ -318,8 +315,8 @@ void GeometryEditor::recompute_geometry_errors() {
             }
 
             if (!close(rect->x_length(), diameter)) {
-                errors.push_back(
-                    "Cylinder rectangle width must equal the cylinder diameter.");
+                errors.push_back("Cylinder rectangle width must equal the "
+                                 "cylinder diameter.");
             }
 
             if (!close(rect->x_coord(), -cylinder->radius)) {
