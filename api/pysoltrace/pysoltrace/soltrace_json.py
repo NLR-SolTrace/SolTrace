@@ -484,7 +484,8 @@ class OpticalPropertyRegistry:
         raise StopIteration
 
     def __repr__(self):
-        return f"[\n{'    '}{'\n    '.join(uid for uid in [item.get("my_name") for item in self.data])}\n]"
+        padding = '\n    '
+        return f"[\n{'    '}{padding.join(uid for uid in [item.get('my_name') for item in self.data])}\n]"
     
     def add(self,
             my_name:                 str,

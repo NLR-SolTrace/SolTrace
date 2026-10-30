@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import ctypes
 from datetime import datetime
 from dataclasses import dataclass, field
@@ -133,7 +135,6 @@ class sun_location(base_args):
                                        self.timeZone,
                                        self.altitude)
 
-# TODO: util to convert built-in datetime to st_datetime
 @dataclass
 class sun_datetime(base_args):
     year:   int

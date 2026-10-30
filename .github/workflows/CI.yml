@@ -383,10 +383,48 @@ jobs:
 
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]
 
     steps:
     - uses: actions/checkout@v5
+
+    # install embree
+    - name: Install embree (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libembree-dev
+
+    - name: Install embree (macOS)
+      if: matrix.os == 'macOS-latest'
+      run: |
+        brew install embree
+
+    - name: Install embree (Windows)
+      if: matrix.os == 'windows-latest'
+      shell: pwsh
+      run: |
+        $embreeVersion = "4.4.0"
+        $embreeUrl = "https://github.com/embree/embree/releases/download/v$embreeVersion/embree-$embreeVersion.x64.windows.zip"
+        $embreeZip = "$env:TEMP\embree.zip"
+        $embreeDir = "C:\embree"
+        
+        Write-Host "Downloading Embree $embreeVersion..."
+        Invoke-WebRequest -Uri $embreeUrl -OutFile $embreeZip
+        
+        Write-Host "Extracting Embree..."
+        Expand-Archive -Path $embreeZip -DestinationPath $embreeDir -Force
+        
+        # $embreeRoot = Get-ChildItem -Path $embreeDir -Directory -Filter "embree*" | Select-Object -First 1
+        $embreeCMake = Join-Path $embreeDir "lib\cmake\embree-$embreeVersion"
+        $embreeLib = Join-Path $embreeDir "bin"
+        
+        # Write-Host "Embree root: $($embreeRoot.FullName)"
+        Write-Host "Embree CMake: $embreeCMake"
+        Write-Host "Embree Lib: $embreeLib"
+        
+        echo "embree_DIR=$embreeCMake" >> $env:GITHUB_ENV
+        echo "$embreeLib" >> $env:GITHUB_PATH
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v6
@@ -418,7 +456,7 @@ jobs:
       if: matrix.os == 'windows-latest'
       working-directory: ./testing
       run: > 
-        ./.venv/bin/activate
+        ${{ github.workspace }}/testing/.venv/bin/activate
 
     - name: Install/test wheel
       working-directory: ./testing
