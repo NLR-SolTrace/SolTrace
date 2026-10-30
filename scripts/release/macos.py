@@ -99,13 +99,21 @@ def stage_runtime(*, install_dir: Path, app_name: str) -> None:
 
 
 def ad_hoc_sign(*, install_dir: Path, app_name: str) -> None:
-    """Ad-hoc sign embedded Mach-O code inside-out, then verify the app bundle.
+    """Ad-hoc sign embedded Mach-O code inside-out for local workflow runs."""
+    sign_bundle(install_dir=install_dir, app_name=app_name, identity="-")
 
-    This makes every staged executable carry a consistent signature after the
-    release pipeline has modified the bundle. It does not provide a trusted
-    developer identity or satisfy Gatekeeper's notarization policy.
-    """
+
+def sign_bundle(*, install_dir: Path, app_name: str, identity: str) -> None:
+    """Sign nested code inside-out, using hardened runtime for Developer ID."""
+    if not identity:
+        raise ReleaseError("A macOS signing identity is required")
     app = require_path(install_dir / f"{app_name}.app", "macOS application bundle")
+    entitlements = None
+    if identity != "-":
+        entitlements = require_path(
+            Path(__file__).with_name("macos.entitlements"),
+            "macOS signing entitlements",
+        )
 
     macho_files: list[Path] = []
     for candidate in sorted(path for path in app.rglob("*") if path.is_file()):
@@ -130,9 +138,57 @@ def ad_hoc_sign(*, install_dir: Path, app_name: str) -> None:
         key=lambda path: (-len(path.parts), str(path)),
     )
     for target in [*macho_files, *embedded_bundles, app]:
-        run(["codesign", "--force", "--sign", "-", "--timestamp=none", target])
+        command: list[str | Path] = ["codesign", "--force"]
+        if identity == "-":
+            command.append("--timestamp=none")
+        else:
+            command.extend(["--options", "runtime", "--timestamp"])
+        command.extend(["--sign", identity])
+        if target == app and entitlements is not None:
+            command.extend(["--entitlements", entitlements])
+        command.append(target)
+        run(command)
 
     run(["codesign", "--verify", "--deep", "--strict", "--verbose=4", app])
+
+
+def notarize(
+    *,
+    install_dir: Path,
+    app_name: str,
+    api_key: Path,
+    key_id: str,
+    issuer_id: str,
+    runner_temp: Path,
+) -> None:
+    """Submit the app to Apple, staple its ticket, and verify Gatekeeper assessment."""
+    app = require_path(install_dir / f"{app_name}.app", "macOS application bundle")
+    require_path(api_key, "App Store Connect API key")
+    if not key_id or not issuer_id:
+        raise ReleaseError("App Store Connect key ID and issuer ID are required")
+
+    runner_temp.mkdir(parents=True, exist_ok=True)
+    submission = runner_temp / f"{app_name}-notarization.zip"
+    submission.unlink(missing_ok=True)
+    run(["ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", app, submission])
+    run(
+        [
+            "xcrun",
+            "notarytool",
+            "submit",
+            submission,
+            "--key",
+            api_key,
+            "--key-id",
+            key_id,
+            "--issuer",
+            issuer_id,
+            "--wait",
+        ]
+    )
+    run(["xcrun", "stapler", "staple", app])
+    run(["xcrun", "stapler", "validate", app])
+    run(["spctl", "--assess", "--type", "execute", "--verbose=4", app])
 
 
 def validate(*, install_dir: Path, app_name: str, architecture: str) -> None:
