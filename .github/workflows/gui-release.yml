@@ -106,9 +106,9 @@ jobs:
             # RenderKit's  binary archive is expected to contain the DLLs
             # and bundled CMake config used by find_package(embree 4 REQUIRED).
             embree_asset_regex: ".*x64.*.*\\.zip$"
-            artifact_name: SolTrace--x64-Embree
-            asset_name: SolTrace--x64-Embree.zip
-            msi_name: SolTrace--x64-Embree.msi
+            artifact_name: SolTrace-Windows-x64-Embree
+            asset_name: SolTrace-Windows-x64-Embree.zip
+            msi_name: SolTrace-Windows-x64-Embree.msi
 
           - name: Linux x64 Embree AppImage
             id: linux-x64-embree
@@ -152,9 +152,9 @@ jobs:
             msi_install_directory: SolTrace OptiX
             msi_upgrade_guid: D4AB6CD5-6276-5377-8E41-53D1DE59BD33
             embree_asset_regex: ".*x64.*windows.*\\.zip$"
-            artifact_name: SolTrace-Windows-x64-Embree-OptiX
-            asset_name: SolTrace-Windows-x64-Embree-OptiX.zip
-            msi_name: SolTrace-Windows-x64-Embree-OptiX.msi
+            artifact_name: SolTrace-Windows-x64-Embree-GPU-OptiX
+            asset_name: SolTrace-Windows-x64-Embree-GPU-OptiX.zip
+            msi_name: SolTrace-Windows-x64-Embree-GPU-OptiX.msi
 
           - name: Linux x64 Embree OptiX AppImage
             id: linux-x64-embree-optix
