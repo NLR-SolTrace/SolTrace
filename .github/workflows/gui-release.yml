@@ -327,6 +327,66 @@ jobs:
           --app-name "${{ env.APP_NAME }}"
           --optix-enabled "${{ matrix.optix_enabled }}"
 
+      - name: Sign Windows application executables
+        if: matrix.platform == 'windows' && startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        env:
+          AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
+          AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
+          LOGICAPP_URL: ${{ secrets.SIGNING_LOGICAPP_URL }}
+          INSTALL_DIR: ${{ env.INSTALL_DIR }}
+          APP_NAME: ${{ env.APP_NAME }}
+          SIGNING_ID: ${{ matrix.id }}
+        run: |
+          for relative_path in "bin/${APP_NAME}.exe" "bin/simdriver.exe"; do
+            source_path="$INSTALL_DIR/$relative_path"
+            if [[ ! -f "$source_path" ]]; then
+              echo "::error::Windows application executable not found: $source_path"
+              exit 1
+            fi
+
+            signing_name="${SIGNING_ID}-${GITHUB_RUN_ATTEMPT}-$(basename "$relative_path")"
+            unsigned_blob="unsigned/soltrace/${GITHUB_RUN_ID}/${signing_name}"
+            signed_blob="signed/soltrace/${GITHUB_RUN_ID}/${signing_name}"
+            signed_path="$RUNNER_TEMP/$signing_name"
+
+            az storage blob upload \
+              --container-name "${{ env.SIGNING_CONTAINER }}" \
+              --account-name "$AZURE_STORAGE_ACCOUNT" \
+              --account-key "$AZURE_STORAGE_KEY" \
+              --file "$source_path" \
+              --name "$unsigned_blob" \
+              --overwrite
+            curl --fail --silent --show-error --location "$LOGICAPP_URL" \
+              --header 'Content-Type: application/json' \
+              --data "{\"blob\":\"$unsigned_blob\",\"repository\":\"$GITHUB_REPOSITORY\",\"run_id\":\"$GITHUB_RUN_ID\"}"
+
+            for attempt in $(seq 1 100); do
+              exists=$(az storage blob exists \
+                --container-name "${{ env.SIGNING_CONTAINER }}" \
+                --account-name "$AZURE_STORAGE_ACCOUNT" \
+                --account-key "$AZURE_STORAGE_KEY" \
+                --name "$signed_blob" \
+                --query exists -o tsv)
+              if [ "$exists" = "true" ]; then
+                break
+              fi
+              if [ "$attempt" = "100" ]; then
+                echo "::error::Timed out waiting for $signed_blob"
+                exit 1
+              fi
+              sleep 30
+            done
+
+            az storage blob download \
+              --container-name "${{ env.SIGNING_CONTAINER }}" \
+              --account-name "$AZURE_STORAGE_ACCOUNT" \
+              --account-key "$AZURE_STORAGE_KEY" \
+              --name "$signed_blob" \
+              --file "$signed_path"
+            mv "$signed_path" "$source_path"
+          done
+
       - name: Verify Apple signing secrets are configured
         id: apple-signing-secrets
         if: matrix.platform == 'macos' && startsWith(github.ref, 'refs/tags/')

@@ -86,6 +86,10 @@ standard Embree and Embree+OptiX installers use distinct stable UpgradeCodes,
 install directories, and Start menu folders. They therefore upgrade
 independently and can be installed side-by-side.
 
+For Windows tag releases, the workflow signs the SolTrace and simdriver
+executables through the same signing service used for the MSI, before creating
+the ZIP and MSI. Third-party runtime DLLs are not re-signed.
+
 Official OptiX artifacts explicitly target CUDA compute capability 7.5 as their
 minimum. The build does not inspect the CI host GPU; it emits Turing native code
 plus forward-compatible virtual PTX for newer NVIDIA GPUs.
