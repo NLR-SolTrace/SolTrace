@@ -274,6 +274,17 @@ namespace SolTrace::NativeRunner
 
 					sun_ray_count_local++;
 
+					if (sun_ray_count_local > MaxNumberOfRays)
+					{
+						std::stringstream ss;
+						ss << "Thread " << thread_id
+						   << ": generated sun rays reached maximum count: "
+						   << MaxNumberOfRays << "\n";
+						logger->error_log(ss.str());
+						System->SunRayCount += sun_ray_count_local;
+						return RunnerStatus::ERROR;
+					}
+
 					// If using PT optimizations, check if stage has elements
 					// that could interact with ray
 					if (!PT_override)
