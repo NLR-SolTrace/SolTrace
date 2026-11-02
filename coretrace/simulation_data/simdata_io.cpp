@@ -525,7 +525,11 @@ bool read_element(FILE*                                      fp,
     if (surf_ptr == nullptr)
     { 
         std::stringstream ss;
-        ss << "Surface type not implemented " << SurfaceTypeMap.at(surface_type);
+        const auto surface_type_name = SurfaceTypeMap.find(surface_type);
+        ss << "Surface type not implemented: "
+           << (surface_type_name != SurfaceTypeMap.end()
+                   ? surface_type_name->second
+                   : std::to_string(static_cast<int>(surface_type)));
         throw std::invalid_argument(ss.str());
     }
 
