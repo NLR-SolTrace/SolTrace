@@ -179,10 +179,48 @@ void write_compact_json(std::ostream&                 os,
     }
 
     if (is_leaf_container(j)) {
-        std::string inlined = j.dump();
-        if (is_array ||
-            inlined.length() <= static_cast<size_t>(kInlineObjectCharLimit)) {
-            os << inlined;
+        if (is_array) {
+            // Leaf arrays are always inlined, but avoid materializing a full
+            // in-memory dump string for very large arrays.
+            os << '[';
+            for (size_t i = 0; i < j.size(); ++i) {
+                if (i > 0) os << ',';
+                os << j[i].dump();
+            }
+            os << ']';
+            return;
+        }
+
+        // Leaf objects are inlined only if they are short enough. Avoid
+        // constructing a full in-memory dump string just to measure length.
+        size_t rendered_len = 2; // '{' + '}'
+        size_t index        = 0;
+        bool   fits_inline  = true;
+
+        for (auto it = j.begin(); it != j.end(); ++it, ++index) {
+            const std::string key_dump   = nlohmann::ordered_json(it.key()).dump();
+            const std::string value_dump = it.value().dump();
+
+            // key + ": " + value
+            rendered_len += key_dump.size() + 2 + value_dump.size();
+            // comma between members
+            if (index + 1 < j.size()) rendered_len += 1;
+
+            if (rendered_len > static_cast<size_t>(kInlineObjectCharLimit)) {
+                fits_inline = false;
+                break;
+            }
+        }
+
+        if (fits_inline) {
+            os << '{';
+            index = 0;
+            for (auto it = j.begin(); it != j.end(); ++it, ++index) {
+                if (index > 0) os << ',';
+                os << nlohmann::ordered_json(it.key()).dump() << ": "
+                   << it.value().dump();
+            }
+            os << '}';
             return;
         }
     }
