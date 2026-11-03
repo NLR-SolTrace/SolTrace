@@ -20,9 +20,7 @@ json load_json()
 
     // Build paths
     const fs::path project_root(PROJECT_DIR);
-    const fs::path sample_path = project_root / "sample_ver_20251112.json";
-    // const fs::path project_root(PROJECT_DIR);
-    // const std::string input_str = project_root.string() + "/good_test.json";
+    const fs::path sample_path = project_root / "field_test.json";
 
     std::ifstream ifs(sample_path);
     if (!ifs.is_open()) throw std::runtime_error("Failure opening json");
@@ -1661,6 +1659,69 @@ st_return_t call_stapi_v2_get_results_data(st_context_v2_t  pcxt,
             ++n;
         }
     }
+
+    return code;
+}
+
+// functions to get grouped results directly
+
+st_return_t call_stapi_v2_get_grouped_results_data(st_context_v2_t  pcxt,
+                                                   st_runner_type_t runner_type)
+{
+    st_context* cxt = reinterpret_cast<st_context*>(pcxt);
+
+    if (runner_type != st_runner_type_t::OPTIX)
+    {
+        cxt->p_data->set_number_of_rays(1000);
+    }
+
+    st_return_t code = st_sim_setup(pcxt, runner_type); 
+    code += st_sim_run_v2(pcxt);
+    code += st_sim_report(pcxt, 1);
+
+    size_t num_groups;
+    st_num_groups(pcxt, &num_groups);
+    args_group_results *dummy_data = new args_group_results[num_groups];
+
+    for (size_t i = 0; i < num_groups; ++i)
+    {
+        dummy_data[i] = args_group_results{};
+        dummy_data[i].absorb_previous_group   = new uint_fast64_t[num_groups];
+        dummy_data[i].reflect_previous_group  = new uint_fast64_t[num_groups];
+        dummy_data[i].transmit_previous_group = new uint_fast64_t[num_groups];
+        dummy_data[i].virtual_previous_group  = new uint_fast64_t[num_groups];
+    }
+    
+    code += st_get_grouped_results_data(pcxt, dummy_data);
+
+    std::vector<GroupResult> groups = cxt->p_results->get_grouped_results();
+
+    for (size_t i = 0; i < num_groups; ++i)
+    {
+        code += check(dummy_data[i].absorb_count,   groups[i].absorb_count);
+        code += check(dummy_data[i].reflect_count,  groups[i].reflect_count);
+        code += check(dummy_data[i].transmit_count, groups[i].transmit_count);
+        code += check(dummy_data[i].virtual_count,  groups[i].virtual_count);
+        code += check(dummy_data[i].group_id,       groups[i].group_id);
+
+        for (size_t j = 0; j < num_groups; ++j)
+        {
+            code += check(dummy_data[i].absorb_previous_group[j],   groups[i].absorb_previous_group[j]);
+            code += check(dummy_data[i].reflect_previous_group[j],  groups[i].reflect_previous_group[j]);
+            code += check(dummy_data[i].transmit_previous_group[j], groups[i].transmit_previous_group[j]);
+            code += check(dummy_data[i].virtual_previous_group[j],  groups[i].virtual_previous_group[j]);
+        }
+    }
+
+    // clean up
+    for (size_t i = 0; i < num_groups; ++i)
+    {
+        delete[] dummy_data[i].absorb_previous_group;
+        delete[] dummy_data[i].reflect_previous_group;
+        delete[] dummy_data[i].transmit_previous_group;
+        delete[] dummy_data[i].virtual_previous_group;
+    }
+    delete[] dummy_data;
 
     return code;
 }

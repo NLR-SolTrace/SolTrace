@@ -1705,6 +1705,51 @@ STAPI_V2 st_return_t st_get_results_data(st_context_v2_t pcxt, args_results_data
     return st_return_code::SUCCESS;
 }
 
+// functions to get grouped results directly
+
+STAPI_V2 st_return_t st_num_groups(st_context_v2_t pcxt, size_t *num_groups)
+{
+    CONTEXT(pcxt);
+    RESULT(cxt);
+    
+    if (cxt->report_level == RunnerStatistics::RAY_RECORDS)
+        return st_return_code::RESULT_NOT_REPORTED;
+
+    *num_groups = result->get_number_of_groups();
+    return st_return_code::SUCCESS;
+}
+
+STAPI_V2 st_return_t st_get_grouped_results_data(st_context_v2_t pcxt, args_group_results *data)
+{
+    // data must be preallocated by caller
+    CONTEXT(pcxt);
+    RESULT(cxt);
+    
+    if (cxt->report_level == RunnerStatistics::RAY_RECORDS)
+        return st_return_code::RESULT_NOT_REPORTED;
+
+    std::vector<GroupResult> groups = result->get_grouped_results();
+    for (size_t i = 0; i < groups.size(); ++i)
+    {
+        data[i].absorb_count   = groups[i].absorb_count;
+        data[i].reflect_count  = groups[i].reflect_count;
+        data[i].transmit_count = groups[i].transmit_count;
+        data[i].virtual_count  = groups[i].virtual_count;
+        data[i].group_id       = groups[i].group_id;
+
+        // same number of elements in _previous_group vectors as number of groups
+        for (size_t j = 0; j < groups.size(); ++j)
+        {
+            data[i].absorb_previous_group[j]   = groups[i].absorb_previous_group[j];
+            data[i].reflect_previous_group[j]  = groups[i].reflect_previous_group[j];
+            data[i].transmit_previous_group[j] = groups[i].transmit_previous_group[j];
+            data[i].virtual_previous_group[j]  = groups[i].virtual_previous_group[j];
+        }
+    }
+
+    return st_return_code::SUCCESS;
+}
+
 // TODO: make a way to get group results (number too)
 //       make checks positive
 

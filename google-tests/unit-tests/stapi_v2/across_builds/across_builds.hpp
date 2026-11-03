@@ -156,5 +156,7 @@ st_return_t call_stapi_v2_sun_stats(st_context_v2_t  pcxt,
                                     st_runner_type_t runner_type);
 st_return_t call_stapi_v2_get_results_data(st_context_v2_t  pcxt,
                                            st_runner_type_t runner_type);
-
+// functions to get grouped results directly
+st_return_t call_stapi_v2_get_grouped_results_data(st_context_v2_t  pcxt,
+                                                   st_runner_type_t runner_type);
 #endif

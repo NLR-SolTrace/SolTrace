@@ -110,3 +110,15 @@ TEST(results_tests, results_get_results_data)
     
     CLEANUP_TEST_CXT();
 }
+
+TEST(results_tests, results_get_grouped_results_data)
+{
+    SETUP_TEST_CXT();
+
+    LOAD_TEST_JSON();
+
+    code = call_stapi_v2_get_grouped_results_data(pcxt, st_runner_type_t::NATIVE);
+    EXPECT_EQ(code, st_return_code::SUCCESS);
+    
+    CLEANUP_TEST_CXT();
+}

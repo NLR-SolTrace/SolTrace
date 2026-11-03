@@ -521,6 +521,16 @@ typedef struct args_results_data {
 } args_results_data;
 STAPI_V2 st_return_t st_get_results_data(st_context_v2_t pcxt, args_results_data *data);
 
+// functions to get grouped results directly
+STAPI_V2 st_return_t st_num_groups(st_context_v2_t pcxt, size_t *num_groups);
+typedef struct args_group_results {
+	uint_fast64_t *absorb_previous_group, *reflect_previous_group, *transmit_previous_group, *virtual_previous_group;
+	uint_fast64_t absorb_count, reflect_count, transmit_count, virtual_count;
+	uint_fast64_t absorb_sun_previous, reflect_sun_previous, transmit_sun_previous, virtual_sun_previous;
+	int32_t group_id;
+} args_group_results;
+STAPI_V2 st_return_t st_get_grouped_results_data(st_context_v2_t pcxt, args_group_results *data);
+
 /*
 create simualtion information -> st_context_v2_t st_create_context_v2();
 free simualtion information   -> int st_free_context_v2(st_context_v2_t pcxt):
@@ -852,7 +862,14 @@ typedef struct args_st_get_sun_vector {
 // functions for writing input files for SolTrace
 typedef struct args_st_export_json_file {
 	const char *filename;
+	int 	   precision = 12;
 } args_st_export_json_file;
+
+typedef struct args_st_write_group_results_json {
+	const char *filename;
+	int 	   precision = 12;
+	int        indent = 4;
+} args_st_write_group_results_json;
 
 // Simlulation Runner Functions
 typedef struct args_st_get_installed_runners {
@@ -922,6 +939,14 @@ typedef struct args_st_sun_stats {
 typedef struct args_st_get_results_data {
 	args_results_data *data;
 } args_st_get_results_data;
+
+typedef struct args_st_num_groups {
+	size_t *num_groups;
+} args_st_num_groups;
+
+typedef struct args_st_get_grouped_results_data {
+	args_group_results *data;
+} args_st_get_grouped_results_data;
 
 /* Every argument layout passed through the generic arrays is one of
  * these: a tag telling us which payload is active, plus the payload
