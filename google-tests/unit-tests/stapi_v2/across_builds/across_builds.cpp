@@ -1278,16 +1278,6 @@ st_return_t call_stapi_v2_solar_calculator(st_context_v2_t pcxt)
 // Simlulation Runner Functions //
 //////////////////////////////////
 
-uint_fast64_t num_threads_for_test()
-{
-    unsigned int nt_hardware = std::thread::hardware_concurrency();
-    if (nt_hardware > 1)
-    {
-        return nt_hardware - 1;
-    }
-    return 1;
-}
-
 // functions for SolTrace runner management
 st_return_t call_stapi_v2_sim_setup(st_context_v2_t pcxt)
 {
@@ -1299,49 +1289,35 @@ st_return_t call_stapi_v2_sim_setup(st_context_v2_t pcxt)
 
     if (code != st_return_code::SUCCESS) return code;
 
-    code =  st_sim_setup(pcxt, st_runner_type_t::NATIVE, num_threads_for_test());
+    code =  st_sim_setup(pcxt, st_runner_type_t::NATIVE);
     unsigned int *seeds_test = new unsigned int[2] { 608, 303, };
     code += st_sim_setup(pcxt, st_runner_type_t::NATIVE, 3, seeds_test, 2);
-    code += st_sim_setup(pcxt, st_runner_type_t::EMBREE, num_threads_for_test());
+    code += st_sim_setup(pcxt, st_runner_type_t::EMBREE);
     code += st_sim_setup(pcxt, st_runner_type_t::OPTIX);
-
-    // test bad number of threads if possible
-    unsigned int nt_hardware = std::thread::hardware_concurrency();
-    if (nt_hardware > 1) 
-    {
-        st_return_t tmp_code = st_sim_setup(pcxt, st_runner_type_t::NATIVE, nt_hardware + 1);
-        code += check(tmp_code, st_return_code::WARNING_MORE_THREADS_THAN_HARDWARE);
-    }
 
     return code;
 }
 
 st_return_t call_stapi_v2_sim_run_v2(st_context_v2_t pcxt, st_runner_type_t runner_type)
 {
-    uint_fast64_t threads = DEFAULT_NUM_THREADS;
-
     if (runner_type != st_runner_type_t::OPTIX)
     {
         st_context *cxt = reinterpret_cast<st_context*>(pcxt);
         cxt->p_data->set_number_of_rays(1000);
-        threads = num_threads_for_test();
     }
 
-    return st_sim_setup(pcxt, runner_type, threads) + st_sim_run_v2(pcxt);
+    return st_sim_setup(pcxt, runner_type) + st_sim_run_v2(pcxt);
 }
 
 st_return_t call_stapi_v2_sim_report(st_context_v2_t pcxt, st_runner_type_t runner_type)
 {
-    uint_fast64_t threads = DEFAULT_NUM_THREADS;
-
     if (runner_type != st_runner_type_t::OPTIX)
     {
         st_context *cxt = reinterpret_cast<st_context*>(pcxt);
         cxt->p_data->set_number_of_rays(1000);
-        threads = num_threads_for_test();
     }
 
-    st_return_t code = st_sim_setup(pcxt, runner_type, threads);
+    st_return_t code = st_sim_setup(pcxt, runner_type);
     // expect += st_return_code::RUNNER_NOT_READY_TO_REPORT
     code += st_sim_report(pcxt, RunnerStatistics::RAY_RECORDS);
 
@@ -1365,16 +1341,13 @@ st_return_t call_stapi_v2_write_results_csv(st_context_v2_t  pcxt,
                                             st_runner_type_t runner_type, 
                                             const char       *filename)
 {
-    uint_fast64_t threads = DEFAULT_NUM_THREADS;
-
     if (runner_type != st_runner_type_t::OPTIX)
     {
         st_context* cxt = reinterpret_cast<st_context*>(pcxt);
         cxt->p_data->set_number_of_rays(1000);
-        threads = num_threads_for_test();
     }
 
-    st_return_t code = st_sim_setup(pcxt, runner_type, threads); 
+    st_return_t code = st_sim_setup(pcxt, runner_type); 
     code += st_sim_run_v2(pcxt);
     code += st_sim_report(pcxt, 0);
     code += st_write_results_csv(pcxt, filename);
@@ -1389,16 +1362,13 @@ st_return_t call_stapi_v2_write_group_results_json(st_context_v2_t  pcxt,
                                                    st_runner_type_t runner_type, 
                                                    const char       *filename)
 {
-    uint_fast64_t threads = DEFAULT_NUM_THREADS;
-
     if (runner_type != st_runner_type_t::OPTIX)
     {
         st_context* cxt = reinterpret_cast<st_context*>(pcxt);
         cxt->p_data->set_number_of_rays(1000);
-        threads = num_threads_for_test();
     }
 
-    st_return_t code = st_sim_setup(pcxt, runner_type, threads); 
+    st_return_t code = st_sim_setup(pcxt, runner_type); 
     code += st_sim_run_v2(pcxt);
     code += st_sim_report(pcxt, 1);
     code += st_write_group_results_json(pcxt, filename);
@@ -1416,9 +1386,8 @@ st_return_t call_stapi_v2_locations(st_context_v2_t  pcxt,
 {
     st_context* cxt = reinterpret_cast<st_context*>(pcxt);
     cxt->p_data->set_number_of_rays(1000);
-    uint_fast64_t threads = runner_type != st_runner_type_t::OPTIX ? num_threads_for_test() : DEFAULT_NUM_THREADS;
 
-    st_return_t code = st_sim_setup(pcxt, runner_type, threads); 
+    st_return_t code = st_sim_setup(pcxt, runner_type); 
     code += st_sim_run_v2(pcxt);
     code += st_sim_report(pcxt, 0);
     
@@ -1459,9 +1428,8 @@ st_return_t call_stapi_v2_cosines(st_context_v2_t  pcxt,
 {
     st_context* cxt = reinterpret_cast<st_context*>(pcxt);
     cxt->p_data->set_number_of_rays(1000);
-    uint_fast64_t threads = runner_type != st_runner_type_t::OPTIX ? num_threads_for_test() : DEFAULT_NUM_THREADS;
 
-    st_return_t code = st_sim_setup(pcxt, runner_type, threads); 
+    st_return_t code = st_sim_setup(pcxt, runner_type); 
     code += st_sim_run_v2(pcxt);
     code += st_sim_report(pcxt, 0);
     
@@ -1502,9 +1470,8 @@ st_return_t call_stapi_v2_elementmap(st_context_v2_t  pcxt,
 {
     st_context* cxt = reinterpret_cast<st_context*>(pcxt);
     cxt->p_data->set_number_of_rays(1000);
-    uint_fast64_t threads = runner_type != st_runner_type_t::OPTIX ? num_threads_for_test() : DEFAULT_NUM_THREADS;
 
-    st_return_t code = st_sim_setup(pcxt, runner_type, threads); 
+    st_return_t code = st_sim_setup(pcxt, runner_type); 
     code += st_sim_run_v2(pcxt);
     code += st_sim_report(pcxt, 0);
     
@@ -1537,9 +1504,8 @@ st_return_t call_stapi_v2_stagemap(st_context_v2_t  pcxt,
 {
     st_context* cxt = reinterpret_cast<st_context*>(pcxt);
     cxt->p_data->set_number_of_rays(1000);
-    uint_fast64_t threads = runner_type != st_runner_type_t::OPTIX ? num_threads_for_test() : DEFAULT_NUM_THREADS;
 
-    st_return_t code = st_sim_setup(pcxt, runner_type, threads); 
+    st_return_t code = st_sim_setup(pcxt, runner_type); 
     code += st_sim_run_v2(pcxt);
     code += st_sim_report(pcxt, 0);
     
@@ -1564,9 +1530,8 @@ st_return_t call_stapi_v2_raynumbers(st_context_v2_t  pcxt,
 {
     st_context* cxt = reinterpret_cast<st_context*>(pcxt);
     cxt->p_data->set_number_of_rays(1000);
-    uint_fast64_t threads = runner_type != st_runner_type_t::OPTIX ? num_threads_for_test() : DEFAULT_NUM_THREADS;
 
-    st_return_t code = st_sim_setup(pcxt, runner_type, threads); 
+    st_return_t code = st_sim_setup(pcxt, runner_type); 
     code += st_sim_run_v2(pcxt);
     code += st_sim_report(pcxt, 0);
     
@@ -1599,9 +1564,8 @@ st_return_t call_stapi_v2_sun_stats(st_context_v2_t  pcxt,
 {
     st_context* cxt = reinterpret_cast<st_context*>(pcxt);
     cxt->p_data->set_number_of_rays(1000);
-    uint_fast64_t threads = runner_type != st_runner_type_t::OPTIX ? num_threads_for_test() : DEFAULT_NUM_THREADS;
 
-    st_return_t code = st_sim_setup(pcxt, runner_type, threads); 
+    st_return_t code = st_sim_setup(pcxt, runner_type); 
     code += st_sim_run_v2(pcxt);
     code += st_sim_report(pcxt, 0);
 
@@ -1642,9 +1606,8 @@ st_return_t call_stapi_v2_get_results_data(st_context_v2_t  pcxt,
 {
     st_context* cxt = reinterpret_cast<st_context*>(pcxt);
     cxt->p_data->set_number_of_rays(1000);
-    uint_fast64_t threads = runner_type != st_runner_type_t::OPTIX ? num_threads_for_test() : DEFAULT_NUM_THREADS;
 
-    st_return_t code = st_sim_setup(pcxt, runner_type, threads); 
+    st_return_t code = st_sim_setup(pcxt, runner_type); 
     code += st_sim_run_v2(pcxt);
     code += st_sim_report(pcxt, 0);
     
