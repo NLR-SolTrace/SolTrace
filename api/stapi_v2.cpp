@@ -1719,7 +1719,7 @@ STAPI_V2 st_return_t st_num_groups(st_context_v2_t pcxt, size_t *num_groups)
     return st_return_code::SUCCESS;
 }
 
-STAPI_V2 st_return_t st_get_grouped_results_data(st_context_v2_t pcxt, args_group_results *data)
+STAPI_V2 st_return_t st_get_grouped_results_data(st_context_v2_t pcxt, args_group_result *data)
 {
     // data must be preallocated by caller
     CONTEXT(pcxt);

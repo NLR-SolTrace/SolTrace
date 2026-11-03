@@ -1046,6 +1046,48 @@ class ResultsOptixTests(STAPIv2TestCase, Results):
         self.stapi.runner.report()
         self.n_intersections = self.stapi.result.num()
 
+class GroupResults:
+    def test_json_dump(self):
+        self.stapi.result.json.dump('./groups_sample.json')
+    
+    def test_get(self):
+        data = self.stapi.result.groups()
+        for d in data: print(d)
+
+class GroupResultsNativeTests(STAPIv2TestCase, GroupResults):
+    def setUp(self):
+        super().setUp()
+        self.runner_type = dot_h.st_runner_type_t.NATIVE
+        self.stapi.data.json.load(locate('sample.json'))
+        self.stapi.parameters.rays(1000, 10000)
+        self.stapi.runner.setup(self.runner_type)
+        self.stapi.runner.run()
+        self.stapi.runner.report(1)
+
+@unittest.skipIf(not api.is_runner_installed(dot_h.st_runner_type_t.EMBREE),
+                 "Embree runner not installed, skip testing EmbreeRunner results.")
+class GroupResultsEmbreeTests(STAPIv2TestCase, GroupResults):
+    def setUp(self):
+        super().setUp()
+        self.runner_type = dot_h.st_runner_type_t.EMBREE
+        self.stapi.data.json.load(locate('sample.json'))
+        self.stapi.parameters.rays(1000, 10000)
+        self.stapi.runner.setup(self.runner_type)
+        self.stapi.runner.run()
+        self.stapi.runner.report(1)
+
+@unittest.skipIf(not api.is_runner_installed(dot_h.st_runner_type_t.OPTIX),
+                 "Optix runner not installed, skip testing OptixRunner results.")
+class GroupResultsOptixTests(STAPIv2TestCase, GroupResults):
+    def setUp(self):
+        super().setUp()
+        self.runner_type = dot_h.st_runner_type_t.OPTIX
+        self.stapi.data.json.load(locate('sample.json'))
+        self.stapi.parameters.rays(1000, 10000)
+        self.stapi.runner.setup(self.runner_type)
+        self.stapi.runner.run()
+        self.stapi.runner.report(1)
+
 class BatchTests(STAPIv2TestCase):
     def setUp(self):
         super().setUp()

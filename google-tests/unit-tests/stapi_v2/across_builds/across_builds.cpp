@@ -1681,11 +1681,11 @@ st_return_t call_stapi_v2_get_grouped_results_data(st_context_v2_t  pcxt,
 
     size_t num_groups;
     st_num_groups(pcxt, &num_groups);
-    args_group_results *dummy_data = new args_group_results[num_groups];
+    args_group_result *dummy_data = new args_group_result[num_groups];
 
     for (size_t i = 0; i < num_groups; ++i)
     {
-        dummy_data[i] = args_group_results{};
+        dummy_data[i] = args_group_result{};
         dummy_data[i].absorb_previous_group   = new uint_fast64_t[num_groups];
         dummy_data[i].reflect_previous_group  = new uint_fast64_t[num_groups];
         dummy_data[i].transmit_previous_group = new uint_fast64_t[num_groups];

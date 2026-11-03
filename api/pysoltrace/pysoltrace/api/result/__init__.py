@@ -5,16 +5,20 @@ from pysoltrace import dot_h
 from pysoltrace.api.utils import st_function
 from pysoltrace.api.dll import context
 from pysoltrace.api.result.csv import csv
+from pysoltrace.api.result.json import json
+from pysoltrace.api.result.groups import groups
 
 #############################################
 # functions for SolTrace results management #
 #############################################
 class result(context):
-    __slots__ = ('csv')
+    __slots__ = ('csv', 'groups', 'json')
     
     def __init__(self, pdll, pcxt):
         super().__init__(pdll, pcxt)
-        self.csv = csv(pdll, pcxt)
+        self.csv    = csv(pdll, pcxt)
+        self.groups = groups(pdll, pcxt)
+        self.json   = json(pdll, pcxt)
 
     @st_function
     def num(self):

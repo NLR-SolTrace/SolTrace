@@ -10,6 +10,10 @@ def make_c_double_8(params: list[float]) -> ctypes.Array:
     assert len(params) <= 8,         f'Expected at most 8 elements, got {len(params)}'
     return (ctypes.c_double * 8)(*params)
 
+def make_c_uint64(vals: list[int]) -> ctypes.Array:
+    assert isinstance(vals, list), f'Expected a list, got {type(vals)}'
+    return (ctypes.c_uint64 * len(vals))(*vals)
+
 ensure_bytes = lambda bytes_or_str: bytes(bytes_or_str) if not isinstance(bytes_or_str, bytes) else bytes_or_str
 """ensure that a struct value that could be str is converted to bytes"""
 
@@ -169,3 +173,37 @@ class sun_datetime(base_args):
                             dt.hour,
                             dt.minute,
                             dt.second)
+
+class group_result(base_args):
+    def __init__(self, num_groups):
+        self._num_groups             = num_groups
+        self.group_id                = 0
+        self.absorb_count            = 0
+        self.reflect_count           = 0
+        self.transmit_count          = 0
+        self.virtual_count           = 0
+        self.absorb_sun_previous     = 0
+        self.reflect_sun_previous    = 0
+        self.transmit_sun_previous   = 0
+        self.virtual_sun_previous    = 0
+        self.absorb_previous_group   = [0] * num_groups
+        self.reflect_previous_group  = [0] * num_groups
+        self.transmit_previous_group = [0] * num_groups
+        self.virtual_previous_group  = [0] * num_groups
+
+    @property
+    def ctype(self):
+        cast_array_to_ptr = lambda arr: ctypes.cast(make_c_uint64(arr), ctypes.POINTER(ctypes.c_uint64))
+        return dot_h.args_group_result(cast_array_to_ptr(self.absorb_previous_group),
+                                       cast_array_to_ptr(self.reflect_previous_group),
+                                       cast_array_to_ptr(self.transmit_previous_group),
+                                       cast_array_to_ptr(self.virtual_previous_group),
+                                       self.absorb_count,
+                                       self.reflect_count,
+                                       self.transmit_count,
+                                       self.virtual_count,
+                                       self.absorb_sun_previous,
+                                       self.reflect_sun_previous,
+                                       self.transmit_sun_previous,
+                                       self.virtual_sun_previous,
+                                       self.group_id)

@@ -523,13 +523,16 @@ STAPI_V2 st_return_t st_get_results_data(st_context_v2_t pcxt, args_results_data
 
 // functions to get grouped results directly
 STAPI_V2 st_return_t st_num_groups(st_context_v2_t pcxt, size_t *num_groups);
-typedef struct args_group_results {
-	uint_fast64_t *absorb_previous_group, *reflect_previous_group, *transmit_previous_group, *virtual_previous_group;
+typedef struct args_group_result {
+	uint_fast64_t *absorb_previous_group;
+	uint_fast64_t *reflect_previous_group;
+	uint_fast64_t *transmit_previous_group;
+	uint_fast64_t *virtual_previous_group;
 	uint_fast64_t absorb_count, reflect_count, transmit_count, virtual_count;
 	uint_fast64_t absorb_sun_previous, reflect_sun_previous, transmit_sun_previous, virtual_sun_previous;
 	int32_t group_id;
-} args_group_results;
-STAPI_V2 st_return_t st_get_grouped_results_data(st_context_v2_t pcxt, args_group_results *data);
+} args_group_result;
+STAPI_V2 st_return_t st_get_grouped_results_data(st_context_v2_t pcxt, args_group_result *data);
 
 /*
 create simualtion information -> st_context_v2_t st_create_context_v2();
@@ -945,7 +948,7 @@ typedef struct args_st_num_groups {
 } args_st_num_groups;
 
 typedef struct args_st_get_grouped_results_data {
-	args_group_results *data;
+	args_group_result *data;
 } args_st_get_grouped_results_data;
 
 /* Every argument layout passed through the generic arrays is one of
