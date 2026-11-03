@@ -103,6 +103,7 @@ TEST(EmbreeRunner, RayIdAssignmentMultiThread)
     ASSERT_TRUE(sd.import_from_file(sample_path));
 
     sd.set_number_of_rays(NRAYS);
+    sd.set_max_rays_traced(NRAYS * 10);
 
     // Create and run the native runner
     EmbreeRunner runner;

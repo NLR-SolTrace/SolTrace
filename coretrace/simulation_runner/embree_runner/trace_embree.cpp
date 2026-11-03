@@ -112,6 +112,7 @@ namespace SolTrace::EmbreeRunner
 
         System->RayData.SetUp(nthreads, NumberOfRays);
         System->SunRayCount = 0;
+        System->HitRayCount = 0;
 
         // auto t_after_setup = Clock::now();
 
@@ -219,6 +220,7 @@ namespace SolTrace::EmbreeRunner
         uint_fast64_t PreviousStageDataArrayIndex = 0;
         uint_fast64_t n_rays_active = NumberOfRays;
         uint_fast64_t sun_ray_count_local = 0;
+        uint_fast64_t hit_ray_count_local = 0;
 
         // Loop through stages
         for (uint_fast64_t i = 0; i < System->StageList.size(); i++)
@@ -287,17 +289,6 @@ namespace SolTrace::EmbreeRunner
                     }
 
                     sun_ray_count_local++;
-
-                    if (sun_ray_count_local > MaxNumberOfRays)
-                    {
-                        std::stringstream ss;
-                        ss << "Thread " << thread_id
-                           << ": generated sun rays reached maximum count: "
-                           << MaxNumberOfRays << "\n";
-                        logger->error_log(ss.str());
-                        System->SunRayCount += sun_ray_count_local;
-                        return RunnerStatus::ERROR;
-                    }
                 }
                 else
                 {
@@ -364,6 +355,7 @@ namespace SolTrace::EmbreeRunner
 
                     if (i == 0 && MultipleHitCount == 1)
                     {
+                        hit_ray_count_local++;
                         // Add ray to Stage RayData
                         // auto _t0_append = Clock::now();
                         auto r = System->RayData.Append(thread_id,
@@ -679,6 +671,7 @@ namespace SolTrace::EmbreeRunner
 
         // System->SunRayCount is atomic so this is thread safe
         System->SunRayCount += sun_ray_count_local;
+        System->HitRayCount += hit_ray_count_local;
 
         if (manager->terminate(thread_id))
             return RunnerStatus::CANCEL;

@@ -141,6 +141,7 @@ namespace SolTrace::NativeRunner
 
 		System->RayData.SetUp(nthreads, NumberOfRays);
 		System->SunRayCount = 0;
+		System->HitRayCount = 0;
 
 		for (unsigned int k = 0; k < nthreads; ++k)
 		{
@@ -217,6 +218,7 @@ namespace SolTrace::NativeRunner
 		uint_fast64_t PreviousStageDataArrayIndex = 0;
 		uint_fast64_t n_rays_active = NumberOfRays;
 		uint_fast64_t sun_ray_count_local = 0;
+		uint_fast64_t hit_ray_count_local = 0;
 
 		// Loop through stages
 		for (uint_fast64_t i = 0; i < System->StageList.size(); i++)
@@ -288,17 +290,6 @@ namespace SolTrace::NativeRunner
 					}
 
 					sun_ray_count_local++;
-
-					if (sun_ray_count_local > MaxNumberOfRays)
-					{
-						std::stringstream ss;
-						ss << "Thread " << thread_id
-						   << ": generated sun rays reached maximum count: "
-						   << MaxNumberOfRays << "\n";
-						logger->error_log(ss.str());
-						System->SunRayCount += sun_ray_count_local;
-						return RunnerStatus::ERROR;
-					}
 
 					// If using PT optimizations, check if stage has elements
 					// that could interact with ray
@@ -383,6 +374,7 @@ namespace SolTrace::NativeRunner
 
 					if (i == 0 && MultipleHitCount == 1)
 					{
+						hit_ray_count_local++;
 						auto r = System->RayData.Append(thread_id,
 														PosRayGlob,
 														CosRayGlob,
@@ -654,6 +646,7 @@ namespace SolTrace::NativeRunner
 
 		// System->SunRayCount is atomic so this is thread safe
 		System->SunRayCount += sun_ray_count_local;
+		System->HitRayCount += hit_ray_count_local;
 
 		return RunnerStatus::SUCCESS;
 	}

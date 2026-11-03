@@ -378,6 +378,7 @@ namespace SolTrace::NativeRunner
 		// TRayData AllRayData;
 		TRayData RayData;
 		std::atomic<uint_fast64_t> SunRayCount;
+		std::atomic<uint_fast64_t> HitRayCount;
 	};
 
 } // namespace SolTrace::NativeRunner
