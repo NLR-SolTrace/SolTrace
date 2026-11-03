@@ -255,8 +255,23 @@ namespace SolTrace::NativeRunner
 				// Get Ray
 				if (i == 0)
 				{
-					// TODO: This function seems to ignore the MaxNumberOfRays
-					// argument. Should fix that.
+					// Stop generating once the max number of sun rays is reached;
+					// keep whatever rays have hit so far (partial results).
+					if (sun_ray_count_local >= MaxNumberOfRays)
+					{
+						// Remove rays that were never generated from the active count
+						n_rays_active -= NumberOfRays - (RayNumber - 1);
+
+						PreviousStageHasRays = false;
+						if (PreviousStageDataArrayIndex > 0)
+						{
+							PreviousStageHasRays = true;
+							PreviousStageDataArrayIndex--; // last ray was previous one
+						}
+						StageHasRays = false;
+						break;
+					}
+
 					const uint_fast64_t sample_index = ray_index_offset + sun_ray_count_local + 1;
 
 					// Make ray (if first stage)
