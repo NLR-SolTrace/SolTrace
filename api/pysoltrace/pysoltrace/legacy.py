@@ -37,6 +37,9 @@
 # def _thread_func(pobj, as_pt, seed, id, no_callback):
 #     pobj.run(seed, as_pt, 0, id, no_callback)
 #     return copy.deepcopy(pobj.raydata), copy.copy(pobj.sunstats)
+
+from __future__ import annotations
+
 import ctypes, random
 from collections.abc import Callable
 from typing import Literal
@@ -57,7 +60,7 @@ def _format_class(prefix,
     else: prefix += ':\n'
 
     max_key_len = force_max if force_max > 0 else max(len(str(p[0])) for p in pairs)
-    fmt = lambda k, v: f'{str(k + ':'):<{max_key_len}} {v}'
+    fmt = lambda k, v: f'{str(k + ":"):<{max_key_len}} {v}'
 
     buf_str = ' ' * buffer
 
