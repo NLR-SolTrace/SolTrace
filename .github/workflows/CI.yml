@@ -443,6 +443,8 @@ jobs:
         ls ${{ github.workspace }}/dist/
         mkdir testing
         cp ${{ github.workspace }}/api/pysoltrace/testing.py ./testing
+        cp ${{ github.workspace }}/api/pysoltrace/sample.json ./testing
+        cp ${{ github.workspace }}/api/pysoltrace/errors.json ./testing
         cd ./testing
         python -m venv .venv
 
