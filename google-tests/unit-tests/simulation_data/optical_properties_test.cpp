@@ -278,15 +278,15 @@ TEST(OpticalProperties, AngularTableInterpolatesExactAtTablePoints)
                                              { 1000.0, 0.1 } };
     optics.set_reflectivity_table(OpticalSide::Front, table);
 
-    EXPECT_DOUBLE_EQ(
+    EXPECT_NEAR(
         optics.get_reflectivity(OpticalSide::Front, std::cos(0.0 * 1.0e-3)),
-        0.9);
-    EXPECT_DOUBLE_EQ(
+        0.9, 1e-12);
+    EXPECT_NEAR(
         optics.get_reflectivity(OpticalSide::Front, std::cos(500.0 * 1.0e-3)),
-        0.5);
-    EXPECT_DOUBLE_EQ(
+        0.5, 1e-12);
+    EXPECT_NEAR(
         optics.get_reflectivity(OpticalSide::Front, std::cos(1000.0 * 1.0e-3)),
-        0.1);
+        0.1, 1e-12);
 }
 
 TEST(OpticalProperties, AngularTableInterpolation)

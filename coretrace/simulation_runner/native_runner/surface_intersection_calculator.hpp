@@ -13,7 +13,7 @@ class SurfaceIntersectionCalculator
 {
 public:
     SurfaceIntersectionCalculator() {}
-    ~SurfaceIntersectionCalculator() {}
+    virtual ~SurfaceIntersectionCalculator() {}
 
     // TODO: Not sure what purpose CosKLM serves here. Investigate...
     virtual int intersect(const glm::dvec3 PosLoc,

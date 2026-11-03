@@ -25,9 +25,13 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release" OR FULL_FIELD_VALIDATION_TEST)
 	if(SOLTRACE_BUILD_OPTIX_SUPPORT)
 		list(APPEND CST_TEST_SRC
 			single_heliostat_test_optix.cpp
-			heliostat_field_test_optix.cpp
-			isolated_heliostat_test_optix.cpp
 		)
+		if(SOLTRACE_BUILD_EMBREE_SUPPORT)
+			list(APPEND CST_TEST_SRC
+				heliostat_field_test_optix.cpp
+				isolated_heliostat_test_optix.cpp
+			)
+		endif()
 	endif()
 	if(SOLTRACE_BUILD_EMBREE_SUPPORT)
 		list(APPEND CST_TEST_SRC

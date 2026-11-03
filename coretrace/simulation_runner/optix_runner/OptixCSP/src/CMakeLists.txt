@@ -90,6 +90,12 @@ file(MAKE_DIRECTORY "${PTX_OUTPUT_DIR}")
 
 message(STATUS "PTX output directory: ${PTX_OUTPUT_DIR}")
 
+set(OPTIX_SHADER_NVCC_OPTIONS)
+if(CMAKE_CUDA_COMPILER_ID STREQUAL "NVIDIA"
+   AND CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL "13.2")
+    list(APPEND OPTIX_SHADER_NVCC_OPTIONS --skip-ptx-semantics-check)
+endif()
+
 foreach(shader ${SHADERS})
     set(SHADER_SRC ${CMAKE_CURRENT_SOURCE_DIR}/shaders/${shader}.cu)
     set(SHADER_PTX ${PTX_OUTPUT_DIR}/${shader}.ptx)
@@ -97,6 +103,7 @@ foreach(shader ${SHADERS})
     add_custom_command(
         OUTPUT ${SHADER_PTX}
         COMMAND ${CMAKE_CUDA_COMPILER}
+            ${OPTIX_SHADER_NVCC_OPTIONS}
             --use_fast_math
             -lineinfo
             -std=c++17
