@@ -881,7 +881,6 @@ typedef struct args_st_get_sun_vector {
 // functions for writing input files for SolTrace
 typedef struct args_st_export_json_file {
 	const char *filename;
-	int 	   precision = 12;
 } args_st_export_json_file;
 
 typedef struct args_st_write_group_results_json {
