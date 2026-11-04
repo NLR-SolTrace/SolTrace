@@ -346,6 +346,9 @@ STAPI_V2 st_return_t st_get_element(st_context_v2_t pcxt,
 									args_element    *args,
 									int_fast64_t    *opt_id,
 									args_geometry	*geom);
+STAPI_V2 st_return_t st_get_element_area(st_context_v2_t pcxt,
+                                         uint_fast64_t idx,
+                                         double *area);
 STAPI_V2 st_return_t st_delete_element(st_context_v2_t pcxt, st_uint_t idx);
 STAPI_V2 st_return_t st_clear_elements(st_context_v2_t pcxt);
 // functions to modify elements
@@ -379,6 +382,9 @@ STAPI_V2 st_return_t st_element_surface(st_context_v2_t pcxt,
 STAPI_V2 st_return_t st_element_geometry(st_context_v2_t pcxt,
                                          st_uint_t 	     idx,
                                          args_geometry	 *geom);
+STAPI_V2 st_return_t st_get_aperture_area(st_context_v2_t pcxt,
+                                          args_geometry   *geom,
+                                          double          *area);
 STAPI_V2 st_return_t st_element_optic(st_context_v2_t pcxt,
 									  st_uint_t 	  idx,
 									  int_fast64_t 	  opt_id);
@@ -734,6 +740,11 @@ typedef struct args_st_get_element {
 	args_geometry *geom;
 } args_st_get_element;
 
+typedef struct args_st_get_element_area {
+	uint_fast64_t idx;
+	double *area;
+} args_st_get_element_area;
+
 typedef struct args_st_delete_element {
 	st_uint_t idx;
 } args_st_delete_element;
@@ -786,6 +797,11 @@ typedef struct args_st_element_geometry {
 	st_uint_t 	  idx;
 	args_geometry *geom;
 } args_st_element_geometry;
+
+typedef struct args_st_aperture_area {
+	args_geometry   *geom;
+	double          *area;
+} args_st_aperture_area;
 
 typedef struct args_st_element_optic {
 	st_uint_t 	 idx;

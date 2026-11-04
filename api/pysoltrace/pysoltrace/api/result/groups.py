@@ -33,11 +33,16 @@ class groups(context):
     def __call__(self):
         n = self.__get_num()
 
-        results = [group_result(n).ctype for _ in range(n)]
+        results = (dot_h.args_group_result * n)(*[group_result(n).ctype for _ in range(n)])
 
-        code = self._pdll.st_get_grouped_results_data(self._pcxt,
-                                                      (dot_h.args_group_result * n)(*results))
-        # TODO: not setting values in struct properly
-        return code, [_.value for _ in results]
+        code = self._pdll.st_get_grouped_results_data(self._pcxt, results)
 
-
+        # TODO: need to make this better, look at annual_NSTTF_analysis.py for group results example
+        def get_values(_ctype):
+            _dict = _ctype.value
+            _dict['absorb_previous_group']   = _dict['absorb_previous_group'][:n]
+            _dict['reflect_previous_group']  = _dict['reflect_previous_group'][:n]
+            _dict['transmit_previous_group'] = _dict['transmit_previous_group'][:n]
+            _dict['virtual_previous_group']  = _dict['virtual_previous_group'][:n]
+            return _dict
+        return code, [get_values(_) for _ in results]

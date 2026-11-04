@@ -698,6 +698,20 @@ STAPI_V2 st_return_t st_get_element(st_context_v2_t pcxt,
     return st_return_code::SUCCESS;
 }
 
+STAPI_V2 st_return_t st_get_element_area(st_context_v2_t pcxt,
+                                         uint_fast64_t idx,
+                                         double *area)
+{
+    CONTEXT(pcxt);
+    DATA(cxt);
+
+    element_ptr el = data->get_element(idx);
+    if (!el) return st_return_code::WARNING_NOT_FOUND;
+
+    *area = el->get_aperture()->aperture_area();
+    return st_return_code::SUCCESS;
+}
+
 STAPI_V2 st_return_t st_delete_element(st_context_v2_t pcxt, st_uint_t idx)
 {
     CONTEXT(pcxt);
@@ -879,6 +893,23 @@ STAPI_V2 st_return_t st_element_geometry(st_context_v2_t pcxt,
     el->set_surface(surf);
     
     return code;
+}
+
+STAPI_V2 st_return_t st_get_aperture_area(st_context_v2_t pcxt,
+                                          args_geometry   *geom,
+                                          double          *area)
+{
+    CONTEXT(pcxt);
+    DATA(cxt);
+
+    aperture_ptr ap;
+    surface_ptr surf;
+    st_return_t code = create_geometry(cxt, geom, ap, surf);
+
+    if (code > st_return_code::SUCCESS) return code;
+
+    *area = ap->aperture_area();
+    return st_return_code::SUCCESS;
 }
 
 STAPI_V2 st_return_t st_element_optic(st_context_v2_t pcxt,
@@ -1731,11 +1762,15 @@ STAPI_V2 st_return_t st_get_grouped_results_data(st_context_v2_t pcxt, args_grou
     std::vector<GroupResult> groups = result->get_grouped_results();
     for (size_t i = 0; i < groups.size(); ++i)
     {
-        data[i].absorb_count   = groups[i].absorb_count;
-        data[i].reflect_count  = groups[i].reflect_count;
-        data[i].transmit_count = groups[i].transmit_count;
-        data[i].virtual_count  = groups[i].virtual_count;
-        data[i].group_id       = groups[i].group_id;
+        data[i].group_id              = groups[i].group_id;
+        data[i].absorb_count          = groups[i].absorb_count;
+        data[i].reflect_count         = groups[i].reflect_count;
+        data[i].transmit_count        = groups[i].transmit_count;
+        data[i].virtual_count         = groups[i].virtual_count;
+        data[i].absorb_sun_previous   = groups[i].absorb_sun_previous;
+        data[i].reflect_sun_previous  = groups[i].reflect_sun_previous;
+        data[i].transmit_sun_previous = groups[i].transmit_sun_previous;
+        data[i].virtual_sun_previous  = groups[i].virtual_sun_previous;
 
         // same number of elements in _previous_group vectors as number of groups
         for (size_t j = 0; j < groups.size(); ++j)
