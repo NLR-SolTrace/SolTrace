@@ -798,10 +798,10 @@ typedef struct args_st_element_geometry {
 	args_geometry *geom;
 } args_st_element_geometry;
 
-typedef struct args_st_aperture_area {
+typedef struct args_st_get_aperture_area {
 	args_geometry   *geom;
 	double          *area;
-} args_st_aperture_area;
+} args_st_get_aperture_area;
 
 typedef struct args_st_element_optic {
 	st_uint_t 	 idx;
