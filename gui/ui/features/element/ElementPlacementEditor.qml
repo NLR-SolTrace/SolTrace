@@ -37,14 +37,12 @@ STFormPanel {
         currentIndex: positionModeBar.currentIndex
 
         ElementPositionEditor {
-            Layout.preferredWidth: positionSwipe.width
             module: root.module
             targetProperty: "position"
             resetText: qsTr("Reset Local Position")
         }
 
         ElementPositionEditor {
-            Layout.preferredWidth: positionSwipe.width
             module: root.module
             targetProperty: "global_position"
             resetText: qsTr("Reset Global Position")
