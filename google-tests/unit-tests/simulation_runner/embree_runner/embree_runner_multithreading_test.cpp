@@ -20,6 +20,7 @@ TEST(EmbreeRunner, StatusAndCancelMultiThread)
     SimulationData sd;
     EXPECT_TRUE(sd.import_from_file(sample_path));
     sd.set_number_of_rays(1000000);
+    sd.set_max_rays_traced(100000 * 1000);
 
     EmbreeRunner runner;
     runner.set_number_of_threads(2);
