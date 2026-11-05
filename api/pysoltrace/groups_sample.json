@@ -1,0 +1,202 @@
+{
+    "sun_ray_count": 9988,
+    "A_sun_box": 3312.171630859375,
+    "exceeded_depth_count": 0,
+    "groups": [
+        {
+            "group_id": 0,
+            "absorb_count": 13,
+            "reflect_count": 86,
+            "transmit_count": 0,
+            "virtual_count": 0,
+            "absorb_sun_previous": 13,
+            "reflect_sun_previous": 86,
+            "transmit_sun_previous": 0,
+            "virtual_sun_previous": 0,
+            "absorb_previous_group": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "reflect_previous_group": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "transmit_previous_group": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "virtual_previous_group": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        {
+            "group_id": 1,
+            "absorb_count": 12,
+            "reflect_count": 85,
+            "transmit_count": 0,
+            "virtual_count": 0,
+            "absorb_sun_previous": 12,
+            "reflect_sun_previous": 85,
+            "transmit_sun_previous": 0,
+            "virtual_sun_previous": 0,
+            "absorb_previous_group": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "reflect_previous_group": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "transmit_previous_group": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "virtual_previous_group": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        {
+            "group_id": 2,
+            "absorb_count": 15,
+            "reflect_count": 85,
+            "transmit_count": 0,
+            "virtual_count": 0,
+            "absorb_sun_previous": 15,
+            "reflect_sun_previous": 85,
+            "transmit_sun_previous": 0,
+            "virtual_sun_previous": 0,
+            "absorb_previous_group": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "reflect_previous_group": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "transmit_previous_group": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "virtual_previous_group": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        {
+            "group_id": 3,
+            "absorb_count": 11,
+            "reflect_count": 83,
+            "transmit_count": 0,
+            "virtual_count": 0,
+            "absorb_sun_previous": 11,
+            "reflect_sun_previous": 83,
+            "transmit_sun_previous": 0,
+            "virtual_sun_previous": 0,
+            "absorb_previous_group": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "reflect_previous_group": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "transmit_previous_group": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "virtual_previous_group": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        {
+            "group_id": 4,
+            "absorb_count": 251,
+            "reflect_count": 0,
+            "transmit_count": 0,
+            "virtual_count": 0,
+            "absorb_sun_previous": 251,
+            "reflect_sun_previous": 0,
+            "transmit_sun_previous": 0,
+            "virtual_sun_previous": 0,
+            "absorb_previous_group": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "reflect_previous_group": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "transmit_previous_group": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "virtual_previous_group": [
+                0,
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    ]
+}
