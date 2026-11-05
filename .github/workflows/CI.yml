@@ -457,8 +457,8 @@ jobs:
     - name : Activate virtual environment (Windows)
       if: matrix.os == 'windows-latest'
       working-directory: ./testing
-      run: > 
-        ${{ github.workspace }}/testing/.venv/bin/activate
+      run: > #${{ github.workspace }}/testing/ 
+        .venv/Scripts/activate
 
     - name: Install/test wheel
       working-directory: ./testing
