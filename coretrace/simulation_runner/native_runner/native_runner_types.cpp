@@ -441,6 +441,7 @@ namespace SolTrace::NativeRunner
     TSystem::TSystem()
     {
         SunRayCount = 0;
+        HitRayCount = 0;
 
         sim_raycount = 1000;
         sim_raymax = 100000;

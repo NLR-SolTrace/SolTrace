@@ -491,7 +491,8 @@ RunnerStatus OptixRunner::run_simulation_core()
 
     m_sys.run();
 
-    return RunnerStatus::SUCCESS;
+    return m_sys.max_rays_reached() ? RunnerStatus::MAXRAYS
+                                    : RunnerStatus::SUCCESS;
 }
 
 RunnerStatus OptixRunner::status_simulation(double* progress)

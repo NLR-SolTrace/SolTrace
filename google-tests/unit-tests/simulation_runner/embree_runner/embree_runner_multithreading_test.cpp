@@ -20,6 +20,7 @@ TEST(EmbreeRunner, StatusAndCancelMultiThread)
     SimulationData sd;
     EXPECT_TRUE(sd.import_from_file(sample_path));
     sd.set_number_of_rays(1000000);
+    sd.set_max_rays_traced(1000000 * 1000);
 
     EmbreeRunner runner;
     runner.set_number_of_threads(2);
@@ -63,6 +64,7 @@ TEST(EmbreeRunner, CancelMultithread)
     SimulationData sd;
     EXPECT_TRUE(sd.import_from_file(sample_path));
     sd.set_number_of_rays(1000000);
+    sd.set_max_rays_traced(1000000 * 1000);
 
     EmbreeRunner runner;
     runner.set_number_of_threads(4);
@@ -103,6 +105,7 @@ TEST(EmbreeRunner, RayIdAssignmentMultiThread)
     ASSERT_TRUE(sd.import_from_file(sample_path));
 
     sd.set_number_of_rays(NRAYS);
+    sd.set_max_rays_traced(NRAYS * 10);
 
     // Create and run the native runner
     EmbreeRunner runner;
