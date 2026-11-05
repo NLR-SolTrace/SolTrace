@@ -45,7 +45,9 @@ def __get_dll(path: str = '') -> ctypes.CDLL:
         raise FileNotFoundError(f'Could not find DLL at {path}')
 
     if sys.platform == "win32":
-        os.add_dll_directory(str(path).rsplit(os.sep, maxsplit=1)[0])
+        if isinstance(path, pathlib.Path):
+            path = str(path.resolve())
+        os.add_dll_directory(path.rsplit(os.sep, maxsplit=1)[0])
         return ctypes.WinDLL(path, winmode=0)
     else: return ctypes.CDLL(path)
 
