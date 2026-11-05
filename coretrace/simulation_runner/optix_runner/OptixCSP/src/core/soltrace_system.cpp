@@ -338,6 +338,7 @@ void SolTraceSystem::run()
     m_n_hit_rays = 0;
     m_n_sun_rays = 0;
     m_n_depth_exceeded_rays = 0;
+    m_max_rays_reached = false;
     uint_fast64_t N_ray_hit = 0;
     uint_fast64_t N_ray_gen = 0;
 
@@ -409,6 +410,9 @@ void SolTraceSystem::run()
         N_ray_gen += width;
         m_n_sun_rays = N_ray_gen;
     }
+
+    // Loop exited without collecting enough hits => generation cap was the limiter
+    m_max_rays_reached = (m_n_hit_rays < m_number_of_rays);
 
     // Trim excess rays: remove ray groups from the tail until m_n_hit_rays == m_number_of_rays.
     // Each group starts at the last HIT_CREATE record in m_hit_records.
@@ -574,6 +578,7 @@ void SolTraceSystem::reset()
     m_n_hit_rays = 0;
     m_n_sun_rays = 0;
     m_n_depth_exceeded_rays = 0;
+    m_max_rays_reached = false;
 
     m_sun = nullptr;
     m_number_of_rays = 0;

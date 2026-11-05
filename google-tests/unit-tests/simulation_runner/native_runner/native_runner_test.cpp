@@ -912,7 +912,7 @@ TEST(NativeRunner, MaxRaysReturnsPartialResults)
 
     // Hitting the cap is not an error
     sts = runner.run_simulation();
-    ASSERT_EQ(sts, RunnerStatus::SUCCESS);
+    ASSERT_EQ(sts, RunnerStatus::MAXRAYS);
 
     // Generation stopped exactly at the cap (1 thread => MAX_RAYS / 1 + 1 budget)
     const uint_fast64_t nlaunched = runner.get_number_rays_launched();

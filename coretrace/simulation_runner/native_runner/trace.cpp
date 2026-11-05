@@ -219,6 +219,7 @@ namespace SolTrace::NativeRunner
 		uint_fast64_t n_rays_active = NumberOfRays;
 		uint_fast64_t sun_ray_count_local = 0;
 		uint_fast64_t hit_ray_count_local = 0;
+		bool max_rays_reached = false;
 
 		// Loop through stages
 		for (uint_fast64_t i = 0; i < System->StageList.size(); i++)
@@ -261,6 +262,8 @@ namespace SolTrace::NativeRunner
 					// keep whatever rays have hit so far (partial results).
 					if (sun_ray_count_local >= MaxNumberOfRays)
 					{
+                        max_rays_reached = true;
+
 						// Remove rays that were never generated from the active count
 						n_rays_active -= NumberOfRays - (RayNumber - 1);
 
@@ -648,7 +651,7 @@ namespace SolTrace::NativeRunner
 		System->SunRayCount += sun_ray_count_local;
 		System->HitRayCount += hit_ray_count_local;
 
-		return RunnerStatus::SUCCESS;
+		return max_rays_reached ? RunnerStatus::MAXRAYS : RunnerStatus::SUCCESS;
 	}
 
 } // namespace SolTrace::NativeRunner
