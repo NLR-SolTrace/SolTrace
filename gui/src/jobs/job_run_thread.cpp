@@ -230,6 +230,9 @@ void execute_thread_runner(QPromise<SimResult>&      promise,
             promise.setProgressValueAndText(100, "Simulation timed out");
             promise.emplaceResult(QStringLiteral("The simulation timed out."));
             return;
+        case SolTrace::Runner::RunnerStatus::MAXRAYS:
+            qWarning() << Q_FUNC_INFO << "Max ray count reached; results are partial.";
+            break;
         default:
             promise.setProgressValueAndText(100, "Simulation failed");
             promise.emplaceResult(
