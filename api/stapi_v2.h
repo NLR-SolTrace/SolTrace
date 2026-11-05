@@ -966,74 +966,76 @@ typedef struct args_st_get_grouped_results_data {
 	args_group_result *data;
 } args_st_get_grouped_results_data;
 
+// NOTE: this must follow the order of st_api_call enum
+typedef union st_api_call_payload {
+	// Simlulation Data Functions
+	// functions for simulation data management thru json strings
+	args_st_read_input_json 	 read_input_json_args;
+	args_st_read_input_json_file read_input_json_file_args;
+	// functions for simulation data management directly
+	args_st_set_simulation_parameters set_simulation_parameters_args;
+	args_st_sim_params 	  			  sim_params_args;
+	args_st_sim_rays 	  			  sim_rays_args;
+	args_st_sim_power_tower  		  sim_power_tower_args;
+	args_st_sim_errors 	  			  sim_errors_args;
+	args_st_sim_location  			  sim_location_args;
+	args_st_sim_tolerance 			  sim_tolerance_args;
+	// functions to add/remove/set optical properties
+	args_st_num_optics				   num_optics_args;
+	args_st_add_optical_properties_set add_optical_properties_set_args;
+	args_st_delete_optic			   delete_optic_args;
+	args_st_clear_optics			   clear_optics_args;
+	// functions to add/remove elements
+	args_st_num_elements   num_elements_args;
+	args_st_add_element    add_element_args;
+	args_st_delete_element delete_element_args;
+	args_st_clear_elements clear_elements_args;
+	// functions to modify elements
+	args_st_element_enabled  element_enabled_args;
+	args_st_element_virtual  element_virtual_args;
+	args_st_element_xyz      element_xyz_args;
+	args_st_element_aim      element_aim_args;
+	args_st_element_zrot     element_zrot_args;
+	args_st_element_aperture element_aperture_args;
+	args_st_element_surface  element_surface_args;
+	args_st_element_geometry element_geometry_args;
+	args_st_element_optic    element_optic_args;
+	args_st_element_group    element_group_args;
+	// sun functions
+	args_st_add_sun 	   add_sun_args;
+	args_st_sun_shape 	   sun_shape_args;
+	args_st_sun_xyz 	   sun_xyz_args;
+	args_st_sun_position   sun_position_args;
+	args_st_sun_userdata   sun_userdata_args;
+	args_st_get_sun_az_zen get_sun_az_zen_args;
+	args_st_get_sun_az_el  get_sun_az_el_args;
+	args_st_get_sun_vector get_sun_vector_args;
+	// functions for writing input files for SolTrace
+	args_st_export_json_file export_json_file_args;
+	// Simlulation Runner Functions
+	args_st_sim_setup  sim_setup_args;
+	args_st_sim_run_v2 sim_run_v2_args;
+	args_st_sim_report sim_report_args;
+	// Simlulation Results Functions
+	args_st_write_results_csv write_results_csv_args;
+	// functions to get results directly
+	args_st_num_intersections num_intersections_args;
+	args_st_locations		  locations_args;
+	args_st_cosines		      cosines_args;
+	args_st_elementmap		  elementmap_args;
+	args_st_stagemap		  stagemap_args;
+	args_st_raynumbers		  raynumbers_args;
+	args_st_sun_stats		  sun_stats_args;
+	args_st_get_results_data  get_results_data_args;
+} st_api_call_payload;
+
 /* Every argument layout passed through the generic arrays is one of
  * these: a tag telling us which payload is active, plus the payload
  * itself. This is what a void* in the "arguments" array actually
  * points to. */
 typedef struct st_api_call_args {
-	// NOTE: this must follow the order of st_api_call enum
-    union {
-		// Simlulation Data Functions
-		// functions for simulation data management thru json strings
-        args_st_read_input_json 	 read_input_json_args;
-        args_st_read_input_json_file read_input_json_file_args;
-		// functions for simulation data management directly
-		args_st_set_simulation_parameters set_simulation_parameters_args;
-		args_st_sim_params 	  			  sim_params_args;
-		args_st_sim_rays 	  			  sim_rays_args;
-		args_st_sim_power_tower  		  sim_power_tower_args;
-		args_st_sim_errors 	  			  sim_errors_args;
-		args_st_sim_location  			  sim_location_args;
-		args_st_sim_tolerance 			  sim_tolerance_args;
-		// functions to add/remove/set optical properties
-		args_st_num_optics				   num_optics_args;
-		args_st_add_optical_properties_set add_optical_properties_set_args;
-		args_st_delete_optic			   delete_optic_args;
-		args_st_clear_optics			   clear_optics_args;
-		// functions to add/remove elements
-		args_st_num_elements   num_elements_args;
-		args_st_add_element    add_element_args;
-		args_st_delete_element delete_element_args;
-		args_st_clear_elements clear_elements_args;
-		// functions to modify elements
-		args_st_element_enabled  element_enabled_args;
-		args_st_element_virtual  element_virtual_args;
-		args_st_element_xyz      element_xyz_args;
-		args_st_element_aim      element_aim_args;
-		args_st_element_zrot     element_zrot_args;
-		args_st_element_aperture element_aperture_args;
-		args_st_element_surface  element_surface_args;
-		args_st_element_geometry element_geometry_args;
-		args_st_element_optic    element_optic_args;
-		args_st_element_group    element_group_args;
-		// sun functions
-		args_st_add_sun 	   add_sun_args;
-		args_st_sun_shape 	   sun_shape_args;
-		args_st_sun_xyz 	   sun_xyz_args;
-		args_st_sun_position   sun_position_args;
-		args_st_sun_userdata   sun_userdata_args;
-		args_st_get_sun_az_zen get_sun_az_zen_args;
-		args_st_get_sun_az_el  get_sun_az_el_args;
-		args_st_get_sun_vector get_sun_vector_args;
-		// functions for writing input files for SolTrace
-		args_st_export_json_file export_json_file_args;
-		// Simlulation Runner Functions
-		args_st_sim_setup  sim_setup_args;
-		args_st_sim_run_v2 sim_run_v2_args;
-		args_st_sim_report sim_report_args;
-		// Simlulation Results Functions
-		args_st_write_results_csv write_results_csv_args;
-		// functions to get results directly
-		args_st_num_intersections num_intersections_args;
-		args_st_locations		  locations_args;
-		args_st_cosines		      cosines_args;
-		args_st_elementmap		  elementmap_args;
-		args_st_stagemap		  stagemap_args;
-		args_st_raynumbers		  raynumbers_args;
-		args_st_sun_stats		  sun_stats_args;
-		args_st_get_results_data  get_results_data_args;
-    } payload;
-    st_api_call type;
+	st_api_call_payload payload;
+    st_api_call 		type;
 } st_api_call_args;
 
 /* Generic function pointer type used to store heterogeneous function

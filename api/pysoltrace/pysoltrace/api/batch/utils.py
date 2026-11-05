@@ -8,10 +8,9 @@ def generate_api_call(call_type: int, *args):
     rt = dot_h.st_api_call_args()
     rt.type = call_type
     args_name, args_cls = rt.payload._fields_[call_type]
-    rt.payload = dot_h.st_api_call_args.payload.type(**{
-        args_name: getattr(dot_h, args_cls.__name__)(*args)
+    rt.payload = dot_h.st_api_call_payload(**{
+        args_name: args_cls(*args)
     })
-
     return rt
 
 class batcher:

@@ -1051,8 +1051,9 @@ class GroupResults:
         self.stapi.result.json.dump('./groups_sample.json')
     
     def test_get(self):
-        data = self.stapi.result.groups()
-        for d in data: print(d)
+        # test something happened for each group
+        for group in self.stapi.result.groups():
+            self.assertTrue((group['absorb_count'] > 0) or (group['reflect_count'] > 0) or (group['transmit_count'] > 0))
 
 class GroupResultsNativeTests(STAPIv2TestCase, GroupResults):
     def setUp(self):
