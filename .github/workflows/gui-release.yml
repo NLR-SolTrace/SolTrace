@@ -133,8 +133,8 @@ jobs:
             asset_name: SolTrace-Linux-x86_64-Embree.AppImage
             msi_name: ""
 
-          - name:  x64 Embree OptiX bundle
-            id: -x64-embree-optix
+          - name:  Windows x64 Embree OptiX bundle
+            id: windows-x64-embree-optix
             platform: windows
             runner: windows-2022
             qt_host: windows
@@ -509,12 +509,12 @@ jobs:
         run: cosign sign-blob --yes --bundle "$ASSET_PATH.sigstore.json" "$ASSET_PATH"
 
       - name: Verify Linux AppImage Sigstore signature
-        if: startsWith(github.ref, 'refs/tags/')
+        if: matrix.platform == 'linux' && startsWith(github.ref, 'refs/tags/')
         shell: bash
         run: >-
           cosign verify-blob
           --bundle "$ASSET_PATH.sigstore.json"
-          --certificate-identity-regexp '^https://github.com/nlr-devops/SolTrace/.github/workflows/gui-release.yml@refs/tags/.*$'
+          --certificate-identity-regexp '^https://github.com/NLR-SolTrace/SolTrace/.github/workflows/gui-release.yml@refs/tags/.*$'
           --certificate-oidc-issuer https://token.actions.githubusercontent.com
           "$ASSET_PATH"
 
