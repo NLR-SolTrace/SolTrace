@@ -187,7 +187,8 @@ QVector<EntityNamePair> TagsModel::rebuild_lists() {
 
     if (!m_host) return { };
 
-    auto view = m_host->as_registry().view<TagComponent>();
+    auto view = m_host->as_registry().view<TagComponent>(
+        entt::exclude<HiddenTagComponent>);
 
     for (auto const& e : view.each()) {
         new_recs.push_back(
@@ -227,6 +228,7 @@ TagsModel::TagsModel(QObject* parent) : StructModelAdapter(parent) { }
 void TagsModel::reset(Database* database) {
     if (m_host) {
         QObject::disconnect(m_host->tag_root.self(), nullptr, this, nullptr);
+        QObject::disconnect(m_host->hidden_tag.self(), nullptr, this, nullptr);
         QObject::disconnect(m_host->identity.self(), nullptr, this, nullptr);
     }
 
@@ -244,6 +246,16 @@ void TagsModel::reset(Database* database) {
             &ComponentAPIBase::removed,
             this,
             &TagsModel::tag_removed);
+
+    connect(database->hidden_tag.self(),
+            &ComponentAPIBase::changed,
+            this,
+            &TagsModel::recompute);
+
+    connect(database->hidden_tag.self(),
+            &ComponentAPIBase::removed,
+            this,
+            &TagsModel::recompute);
 
     connect(database->identity.self(),
             &ComponentAPIBase::changed,

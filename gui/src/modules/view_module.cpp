@@ -12,19 +12,6 @@ ViewModule::ViewModule(QObject* parent)
     });
 }
 
-void SplitPanelData::update_size() {
-    PanelSize new_size;
-    if (m_width < m_thresholds[0]) new_size = Small;
-    else if (m_width < m_thresholds[1])
-        new_size = Normal;
-    else if (m_width < m_thresholds[2])
-        new_size = Wide;
-    else
-        new_size = Full;
-
-    set_size(new_size);
-}
-
 void SplitPanelData::show() {
     set_visible(true);
 }
@@ -33,45 +20,7 @@ void SplitPanelData::hide() {
     set_visible(false);
 }
 
-SplitPanelData::SplitPanelData(QObject* parent) : QObject(parent) {
-    connect(this,
-            &SplitPanelData::width_changed,
-            this,
-            &SplitPanelData::update_size);
-    update_size();
-}
-
-QVector<int> SplitPanelData::sizes() const {
-    return m_sizes;
-}
-
-QVector<int> SplitPanelData::thresholds() const {
-    return m_thresholds;
-}
-
-bool SplitPanelData::is_small() {
-    return m_size == Small;
-}
-bool SplitPanelData::is_normal() {
-    return m_size == Normal;
-}
-bool SplitPanelData::is_wide() {
-    return m_size == Wide;
-}
-
-bool ViewModule::shrink_panel(const QVector<int>&       sizes,
-                              QPointer<SplitPanelData>& p) {
-    const int w = p->width();
-    // Find the largest preset that is strictly less than current width.
-    for (int i = sizes.size() - 1; i >= 0; --i) {
-        if (sizes[i] < w) {
-            p->set_width(sizes[i]);
-            return true;
-        }
-    }
-    return false;
-}
-
+SplitPanelData::SplitPanelData(QObject* parent) : QObject(parent) { }
 
 void ViewModule::fit_panels(int  available_width,
                             bool expanding_right_panel,
@@ -82,45 +31,36 @@ void ViewModule::fit_panels(int  available_width,
     QPointer<SplitPanelData> collapsing =
         expanding_right_panel ? m_left_panel : m_right_panel;
 
-    const auto& sizes   = expanding->sizes();
-    const int   small_w = sizes[SplitPanelData::Small];
-    const int   full_w  = sizes[SplitPanelData::Full];
+    constexpr int left_minimum  = 400;
+    constexpr int right_minimum = 250;
+    const int     expanding_minimum =
+        expanding_right_panel ? right_minimum : left_minimum;
+    const int collapsing_minimum =
+        expanding_right_panel ? left_minimum : right_minimum;
 
-    // Short-circuit cases:
-    // 1) Full mode: expands self and hides other
-    if (expanding->size() == SplitPanelData::Full && !resizing_window) {
-        expanding->set_width(full_w);
-        expanding->show();
+    int overflow = (m_left_panel->visible() ? m_left_panel->width() : 0) +
+                   (m_right_panel->visible() ? m_right_panel->width() : 0) +
+                   margin - available_width;
+    if (overflow <= 0) return;
+
+    if (collapsing->visible()) {
+        const int shrink =
+            qMin(overflow, collapsing->width() - collapsing_minimum);
+        if (shrink > 0) {
+            collapsing->set_width(collapsing->width() - shrink);
+            overflow -= shrink;
+        }
+    }
+
+    if (overflow > 0 && collapsing->visible() && !resizing_window) {
         collapsing->hide();
         return;
     }
 
-    // 2) Other panel is full — knock it down so we can fit
-    if (collapsing->visible() && collapsing->size() == SplitPanelData::Full &&
-        !resizing_window) {
-        collapsing->set_width(sizes[SplitPanelData::Wide]);
-    }
-
-    while (true) {
-        int left_w  = m_left_panel->visible() ? m_left_panel->width() : 0;
-        int right_w = m_right_panel->visible() ? m_right_panel->width() : 0;
-
-        if (left_w + right_w + margin <= available_width) break;
-
-        // First try shrinking the non-expanding panel
-        if (collapsing->visible() && collapsing->width() > small_w) {
-            if (!shrink_panel(sizes, collapsing)) break;
-        }
-        // If it can't shrink further, hide it
-        else if (collapsing->visible() && !resizing_window) {
-            collapsing->hide();
-        }
-        // Last resort: shrink the expanding panel itself
-        else if (expanding->width() > small_w && resizing_window) {
-            if (!shrink_panel(sizes, expanding)) break;
-        } else {
-            break;
-        }
+    if (overflow > 0 && resizing_window) {
+        const int shrink =
+            qMin(overflow, expanding->width() - expanding_minimum);
+        if (shrink > 0) expanding->set_width(expanding->width() - shrink);
     }
 }
 

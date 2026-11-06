@@ -6,7 +6,7 @@ import QtQuick.Layouts
 
 import SolTrace
 
-ScrollView {
+STScrollView {
     id: root
 
     Layout.fillHeight: true
@@ -38,13 +38,12 @@ ScrollView {
     ColumnLayout {
         width: root.availableWidth
 
-        InlineDocumentation {
-            key: "simulate.trace"
-            title: "Simulation Runner"
-        }
-
         STFormPanel {
             title: "Trace Configuration"
+
+            STDocumentationSection {
+                key: "simulate.trace"
+            }
 
             STComboBox {
                 Layout.fillWidth: true
@@ -59,7 +58,7 @@ ScrollView {
                 }
             }
 
-            STFormHelp {
+            STDocumentationSection {
                 key: "simulate.trace.rays"
             }
 
@@ -112,7 +111,7 @@ ScrollView {
                 }
             }
 
-            STFormHelp {
+            STDocumentationSection {
                 key: "simulate.trace.options"
             }
 
@@ -146,6 +145,7 @@ ScrollView {
         STFormPanel {
             collapsible: true
             title: "Execution"
+            documentationKey: "simulate.trace.results"
 
             STFormRow {
                 label: "Progress"
@@ -192,21 +192,6 @@ ScrollView {
                 }
             }
 
-            STFormHelp {
-                key: "simulate.trace.results"
-            }
-
-            STIconButton {
-                Layout.fillWidth: false
-                Layout.alignment: Qt.AlignRight
-                icon: "\uf1da"
-                label: "View Results"
-                onClicked: {
-                    App.view.workflow_phase = ViewModule.Analyze
-                    App.view.analyze_section = 0
-                    App.view.simulation_content_view = true
-                }
-            }
         }
     }
 }

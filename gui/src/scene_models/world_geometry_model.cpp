@@ -1,9 +1,9 @@
 #include "scene_models/world_geometry_model.h"
 #include "support/math_utility.h"
 
+#include <QVariantMap>
 #include <algorithm>
 #include <limits>
-#include <QVariantMap>
 
 #include <glm/common.hpp>
 
@@ -37,8 +37,8 @@ QVariantMap bounds_map(BoundsAccumulator const& bounds) {
     };
 }
 
-void include_transformed_box(BoundsAccumulator&        bounds,
-                             BoundingBox const&       box,
+void include_transformed_box(BoundsAccumulator&              bounds,
+                             BoundingBox const&              box,
                              GlobalTransformComponent const& transform) {
     auto local_min = convert(box.min);
     auto local_max = convert(box.max);
@@ -46,10 +46,9 @@ void include_transformed_box(BoundsAccumulator&        bounds,
     for (int ix = 0; ix < 2; ++ix) {
         for (int iy = 0; iy < 2; ++iy) {
             for (int iz = 0; iz < 2; ++iz) {
-                auto corner = glm::dvec3(
-                    ix ? local_max.x : local_min.x,
-                    iy ? local_max.y : local_min.y,
-                    iz ? local_max.z : local_min.z);
+                auto corner = glm::dvec3(ix ? local_max.x : local_min.x,
+                                         iy ? local_max.y : local_min.y,
+                                         iz ? local_max.z : local_min.z);
 
                 bounds.include(transform.position +
                                transform.rotation * corner);
@@ -293,18 +292,19 @@ QByteArray InstancedElements::getInstanceBuffer(int* instanceCount) {
 
 // =============================================================================
 
-QVariantMap
-WorldGeometryModel::content_bounds(bool include_flux_mapped) const {
+QVariantMap WorldGeometryModel::content_bounds(bool include_flux_mapped) const {
     BoundsAccumulator bounds;
 
     if (!m_host) return bounds_map(bounds);
 
     for (auto const& group : m_records) {
-        if (!group.group_geometry || group.group_geometry->vertex_count() == 0) {
+        if (!group.group_geometry ||
+            group.group_geometry->vertex_count() == 0) {
             continue;
         }
 
-        auto const* root = m_host->geometry_root.get(group.geometry_group_entity);
+        auto const* root =
+            m_host->geometry_root.get(group.geometry_group_entity);
         if (!root) continue;
 
         for (auto const& member : root->members) {
@@ -319,9 +319,8 @@ WorldGeometryModel::content_bounds(bool include_flux_mapped) const {
             auto const* global = m_host->global_transform.get(member);
             if (!global) continue;
 
-            include_transformed_box(bounds,
-                                    group.group_geometry->bounding_box(),
-                                    *global);
+            include_transformed_box(
+                bounds, group.group_geometry->bounding_box(), *global);
         }
     }
 
@@ -344,7 +343,9 @@ void WorldGeometryModel::set_default_color(QColor color) {
     m_default_color = color;
 
     for (auto const& vg : m_records) {
-        if (vg.group_instances) { vg.group_instances->set_default_color(color); }
+        if (vg.group_instances) {
+            vg.group_instances->set_default_color(color);
+        }
     }
 }
 

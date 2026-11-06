@@ -7,6 +7,7 @@ Node {
 
     required property int activeAxis
     required property int gizmoMode
+    required property bool allowRotation
 
     property color xColor: "#e74c3c"
     property color xActiveColor: "#ff6b6b"
@@ -153,7 +154,7 @@ Node {
     Model {
         objectName: "rot_0"
         pickable: true
-        visible: gizmoMode === 1
+        visible: gizmoMode === 1 && root.allowRotation
         eulerRotation: Qt.vector3d(0, 0, 90)
         geometry: TorusGeometry {
             radius: 65
@@ -172,7 +173,7 @@ Node {
     Model {
         objectName: "rot_1"
         pickable: true
-        visible: gizmoMode === 1
+        visible: gizmoMode === 1 && root.allowRotation
         geometry: TorusGeometry {
             radius: 65
             tubeRadius: 3
@@ -190,7 +191,7 @@ Node {
     Model {
         objectName: "rot_2"
         pickable: true
-        visible: gizmoMode === 1
+        visible: gizmoMode === 1 && root.allowRotation
         eulerRotation: Qt.vector3d(90, 0, 0)
         geometry: TorusGeometry {
             radius: 65
@@ -209,10 +210,12 @@ Node {
     Model {
         source: "#Sphere"
         objectName: "mode_toggle"
-        pickable: true
+        pickable: root.allowRotation
         scale: Qt.vector3d(0.12, 0.12, 0.12)
         materials: PrincipledMaterial {
-            baseColor: root.gizmoMode === 0 ? "#cccccc" : "#ffcc00"
+            baseColor: !root.allowRotation ? "#ffcc00"
+                                             : root.gizmoMode === 0
+                                               ? "#cccccc" : "#ffcc00"
             lighting: PrincipledMaterial.NoLighting
         }
     }

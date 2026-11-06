@@ -128,17 +128,16 @@ LogList* initialize_logging_handler() {
 
     qInstallMessageHandler(fileMessageHandler);
 
-    qInfo().noquote()
-        << QStringLiteral(
-               "Build: version=%1 commit=%2 describe=%3 branch=%4 tag=%5 dirty=%6")
-               .arg(QString::fromUtf8(BuildInfo::version),
-                    QString::fromUtf8(BuildInfo::git_commit),
-                    QString::fromUtf8(BuildInfo::git_describe),
-                    QString::fromUtf8(BuildInfo::git_branch),
-                    BuildInfo::git_tag[0] == '\0'
-                        ? QStringLiteral("(none)")
-                        : QString::fromUtf8(BuildInfo::git_tag),
-                    QString::fromUtf8(BuildInfo::git_dirty));
+    qInfo().noquote() << QStringLiteral("Build: version=%1 commit=%2 "
+                                        "describe=%3 branch=%4 tag=%5 dirty=%6")
+                             .arg(QString::fromUtf8(BuildInfo::version),
+                                  QString::fromUtf8(BuildInfo::git_commit),
+                                  QString::fromUtf8(BuildInfo::git_describe),
+                                  QString::fromUtf8(BuildInfo::git_branch),
+                                  BuildInfo::git_tag[0] == '\0'
+                                      ? QStringLiteral("(none)")
+                                      : QString::fromUtf8(BuildInfo::git_tag),
+                                  QString::fromUtf8(BuildInfo::git_dirty));
 
     qInfo() << "Application started.";
 

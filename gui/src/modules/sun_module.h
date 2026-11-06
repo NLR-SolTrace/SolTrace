@@ -29,19 +29,19 @@ private:
     void load_from_database();
 
     // This should be const, but the library has non-const getters
-    void load_from_ray_source(SD::RaySource&    ray_source,
+    void load_from_ray_source(SD::RaySource&                     ray_source,
                               SolTrace::GUI::Data::RaySourceType source_type);
 
-    void                                 write_shape_to_database();
-    QString                              write_position_to_database();
+    void    write_shape_to_database();
+    QString write_position_to_database();
     ::SolTrace::Data::SolarPositionCalculationMethod
     selected_calculation_method() const;
 
     ::SolTrace::Data::SolarPositionCalculator m_calculator;
-    QVector<QMetaObject::Connection> m_database_connections;
-    bool                             m_loading_from_database        = false;
-    bool                             m_writing_to_database          = false;
-    bool                             m_updating_calculated_position = false;
+    QVector<QMetaObject::Connection>          m_database_connections;
+    bool                                      m_loading_from_database = false;
+    bool                                      m_writing_to_database   = false;
+    bool m_updating_calculated_position                               = false;
 
 public:
     explicit SunModule(QObject* parent = nullptr);

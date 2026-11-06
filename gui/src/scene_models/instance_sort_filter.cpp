@@ -32,6 +32,9 @@ void InstanceSortFilter::update_geometry_name(Entity entity) {
 InstanceSortFilter::InstanceSortFilter(QObject* parent)
     : QSortFilterProxyModel(parent) {
 
+    setRecursiveFilteringEnabled(true);
+    setAutoAcceptChildRows(true);
+
     connect(this,
             &InstanceSortFilter::geometry_filter_changed,
             this,
@@ -120,6 +123,24 @@ void InstanceSortFilter::reset(Database* database) {
             &ComponentAPIBase::removed,
             this,
             &InstanceSortFilter::invalidate);
+}
+
+int InstanceSortFilter::index_of(Entity entity) const {
+    auto const model_index = index_for_entity(entity);
+    return model_index.isValid() ? model_index.row() : -1;
+}
+
+QModelIndex InstanceSortFilter::index_for_entity(Entity entity) const {
+    if (!sourceModel() || !entity.is_valid()) return { };
+
+    auto const matches =
+        sourceModel()->match(sourceModel()->index(0, 0),
+                             entity_role,
+                             QVariant::fromValue(entity),
+                             1,
+                             Qt::MatchExactly | Qt::MatchRecursive);
+    if (matches.isEmpty()) return { };
+    return mapFromSource(matches.front());
 }
 
 void InstanceSortFilter::clear_material() {

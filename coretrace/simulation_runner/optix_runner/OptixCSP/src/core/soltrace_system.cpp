@@ -20,6 +20,7 @@
 #include "utils/math_util.h"
 
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <iomanip>
 #include <limits>
@@ -868,6 +869,20 @@ double SolTraceSystem::get_sun_plane_area() const
         a.z * b.x - a.x * b.z,
         a.x * b.y - a.y * b.x);
     return static_cast<double>(sqrtf(cross.x * cross.x + cross.y * cross.y + cross.z * cross.z));
+}
+
+void SolTraceSystem::get_sun_plane_dimensions(double &width, double &height) const
+{
+    const LaunchParams &lp = data_manager->launch_params_H;
+    const double width_x = static_cast<double>(lp.sun_v1.x) - lp.sun_v0.x;
+    const double width_y = static_cast<double>(lp.sun_v1.y) - lp.sun_v0.y;
+    const double width_z = static_cast<double>(lp.sun_v1.z) - lp.sun_v0.z;
+    const double height_x = static_cast<double>(lp.sun_v2.x) - lp.sun_v1.x;
+    const double height_y = static_cast<double>(lp.sun_v2.y) - lp.sun_v1.y;
+    const double height_z = static_cast<double>(lp.sun_v2.z) - lp.sun_v1.z;
+
+    width = std::sqrt(width_x * width_x + width_y * width_y + width_z * width_z);
+    height = std::sqrt(height_x * height_x + height_y * height_y + height_z * height_z);
 }
 
 uint_fast64_t SolTraceSystem::automatic_batch_size() const

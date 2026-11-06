@@ -5,7 +5,7 @@
 namespace SolTrace::GUI::Support {
 
 struct IProperty {
-    const char*                                display_name = "";
+    const char*                                       display_name = "";
     std::function<QVariant(size_t index)>             getter;
     std::function<bool(size_t index, QVariant value)> setter;
 };
@@ -13,17 +13,17 @@ struct IProperty {
 // TODO: More caching
 
 class IndirectTableModel : public QAbstractTableModel {
-    QVector<IProperty>         m_properties;
-    QVector<QString>           m_header;
-    QHash<int, QByteArray>     m_name_map;
+    QVector<IProperty>     m_properties;
+    QVector<QString>       m_header;
+    QHash<int, QByteArray> m_name_map;
 
 protected:
     virtual bool _can_append_new(QVariant const&) { return true; }
-    virtual void _append_new(QVariant)            = 0;
+    virtual void _append_new(QVariant) = 0;
     virtual bool _can_delete_at(size_t, size_t) { return true; }
-    virtual void _delete_at(size_t, size_t)       = 0;
-    virtual int  _record_count() const            = 0;
-    virtual void _clear()                         = 0;
+    virtual void _delete_at(size_t, size_t) = 0;
+    virtual int  _record_count() const      = 0;
+    virtual void _clear()                   = 0;
 
     void add_properties(QVector<IProperty>);
 
@@ -60,7 +60,7 @@ public slots:
 
     bool ask_append_record(QVariant data);
 
-    void reset(QList<QVariant> new_records = {});
+    void reset(QList<QVariant> new_records = { });
 
     void remove_all();
 

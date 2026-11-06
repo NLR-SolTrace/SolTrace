@@ -30,22 +30,13 @@ void AppSettings::load_session(AppData& app) {
     s.endGroup();
 
     s.beginGroup("View");
-    view->left_panel()->set_visible(
-        s.value("show_left_panel", true).toBool());
+    view->left_panel()->set_visible(s.value("show_left_panel", true).toBool());
     view->right_panel()->set_visible(
         s.value("show_right_panel", true).toBool());
-    view->left_panel()->update_size();
-    view->right_panel()->update_size();
-
-    view->left_panel()->set_width(s.value("left_panel_width", 550).toUInt());
+    view->left_panel()->set_width(
+        qBound(400, s.value("left_panel_width", 550).toInt(), 750));
     view->right_panel()->set_width(
-        s.value("right_panel_width", 100).toUInt());
-
-    view->set_inline_docs(
-        s.value("inline_docs",
-                s.value("left_panel_inline_docs", false).toBool() ||
-                    s.value("right_panel_inline_docs", false).toBool())
-            .toBool());
+        qMax(250, s.value("right_panel_width", 250).toInt()));
 
     app.set_show_get_started_on_start(
         s.value("show_get_started_on_start", true).toBool());
@@ -83,6 +74,11 @@ void AppSettings::load_session(AppData& app) {
     sim->set_geometry_color(
         s.value("sim_geometry_color", QColor("white")).value<QColor>());
     view->set_ray_color(s.value("ray_color", QColor("white")).value<QColor>());
+    view->set_ray_color_map(SolTrace::GUI::Data::ColorMapModel::normalized_id(
+        s.value("ray_color_map", QStringLiteral("classic")).toString()));
+    app.flux()->pending_flux_maps()->set_color_map_id(
+        SolTrace::GUI::Data::ColorMapModel::normalized_id(
+            s.value("flux_color_map", QStringLiteral("classic")).toString()));
     sim->set_show_grid(s.value("sim_show_grid", true).toBool());
     s.endGroup();
 
@@ -149,9 +145,7 @@ void AppSettings::save_session(AppData const& app) {
     s.setValue("left_panel_width", view->left_panel()->width());
     s.setValue("right_panel_width", view->right_panel()->width());
 
-    s.setValue("inline_docs", view->inline_docs());
-    s.setValue("show_get_started_on_start",
-               app.show_get_started_on_start());
+    s.setValue("show_get_started_on_start", app.show_get_started_on_start());
 
     auto workflow_phase = view->workflow_phase();
     if (workflow_phase == ViewModule::WorkflowPhase::Start) {
@@ -176,6 +170,9 @@ void AppSettings::save_session(AppData const& app) {
     s.setValue("sim_sun_color", sim->sun_color());
     s.setValue("sim_geometry_color", sim->geometry_color());
     s.setValue("ray_color", view->ray_color());
+    s.setValue("ray_color_map", view->ray_color_map());
+    s.setValue("flux_color_map",
+               app.flux()->pending_flux_maps()->color_map_id());
     s.setValue("sim_show_grid", sim->show_grid());
     s.endGroup();
 

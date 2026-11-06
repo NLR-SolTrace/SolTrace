@@ -9,6 +9,7 @@ ShadowedGlassRectangle {
     id: root
 
     property int available_width: 0
+    readonly property int header_height: 46
 
     radius: 10
 
@@ -31,67 +32,26 @@ ShadowedGlassRectangle {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
-        anchors.margins: 10
-        height: 34
+        anchors.leftMargin: 10
+        anchors.rightMargin: 10
+        height: root.header_height
 
-        Item {
+        TopBarLeftPane {
+            Layout.fillHeight: true
             Layout.fillWidth: true
-            visible: !App.view.left_panel.is_small()
-        }
 
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.minimumWidth: 0
-            spacing: App.view.left_panel.is_small() ? 6 : 10
-
-            Item {
-                Layout.preferredWidth: 5
-                visible: App.view.left_panel.is_small()
-            }
-
-            ShadowedRectangle {
-                Layout.preferredWidth: 25
-                Layout.preferredHeight: 25
-                Layout.leftMargin: 4
-
-                radius: 100
-                blur_source: root.blur_source
-                glassColor: App.theme.glassColor
-
-                Label {
-                    text: Math.max(1, App.view.workflow_phase)
-                    anchors.centerIn: parent
-                }
-            }
-
-            Label {
-                text: ["Load Scene", "Configure Scene", "Trace Scene", "Analyze Results"][
-                          Math.max(0, Math.min(App.view.workflow_phase - 1, 3))]
-                font.pointSize: 16
-                font.bold: true
-                font.family: "CMU Serif"
-            }
-
-            Item {
-                Layout.fillWidth: true
-                visible: !App.view.left_panel.is_small()
-            }
-        }
-
-        Item {
-            Layout.fillWidth: true
-            visible: !App.view.left_panel.is_small()
-        }
-
-        PanelButtons {
-            id: panel_buttons
-            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-            Layout.preferredWidth: implicitWidth
-            target: App.view.left_panel
-            otherTarget: App.view.right_panel
             available_width: root.available_width
-            is_right_panel: false
+            show_logos: true
+            show_context: true
         }
+    }
+
+    Rectangle {
+        anchors.left: module_info_row.left
+        anchors.right: module_info_row.right
+        height: 1
+        anchors.bottom: module_info_row.bottom
+        color: Material.dividerColor
     }
 
     StackLayout {

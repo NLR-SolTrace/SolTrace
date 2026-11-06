@@ -13,8 +13,8 @@
 #include <QGuiApplication>
 #include <QPromise>
 #include <QTimer>
-#include <QtGlobal>
 #include <QtConcurrentRun>
+#include <QtGlobal>
 
 
 // Native only for the moment
@@ -36,8 +36,8 @@ RunningJob::RunningJob(SimDataPtr          data,
     // Future hook for out-of-process approach runner
     f_ptr = execute_thread_runner;
 
-    auto config = ThreadRunnerConfig { .thread_count = thread_count,
-                                       .backend      = backend };
+    auto config =
+        ThreadRunnerConfig { .thread_count = thread_count, .backend = backend };
 
 #if defined(Q_OS_WASM) && !defined(__EMSCRIPTEN_PTHREADS__)
     m_watcher = nullptr;
@@ -51,8 +51,8 @@ RunningJob::RunningJob(SimDataPtr          data,
 
         auto future = promise.future();
         if (future.resultCount() == 0) {
-            emit this->error(QStringLiteral(
-                "The simulation did not return a result."));
+            emit this->error(
+                QStringLiteral("The simulation did not return a result."));
             return;
         }
 

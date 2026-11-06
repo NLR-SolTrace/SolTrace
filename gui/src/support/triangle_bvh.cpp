@@ -57,7 +57,8 @@ bool TriangleBvh::Node::leaf() const {
     return left < 0 && right < 0;
 }
 
-TriangleBvh::TriangleBvh(SolTrace::GUI::Data::Mesh const& mesh) : m_mesh(&mesh) {
+TriangleBvh::TriangleBvh(SolTrace::GUI::Data::Mesh const& mesh)
+    : m_mesh(&mesh) {
     m_indices.reserve(mesh.triangles.size());
 
     for (size_t i = 0; i < mesh.triangles.size(); ++i) {

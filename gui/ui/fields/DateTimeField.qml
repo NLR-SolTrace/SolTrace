@@ -20,7 +20,7 @@ ColumnLayout {
 
         GridLayout {
             rows: 2
-            columns: 2
+            columns: 1
             Layout.fillWidth: true
 
             STSpinBoxField {
@@ -39,8 +39,8 @@ ColumnLayout {
 
             STSpinBoxField {
                 id: dayField
-                Layout.row: App.view.left_panel.size == SplitPanelData.Small ? 1 : 0
-                Layout.column: App.view.left_panel.size == SplitPanelData.Small ? 0 : 1
+                Layout.row: 1
+                Layout.column: 0
                 Layout.preferredWidth: 200
                 label: qsTr("Day")
                 from: 1
@@ -61,7 +61,7 @@ ColumnLayout {
 
         GridLayout {
             rows: 2
-            columns: 2
+            columns: 1
             Layout.fillWidth: true
 
             STSpinBoxField {
@@ -80,8 +80,8 @@ ColumnLayout {
 
             STSpinBoxField {
                 id: minuteField
-                Layout.row: App.view.left_panel.size == SplitPanelData.Small ? 1 : 0
-                Layout.column: App.view.left_panel.size == SplitPanelData.Small ? 0 : 1
+                Layout.row: 1
+                Layout.column: 0
                 Layout.fillWidth: true
                 Layout.maximumWidth: 200
                 label: qsTr("Minute")

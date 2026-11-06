@@ -4,7 +4,7 @@ import QtQuick.Layouts
 
 import SolTrace
 
-ScrollView {
+STScrollView {
     id: root
 
     Layout.fillWidth: true
@@ -226,7 +226,7 @@ ScrollView {
                         text: licensePanel.modelData.path
                     }
 
-                    ScrollView {
+                    STScrollView {
                         id: lic_scroll
                         Layout.fillWidth: true
                         Layout.preferredHeight: Math.min(360, Math.max(120, implicitHeight))

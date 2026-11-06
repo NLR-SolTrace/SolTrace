@@ -18,6 +18,7 @@ Rectangle {
     property string title: ""
     property string xAxisTitle: ""
     property string yAxisTitle: ""
+    property bool headerVisible: true
 
     // Axis ranges
     property real xMin: 0
@@ -82,13 +83,20 @@ Rectangle {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 10
+        anchors.topMargin: 6
+        anchors.bottomMargin: 6
+        anchors.leftMargin: 2
+        anchors.rightMargin: 2
         spacing: 0
 
         Item {
             id: graphHeader
+            visible: root.headerVisible
             Layout.fillWidth: true
-            Layout.preferredHeight: Math.max(graphTitle.implicitHeight, graphButtons.implicitHeight)
+            Layout.preferredHeight: root.headerVisible
+                                    ? Math.max(graphTitle.implicitHeight,
+                                               graphButtons.implicitHeight)
+                                    : 0
 
             Label {
                 id: graphTitle
@@ -130,13 +138,14 @@ Rectangle {
 
         Item {
             Layout.fillWidth: true
-            Layout.preferredHeight: parent.height - graphHeader.height - parent.spacing
+            Layout.fillHeight: true
 
             GraphsView {
                 id: graphView
                 anchors.fill: parent
                 marginTop: 10
-                marginLeft: 25
+                marginLeft: 18
+                marginRight: 0
                 marginBottom: 12
 
                 theme: GraphsTheme {
@@ -152,11 +161,13 @@ Rectangle {
                     axisX.mainColor:  App.theme.fontColor
                     axisX.subColor:  Qt.rgba(App.theme.fontColor.r, App.theme.fontColor.g, App.theme.fontColor.b, 0.6)
                     axisX.labelTextColor: App.theme.fontColor
+                    axisXLabelFont.pixelSize: 10
                     axisX.mainWidth: 1
                     axisX.subWidth: 1
                     axisY.mainColor: App.theme.fontColor
                     axisY.subColor:  Qt.rgba(App.theme.fontColor.r, App.theme.fontColor.g, App.theme.fontColor.b, 0.6)
                     axisY.labelTextColor: App.theme.fontColor
+                    axisYLabelFont.pixelSize: 10
                     axisY.mainWidth: 1
                     axisY.subWidth: 1
                     labelTextColor: App.theme.fontColor
@@ -186,6 +197,7 @@ Rectangle {
             Label {
                 id: yAxisLabel
                 text: root.yAxisTitle
+                font.pixelSize: 11
                 rotation: -90
                 anchors.left: parent.left
                 anchors.leftMargin: 0
@@ -196,6 +208,7 @@ Rectangle {
             Label {
                 id: xAxisLabel
                 text: root.xAxisTitle
+                font.pixelSize: 11
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 0
                 anchors.horizontalCenter: graphView.horizontalCenter

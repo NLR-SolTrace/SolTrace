@@ -1,5 +1,6 @@
 #pragma once
 
+#include "analysis/flux/baked_flux_map.h"
 #include "support/grid3d.h"
 #include "support/structmodel.h"
 
@@ -16,10 +17,17 @@
 #include <QObject>
 #include <QPointer>
 #include <QString>
+#include <QUuid>
 
 namespace SolTrace::GUI::Data {
 
 class Database;
+
+/// One authoritative, result-owned flux-map record.
+struct FluxMapRecord {
+    quint64                                  revision = 0;
+    SolTrace::GUI::Analysis::BakedFluxMapPtr artifact;
+};
 
 /// Inputs needed to translate library simulation results into GUI ray records.
 struct SimulationResultConversion {
@@ -76,6 +84,13 @@ public:
     Support::SparseGrid3D<float> ray_volume;
 
     std::unordered_map<entt::entity, std::vector<uint64_t>> entity_to_ray_ids;
+
+    /// Stable identity used to reject late work from a previously selected
+    /// result.
+    QUuid id = QUuid::createUuid();
+
+    /// Derived flux maps belong to the trace result, not its scene snapshot.
+    std::unordered_map<entt::entity, FluxMapRecord> flux_maps;
 
     std::unique_ptr<Database const> database;
 

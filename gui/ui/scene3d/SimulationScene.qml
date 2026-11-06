@@ -10,8 +10,17 @@ Item {
 
     property int activeAxis: -1
     property int gizmoMode: 0
-    property bool showGizmo: App.view.mouse_mode === ViewModule.EditElement
-                             && App.layout.instance_edit
+    readonly property bool editingScriptPosition:
+        AppData.script.position_editor.active
+    readonly property var transformTarget: editingScriptPosition
+                                           ? AppData.script.position_editor
+                                           : App.layout.instance_edit
+    readonly property bool allowGizmoRotation: !editingScriptPosition
+    property bool showGizmo: ((App.view.mouse_mode === ViewModule.EditElement
+                               && !editingScriptPosition)
+                              || (App.view.mouse_mode === ViewModule.EditPosition
+                                  && editingScriptPosition))
+                             && transformTarget
     property bool isDragging: false
     property point lastMousePos: Qt.point(0, 0)
     property real initialAngle: 0.0
@@ -32,6 +41,12 @@ Item {
         console.debug("[SimulationScene] showGizmo=" + showGizmo
                       + " mouse_mode=" + App.view.mouse_mode
                       + " instance_edit=" + Boolean(App.layout.instance_edit))
+    }
+
+    onEditingScriptPositionChanged: {
+        if (editingScriptPosition) gizmoMode = 0
+        activeAxis = -1
+        isDragging = false
     }
 
     readonly property var axisDirs: [
@@ -135,12 +150,23 @@ Item {
 
         if (App.view.simulation_content_view) {
             var fluxBounds = AppData.flux.flux_map_world_model.content_bounds()
-            var normalGeometryVisible = AppData.flux.show_other_geometry
-                    || !fluxBounds.valid
+            var normalGeometryVisible = true
+
+            if (App.view.workflow_phase === ViewModule.Analyze) {
+                switch (App.view.analyze_section) {
+                case 1:
+                    normalGeometryVisible = AppData.intersections.show_geometry
+                    break
+                case 2:
+                    normalGeometryVisible = AppData.flux.show_other_geometry
+                            || !fluxBounds.valid
+                    break
+                }
+            }
 
             console.debug("fit_all_in_view normal_geometry_visible",
                           normalGeometryVisible,
-                          "show_other_geometry=" + AppData.flux.show_other_geometry)
+                          "analyze_section=" + App.view.analyze_section)
 
             if (normalGeometryVisible) {
                 include_logged_database_bounds(
@@ -320,9 +346,12 @@ Item {
         id: gizmoOverlay
         anchors.fill: parent
         sourceCamera: controller.active_camera
-        gizmoPosition: App.layout.instance_edit ? App.layout.instance_edit.position : Qt.vector3d(0, 0, 0)
+        gizmoPosition: root.transformTarget
+                       ? root.transformTarget.position
+                       : Qt.vector3d(0, 0, 0)
         activeAxis: root.activeAxis
         gizmoMode: root.gizmoMode
+        allowRotation: root.allowGizmoRotation
         enabled: root.showGizmo
 
         Binding {

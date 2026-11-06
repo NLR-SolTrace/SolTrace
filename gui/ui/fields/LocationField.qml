@@ -16,7 +16,7 @@ STPropertyPanel {
 
     GridLayout {
         rows: 2
-        columns: 2
+        columns: 1
         Layout.fillWidth: true
 
         STSpinBoxField {
@@ -35,8 +35,8 @@ STPropertyPanel {
 
         STSpinBoxField {
             id: lonField
-            Layout.row: App.view.left_panel.size == SplitPanelData.Small ? 1 : 0
-            Layout.column: App.view.left_panel.size == SplitPanelData.Small ? 0 : 1
+            Layout.row: 1
+            Layout.column: 0
             Layout.fillWidth: true
             Layout.maximumWidth: 200
             label: qsTr("Longitude (deg)")

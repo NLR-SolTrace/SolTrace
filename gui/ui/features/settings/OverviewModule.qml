@@ -3,7 +3,7 @@ import QtQuick.Controls.Material
 import QtQuick.Layouts
 import SolTrace
 
-ScrollView {
+STScrollView {
     id: root
     Layout.fillWidth: true
     Layout.fillHeight: true
@@ -15,20 +15,17 @@ ScrollView {
 
         InlineDocumentation {
             key: "settings.overview"
-            alwaysVisible: true
-            showTitle: true
+            expanded: true
             Layout.fillWidth: true
         }
         InlineDocumentation {
             key: "settings.background"
-            alwaysVisible: true
-            showTitle: true
+            expanded: true
             Layout.fillWidth: true
         }
         InlineDocumentation {
             key: "settings.methodology"
-            alwaysVisible: true
-            showTitle: true
+            expanded: true
             Layout.fillWidth: true
         }
     }

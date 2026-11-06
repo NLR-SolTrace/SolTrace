@@ -1,14 +1,73 @@
-/*
-TITLE Flat Mirror Arc With Cylindrical Absorber
-DESC Creates a vertical cylindrical absorber and flat mirror facets arranged on a 180 degree ground arc.
-DESC The mirror planes stand on the ground and face inward toward the absorber.
-PROPERTY mirror_count integer 9 1..=200
-PROPERTY arc_radius real 35 1..1000
-PROPERTY mirror_width real 6 0.01..
-PROPERTY mirror_height real 4 0.01..
-PROPERTY absorber_height real 12 0.01..
-PROPERTY absorber_radius real 2 0.01..
-*/
+/*{
+  "schema_version": 1,
+  "title": "Flat Mirror Arc With Cylindrical Absorber",
+  "description": [
+    "Creates a vertical cylindrical absorber and flat mirror facets arranged on a 180 degree ground arc.",
+    "The mirror planes stand on the ground and face inward toward the absorber."
+  ],
+  "parameters": [
+    {
+      "id": "mirror_count",
+      "name": "Mirror count",
+      "description": "Number of mirrors distributed across the arc.",
+      "type": "integer",
+      "default": 9,
+      "minimum": 1,
+      "maximum": 200
+    },
+    {
+      "id": "arc_radius",
+      "name": "Arc radius",
+      "description": "Distance from the absorber to each mirror center.",
+      "type": "real",
+      "default": 35,
+      "minimum": 1,
+      "maximum": 1000,
+      "step": 1,
+      "decimals": 2
+    },
+    {
+      "id": "mirror_width",
+      "name": "Mirror width",
+      "description": "Width of each flat mirror.",
+      "type": "real",
+      "default": 6,
+      "minimum": 0.01,
+      "step": 0.1,
+      "decimals": 3
+    },
+    {
+      "id": "mirror_height",
+      "name": "Mirror height",
+      "description": "Height of each flat mirror.",
+      "type": "real",
+      "default": 4,
+      "minimum": 0.01,
+      "step": 0.1,
+      "decimals": 3
+    },
+    {
+      "id": "absorber_height",
+      "name": "Absorber height",
+      "description": "Height of the cylindrical absorber.",
+      "type": "real",
+      "default": 12,
+      "minimum": 0.01,
+      "step": 0.1,
+      "decimals": 3
+    },
+    {
+      "id": "absorber_radius",
+      "name": "Absorber radius",
+      "description": "Radius of the cylindrical absorber.",
+      "type": "real",
+      "default": 2,
+      "minimum": 0.01,
+      "step": 0.1,
+      "decimals": 3
+    }
+  ]
+}*/
 const absorber_material = db.create_material()
 db.set_identity(absorber_material, "Absorber material")
 db.set_material_properties(absorber_material, {

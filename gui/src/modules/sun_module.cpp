@@ -227,9 +227,10 @@ QString SunModule::write_position_to_database() {
                     m_position->x(), m_position->y(), m_position->z());
 
                 resource.source->set_gen_type(SolTrace::Data::GenType::RANDOM);
-                resource.type = m_type == Type::PointSource
-                                    ? SolTrace::GUI::Data::RaySourceType::PointSource
-                                    : SolTrace::GUI::Data::RaySourceType::Directional;
+                resource.type =
+                    m_type == Type::PointSource
+                        ? SolTrace::GUI::Data::RaySourceType::PointSource
+                        : SolTrace::GUI::Data::RaySourceType::Directional;
             });
     } catch (std::exception const& e) {
         qWarning() << "Unable to update sun position:" << e.what();
@@ -303,7 +304,8 @@ void SunModule::load_from_database() {
 
     auto const* resource = m_current_database->ray_source_resource.get();
     auto const  source_type =
-        resource ? resource->type : SolTrace::GUI::Data::RaySourceType::Directional;
+        resource ? resource->type
+                 : SolTrace::GUI::Data::RaySourceType::Directional;
 
     if (!resource || !resource->source) {
         qDebug() << Q_FUNC_INFO << "No ray source in this database";
@@ -314,8 +316,9 @@ void SunModule::load_from_database() {
     load_from_ray_source(*resource->source, source_type);
 }
 
-void SunModule::load_from_ray_source(SD::RaySource&    ray_source,
-                                     SolTrace::GUI::Data::RaySourceType source_type) {
+void SunModule::load_from_ray_source(
+    SD::RaySource&                     ray_source,
+    SolTrace::GUI::Data::RaySourceType source_type) {
     qDebug() << Q_FUNC_INFO;
     // We always need a shape to work with here
     auto gui_shape = gui_shape_for_data_shape(ray_source.get_shape())
@@ -323,8 +326,9 @@ void SunModule::load_from_ray_source(SD::RaySource&    ray_source,
 
     QScopedValueRollback<bool> guard(m_loading_from_database, true);
 
-    set_type(source_type == SolTrace::GUI::Data::RaySourceType::PointSource ? Type::PointSource
-                                                           : Type::Directional);
+    set_type(source_type == SolTrace::GUI::Data::RaySourceType::PointSource
+                 ? Type::PointSource
+                 : Type::Directional);
 
     // A core Sun stores only the parameter used by its active shape and leaves
     // the other getters as NaN, so apply the complete GUI baseline explicitly.

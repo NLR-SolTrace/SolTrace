@@ -31,6 +31,10 @@ SunShape::SunShape(QObject* parent)
     connect(m_custom_distribution,
             &SunShapeModel::changed,
             this,
+            &SunShape::ensure_custom_distribution);
+    connect(m_custom_distribution,
+            &SunShapeModel::changed,
+            this,
             &SunShape::update_x_axis);
 
     // SunShape::*_changed() -> SunShape::changed()
@@ -54,6 +58,12 @@ void SunShape::reset_current_distribution() {
         { .angle = 1, .intensity = 0.9 },
         { .angle = 2, .intensity = 0 },
     });
+}
+
+void SunShape::ensure_custom_distribution() {
+    if (m_shape == Shape::Custom && m_custom_distribution->count() == 0) {
+        reset_current_distribution();
+    }
 }
 
 void SunShape::regenerate() {
@@ -195,7 +205,7 @@ void SunShape::sample_limb_darkened() {
     }
 
     points.push_back({
-        .angle = disk_edge + 1.e-3,
+        .angle     = disk_edge + 1.e-3,
         .intensity = 0.0,
     });
 
@@ -245,10 +255,12 @@ void SunShape::update_x_axis() {
 }
 
 void SunShape::update_current_distribution() {
-    if (m_shape == Shape::Custom)
+    if (m_shape == Shape::Custom) {
+        ensure_custom_distribution();
         set_current_distribution(m_custom_distribution);
-    else
+    } else {
         set_current_distribution(m_generated_distribution);
+    }
 }
 
 
