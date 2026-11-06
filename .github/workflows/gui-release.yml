@@ -449,17 +449,20 @@ jobs:
           APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_ENTERPRISE_TEAM_ID: ${{ secrets.APPLE_ENTERPRISE_TEAM_ID }}
         run: |
           key_path="$RUNNER_TEMP/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8"
           trap 'rm -f "$key_path"' EXIT
           printf '%s' "$APP_STORE_CONNECT_API_KEY" > "$key_path"
           chmod 600 "$key_path"
-          python -m scripts.release.release_tools notarize-macos \
+          python -m scripts.release.release_tools new-notarize-macos \
             --install-dir "${{ env.INSTALL_DIR }}" \
             --app-name "${{ env.APP_NAME }}" \
-            --api-key "$key_path" \
-            --key-id "$APP_STORE_CONNECT_KEY_ID" \
-            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
+            --apple-id "$APPLE_ID" \
+            --apple-password "$APPLE_APP_SPECIFIC_PASSWORD" \
+            --team-id "$APPLE_ENTERPRISE_TEAM_ID" \
             --runner-temp "$RUNNER_TEMP"
 
       - name: Validate staged bundle

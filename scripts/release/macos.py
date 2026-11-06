@@ -190,6 +190,41 @@ def notarize(
     run(["xcrun", "stapler", "validate", app])
     run(["spctl", "--assess", "--type", "execute", "--verbose=4", app])
 
+def notarize_with_id(
+    *,
+    install_dir: Path,
+    app_name: str,
+    apple_id: str,
+    apple_password: str,
+    team_id: str,
+    runner_temp: Path,
+) -> None:
+    """Submit the app to Apple, staple its ticket, and verify Gatekeeper assessment."""
+    app = require_path(install_dir / f"{app_name}.app", "macOS application bundle")
+
+    runner_temp.mkdir(parents=True, exist_ok=True)
+    submission = runner_temp / f"{app_name}-notarization.zip"
+    submission.unlink(missing_ok=True)
+    run(["ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", app, submission])
+    run(
+        [
+            "xcrun",
+            "notarytool",
+            "submit",
+            submission,
+            "--apple-id",
+            apple_id,
+            "--password",
+            apple_password,
+            "--team-id",
+            team_id,
+            "--wait",
+        ]
+    )
+    run(["xcrun", "stapler", "staple", app])
+    run(["xcrun", "stapler", "validate", app])
+    run(["spctl", "--assess", "--type", "execute", "--verbose=4", app])
+
 
 def validate(*, install_dir: Path, app_name: str, architecture: str) -> None:
     """Audit architecture, RPATHs, install names, and required Embree/TBB files."""

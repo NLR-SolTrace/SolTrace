@@ -64,6 +64,16 @@ def _parser() -> argparse.ArgumentParser:
     notarize_macos.add_argument("--issuer-id", required=True)
     notarize_macos.add_argument("--runner-temp", required=True, type=_path)
 
+    notarize_macos = commands.add_parser(
+        "new-notarize-macos", help="Notarize and staple a macOS application bundle using Apple ID and Password"
+    )
+    notarize_macos.add_argument("--install-dir", required=True, type=_path)
+    notarize_macos.add_argument("--app-name", required=True)
+    notarize_macos.add_argument("--apple-id", required=True)
+    notarize_macos.add_argument("--apple-password", required=True)
+    notarize_macos.add_argument("--team-id", required=True)
+    notarize_macos.add_argument("--runner-temp", required=True, type=_path)
+
     license_parser = commands.add_parser(
         "bundle-licenses", help="Collect redistributable license files"
     )
@@ -143,6 +153,15 @@ def _dispatch(args: argparse.Namespace) -> None:
             api_key=args.api_key,
             key_id=args.key_id,
             issuer_id=args.issuer_id,
+            runner_temp=args.runner_temp,
+        )
+    elif args.command == "new-notarize-macos":
+        macos.notarize_with_id(
+            install_dir=args.install_dir,
+            app_name=args.app_name,
+            apple_id=args.apple_id,
+            apple_password=args.apple_password,
+            team_id=args.team_id,
             runner_temp=args.runner_temp,
         )
     elif args.command == "bundle-licenses":
