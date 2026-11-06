@@ -1,0 +1,117 @@
+{
+	"schema_version": "2026.07.15",
+	"number_of_elements": 3,
+	"simulation_parameters": {
+		"include_sun_shape_errors": false,
+		"include_optical_errors": false,
+		"number_of_rays": 10000,
+		"max_number_of_rays": 1000000,
+		"tolerance": 0.0,
+		"latitude": 0.0,
+		"longitude": 0.0,
+		"seed": 0
+	},
+	"ray_sources": {
+		"0": {
+			"source_type": "Sun",
+			"my_shape": "PILLBOX",
+			"sigma": null,
+			"half_width": 4.65,
+			"csr": null,
+			"user_angle": [],
+			"user_intensity": [],
+			"gen_type": "RANDOM",
+			"pos": [0.0,0.0,100.0]
+		}
+	},
+	"optical_properties": {
+		"0": {
+			"my_type": "REFLECTION",
+			"refraction_index_front": 1.1,
+			"refraction_index_back": 1.1,
+			"my_name": "Heliostat Test",
+			"front": {
+				"error_distribution_type": "GAUSSIAN",
+				"transmissivity": 1.0,
+				"reflectivity": 0.96,
+				"slope_error": 0.95,
+				"specularity_error": 0.2,
+				"use_reflectivity_table": false,
+				"use_transmissivity_table": false,
+				"reflectivity_table": [],
+				"transmissivity_table": []
+			},
+			"back": {
+				"error_distribution_type": "GAUSSIAN",
+				"transmissivity": 1.0,
+				"reflectivity": 0.96,
+				"slope_error": 0.95,
+				"specularity_error": 0.2,
+				"use_reflectivity_table": false,
+				"use_transmissivity_table": false,
+				"reflectivity_table": [],
+				"transmissivity_table": []
+			}
+		}
+	},
+	"elements": {
+		"0": {
+			"is_stage": true,
+			"is_single": false,
+			"is_composite": true,
+			"number_of_elements": 3,
+			"active": true,
+			"virtual_flag": false,
+			"my_id": 1,
+			"stage": 0,
+			"my_name": "",
+			"origin": [0.0,0.0,0.0],
+			"aim": [0.0,0.0,1.0],
+			"zrot": 0.0,
+			"elements": {
+				"0": {
+					"active": true,
+					"virtual_flag": false,
+					"my_id": 2,
+					"stage": 0,
+					"my_name": "0",
+					"origin": [0.0,0.0,15.0],
+					"aim": [0.0,0.0,-1.0],
+					"zrot": 0.0,
+					"opt_id": 0,
+					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":20.0},
+					"surface": {"surface_type":"SPHERE","vertex_curv":0.09},
+					"is_single": true
+				},
+				"1": {
+					"active": true,
+					"virtual_flag": false,
+					"my_id": 3,
+					"stage": 0,
+					"my_name": "1",
+					"origin": [0.0,0.0,-1.0],
+					"aim": [0.0,0.0,0.0],
+					"zrot": 0.0,
+					"opt_id": 0,
+					"aperture": {"aperture_type":"RECTANGLE","x_length":31.0,"y_length":31.0,"x_coord":-15.5,"y_coord":-15.5},
+					"surface": {"surface_type":"PARABOLA","focal_length_x":16.666666666666668,"focal_length_y":16.666666666666668},
+					"is_single": true
+				},
+				"2": {
+					"active": true,
+					"virtual_flag": false,
+					"my_id": 4,
+					"stage": 0,
+					"my_name": "2",
+					"origin": [1.2246467991473532e-16,0.0,8.0],
+					"aim": [1.2246467991473532e-16,0.0,-1.0],
+					"zrot": 0.0,
+					"opt_id": 0,
+					"aperture": {"aperture_type":"RECTANGLE","x_length":2.0,"y_length":30.0,"x_coord":-1.0,"y_coord":-15.0},
+					"surface": {"surface_type":"CYLINDER","radius":1.0},
+					"is_single": true
+				}
+			}
+		}
+	}
+}

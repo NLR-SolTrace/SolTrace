@@ -132,6 +132,119 @@ bool upgrade_20251112_20260715(nlohmann::ordered_json& jroot,
     return true;
 }
 
+namespace {
+
+// One tab per nesting level. Editors render this at whatever width the reader
+// prefers, but it costs 1 byte per level instead of kJsonIndentSpaces.
+const std::string kIndentUnit = "\t";
+
+// Maximum rendered length of an object whose members are all scalars before
+// it is expanded onto multiple lines.
+const int kInlineObjectCharLimit = 100;
+
+bool is_scalar(const nlohmann::ordered_json& j) {
+    return !j.is_object() && !j.is_array();
+}
+
+// True if every child is a scalar, so the container may be emitted on one line.
+bool is_leaf_container(const nlohmann::ordered_json& j) {
+    for (const auto& child : j) {
+        if (!is_scalar(child)) return false;
+    }
+    return true;
+}
+
+void write_indent(std::ostream& os, int depth) {
+    for (int i = 0; i < depth; i++) os << kIndentUnit;
+}
+
+// Pretty-prints json with leaf arrays and short leaf objects collapsed onto a
+// single line. Output remains valid, human readable json and all values are
+// emitted exactly as nlohmann::dump() would write them.
+void write_compact_json(std::ostream&                 os,
+                        const nlohmann::ordered_json& j,
+                        int                           depth) {
+    if (is_scalar(j)) {
+        os << j.dump();
+        return;
+    }
+
+    const bool is_array = j.is_array();
+    const char open     = is_array ? '[' : '{';
+    const char close    = is_array ? ']' : '}';
+
+    if (j.empty()) {
+        os << open << close;
+        return;
+    }
+
+    if (is_leaf_container(j)) {
+        if (is_array) {
+            // Leaf arrays are always inlined, but avoid materializing a full
+            // in-memory dump string for very large arrays.
+            os << '[';
+            for (size_t i = 0; i < j.size(); ++i) {
+                if (i > 0) os << ',';
+                os << j[i].dump();
+            }
+            os << ']';
+            return;
+        }
+
+        // Leaf objects are inlined only if they are short enough. Avoid
+        // constructing a full in-memory dump string just to measure length.
+        size_t rendered_len = 2; // '{' + '}'
+        size_t index        = 0;
+        bool   fits_inline  = true;
+
+        for (auto it = j.begin(); it != j.end(); ++it, ++index) {
+            const std::string key_dump   = nlohmann::ordered_json(it.key()).dump();
+            const std::string value_dump = it.value().dump();
+
+            // key + ": " + value
+            rendered_len += key_dump.size() + 2 + value_dump.size();
+            // comma between members
+            if (index + 1 < j.size()) rendered_len += 1;
+
+            if (rendered_len > static_cast<size_t>(kInlineObjectCharLimit)) {
+                fits_inline = false;
+                break;
+            }
+        }
+
+        if (fits_inline) {
+            os << '{';
+            index = 0;
+            for (auto it = j.begin(); it != j.end(); ++it, ++index) {
+                if (index > 0) os << ',';
+                os << nlohmann::ordered_json(it.key()).dump() << ": "
+                   << it.value().dump();
+            }
+            os << '}';
+            return;
+        }
+    }
+
+    os << open << '\n';
+
+    size_t index = 0;
+    for (auto it = j.begin(); it != j.end(); ++it, ++index) {
+        write_indent(os, depth + 1);
+        if (!is_array)
+            os << nlohmann::ordered_json(it.key()).dump() << ": ";
+
+        write_compact_json(os, it.value(), depth + 1);
+
+        if (index + 1 < j.size()) os << ',';
+        os << '\n';
+    }
+
+    write_indent(os, depth);
+    os << close;
+}
+
+}  // namespace
+
 // Public
 
 void write_json_file(SimulationData& sd, std::string filename) {
@@ -221,7 +334,8 @@ void write_json_file(SimulationData& sd, std::string filename) {
     // Write to disk
     std::ofstream ofs(filename, std::ios::out | std::ios::trunc);
     if (!ofs.is_open()) throw std::runtime_error("Failure writing json");
-    ofs << root.dump(kJsonIndentSpaces) << '\n';
+    write_compact_json(ofs, root, 0);
+    ofs << '\n';
 
     return;
 }

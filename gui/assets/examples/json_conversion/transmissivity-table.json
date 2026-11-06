@@ -1,0 +1,196 @@
+{
+	"schema_version": "2026.07.15",
+	"number_of_elements": 3,
+	"simulation_parameters": {
+		"include_sun_shape_errors": false,
+		"include_optical_errors": false,
+		"number_of_rays": 10000,
+		"max_number_of_rays": 1000000,
+		"tolerance": 0.0,
+		"latitude": 0.0,
+		"longitude": 0.0,
+		"seed": 0
+	},
+	"ray_sources": {
+		"0": {
+			"source_type": "Sun",
+			"my_shape": "PILLBOX",
+			"sigma": null,
+			"half_width": 4.65,
+			"csr": null,
+			"user_angle": [],
+			"user_intensity": [],
+			"gen_type": "RANDOM",
+			"pos": [0.0,0.0,100.0]
+		}
+	},
+	"optical_properties": {
+		"0": {
+			"my_type": "REFRACTION",
+			"refraction_index_front": 1.5,
+			"refraction_index_back": 1.0,
+			"my_name": "reflector",
+			"front": {
+				"error_distribution_type": "GAUSSIAN",
+				"transmissivity": 1.0,
+				"reflectivity": 1.0,
+				"slope_error": 0.95,
+				"specularity_error": 0.2,
+				"use_reflectivity_table": false,
+				"use_transmissivity_table": true,
+				"reflectivity_table": [],
+				"transmissivity_table": [
+					{"angle":0.0,"value":0.0},
+					{"angle":8.73,"value":0.0},
+					{"angle":17.45,"value":0.0},
+					{"angle":26.18,"value":0.0},
+					{"angle":34.91,"value":0.0},
+					{"angle":43.63,"value":0.0},
+					{"angle":52.36,"value":0.0},
+					{"angle":61.09,"value":1.0},
+					{"angle":69.81,"value":1.0},
+					{"angle":78.54,"value":1.0},
+					{"angle":87.27,"value":1.0},
+					{"angle":95.99,"value":1.0},
+					{"angle":104.72,"value":0.0},
+					{"angle":113.45,"value":0.0},
+					{"angle":122.17,"value":0.0},
+					{"angle":130.9,"value":0.0},
+					{"angle":139.63,"value":0.0},
+					{"angle":148.35,"value":0.0},
+					{"angle":157.08,"value":0.0},
+					{"angle":165.81,"value":1.0},
+					{"angle":174.53,"value":1.0},
+					{"angle":183.26,"value":1.0},
+					{"angle":191.99,"value":1.0},
+					{"angle":200.71,"value":1.0},
+					{"angle":209.44,"value":0.0},
+					{"angle":218.17,"value":0.0},
+					{"angle":226.89,"value":0.0},
+					{"angle":235.62,"value":0.0},
+					{"angle":244.35,"value":0.0},
+					{"angle":253.07,"value":0.0},
+					{"angle":261.8,"value":0.0},
+					{"angle":270.53,"value":0.0},
+					{"angle":279.25,"value":0.0},
+					{"angle":287.98,"value":0.0}
+				]
+			},
+			"back": {
+				"error_distribution_type": "GAUSSIAN",
+				"transmissivity": 1.0,
+				"reflectivity": 0.0,
+				"slope_error": 0.95,
+				"specularity_error": 0.2,
+				"use_reflectivity_table": false,
+				"use_transmissivity_table": false,
+				"reflectivity_table": [],
+				"transmissivity_table": []
+			}
+		},
+		"1": {
+			"my_type": "REFLECTION",
+			"refraction_index_front": 1.5,
+			"refraction_index_back": 1.5,
+			"my_name": "target",
+			"front": {
+				"error_distribution_type": "GAUSSIAN",
+				"transmissivity": 1.0,
+				"reflectivity": 0.0,
+				"slope_error": 0.95,
+				"specularity_error": 0.2,
+				"use_reflectivity_table": false,
+				"use_transmissivity_table": false,
+				"reflectivity_table": [],
+				"transmissivity_table": []
+			},
+			"back": {
+				"error_distribution_type": "GAUSSIAN",
+				"transmissivity": 1.0,
+				"reflectivity": 0.0,
+				"slope_error": 0.95,
+				"specularity_error": 0.2,
+				"use_reflectivity_table": false,
+				"use_transmissivity_table": false,
+				"reflectivity_table": [],
+				"transmissivity_table": []
+			}
+		}
+	},
+	"elements": {
+		"0": {
+			"is_stage": true,
+			"is_single": false,
+			"is_composite": true,
+			"number_of_elements": 1,
+			"active": true,
+			"virtual_flag": false,
+			"my_id": 1,
+			"stage": 0,
+			"my_name": "",
+			"origin": [0.0,0.0,0.0],
+			"aim": [0.0,0.0,1.0],
+			"zrot": 0.0,
+			"elements": {
+				"0": {
+					"active": true,
+					"virtual_flag": false,
+					"my_id": 2,
+					"stage": 0,
+					"my_name": "0",
+					"origin": [0.0,0.0,0.0],
+					"aim": [0.0,0.0,1.0],
+					"zrot": 0.0,
+					"opt_id": 0,
+					"aperture": {"aperture_type":"RECTANGLE","x_length":2.0,"y_length":10.0,"x_coord":-1.0,"y_coord":-5.0},
+					"surface": {"surface_type":"PARABOLA","focal_length_x":0.5,"focal_length_y":null},
+					"is_single": true
+				}
+			}
+		},
+		"1": {
+			"is_stage": true,
+			"is_single": false,
+			"is_composite": true,
+			"number_of_elements": 2,
+			"active": true,
+			"virtual_flag": false,
+			"my_id": 3,
+			"stage": 1,
+			"my_name": "",
+			"origin": [0.0,0.0,0.0],
+			"aim": [0.0,0.0,1.0],
+			"zrot": 0.0,
+			"elements": {
+				"0": {
+					"active": true,
+					"virtual_flag": false,
+					"my_id": 4,
+					"stage": 1,
+					"my_name": "0",
+					"origin": [0.0,0.0,1.0],
+					"aim": [0.0,0.0,0.0],
+					"zrot": 0.0,
+					"opt_id": 1,
+					"aperture": {"aperture_type":"RECTANGLE","x_length":10.0,"y_length":10.0,"x_coord":-5.0,"y_coord":-5.0},
+					"surface": {"surface_type":"FLAT"},
+					"is_single": true
+				},
+				"1": {
+					"active": true,
+					"virtual_flag": false,
+					"my_id": 5,
+					"stage": 1,
+					"my_name": "1",
+					"origin": [0.0,0.0,-0.5],
+					"aim": [0.0,0.0,10.0],
+					"zrot": 0.0,
+					"opt_id": 1,
+					"aperture": {"aperture_type":"RECTANGLE","x_length":10.0,"y_length":10.0,"x_coord":-5.0,"y_coord":-5.0},
+					"surface": {"surface_type":"FLAT"},
+					"is_single": true
+				}
+			}
+		}
+	}
+}
