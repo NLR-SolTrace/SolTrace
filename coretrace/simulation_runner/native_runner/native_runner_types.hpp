@@ -367,7 +367,7 @@ namespace SolTrace::NativeRunner
 
 		// system simulation context data
 		uint_fast64_t sim_raycount;
-		int sim_raymax;
+		uint_fast64_t sim_raymax;
 		bool sim_dynamic_group; // point-focus heliostat dynamic grouping to reduce stage one computation
 		bool sim_errors_sunshape;
 		bool sim_errors_optical;
