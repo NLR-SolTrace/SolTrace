@@ -114,7 +114,12 @@ ColumnLayout {
                     qsTr("October"), qsTr("November"), qsTr("December")
                 ]
                 currentIndex: App.sun.calc_data.month - 1
-                onActivated: App.sun.calc_data.month = currentIndex + 1
+                onActivated: {
+                    App.sun.calc_data.month = currentIndex + 1
+                    const maxDay = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][currentIndex]
+                    if (App.sun.calc_data.day > maxDay)
+                        App.sun.calc_data.day = maxDay
+                }
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Month")
@@ -124,7 +129,7 @@ ColumnLayout {
                 Layout.minimumWidth: 90
                 Layout.preferredWidth: 90
                 from: 1
-                to: 31
+                to: [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][App.sun.calc_data.month - 1]
                 decimals: 0
                 value: App.sun.calc_data.day
                 onValueModified: App.sun.calc_data.day = value
