@@ -116,44 +116,6 @@ uint_fast64_t SimulationData::add_subelements(element_ptr el)
     return nadded;
 }
 
-bool SimulationData::replace_element(element_id id, element_ptr el)
-{
-    bool success = false;
-    assert(el->get_id() == ELEMENT_ID_UNASSIGNED);
-    element_ptr old_el = this->get_element(id);
-    if (old_el != nullptr)
-    {
-        success = this->my_elements.replace_item(id, el);
-        if (success)
-        {
-            old_el->set_id(ELEMENT_ID_UNASSIGNED);
-            if (old_el->is_composite())
-            {
-                this->remove_subelements(old_el);
-            }
-            else
-            {
-                this->number_of_elements--;
-            }
-            // Make sure coordinate stuff has been computed
-            el->compute_coordinate_rotations();
-            el->set_id(id);
-            if (el->is_composite())
-            {
-                this->add_subelements(el);
-            }
-            else
-            {
-                this->number_of_elements++;
-            }
-            // this->number_of_elements -= old_el->get_number_of_elements();
-            // this->number_of_elements += el->get_number_of_elements();
-        }
-    }
-
-    return success;
-}
-
 element_ptr SimulationData::get_element(element_id id) const
 {
     return this->my_elements.get_item(id);

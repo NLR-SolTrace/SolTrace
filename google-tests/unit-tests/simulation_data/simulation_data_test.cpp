@@ -170,67 +170,6 @@ TEST(SimulationData, AddRemoveGetElements)
     EXPECT_EQ(sub1->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
 }
 
-TEST(SimulationData, ReplaceElement)
-{
-    SimulationData my_sim;
-
-    auto el1 = make_configured_element(my_sim);
-    auto el2 = make_configured_element(my_sim);
-    auto cmp1 = SolTrace::Data::make_element<CompositeElement>();
-    auto sub1 = make_configured_element(my_sim);
-    auto sub2 = make_configured_element(my_sim);
-    cmp1->add_element(sub1);
-    cmp1->add_element(sub2);
-    auto cmp2 = SolTrace::Data::make_element<CompositeElement>();
-    auto sub3 = make_configured_element(my_sim);
-    auto sub4 = make_configured_element(my_sim);
-    auto sub5 = make_configured_element(my_sim);
-    cmp2->add_element(sub3);
-    cmp2->add_element(sub4);
-    cmp2->add_element(sub5);
-
-    auto id1 = my_sim.add_element(el1);
-    auto id2 = my_sim.add_element(cmp1);
-    EXPECT_EQ(my_sim.get_number_of_elements(), 3);
-
-    // Replace element that is not in the simulation data
-    EXPECT_FALSE(my_sim.replace_element(SolTrace::Data::ELEMENT_ID_UNASSIGNED, el2));
-
-    // Replace single element with single element
-    EXPECT_TRUE(my_sim.replace_element(id1, el2));
-    EXPECT_EQ(el1->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
-    EXPECT_EQ(el2->get_id(), id1);
-    EXPECT_EQ(my_sim.get_element(id1), el2);
-    EXPECT_EQ(my_sim.get_number_of_elements(), 3);
-
-    // Replace composite element with single element
-    EXPECT_TRUE(my_sim.replace_element(id2, el1));
-    EXPECT_EQ(my_sim.get_element(id2), el1);
-    EXPECT_EQ(my_sim.get_number_of_elements(), 2);
-    EXPECT_EQ(cmp1->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
-    EXPECT_EQ(sub1->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
-    EXPECT_EQ(el1->get_id(), id2);
-
-    // Replace single element with composite element
-    EXPECT_TRUE(my_sim.replace_element(id2, cmp2));
-    EXPECT_EQ(my_sim.get_element(id2), cmp2);
-    EXPECT_EQ(my_sim.get_number_of_elements(), 4);
-    EXPECT_EQ(el1->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
-    EXPECT_EQ(cmp2->get_id(), id2);
-    EXPECT_NE(sub3->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
-    EXPECT_EQ(my_sim.get_element(sub3->get_id()), sub3);
-
-    // Replace composite element with composite element
-    EXPECT_TRUE(my_sim.replace_element(id2, cmp1));
-    EXPECT_EQ(my_sim.get_element(id2), cmp1);
-    EXPECT_EQ(my_sim.get_number_of_elements(), 3);
-    EXPECT_EQ(cmp2->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
-    EXPECT_EQ(cmp1->get_id(), id2);
-    EXPECT_EQ(sub3->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
-    EXPECT_NE(sub1->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
-    EXPECT_EQ(my_sim.get_element(sub1->get_id()), sub1);
-}
-
 TEST(SimulationData, IteratorElement)
 {
     SimulationData my_sim;
@@ -303,7 +242,6 @@ TEST(SimulationData, RaySourceInterface)
     auto id1 = my_sim.add_ray_source(src1);
     auto src2 = SolTrace::Data::make_ray_source<Sun>();
     auto id2 = my_sim.add_ray_source(src2);
-    auto src3 = SolTrace::Data::make_ray_source<Sun>();
 
     EXPECT_EQ(my_sim.get_ray_source(id1), src1);
     EXPECT_EQ(my_sim.get_ray_source(id2), src2);
@@ -312,10 +250,7 @@ TEST(SimulationData, RaySourceInterface)
     ray_source_id nonexistant = id2 + 1000;
     EXPECT_EQ(my_sim.get_ray_source(nonexistant), nullptr);
     EXPECT_EQ(my_sim.remove_ray_source(nonexistant), 0);
-    EXPECT_FALSE(my_sim.replace_ray_source(nonexistant, src3));
 
-    EXPECT_TRUE(my_sim.replace_ray_source(id1, src3));
-    EXPECT_EQ(my_sim.get_ray_source(id1), src3);
     EXPECT_EQ(my_sim.remove_ray_source(id1), 1);
 }
 

@@ -65,15 +65,6 @@ public:
         return this->my_sources.get_const_iterator()->second;
     }
 
-    /// @brief Replace the RaySource with id `id` with the RaySource `src`
-    /// @param id unique identifier of the RaySource to replace
-    /// @param src RaySource to use in replacement
-    /// @return true if the RaySource was replaced, false otherwise
-    bool replace_ray_source(ray_source_id id, ray_source_ptr src)
-    {
-        return this->my_sources.replace_item(id, src);
-    }
-
     uint_fast64_t get_number_of_ray_sources() const
     {
         return this->my_sources.get_number_of_items();
@@ -116,12 +107,6 @@ public:
     /// @param id unique identifier of element to get
     /// @return requested Element (pointer) if found, nullptr otherwise
     element_ptr get_element(element_id id) const;
-
-    /// @brief Replace the Element with id `id` with the Element `el`
-    /// @param id unique identifier of element to replace
-    /// @param el Element to use in replacement
-    /// @return true if Element was replaced, false otherwise
-    bool replace_element(element_id id, element_ptr el);
 
     /// @brief Gives the number of elements owned by the SimulationData.
     ///        CompositeElements do not count toward this number.

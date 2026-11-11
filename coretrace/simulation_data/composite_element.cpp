@@ -163,20 +163,6 @@ namespace SolTrace::Data
         return this->my_elements.get_item(id);
     }
 
-    bool CompositeElement::replace_element(element_id id, element_ptr el)
-    {
-        element_ptr old_el = this->my_elements.get_item(id);
-        bool replaced = this->my_elements.replace_item(id, el);
-
-        if (replaced)
-        {
-            this->number_of_elements -= old_el->get_number_of_elements();
-            this->number_of_elements += el->get_number_of_elements();
-        }
-
-        return replaced;
-    }
-
     void CompositeElement::clear()
     {
         this->number_of_elements = 0;

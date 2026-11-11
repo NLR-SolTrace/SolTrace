@@ -239,34 +239,6 @@ TEST(OpticalProperties, AddElementWithExpiredOpticsThrows)
     EXPECT_THROW(sd.add_element(test_element), std::invalid_argument);
 }
 
-TEST(OpticalProperties, ReplaceElementDoesNotInvalidateOptics)
-{
-    SimulationData sd;
-
-    OpticalPropertySet opt_set;
-    opt_set.set_ideal_reflection(OpticalSide::Both);
-
-    auto opt_ref = sd.add_optical_property_set(opt_set);
-
-    auto old_element = make_element<SingleElement>();
-    old_element->set_aperture(make_aperture<Circle>(1));
-    old_element->set_surface(make_surface<Flat>());
-    old_element->set_optical_property_set(opt_ref);
-
-    auto id = sd.add_element(old_element);
-    ASSERT_TRUE(SolTrace::Data::Element::is_success(id));
-
-    auto new_element = make_element<SingleElement>();
-    new_element->set_aperture(make_aperture<Circle>(2));
-    new_element->set_surface(make_surface<Flat>());
-    new_element->set_optical_property_set(opt_ref);
-
-    EXPECT_TRUE(sd.replace_element(id, new_element));
-
-    EXPECT_NE(new_element->get_optical_property_set(), nullptr);
-    EXPECT_NE(sd.get_optical_property_set(*new_element), nullptr);
-}
-
 TEST(OpticalProperties, AngularTableInterpolatesExactAtTablePoints)
 {
     OpticalPropertySet optics(InteractionType::REFLECTION,

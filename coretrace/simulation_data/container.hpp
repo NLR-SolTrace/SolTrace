@@ -112,20 +112,6 @@ public:
         // return ptr;
         return (item == this->container.end() ? nullptr : item->second);
     }
-    bool replace_item(K id, value_pointer item)
-    {
-        bool retval = false;
-        // TODO: What to do here if the item is not in the container?
-        // For now we fail if the key does not exist as this would otherwise
-        // be a silent failure. That seems dangerous.
-        auto pos = this->container.find(id);
-        if (pos != this->container.end())
-        {
-            this->container[id] = item;
-            retval = true;
-        }
-        return retval;
-    }
 
     uint_fast64_t get_number_of_items() const
     {

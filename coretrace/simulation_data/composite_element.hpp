@@ -157,14 +157,6 @@ namespace SolTrace::Data
         element_ptr get_element(element_id id);
 
         /**
-         * @brief Replace an element with a new one
-         * @param id Element ID to replace
-         * @param el New element to insert
-         * @return True if replacement was successful
-         */
-        bool replace_element(element_id id, element_ptr el);
-
-        /**
          * @brief Remove all elements from this composite
          */
         void clear();

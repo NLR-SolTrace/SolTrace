@@ -59,14 +59,6 @@ TEST(Container, Interface)
     }
     EXPECT_EQ(ids.size(), my_container.get_number_of_items());
 
-    // Test replacing item--first one in the container then one not
-    EXPECT_TRUE(my_container.replace_item(0, TestContainer::make_pointer(10)));
-    auto ptr = my_container.get_item(0);
-    EXPECT_EQ(ptr->a, 10);
-    EXPECT_FALSE(
-        my_container.replace_item(NUM_ITEMS + 1,
-                                  TestContainer::make_pointer(NUM_ITEMS + 1)));
-
     // Test for removing item that isn't in container
     EXPECT_FALSE(my_container.remove_item(NUM_ITEMS + 1));
     EXPECT_TRUE(my_container.remove_item(0));

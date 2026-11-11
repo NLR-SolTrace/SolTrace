@@ -181,10 +181,13 @@ TEST(Element, CompositeElementAccessors)
     auto id = cmp->add_element(elem);
     EXPECT_EQ(cmp->get_element(id).get(), elem.get());
 
+    // Removing an element and adding another one in its place
+    EXPECT_EQ(cmp->remove_element(id), 1);
+    EXPECT_EQ(cmp->get_element(id), nullptr);
     auto elem2 = make_configured_element(sd);
     EXPECT_NE(elem.get(), elem2.get());
-    cmp->replace_element(id, elem2);
-    EXPECT_EQ(cmp->get_element(id).get(), elem2.get());
+    auto id2 = cmp->add_element(elem2);
+    EXPECT_EQ(cmp->get_element(id2).get(), elem2.get());
 
     // Recursive CompositeElements -- this is disallowed!
     auto cmp2 = SolTrace::Data::make_element<CompositeElement>();
