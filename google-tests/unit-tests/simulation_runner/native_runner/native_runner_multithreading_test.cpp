@@ -14,6 +14,8 @@
 #include <simulation_data_export.hpp>
 #include <simulation_runner.hpp>
 #include <simulation_result_export.hpp>
+#include <thread_manager.hpp>
+#include <trace_logger.hpp>
 
 using SolTrace::Runner::RunnerStatus;
 using SolTrace::NativeRunner::GenerateRay;
@@ -310,4 +312,34 @@ TEST(NativeRunner, RayIdAssignmentMultiThread)
         auto ray_rec = result[k];
         ASSERT_EQ(ray_rec->id, k + 1);
     }
+}
+
+TEST(ThreadManager, MaxRaysAggregation)
+{
+    using RS = RunnerStatus;
+
+    // Builds a fresh manager, feeds it threads that return the given statuses,
+    // and returns the aggregated result.
+    auto aggregate = [](const std::vector<RS> &thread_results)
+    {
+        auto mgr = SolTrace::NativeRunner::make_thread_manager(
+            SolTrace::NativeRunner::make_trace_logger());
+        for (unsigned k = 0; k < thread_results.size(); ++k)
+        {
+            RS s = thread_results[k];
+            mgr->manage(k, std::async(std::launch::async, [s]() { return s; }));
+        }
+        return mgr->monitor_until_completion();
+    };
+
+    EXPECT_EQ(aggregate({RS::SUCCESS, RS::SUCCESS}), RS::SUCCESS);
+    EXPECT_EQ(aggregate({RS::SUCCESS, RS::MAXRAYS}), RS::MAXRAYS);
+    EXPECT_EQ(aggregate({RS::MAXRAYS, RS::SUCCESS}), RS::MAXRAYS);
+    EXPECT_EQ(aggregate({RS::MAXRAYS, RS::MAXRAYS}), RS::MAXRAYS);
+
+    // Worse statuses always win, regardless of order
+    EXPECT_EQ(aggregate({RS::MAXRAYS, RS::CANCEL}), RS::CANCEL);
+    EXPECT_EQ(aggregate({RS::CANCEL, RS::MAXRAYS}), RS::CANCEL);
+    EXPECT_EQ(aggregate({RS::MAXRAYS, RS::ERROR}), RS::ERROR);
+    EXPECT_EQ(aggregate({RS::ERROR, RS::MAXRAYS}), RS::ERROR);
 }
