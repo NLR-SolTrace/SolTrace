@@ -122,7 +122,7 @@ public:
         // Initial setup of heliostat
         glm::dvec3 heliostat_origin(0.0, 500.0, 5.65);
         glm::dvec3 rec_origin(0.0, 0.0, 169.0);
-        heliostat = SolTrace::Data::make_element<Heliostat>();
+        heliostat = new_element<Heliostat>(simData);
         auto mirror_ref = simData.add_optical_property_set(mirror_opt_set);
         heliostat->set_optics(mirror_ref);
         heliostat->set_reference_frame_geometry(heliostat_origin, khat, 0.0);
@@ -141,10 +141,10 @@ public:
         rec_opt_set.set_ideal_absorption(SolTrace::Data::OpticalSide::Both);
         auto rec_ref = simData.add_optical_property_set(rec_opt_set);
 
-        receiver = SolTrace::Data::make_element<SingleElement>();
-        receiver->set_optical_property_set(rec_ref);
-        receiver->set_aperture(SolTrace::Data::make_aperture<SolTrace::Data::Rectangle>(rec_width, rec_height));
-        receiver->set_surface(SolTrace::Data::make_surface<SolTrace::Data::Flat>());
+        receiver = make_single(simData,
+                               SolTrace::Data::make_aperture<SolTrace::Data::Rectangle>(rec_width, rec_height),
+                               SolTrace::Data::make_surface<SolTrace::Data::Flat>(),
+                               rec_ref);
         glm::dvec3 v1 = {0.0, 1.0, 0.0}; // Pointing North TODO: change to point towards heliostat
         glm::dvec3 aim_point = rec_origin + v1;
         receiver->set_reference_frame_geometry(rec_origin, aim_point, 0.0);
@@ -162,18 +162,18 @@ public:
         simData.add_ray_source(sun);
 
         // Set up stages
-        stage_ptr st1 = SolTrace::Data::make_stage(1);
+        stage_ptr st1 = new_stage(simData, 1);
         st1->set_reference_frame_geometry(zero, khat, 0.0);
-        auto ret = st1->add_element(heliostat);
+        auto ret = attach_child(st1, heliostat);
         EXPECT_TRUE(SolTrace::Data::Element::is_success(ret));
 
-        stage_ptr st2 = SolTrace::Data::make_stage(2);
+        stage_ptr st2 = new_stage(simData, 2);
         st2->set_reference_frame_geometry(zero, khat, 0.0);
-        ret = st2->add_element(receiver);
+        ret = attach_child(st2, receiver);
         EXPECT_TRUE(SolTrace::Data::Element::is_success(ret));
 
-        simData.add_stage(st1);
-        simData.add_stage(st2);
+        register_stage(simData, st1);
+        register_stage(simData, st2);
     }
 
     void set_high_accuracy_params() {

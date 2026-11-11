@@ -11,6 +11,8 @@
 #include <simulation_result_export.hpp>
 #include <simulation_runner.hpp>
 
+#include "element_builders.hpp"
+
 using SolTrace::NativeRunner::NativeRunner;
 using SolTrace::Runner::RunnerStatus;
 
@@ -38,53 +40,47 @@ static SimulationData create_two_flat_elements_simulation(const bool separateSta
 
     // Plate 1: Angled 45 degrees, receives rays from sun and reflects toward plate 2
     // Position at origin, tilted to reflect rays in +Y direction
-    plate1 = make_element<SingleElement>();
+    plate1 = make_single(sd, make_aperture<Rectangle>(10, 10), make_surface<Flat>(), reflective_optics_ref);
     plate1->set_origin(0, 0, 50);
     plate1->set_aim_vector(0, 50, 100);  // Tilted 45 degrees toward +Y
-    plate1->set_surface(make_surface<Flat>());
-    plate1->set_aperture(make_aperture<Rectangle>(10, 10));
-    plate1->set_optical_property_set(reflective_optics_ref);
     plate1->set_name("plate1");
 
     // Plate 2: Positioned to receive reflected rays from plate 1
     // At Y=50, tilted 45 degrees to face plate 1
-    plate2 = make_element<SingleElement>();
+    plate2 = make_single(sd, make_aperture<Rectangle>(5, 5), make_surface<Flat>(), absorber_optics_ref);  // Smaller to absorb rays
     plate2->set_origin(0, 50, 50);
     plate2->set_aim_vector(0, 0, 100);  // Tilted 45 degrees toward -Y (facing plate 1)
-    plate2->set_surface(make_surface<Flat>());
-    plate2->set_aperture(make_aperture<Rectangle>(5, 5));  // Smaller to absorb rays
-    plate2->set_optical_property_set(absorber_optics_ref);
     plate2->set_name("plate2");    
 
     if (separateStages)
     {
         // Stage 0 with el1
-        auto st0 = make_stage(0);
+        auto st0 = new_stage(sd, 0);
         st0->set_origin(0.0, 0.0, 0.0);
         st0->set_aim_vector(0.0, 0.0, 1.0);
         st0->set_name("Stage_0");
-        st0->add_element(plate1);
+        attach_child(st0, plate1);
 
         // Stage 1 with el2
-        auto st1 = make_stage(1);
+        auto st1 = new_stage(sd, 1);
         st1->set_origin(0.0, 0.0, 0.0);
         st1->set_aim_vector(0.0, 0.0, 1.0);
         st1->set_name("Stage_1");
-        st1->add_element(plate2);
+        attach_child(st1, plate2);
 
-        sd.add_stage(st0);
-        sd.add_stage(st1);
+        register_stage(sd, st0);
+        register_stage(sd, st1);
     }
     else
     {
         // Single stage containing both elements
-        auto st0 = make_stage(0);
+        auto st0 = new_stage(sd, 0);
         st0->set_origin(0.0, 0.0, 0.0);
         st0->set_aim_vector(0.0, 0.0, 1.0);
         st0->set_name("Stage_0");
-        st0->add_element(plate1);
-        st0->add_element(plate2);
-        sd.add_stage(st0);
+        attach_child(st0, plate1);
+        attach_child(st0, plate2);
+        register_stage(sd, st0);
     }
 
     // Parameters
@@ -303,38 +299,36 @@ TEST(StageTest, DuplicateStageNumbersThrows)
     sd.add_ray_source(sun);
 
     // Two stages with the same index
-    auto st0a = make_stage(0);
-    auto st0b = make_stage(0);
+    auto st0a = new_stage(sd, 0);
+    auto st0b = new_stage(sd, 0);
 
     // Add one enabled element to each stage so stages are materialized
-    auto elA = make_element<SingleElement>();
+    auto elA = new_element<SingleElement>(sd);
     elA->set_origin(0, 0, 50);
     elA->set_aim_vector(0, 0, 100);
-    elA->set_surface(make_surface<Flat>());
-    elA->set_aperture(make_aperture<Rectangle>(1, 1));
+    set_element_shape(sd, elA, make_aperture<Rectangle>(1, 1), make_surface<Flat>());
     {
         SolTrace::Data::OpticalPropertySet optics(SolTrace::Data::InteractionType::REFLECTION, "duplicate_stage_A_optics");
         optics.set_ideal_reflection(SolTrace::Data::OpticalSide::Both);
         optics.set_errors(SolTrace::Data::OpticalSide::Both, SolTrace::Data::DistributionType::NONE, 0.0, 0.0);
         elA->set_optical_property_set(sd.add_optical_property_set(optics));
     }
-    st0a->add_element(elA);
+    attach_child(st0a, elA);
 
-    auto elB = make_element<SingleElement>();
+    auto elB = new_element<SingleElement>(sd);
     elB->set_origin(0, 10, 50);
     elB->set_aim_vector(0, 0, 100);
-    elB->set_surface(make_surface<Flat>());
-    elB->set_aperture(make_aperture<Rectangle>(1, 1));
+    set_element_shape(sd, elB, make_aperture<Rectangle>(1, 1), make_surface<Flat>());
     {
         SolTrace::Data::OpticalPropertySet optics(SolTrace::Data::InteractionType::REFLECTION, "duplicate_stage_B_optics");
         optics.set_ideal_reflection(SolTrace::Data::OpticalSide::Both);
         optics.set_errors(SolTrace::Data::OpticalSide::Both, SolTrace::Data::DistributionType::NONE, 0.0, 0.0);
         elB->set_optical_property_set(sd.add_optical_property_set(optics));
     }
-    st0b->add_element(elB);
+    attach_child(st0b, elB);
 
-    sd.add_stage(st0a);
-    sd.add_stage(st0b);
+    register_stage(sd, st0a);
+    register_stage(sd, st0b);
 
     NativeRunner runner;
     RunnerStatus sts = runner.initialize();
@@ -349,35 +343,33 @@ TEST(StageTest, ElementBeforeStageThrowsWhenStagesEnabled)
     sun->set_position(0.0, 0.0, 100.0);
     sd.add_ray_source(sun);
 
-    auto el = make_element<SingleElement>();
+    auto el = new_element<SingleElement>(sd);
     el->set_origin(0,0,50);
     el->set_aim_vector(0,0,100);
-    el->set_surface(make_surface<Flat>());
-    el->set_aperture(make_aperture<Rectangle>(1,1));
+    set_element_shape(sd, el, make_aperture<Rectangle>(1,1), make_surface<Flat>());
     {
         SolTrace::Data::OpticalPropertySet optics(SolTrace::Data::InteractionType::REFLECTION, "element_before_stage_optics");
         optics.set_ideal_reflection(SolTrace::Data::OpticalSide::Both);
         optics.set_errors(SolTrace::Data::OpticalSide::Both, SolTrace::Data::DistributionType::NONE, 0.0, 0.0);
         el->set_optical_property_set(sd.add_optical_property_set(optics));
     }
-    sd.add_element(el);
+    register_element(sd, el);
 
-    auto st0 = make_stage(0);
+    auto st0 = new_stage(sd, 0);
 
-    auto elB = make_element<SingleElement>();
+    auto elB = new_element<SingleElement>(sd);
     elB->set_origin(0, 10, 50);
     elB->set_aim_vector(0, 0, 100);
-    elB->set_surface(make_surface<Flat>());
-    elB->set_aperture(make_aperture<Rectangle>(1, 1));
+    set_element_shape(sd, elB, make_aperture<Rectangle>(1, 1), make_surface<Flat>());
     {
         SolTrace::Data::OpticalPropertySet optics(SolTrace::Data::InteractionType::REFLECTION, "element_before_stage_B_optics");
         optics.set_ideal_reflection(SolTrace::Data::OpticalSide::Both);
         optics.set_errors(SolTrace::Data::OpticalSide::Both, SolTrace::Data::DistributionType::NONE, 0.0, 0.0);
         elB->set_optical_property_set(sd.add_optical_property_set(optics));
     }
-    st0->add_element(elB);
+    attach_child(st0, elB);
 
-    sd.add_stage(st0);
+    register_stage(sd, st0);
 
     NativeRunner runner;
     RunnerStatus sts = runner.initialize();
@@ -392,35 +384,33 @@ TEST(StageTest, ElementBeforeStageSucceedsWhenStagesDisabled)
     sun->set_position(0.0, 0.0, 100.0);
     sd.add_ray_source(sun);
 
-    auto el = make_element<SingleElement>();
+    auto el = new_element<SingleElement>(sd);
     el->set_origin(0,0,50);
     el->set_aim_vector(0,0,100);
-    el->set_surface(make_surface<Flat>());
-    el->set_aperture(make_aperture<Rectangle>(1,1));
+    set_element_shape(sd, el, make_aperture<Rectangle>(1,1), make_surface<Flat>());
     {
         SolTrace::Data::OpticalPropertySet optics(SolTrace::Data::InteractionType::REFLECTION, "element_before_stage_disabled_optics");
         optics.set_ideal_reflection(SolTrace::Data::OpticalSide::Both);
         optics.set_errors(SolTrace::Data::OpticalSide::Both, SolTrace::Data::DistributionType::NONE, 0.0, 0.0);
         el->set_optical_property_set(sd.add_optical_property_set(optics));
     }
-    sd.add_element(el);
+    register_element(sd, el);
 
-    auto st0 = make_stage(0);
+    auto st0 = new_stage(sd, 0);
 
-    auto elB = make_element<SingleElement>();
+    auto elB = new_element<SingleElement>(sd);
     elB->set_origin(0, 10, 50);
     elB->set_aim_vector(0, 0, 100);
-    elB->set_surface(make_surface<Flat>());
-    elB->set_aperture(make_aperture<Rectangle>(1, 1));
+    set_element_shape(sd, elB, make_aperture<Rectangle>(1, 1), make_surface<Flat>());
     {
         SolTrace::Data::OpticalPropertySet optics(SolTrace::Data::InteractionType::REFLECTION, "element_before_stage_disabled_B_optics");
         optics.set_ideal_reflection(SolTrace::Data::OpticalSide::Both);
         optics.set_errors(SolTrace::Data::OpticalSide::Both, SolTrace::Data::DistributionType::NONE, 0.0, 0.0);
         elB->set_optical_property_set(sd.add_optical_property_set(optics));
     }
-    st0->add_element(elB);
+    attach_child(st0, elB);
 
-    sd.add_stage(st0);
+    register_stage(sd, st0);
 
     NativeRunner runner;
     runner.disable_stages();
@@ -442,18 +432,17 @@ TEST(StageTest, NoStagesCreatesSingleInternalStage)
     sun->set_position(0.0, 0.0, 100.0);
     sd.add_ray_source(sun);
 
-    auto el = make_element<SingleElement>();
+    auto el = new_element<SingleElement>(sd);
     el->set_origin(0,0,50);
     el->set_aim_vector(0,0,100);
-    el->set_surface(make_surface<Flat>());
-    el->set_aperture(make_aperture<Rectangle>(2,2));
+    set_element_shape(sd, el, make_aperture<Rectangle>(2,2), make_surface<Flat>());
     {
         SolTrace::Data::OpticalPropertySet optics(SolTrace::Data::InteractionType::REFLECTION, "no_stage_internal_optics");
         optics.set_ideal_reflection(SolTrace::Data::OpticalSide::Both);
         optics.set_errors(SolTrace::Data::OpticalSide::Both, SolTrace::Data::DistributionType::NONE, 0.0, 0.0);
         el->set_optical_property_set(sd.add_optical_property_set(optics));
     }
-    sd.add_element(el);
+    register_element(sd, el);
 
     NativeRunner runner;
     RunnerStatus sts = runner.initialize();

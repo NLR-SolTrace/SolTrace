@@ -25,7 +25,8 @@ using SolTrace::NativeRunner::TSystem;
 // Error Checking Tests for LinearFresnel
 TEST(LinearFresnel, ErrorChecking_SetApertureSize)
 {
-    auto lf = SolTrace::Data::make_element<LinearFresnel>();
+    SimulationData sd;
+    auto lf = new_element<LinearFresnel>(sd);
 
     // Test negative aperture size
     EXPECT_THROW(lf->set_aperture_size(-1.0, 5.0), std::invalid_argument);
@@ -43,7 +44,8 @@ TEST(LinearFresnel, ErrorChecking_SetApertureSize)
 
 TEST(LinearFresnel, ErrorChecking_SetAngles)
 {
-    auto lf = SolTrace::Data::make_element<LinearFresnel>();
+    SimulationData sd;
+    auto lf = new_element<LinearFresnel>(sd);
 
     // Test invalid azimuth angles
     EXPECT_THROW(lf->set_angles(-181.0, 45.0), std::invalid_argument);
@@ -61,7 +63,8 @@ TEST(LinearFresnel, ErrorChecking_SetAngles)
 
 TEST(LinearFresnel, ErrorChecking_SetGaps)
 {
-    auto lf = SolTrace::Data::make_element<LinearFresnel>();
+    SimulationData sd;
+    auto lf = new_element<LinearFresnel>(sd);
 
     // Test negative gap values
     EXPECT_THROW(lf->set_gaps(-0.1, 0.1, 0.1), std::invalid_argument);
@@ -75,7 +78,8 @@ TEST(LinearFresnel, ErrorChecking_SetGaps)
 
 TEST(LinearFresnel, ErrorChecking_SetNumberPanels)
 {
-    auto lf = SolTrace::Data::make_element<LinearFresnel>();
+    SimulationData sd;
+    auto lf = new_element<LinearFresnel>(sd);
 
     // Test invalid panel counts
     EXPECT_THROW(lf->set_number_panels(0, 5), std::invalid_argument);
@@ -90,7 +94,8 @@ TEST(LinearFresnel, ErrorChecking_SetNumberPanels)
 
 TEST(LinearFresnel, ErrorChecking_SetReceiverHeight)
 {
-    auto lf = SolTrace::Data::make_element<LinearFresnel>();
+    SimulationData sd;
+    auto lf = new_element<LinearFresnel>(sd);
 
     // Test invalid receiver heights
     EXPECT_THROW(lf->set_receiver_height(0.0), std::invalid_argument);
@@ -103,7 +108,8 @@ TEST(LinearFresnel, ErrorChecking_SetReceiverHeight)
 
 TEST(LinearFresnel, ErrorChecking_SetReceiverDimensions)
 {
-    auto lf = SolTrace::Data::make_element<LinearFresnel>();
+    SimulationData sd;
+    auto lf = new_element<LinearFresnel>(sd);
 
     // Test invalid absorber diameter
     EXPECT_THROW(lf->set_receiver_dimensions(0.0, 1.0, 0.1), std::invalid_argument);
@@ -131,7 +137,7 @@ TEST(LinearFresnel, ErrorChecking_CreateGeometryWithoutParameters)
     auto optics = OpticalPropertySet();
     auto optics_ref = sd.add_optical_property_set(optics);
 
-    auto lf = SolTrace::Data::make_element<LinearFresnel>();
+    auto lf = new_element<LinearFresnel>(sd);
     lf->set_optics(optics_ref, optics_ref, optics_ref, optics_ref);
 
     // Test create_geometry without setting required parameters
@@ -176,7 +182,7 @@ TEST(LinearFresnel, Build)
     envelop_inner_optics.set_ideal_transmission(1.0, 1.46);
     auto env_in_opt_ref = my_sim.add_optical_property_set(envelop_inner_optics);
 
-    auto lf = SolTrace::Data::make_element<LinearFresnel>();
+    auto lf = new_element<LinearFresnel>(my_sim);
     lf->set_optics(mirror_opt_ref, abs_opt_ref, env_out_opt_ref, env_in_opt_ref);
     lf->set_origin(10.0, -10.0, 0.0);
     lf->set_aperture_size(6.0, 12.0);
@@ -188,7 +194,7 @@ TEST(LinearFresnel, Build)
     lf->set_angles(0.0, 0.0);
     lf->create_geometry();
 
-    lf = SolTrace::Data::make_element<LinearFresnel>();
+    lf = new_element<LinearFresnel>(my_sim);
     lf->set_optics(mirror_opt_ref, abs_opt_ref, env_out_opt_ref, env_in_opt_ref);
     lf->set_origin(10.0, -10.0, 0.0);
     lf->set_aperture_size(6.0, 12.0);
@@ -243,7 +249,7 @@ TEST(LinearFresnel, Tracing)
     envelop_inner_optics.set_errors(OpticalSide::Both, DistributionType::NONE, 1e-4, 1e-4);
     auto env_in_opt_ref = my_sim.add_optical_property_set(envelop_inner_optics);
 
-    auto lf = SolTrace::Data::make_element<LinearFresnel>();
+    auto lf = new_element<LinearFresnel>(my_sim);
     lf->set_optics(mirror_opt_ref, abs_opt_ref, env_out_opt_ref, env_in_opt_ref);
     lf->set_origin(0.0, 0.0, 0.0);
     lf->set_aperture_size(6.0, 12.0);
@@ -270,7 +276,7 @@ TEST(LinearFresnel, Tracing)
     lf->set_zrot(0.0);
     lf->compute_coordinate_rotations();
     lf->enable();
-    my_sim.add_element(lf);
+    register_element(my_sim, lf);
 
     // // We can go over all the elements added
     // for (auto iter = my_sim.get_iterator();
@@ -395,7 +401,7 @@ TEST(LinearFresnel, UpdateGeometry)
     sun->set_shape(SolTrace::Data::SunShape::GAUSSIAN, 1.0, 0.0, 0.0);
     my_sim.add_ray_source(sun);
 
-    auto lf = SolTrace::Data::make_element<LinearFresnel>();
+    auto lf = new_element<LinearFresnel>(my_sim);
     lf->set_optics(mirror_opt_ref, abs_opt_ref, env_out_opt_ref, env_in_opt_ref);
     lf->set_origin(10.0, 0.0, 0.0);
     // lf->set_origin(0.0, 0.0, 0.0);
@@ -412,7 +418,7 @@ TEST(LinearFresnel, UpdateGeometry)
     lf->set_name("LinearFresnel");
     lf->update_geometry(sun_az, sun_el);
     lf->enable();
-    my_sim.add_element(lf);
+    register_element(my_sim, lf);
 
     // EXPECT_NEAR(dot_product(lf->get_rotation_vector(),
     //                         lf->get_neutral_normal()),
@@ -498,9 +504,9 @@ TEST(LinearFresnel, UpdateGeometry_TrackingLimits)
     const double UPPER = 25.0;
     const double TOL = 1e-12;
 
-    auto lf = SolTrace::Data::make_element<LinearFresnel>();
-    
     SimulationData sd;
+    auto lf = new_element<LinearFresnel>(sd);
+
     auto optics = OpticalPropertySet();
     auto optics_ref = sd.add_optical_property_set(optics);
     lf->set_optics(optics_ref, optics_ref, optics_ref, optics_ref);
@@ -561,7 +567,8 @@ TEST(LinearFresnel, UpdateGeometry_TrackingLimits)
 // Additional error condition tests for LinearFresnel
 TEST(LinearFresnel, ErrorChecking_SetTrackingLimits)
 {
-    auto lf = SolTrace::Data::make_element<LinearFresnel>();
+    SimulationData sd;
+    auto lf = new_element<LinearFresnel>(sd);
     // Lower limit > upper limit
     EXPECT_THROW(lf->set_tracking_limits(90.0, 0.0), std::invalid_argument);
     // Lower limit == upper limit (should be allowed, so no throw)
@@ -570,9 +577,9 @@ TEST(LinearFresnel, ErrorChecking_SetTrackingLimits)
 
 TEST(LinearFresnel, ErrorChecking_UpdateGeometryInvalidArgs)
 {
-    auto lf = SolTrace::Data::make_element<LinearFresnel>();
-
     SimulationData sd;
+    auto lf = new_element<LinearFresnel>(sd);
+
     auto optics = OpticalPropertySet();
     auto optics_ref = sd.add_optical_property_set(optics);
     lf->set_optics(optics_ref, optics_ref, optics_ref, optics_ref);
@@ -592,7 +599,8 @@ TEST(LinearFresnel, ErrorChecking_UpdateGeometryInvalidArgs)
 
 TEST(LinearFresnel, ErrorChecking_UpdateGeometryBeforeCreate)
 {
-    auto lf = SolTrace::Data::make_element<LinearFresnel>();
+    SimulationData sd;
+    auto lf = new_element<LinearFresnel>(sd);
     lf->set_aperture_size(5.0, 10.0);
     lf->set_number_panels(2, 2);
     lf->set_receiver_height(3.0);

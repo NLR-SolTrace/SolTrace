@@ -15,6 +15,8 @@
 #include <simulation_runner.hpp>
 #include <simulation_result_export.hpp>
 
+#include "element_builders.hpp"
+
 using SolTrace::Runner::RunnerStatus;
 using SolTrace::NativeRunner::GenerateRay;
 using SolTrace::NativeRunner::MTRand;
@@ -34,11 +36,12 @@ namespace
         sun->set_gen_type(SolTrace::Data::GenType::HALTON);
         sd.add_ray_source(sun);
 
-        auto stage = SolTrace::Data::make_stage(0);
+        auto stage = new_stage(sd, 0);
 
-        auto mirror = SolTrace::Data::make_element<SingleElement>();
-        mirror->set_aperture(SolTrace::Data::make_aperture<Rectangle>(20.0, 20.0));
-        mirror->set_surface(SolTrace::Data::make_surface<Flat>());
+        auto mirror = new_element<SingleElement>(sd);
+        set_element_shape(sd, mirror,
+            SolTrace::Data::make_aperture<Rectangle>(20.0, 20.0),
+            SolTrace::Data::make_surface<Flat>());
         mirror->set_reference_frame_geometry(glm::dvec3(0.0, 0.0, 0.0),
             glm::dvec3(0.0, 0.0, 1.0),
             0.0);
@@ -49,9 +52,9 @@ namespace
         auto ref = sd.add_optical_property_set(mirror_optics_set);
         mirror->set_optical_property_set(ref);
 
-        stage->add_element(mirror);
+        attach_child(stage, mirror);
 
-        sd.add_stage(stage);
+        register_stage(sd, stage);
 
         auto &params = sd.get_simulation_parameters();
         params.number_of_rays = nrays;

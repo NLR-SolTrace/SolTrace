@@ -12,10 +12,10 @@ TEST(SimulationData, AddUnconfiguredSingleElementThrowsError)
     SimulationData my_sim;
 
     // Create an unconfigured SingleElement (no aperture or surface set)
-    auto unconfigured_element = SolTrace::Data::make_element<SingleElement>();
+    auto unconfigured_element = new_element<SingleElement>(my_sim);
 
     // Adding an unconfigured element should throw an exception
-    EXPECT_THROW(my_sim.add_element(unconfigured_element), std::invalid_argument);
+    EXPECT_THROW(register_element(my_sim, unconfigured_element), std::invalid_argument);
 
     // The element should not be added to the simulation
     EXPECT_EQ(my_sim.get_number_of_elements(), 0);
@@ -29,12 +29,12 @@ TEST(SimulationData, AddPartiallyConfiguredSingleElementThrowsError)
     SimulationData my_sim;
 
     // Create a SingleElement with only aperture set (missing surface)
-    auto partially_configured = SolTrace::Data::make_element<SingleElement>();
+    auto partially_configured = new_element<SingleElement>(my_sim);
     auto aperture = SolTrace::Data::make_aperture<SolTrace::Data::Rectangle>(1.0, 1.0);
     partially_configured->set_aperture(aperture);
 
     // Adding a partially configured element should throw an exception
-    EXPECT_THROW(my_sim.add_element(partially_configured), std::invalid_argument);
+    EXPECT_THROW(register_element(my_sim, partially_configured), std::invalid_argument);
 
     // The element should not be added to the simulation
     EXPECT_EQ(my_sim.get_number_of_elements(), 0);
@@ -48,10 +48,10 @@ TEST(SimulationData, AddUnconfiguredCompositeElementThrowsError)
     SimulationData my_sim;
 
     // Create an empty CompositeElement (no subelements)
-    auto empty_composite = SolTrace::Data::make_element<CompositeElement>();
+    auto empty_composite = new_element<CompositeElement>(my_sim);
 
     // Adding an empty composite element should throw an exception
-    EXPECT_THROW(my_sim.add_element(empty_composite), std::invalid_argument);
+    EXPECT_THROW(register_element(my_sim, empty_composite), std::invalid_argument);
 
     // The element should not be added to the simulation
     EXPECT_EQ(my_sim.get_number_of_elements(), 0);
@@ -69,30 +69,24 @@ TEST(SimulationData, AddProperlyConfiguredElementsSucceeds)
     auto optics_ref = my_sim.add_optical_property_set(dummy_optics);
 
     // Create a properly configured SingleElement
-    auto configured_single = SolTrace::Data::make_element<SingleElement>();
     auto aperture = SolTrace::Data::make_aperture<SolTrace::Data::Rectangle>(1.0, 1.0);
     auto surface = SolTrace::Data::make_surface<SolTrace::Data::Flat>();
-    configured_single->set_aperture(aperture);
-    configured_single->set_surface(surface);
-    configured_single->set_optical_property_set(optics_ref);
+    auto configured_single = make_single(my_sim, aperture, surface, optics_ref);
 
     // Adding a properly configured element should succeed
-    EXPECT_NO_THROW(my_sim.add_element(configured_single));
+    EXPECT_NO_THROW(register_element(my_sim, configured_single));
     EXPECT_EQ(my_sim.get_number_of_elements(), 1);
     EXPECT_NE(configured_single->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
 
     // Create a properly configured CompositeElement
-    auto configured_composite = SolTrace::Data::make_element<CompositeElement>();
-    auto configured_sub1 = SolTrace::Data::make_element<SingleElement>();
+    auto configured_composite = new_element<CompositeElement>(my_sim);
     auto aperture2 = SolTrace::Data::make_aperture<SolTrace::Data::Rectangle>(2.0, 2.0);
     auto surface2 = SolTrace::Data::make_surface<SolTrace::Data::Flat>();
-    configured_sub1->set_aperture(aperture2);
-    configured_sub1->set_surface(surface2);
-    configured_sub1->set_optical_property_set(optics_ref);
-    configured_composite->add_element(configured_sub1);
+    auto configured_sub1 = make_single(my_sim, aperture2, surface2, optics_ref);
+    attach_child(configured_composite, configured_sub1);
 
     // Adding a properly configured composite should succeed
-    EXPECT_NO_THROW(my_sim.add_element(configured_composite));
+    EXPECT_NO_THROW(register_element(my_sim, configured_composite));
     EXPECT_EQ(my_sim.get_number_of_elements(), 2); // 1 + 1 subelement
     EXPECT_NE(configured_composite->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
     EXPECT_NE(configured_sub1->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
@@ -104,14 +98,14 @@ TEST(SimulationData, ValidationErrorPreservesSimulationState)
 
     // Add a properly configured element first
     auto good_element = make_configured_element(my_sim);
-    my_sim.add_element(good_element);
+    register_element(my_sim, good_element);
 
     EXPECT_EQ(my_sim.get_number_of_elements(), 1);
     auto initial_count = my_sim.get_number_of_elements();
 
     // Try to add an unconfigured element
-    auto bad_element = SolTrace::Data::make_element<SingleElement>();
-    EXPECT_THROW(my_sim.add_element(bad_element), std::invalid_argument);
+    auto bad_element = new_element<SingleElement>(my_sim);
+    EXPECT_THROW(register_element(my_sim, bad_element), std::invalid_argument);
 
     // The simulation state should be unchanged
     EXPECT_EQ(my_sim.get_number_of_elements(), initial_count);
@@ -126,18 +120,18 @@ TEST(SimulationData, AddRemoveGetElements)
     SimulationData my_sim;
 
     auto my_reflector = make_configured_element(my_sim);
-    auto id1 = my_sim.add_element(my_reflector);
+    auto id1 = register_element(my_sim, my_reflector);
     EXPECT_EQ(id1, my_reflector->get_id());
     EXPECT_EQ(my_sim.get_number_of_elements(), 1);
 
-    auto my_comp = SolTrace::Data::make_element<CompositeElement>();
+    auto my_comp = new_element<CompositeElement>(my_sim);
     auto sub1 = make_configured_element(my_sim);
     auto sub2 = make_configured_element(my_sim);
-    my_comp->add_element(sub1);
-    my_comp->add_element(sub2);
+    attach_child(my_comp, sub1);
+    attach_child(my_comp, sub2);
     EXPECT_EQ(my_comp->get_number_of_elements(), 2);
 
-    auto id2 = my_sim.add_element(my_comp);
+    auto id2 = register_element(my_sim, my_comp);
     EXPECT_EQ(id2, my_comp->get_id());
     EXPECT_NE(id1, id2);
     EXPECT_NE(sub1->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
@@ -147,7 +141,7 @@ TEST(SimulationData, AddRemoveGetElements)
     EXPECT_EQ(my_sim.get_element(id2), my_comp);
     EXPECT_EQ(my_sim.get_element(sub1->get_id()), sub1);
 
-    EXPECT_EQ(my_sim.add_element(sub1), SolTrace::Data::ELEMENT_ALREADY_REGISTERED);
+    EXPECT_EQ(register_element(my_sim, sub1), SolTrace::Data::ELEMENT_ALREADY_REGISTERED);
     EXPECT_EQ(my_sim.get_number_of_elements(), 3);
 
     element_id nonexistant = id2 + 1000;
@@ -176,23 +170,23 @@ TEST(SimulationData, IteratorElement)
 
     auto el1 = make_configured_element(my_sim);
     auto el2 = make_configured_element(my_sim);
-    auto cmp1 = SolTrace::Data::make_element<CompositeElement>();
+    auto cmp1 = new_element<CompositeElement>(my_sim);
     auto sub1 = make_configured_element(my_sim);
     auto sub2 = make_configured_element(my_sim);
-    cmp1->add_element(sub1);
-    cmp1->add_element(sub2);
-    auto cmp2 = SolTrace::Data::make_element<CompositeElement>();
+    attach_child(cmp1, sub1);
+    attach_child(cmp1, sub2);
+    auto cmp2 = new_element<CompositeElement>(my_sim);
     auto sub3 = make_configured_element(my_sim);
     auto sub4 = make_configured_element(my_sim);
     auto sub5 = make_configured_element(my_sim);
-    cmp2->add_element(sub3);
-    cmp2->add_element(sub4);
-    cmp2->add_element(sub5);
+    attach_child(cmp2, sub3);
+    attach_child(cmp2, sub4);
+    attach_child(cmp2, sub5);
 
-    my_sim.add_element(el1);
-    my_sim.add_element(el2);
-    my_sim.add_element(cmp1);
-    my_sim.add_element(cmp2);
+    register_element(my_sim, el1);
+    register_element(my_sim, el2);
+    register_element(my_sim, cmp1);
+    register_element(my_sim, cmp2);
     EXPECT_EQ(my_sim.get_number_of_elements(), 7);
 
     std::set<element_id> ids;

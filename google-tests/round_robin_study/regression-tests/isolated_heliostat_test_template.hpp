@@ -210,7 +210,7 @@ public:
             for (size_t j = 0; j < x_coords.size(); j++) {
                 if(active_indices[i]==j+1){
                     glm::dvec3 heliostat_origin(x_coords[j], y_coords[j], 4.49);
-                    auto heliostat = SolTrace::Data::make_element<Heliostat>();
+                    auto heliostat = new_element<Heliostat>(simData);
                     heliostat->set_optics(active_mirror_ref);
                     heliostat->set_reference_frame_geometry(heliostat_origin, khat, 0.0);
                     heliostat->set_aperture_size(helio_width, helio_height);   // Width, Height
@@ -299,7 +299,7 @@ public:
             for (size_t j = 0; j < x_coords.size(); j++) {
                 if(blocking_indices[i]==j+1){
                     glm::dvec3 heliostat_origin(x_coords[j], y_coords[j], 4.49);
-                    auto heliostat = SolTrace::Data::make_element<Heliostat>();
+                    auto heliostat = new_element<Heliostat>(simData);
                     heliostat->set_optics(blocking_mirror_ref);
                     heliostat->set_reference_frame_geometry(heliostat_origin, khat, 0.0);
                     heliostat->set_aperture_size(helio_width, helio_height);   // Width, Height
@@ -476,13 +476,13 @@ public:
     void setup_simData() {
         //Set up receiver
         // Initial setup of receiver
-        receiver = SolTrace::Data::make_element<SingleElement>();
         SolTrace::Data::OpticalPropertySet receiver_opt_set(SolTrace::Data::InteractionType::REFLECTION, "ReceiverOptics");
         receiver_opt_set.set_ideal_absorption(SolTrace::Data::OpticalSide::Both);
         auto receiver_ref = simData.add_optical_property_set(receiver_opt_set);
-        receiver->set_optical_property_set(receiver_ref);
-        receiver->set_aperture(SolTrace::Data::make_aperture<SolTrace::Data::Rectangle>(rec_radius * 2.0, rec_height));
-        receiver->set_surface(SolTrace::Data::make_surface<SolTrace::Data::Cylinder>(rec_radius));
+        receiver = make_single(simData,
+                               SolTrace::Data::make_aperture<SolTrace::Data::Rectangle>(rec_radius * 2.0, rec_height),
+                               SolTrace::Data::make_surface<SolTrace::Data::Cylinder>(rec_radius),
+                               receiver_ref);
         glm::dvec3 offset = {0.0, 0.0, 0.0};
         glm::dvec3 rec_origin_offset = rec_origin + offset;
         glm::dvec3 v1 = {0.0, -1.0, 0.0};
@@ -491,14 +491,14 @@ public:
         receiver->set_name("Receiver");
         receiver->enable();
 
-        top_heat_shield = SolTrace::Data::make_element<SingleElement>();
         SolTrace::Data::OpticalPropertySet top_heat_shield_opt_set(SolTrace::Data::InteractionType::REFLECTION, "TopHeatShieldOptics");
         top_heat_shield_opt_set.set_ideal_absorption(SolTrace::Data::OpticalSide::Front);
         top_heat_shield_opt_set.set_ideal_absorption(SolTrace::Data::OpticalSide::Back);
         auto top_heat_shield_ref = simData.add_optical_property_set(top_heat_shield_opt_set);
-        top_heat_shield->set_optical_property_set(top_heat_shield_ref);
-        top_heat_shield->set_aperture(SolTrace::Data::make_aperture<SolTrace::Data::Circle>(rec_radius * 2.0));
-        top_heat_shield->set_surface(SolTrace::Data::make_surface<SolTrace::Data::Flat>());
+        top_heat_shield = make_single(simData,
+                                      SolTrace::Data::make_aperture<SolTrace::Data::Circle>(rec_radius * 2.0),
+                                      SolTrace::Data::make_surface<SolTrace::Data::Flat>(),
+                                      top_heat_shield_ref);
         offset = { 0.0, 0.0, (rec_height)/2.};
         rec_origin_offset = rec_origin + offset;
         glm::dvec3 v2 = {0.0, 0.0, 1.0};
@@ -507,14 +507,14 @@ public:
         top_heat_shield->set_name("Top Heat Shield");
         top_heat_shield->enable();
 
-        bottom_heat_shield = SolTrace::Data::make_element<SingleElement>();
         SolTrace::Data::OpticalPropertySet bottom_heat_shield_opt_set(SolTrace::Data::InteractionType::REFLECTION, "BottomHeatShieldOptics");
         bottom_heat_shield_opt_set.set_ideal_absorption(SolTrace::Data::OpticalSide::Front);
         bottom_heat_shield_opt_set.set_ideal_absorption(SolTrace::Data::OpticalSide::Back);
         auto bottom_heat_shield_ref = simData.add_optical_property_set(bottom_heat_shield_opt_set);
-        bottom_heat_shield->set_optical_property_set(bottom_heat_shield_ref);
-        bottom_heat_shield->set_aperture(SolTrace::Data::make_aperture<SolTrace::Data::Circle>(rec_radius * 2.0));
-        bottom_heat_shield->set_surface(SolTrace::Data::make_surface<SolTrace::Data::Flat>());
+        bottom_heat_shield = make_single(simData,
+                                         SolTrace::Data::make_aperture<SolTrace::Data::Circle>(rec_radius * 2.0),
+                                         SolTrace::Data::make_surface<SolTrace::Data::Flat>(),
+                                         bottom_heat_shield_ref);
         offset = { 0.0, 0.0, -(rec_height) / 2. };
         rec_origin_offset = rec_origin + offset;
         aim_point = rec_origin_offset - v2;
@@ -531,31 +531,31 @@ public:
         simData.add_ray_source(sun);
 
         // Set up stages
-        stage_ptr st1 = SolTrace::Data::make_stage(1);
+        stage_ptr st1 = new_stage(simData, 1);
         st1->set_reference_frame_geometry(zero, khat, 0.0);
 
         for (const auto& heliostat : active_heliostats) {
-            auto ret = st1->add_element(heliostat);
+            auto ret = attach_child(st1, heliostat);
             EXPECT_TRUE(SolTrace::Data::Element::is_success(ret));
         }
         if(blocking_heliostats.size()>0){
             for (const auto& heliostat : blocking_heliostats) {
-                auto ret = st1->add_element(heliostat);
+                auto ret = attach_child(st1, heliostat);
                 EXPECT_TRUE(SolTrace::Data::Element::is_success(ret));
             }
         }
 
-        stage_ptr st2 = SolTrace::Data::make_stage(2);
+        stage_ptr st2 = new_stage(simData, 2);
         st2->set_reference_frame_geometry(zero, khat, 0.0);
-        auto ret = st2->add_element(receiver);
+        auto ret = attach_child(st2, receiver);
         EXPECT_TRUE(SolTrace::Data::Element::is_success(ret));
-        ret = st2->add_element(top_heat_shield);
+        ret = attach_child(st2, top_heat_shield);
         EXPECT_TRUE(SolTrace::Data::Element::is_success(ret));
-        ret = st2->add_element(bottom_heat_shield);
+        ret = attach_child(st2, bottom_heat_shield);
         EXPECT_TRUE(SolTrace::Data::Element::is_success(ret));
 
-        simData.add_stage(st1);
-        simData.add_stage(st2);
+        register_stage(simData, st1);
+        register_stage(simData, st2);
     }
 
     void update_simulation_geometry(double azimuth, double elevation) {

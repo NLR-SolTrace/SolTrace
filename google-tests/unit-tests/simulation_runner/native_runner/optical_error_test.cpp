@@ -6,6 +6,8 @@
 
 #include <native_runner.hpp>
 
+#include "element_builders.hpp"
+
 TEST(OpticalErrors, Gaussian)
 {
     const uint_fast64_t NRAYS = 10000;
@@ -24,17 +26,16 @@ TEST(OpticalErrors, Gaussian)
     sd.add_ray_source(sun);
 
     // Make stage
-    auto stage = make_stage(0);
+    auto stage = new_stage(sd, 0);
     stage->set_origin(0, 0, 0);
     stage->set_aim_vector(0, 0, 1);
     stage->set_name("stage");
 
     // Make reflective flat plate
-    auto plate = make_element<SingleElement>();
+    auto plate = new_element<SingleElement>(sd);
     plate->set_origin(0, 0, 0);
     plate->set_aim_vector(0, 0, 100); // Face up towards sun
-    plate->set_surface(make_surface<Flat>());
-    plate->set_aperture(make_aperture<Rectangle>(5, 5));
+    set_element_shape(sd, plate, make_aperture<Rectangle>(5, 5), make_surface<Flat>());
     plate->set_name("plate");
 
     SolTrace::Data::OpticalPropertySet plate_optics(SolTrace::Data::InteractionType::REFLECTION, "plate_optics_gaussian");
@@ -45,10 +46,10 @@ TEST(OpticalErrors, Gaussian)
     plate->set_optical_property_set(plate_optics_ref);
 
     // Add element to stage
-    stage->add_element(plate);
+    attach_child(stage, plate);
 
     // Add stage to sd
-    sd.add_stage(stage);
+    register_stage(sd, stage);
 
     // Set parameters
     SimulationParameters &params = sd.get_simulation_parameters();
@@ -126,17 +127,16 @@ TEST(OpticalErrors, Uniform)
     sd.add_ray_source(sun);
 
     // Make stage
-    auto stage = make_stage(0);
+    auto stage = new_stage(sd, 0);
     stage->set_origin(0, 0, 0);
     stage->set_aim_vector(0, 0, 1);
     stage->set_name("stage");
 
     // Make reflective flat plate
-    auto plate = make_element<SingleElement>();
+    auto plate = new_element<SingleElement>(sd);
     plate->set_origin(0, 0, 0);
     plate->set_aim_vector(0, 0, 100); // Face up towards sun
-    plate->set_surface(make_surface<Flat>());
-    plate->set_aperture(make_aperture<Rectangle>(5, 5));
+    set_element_shape(sd, plate, make_aperture<Rectangle>(5, 5), make_surface<Flat>());
     plate->set_name("plate");
 
     SolTrace::Data::OpticalPropertySet plate_optics(SolTrace::Data::InteractionType::REFLECTION, "plate_optics_uniform");
@@ -147,10 +147,10 @@ TEST(OpticalErrors, Uniform)
     plate->set_optical_property_set(plate_optics_ref);
 
     // Add element to stage
-    stage->add_element(plate);
+    attach_child(stage, plate);
 
     // Add stage to sd
-    sd.add_stage(stage);
+    register_stage(sd, stage);
 
     // Set parameters
     SimulationParameters &params = sd.get_simulation_parameters();

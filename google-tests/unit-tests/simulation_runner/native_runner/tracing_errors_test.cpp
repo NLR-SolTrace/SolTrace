@@ -17,6 +17,8 @@
 #include <native_runner_types.hpp>
 #include <tracing_errors.hpp>
 
+#include "element_builders.hpp"
+
 using SolTrace::Data::DistributionType;
 using SolTrace::Data::InteractionType;
 using SolTrace::Data::OpticalPropertySet;
@@ -521,16 +523,15 @@ TEST(TracingErrors, DiffuseIsIndependentOfIncidenceDirection)
         sun->set_position(0, 0, 100);
         sd.add_ray_source(sun);
 
-        auto stage = make_stage(0);
+        auto stage = new_stage(sd, 0);
         stage->set_origin(0, 0, 0);
         stage->set_aim_vector(0, 0, 1);
         stage->set_name("stage");
 
-        auto plate = make_element<SingleElement>();
+        auto plate = new_element<SingleElement>(sd);
         plate->set_origin(0, 0, 0);
         plate->set_aim_vector(aim.x, aim.y, aim.z);
-        plate->set_surface(make_surface<Flat>());
-        plate->set_aperture(make_aperture<Rectangle>(20, 20));
+        set_element_shape(sd, plate, make_aperture<Rectangle>(20, 20), make_surface<Flat>());
         plate->set_name("plate");
 
         OpticalPropertySet plate_optics =
@@ -538,8 +539,8 @@ TEST(TracingErrors, DiffuseIsIndependentOfIncidenceDirection)
         plate->set_optical_property_set(
             sd.add_optical_property_set(plate_optics));
 
-        stage->add_element(plate);
-        sd.add_stage(stage);
+        attach_child(stage, plate);
+        register_stage(sd, stage);
 
         SimulationParameters& params    = sd.get_simulation_parameters();
         params.number_of_rays           = NRAYS;
@@ -702,9 +703,8 @@ TEST(TracingErrors, NativeRunnerRejectsUnimplementedDistribution)
     sun->set_position(0.0, 0.0, 100.0);
     simulation.add_ray_source(sun);
 
-    auto mirror = make_element<SingleElement>();
-    mirror->set_aperture(make_aperture<Rectangle>(10.0, 10.0));
-    mirror->set_surface(make_surface<Flat>());
+    auto mirror = new_element<SingleElement>(simulation);
+    set_element_shape(simulation, mirror, make_aperture<Rectangle>(10.0, 10.0), make_surface<Flat>());
 
     OpticalPropertySet optics(InteractionType::REFLECTION,
                               "user_defined_errors");
@@ -714,7 +714,7 @@ TEST(TracingErrors, NativeRunnerRejectsUnimplementedDistribution)
 
     mirror->set_optical_property_set(
         simulation.add_optical_property_set(optics));
-    simulation.add_element(mirror);
+    register_element(simulation, mirror);
 
     ASSERT_EQ(runner.initialize(), RunnerStatus::SUCCESS);
     EXPECT_THROW(runner.setup_simulation(&simulation), std::invalid_argument);

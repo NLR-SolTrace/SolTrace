@@ -15,6 +15,7 @@
 
 // #include "split_csv.h"
 #include "count_absorbed_native.h"
+#include "element_builders.hpp"
 
 using SolTrace::Runner::RunnerStatus;
 
@@ -65,9 +66,9 @@ TEST(NativeRunner, PerformanceTest)
     absorber_optics.set_ideal_absorption(SolTrace::Data::OpticalSide::Both);
     auto absorber_optics_ref = sdata.add_optical_property_set(absorber_optics);
 
-    stage_ptr st1 = make_stage(1);
+    stage_ptr st1 = new_stage(sdata, 1);
     st1->set_reference_frame_geometry(zero, khat, 0.0);
-    stage_ptr st2 = make_stage(2);
+    stage_ptr st2 = new_stage(sdata, 2);
     st2->set_reference_frame_geometry(zero, khat, 0.0);
 
     glm::dvec3 sun_pos(0.0, 0.0, 10000.0);
@@ -96,7 +97,7 @@ TEST(NativeRunner, PerformanceTest)
             // std::cout << aim << std::endl;
             // vector_add(1.0, hs_origin, 1.0, aim, aim_point);
 
-            auto hs = make_element<Heliostat>();
+            auto hs = new_element<Heliostat>(sdata);
             hs->set_optics(mirror_optics_ref);
             // hs->set_reference_frame_geometry(hs_origin, aim, 0.0);
             hs->set_origin(hs_origin);
@@ -110,7 +111,7 @@ TEST(NativeRunner, PerformanceTest)
             hs->enable();
 
             hs->create_geometry();
-            auto ret = st1->add_element(hs);
+            auto ret = attach_child(st1, hs);
             EXPECT_TRUE(SolTrace::Data::Element::is_success(ret));
             hs->update_geometry(0.0, 90.0);
 
@@ -125,10 +126,10 @@ TEST(NativeRunner, PerformanceTest)
         }
     }
 
-    auto absorb = make_element<SingleElement>();
-    absorb->set_optical_property_set(absorber_optics_ref);
-    absorb->set_aperture(make_aperture<Circle>(2.0 * ABS_RADIUS));
-    absorb->set_surface(make_surface<Sphere>(1.0 / ABS_RADIUS));
+    auto absorb = make_single(sdata,
+                              make_aperture<Circle>(2.0 * ABS_RADIUS),
+                              make_surface<Sphere>(1.0 / ABS_RADIUS),
+                              absorber_optics_ref);
     // absorb->set_surface(make_surface<Flat>());
 
     aim_point = abs_origin;
@@ -136,11 +137,11 @@ TEST(NativeRunner, PerformanceTest)
     absorb->set_reference_frame_geometry(abs_origin, aim_point, 0.0);
     absorb->set_name("Absorber");
     absorb->enable();
-    auto ret = st2->add_element(absorb);
+    auto ret = attach_child(st2, absorb);
     EXPECT_TRUE(SolTrace::Data::Element::is_success(ret));
 
-    sdata.add_stage(st1);
-    sdata.add_stage(st2);
+    register_stage(sdata, st1);
+    register_stage(sdata, st2);
 
     auto sun = make_ray_source<Sun>();
     sun->set_position(sun_pos);

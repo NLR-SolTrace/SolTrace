@@ -22,16 +22,11 @@ TEST(OpticalProperties, DangleOpticalPointer)
     // Add to simulation data
     auto opt_ref = sd.add_optical_property_set(opt_set);
 
-    // Make element
-    auto test_element = make_element<SingleElement>();
-    test_element->set_aperture(make_aperture<Circle>(1));
-    test_element->set_surface(make_surface<Flat>());
-
-    // Attach optical property reference to element
-    test_element->set_optical_property_set(opt_ref);
+    // Make element with the optical property reference attached
+    auto test_element = make_single(sd, make_aperture<Circle>(1), make_surface<Flat>(), opt_ref);
 
     // Add element to simulation data
-    ASSERT_NO_THROW(sd.add_element(test_element));
+    ASSERT_NO_THROW(register_element(sd, test_element));
 
     sd.clear();
 
@@ -43,12 +38,11 @@ TEST(OpticalProperties, MissingOptical)
     SimulationData sd;
 
     // Make element
-    auto test_element = make_element<SingleElement>();
-    test_element->set_aperture(make_aperture<Circle>(1));
-    test_element->set_surface(make_surface<Flat>());
+    auto test_element = new_element<SingleElement>(sd);
+    set_element_shape(sd, test_element, make_aperture<Circle>(1), make_surface<Flat>());
 
     // Add element to simulation data
-    EXPECT_THROW(sd.add_element(test_element), std::invalid_argument);
+    EXPECT_THROW(register_element(sd, test_element), std::invalid_argument);
 }
 
 TEST(OpticalProperties, InvalidErrorSettingsThrow)
@@ -80,21 +74,11 @@ TEST(OpticalProperties, MutateOptics)
     // Add to simulation data
     auto opt_ref = sd.add_optical_property_set(opt_set);
 
-    // Make element 1
-    auto test_element_1 = make_element<SingleElement>();
-    test_element_1->set_aperture(make_aperture<Circle>(1));
-    test_element_1->set_surface(make_surface<Flat>());
+    // Make element 1 with the optical property reference attached
+    auto test_element_1 = make_single(sd, make_aperture<Circle>(1), make_surface<Flat>(), opt_ref);
 
-    // Attach optical property reference to element 1
-    test_element_1->set_optical_property_set(opt_ref);
-
-    // Make element 2
-    auto test_element_2 = make_element<SingleElement>();
-    test_element_2->set_aperture(make_aperture<Circle>(1));
-    test_element_2->set_surface(make_surface<Flat>());
-
-    // Attach same optical properties to elemetn 2
-    test_element_2->set_optical_property_set(opt_ref);
+    // Make element 2 with the same optical properties attached
+    auto test_element_2 = make_single(sd, make_aperture<Circle>(1), make_surface<Flat>(), opt_ref);
 
     // Modify optical properties directly from simulation data
     auto* optics_ptr = sd.get_mutable_optical_property_set(*test_element_1);
@@ -114,6 +98,8 @@ TEST(OpticalProperties, MutateOptics)
 
 TEST(OpticalProperties, NullPointer)
 {
+    SimulationData sd;
+
     // Make optics
     OpticalPropertySet opt_set = OpticalPropertySet();
     opt_set.set_ideal_reflection(OpticalSide::Both);
@@ -123,14 +109,10 @@ TEST(OpticalProperties, NullPointer)
     OpticalPropertySetReference ref = { 0, opt_ptr };
 
     // Make element
-    auto test_element = make_element<SingleElement>();
-    test_element->set_aperture(make_aperture<Circle>(1));
-    test_element->set_surface(make_surface<Flat>());
-    test_element->set_optical_property_set(ref);
+    auto test_element = make_single(sd, make_aperture<Circle>(1), make_surface<Flat>(), ref);
 
     // Add element to simulation data
-    SimulationData sd;
-    sd.add_element(test_element);
+    register_element(sd, test_element);
 
     // Delete optics pointer
     opt_ptr.reset();
@@ -148,10 +130,7 @@ TEST(OpticalProperties, ElementCanAccessSimulationOwnedOptics)
 
     auto opt_ref = sd.add_optical_property_set(opt_set);
 
-    auto test_element = make_element<SingleElement>();
-    test_element->set_aperture(make_aperture<Circle>(1));
-    test_element->set_surface(make_surface<Flat>());
-    test_element->set_optical_property_set(opt_ref);
+    auto test_element = make_single(sd, make_aperture<Circle>(1), make_surface<Flat>(), opt_ref);
 
     EXPECT_NE(test_element->get_optical_property_set(), nullptr);
     EXPECT_EQ(test_element->get_optical_property_set()->get_reflectivity(
@@ -168,12 +147,9 @@ TEST(OpticalProperties, RemovingElementDoesNotRemoveOptics)
 
     auto opt_ref = sd.add_optical_property_set(opt_set);
 
-    auto test_element = make_element<SingleElement>();
-    test_element->set_aperture(make_aperture<Circle>(1));
-    test_element->set_surface(make_surface<Flat>());
-    test_element->set_optical_property_set(opt_ref);
+    auto test_element = make_single(sd, make_aperture<Circle>(1), make_surface<Flat>(), opt_ref);
 
-    auto id = sd.add_element(test_element);
+    auto id = register_element(sd, test_element);
     ASSERT_TRUE(SolTrace::Data::Element::is_success(id));
 
     sd.remove_element(id);
@@ -220,9 +196,10 @@ TEST(OpticalProperties, FindOrAddKeepsDifferentOpticsSeparate)
 
 TEST(OpticalProperties, AddElementWithExpiredOpticsThrows)
 {
-    auto test_element = make_element<SingleElement>();
-    test_element->set_aperture(make_aperture<Circle>(1));
-    test_element->set_surface(make_surface<Flat>());
+    SimulationData sd;
+
+    auto test_element = new_element<SingleElement>(sd);
+    set_element_shape(sd, test_element, make_aperture<Circle>(1), make_surface<Flat>());
 
     {
         SimulationData temporary_sd;
@@ -234,9 +211,7 @@ TEST(OpticalProperties, AddElementWithExpiredOpticsThrows)
         test_element->set_optical_property_set(opt_ref);
     }
 
-    SimulationData sd;
-
-    EXPECT_THROW(sd.add_element(test_element), std::invalid_argument);
+    EXPECT_THROW(register_element(sd, test_element), std::invalid_argument);
 }
 
 TEST(OpticalProperties, AngularTableInterpolatesExactAtTablePoints)

@@ -5,6 +5,8 @@
 #include <vector_utility.hpp>
 #include <simulation_result_export.hpp>
 
+#include "element_builders.hpp"
+
 // Vectors exactly match component-wise
 bool is_identical(const glm::dvec3 &x,
                   const glm::dvec3 &y);

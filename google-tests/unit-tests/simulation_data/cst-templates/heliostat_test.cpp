@@ -25,7 +25,8 @@ using SolTrace::NativeRunner::TSun;
 // Error Checking Tests for Heliostat
 TEST(Heliostat, ErrorChecking_SetApertureSize)
 {
-    auto hs = SolTrace::Data::make_element<Heliostat>();
+    SimulationData sd;
+    auto hs = new_element<Heliostat>(sd);
 
     // Test negative aperture size
     EXPECT_THROW(hs->set_aperture_size(-12.0, 12.0), std::invalid_argument);
@@ -43,7 +44,8 @@ TEST(Heliostat, ErrorChecking_SetApertureSize)
 
 TEST(Heliostat, ErrorChecking_SetFocalLength)
 {
-    auto hs = SolTrace::Data::make_element<Heliostat>();
+    SimulationData sd;
+    auto hs = new_element<Heliostat>(sd);
 
     // Test negative focal length
     EXPECT_THROW(hs->set_focal_length(-156.06), std::invalid_argument);
@@ -57,7 +59,8 @@ TEST(Heliostat, ErrorChecking_SetFocalLength)
 
 TEST(Heliostat, ErrorChecking_SetFocalLengthXY)
 {
-    auto hs = SolTrace::Data::make_element<Heliostat>();
+    SimulationData sd;
+    auto hs = new_element<Heliostat>(sd);
 
     // Test negative focal lengths
     EXPECT_THROW(hs->set_focal_length(-156.06, 156.06), std::invalid_argument);
@@ -72,7 +75,8 @@ TEST(Heliostat, ErrorChecking_SetFocalLengthXY)
 
 TEST(Heliostat, ErrorChecking_SetNumberPanels)
 {
-    auto hs = SolTrace::Data::make_element<Heliostat>();
+    SimulationData sd;
+    auto hs = new_element<Heliostat>(sd);
 
     // Test invalid panel counts
     EXPECT_THROW(hs->set_number_panels(0, 4), std::invalid_argument);
@@ -87,7 +91,8 @@ TEST(Heliostat, ErrorChecking_SetNumberPanels)
 
 TEST(Heliostat, ErrorChecking_SetGaps)
 {
-    auto hs = SolTrace::Data::make_element<Heliostat>();
+    SimulationData sd;
+    auto hs = new_element<Heliostat>(sd);
 
     // Test negative gap values
     EXPECT_THROW(hs->set_gaps(-0.1, 0.1), std::invalid_argument);
@@ -100,7 +105,8 @@ TEST(Heliostat, ErrorChecking_SetGaps)
 
 TEST(Heliostat, ErrorChecking_SetCanting)
 {
-    auto hs = SolTrace::Data::make_element<Heliostat>();
+    SimulationData sd;
+    auto hs = new_element<Heliostat>(sd);
 
     // Test valid canting types
     EXPECT_NO_THROW(hs->set_canting(Heliostat::NONE, 0.0, 0.0));
@@ -122,7 +128,7 @@ TEST(Heliostat, ErrorChecking_CreateGeometryWithoutParameters)
     auto optics = OpticalPropertySet();
     auto optics_ref = sd.add_optical_property_set(optics);
     
-    auto hs = SolTrace::Data::make_element<Heliostat>();
+    auto hs = new_element<Heliostat>(sd);
     hs->set_optics(optics_ref);
 
     // Test create_geometry without setting required parameters
@@ -157,7 +163,7 @@ TEST(Heliostat, BuildParabolaNone)
     auto optics = OpticalPropertySet();
     auto optics_ref = sd.add_optical_property_set(optics);
 
-    auto hs = SolTrace::Data::make_element<Heliostat>();
+    auto hs = new_element<Heliostat>(sd);
     hs->set_optics(optics_ref);
     hs->set_origin(1.0, 1.0, 0.0);
     hs->set_aim_vector(0.0, 0.0, 100.0);
@@ -179,7 +185,7 @@ TEST(Heliostat, BuildFlatOnAxis)
     auto optics = OpticalPropertySet();
     auto optics_ref = sd.add_optical_property_set(optics);
 
-    auto hs = SolTrace::Data::make_element<Heliostat>();
+    auto hs = new_element<Heliostat>(sd);
     hs->set_optics(optics_ref);
     hs->set_origin(1.0, 1.0, 0.0);
     hs->set_aim_vector(0.0, 0.0, 100.0);
@@ -220,9 +226,9 @@ TEST(Heliostat, Trace)
     hs_opt_set.set_errors(SolTrace::Data::OpticalSide::Both, SolTrace::Data::DistributionType::GAUSSIAN, 0.0, 0.0);
     auto hs_ref = my_sim.add_optical_property_set(hs_opt_set);
 
-    stage_ptr st1 = SolTrace::Data::make_stage(1);
+    stage_ptr st1 = new_stage(my_sim, 1);
     st1->set_reference_frame_geometry(zero, khat, 0.0);
-    stage_ptr st2 = SolTrace::Data::make_stage(2);
+    stage_ptr st2 = new_stage(my_sim, 2);
     st2->set_reference_frame_geometry(zero, khat, 0.0);
 
     glm::dvec3 sun_pos(0.0, 0.0, 1000.0);
@@ -234,7 +240,7 @@ TEST(Heliostat, Trace)
     glm::dvec3 aim = 0.5 * v1 + 0.5 * v2;
     glm::dvec3 aim_point = hs_origin + aim;
 
-    auto hs = SolTrace::Data::make_element<Heliostat>();
+    auto hs = new_element<Heliostat>(my_sim);
     hs->set_optics(hs_ref);
 
     // hs->set_origin(hs_origin);
@@ -253,17 +259,14 @@ TEST(Heliostat, Trace)
     hs->set_name("Heliostat");
     hs->enable();
 
-    auto ret = st1->add_element(hs);
+    auto ret = attach_child(st1, hs);
     EXPECT_TRUE(SolTrace::Data::Element::is_success(ret));
 
     SolTrace::Data::OpticalPropertySet ab_opt_set(InteractionType::REFLECTION, "Absorber");
     ab_opt_set.set_ideal_absorption(SolTrace::Data::OpticalSide::Both);
     auto ab_ref = my_sim.add_optical_property_set(ab_opt_set);
 
-    auto absorb = SolTrace::Data::make_element<SingleElement>();
-    absorb->set_optical_property_set(ab_ref);
-    absorb->set_aperture(SolTrace::Data::make_aperture<SolTrace::Data::Rectangle>(5.0, 5.0));
-    absorb->set_surface(SolTrace::Data::make_surface<SolTrace::Data::Flat>());
+    auto absorb = make_single(my_sim, SolTrace::Data::make_aperture<SolTrace::Data::Rectangle>(5.0, 5.0), SolTrace::Data::make_surface<SolTrace::Data::Flat>(), ab_ref);
     // absorb->set_origin(abs_origin);
     // absorb->set_aim_vector(0.0, 0.0, -1.0);
     // absorb->set_zrot(0.0);
@@ -274,11 +277,11 @@ TEST(Heliostat, Trace)
     absorb->set_reference_frame_geometry(abs_origin, aim_point, 0.0);
     absorb->set_name("Absorber");
     absorb->enable();
-    ret = st2->add_element(absorb);
+    ret = attach_child(st2, absorb);
     EXPECT_TRUE(SolTrace::Data::Element::is_success(ret));
 
-    my_sim.add_stage(st1);
-    my_sim.add_stage(st2);
+    register_stage(my_sim, st1);
+    register_stage(my_sim, st2);
 
     auto sun = SolTrace::Data::make_ray_source<Sun>();
     sun->set_position(sun_pos);
@@ -368,9 +371,9 @@ TEST(Heliostat, TraceOffAxisCanting)
     hs_opt_set.set_errors(SolTrace::Data::OpticalSide::Both, SolTrace::Data::DistributionType::GAUSSIAN, 0.0, 0.0);
     auto hs_ref = my_sim.add_optical_property_set(hs_opt_set);
 
-    stage_ptr st1 = SolTrace::Data::make_stage(1);
+    stage_ptr st1 = new_stage(my_sim, 1);
     st1->set_reference_frame_geometry(zero, khat, 0.0);
-    stage_ptr st2 = SolTrace::Data::make_stage(2);
+    stage_ptr st2 = new_stage(my_sim, 2);
     st2->set_reference_frame_geometry(zero, khat, 0.0);
 
     glm::dvec3 hs_origin(50.0, 50.0, 5.0);
@@ -378,7 +381,7 @@ TEST(Heliostat, TraceOffAxisCanting)
     double canting_azimuth = 135.0;
     double canting_zenith = 90.0;
 
-    auto hs = SolTrace::Data::make_element<Heliostat>();
+    auto hs = new_element<Heliostat>(my_sim);
     hs->set_optics(hs_ref);
     hs->set_reference_frame_geometry(hs_origin, khat, 0.0);
     hs->set_aperture_size(12.0, 8.0);
@@ -392,27 +395,25 @@ TEST(Heliostat, TraceOffAxisCanting)
     hs->enable();
     hs->update_geometry(canting_azimuth, 90.0 - canting_zenith); // Set to canting angles
 
-    auto ret = st1->add_element(hs);
+    auto ret = attach_child(st1, hs);
     EXPECT_TRUE(SolTrace::Data::Element::is_success(ret));
 
     SolTrace::Data::OpticalPropertySet ab_opt_set(SolTrace::Data::InteractionType::REFLECTION, "Absorber");
     ab_opt_set.set_ideal_absorption(SolTrace::Data::OpticalSide::Both);
     auto ab_ref = my_sim.add_optical_property_set(ab_opt_set);
 
-    auto absorb = SolTrace::Data::make_element<SingleElement>();
-    absorb->set_optical_property_set(ab_ref);
-    absorb->set_aperture(SolTrace::Data::make_aperture<SolTrace::Data::Rectangle>(10.0, 10.0)); // TODO: Set a tight aperture (2.35, 1.55)
-    absorb->set_surface(SolTrace::Data::make_surface<SolTrace::Data::Flat>());
+    // TODO: Set a tight aperture (2.35, 1.55)
+    auto absorb = make_single(my_sim, SolTrace::Data::make_aperture<SolTrace::Data::Rectangle>(10.0, 10.0), SolTrace::Data::make_surface<SolTrace::Data::Flat>(), ab_ref);
     glm::dvec3 v1 = {0.0, 1.0, 0.0};
     glm::dvec3 aim_point = abs_origin + v1;
     absorb->set_reference_frame_geometry(abs_origin, aim_point, 0.0);
     absorb->set_name("Absorber");
     absorb->enable();
-    ret = st2->add_element(absorb);
+    ret = attach_child(st2, absorb);
     EXPECT_TRUE(SolTrace::Data::Element::is_success(ret));
 
-    my_sim.add_stage(st1);
-    my_sim.add_stage(st2);
+    register_stage(my_sim, st1);
+    register_stage(my_sim, st2);
 
     glm::dvec3 sun_pos;
     SolTrace::Data::sun_position_vector_degrees(sun_pos, canting_azimuth, 90.0 - canting_zenith);
@@ -493,7 +494,7 @@ TEST(Heliostat, ErrorChecking_UpdateGeometry)
     glm::dvec3 aim = 0.5 * v1 + 0.5 * v2;
     glm::dvec3 aim_point = hs_origin + aim;
 
-    auto hs = SolTrace::Data::make_element<Heliostat>();
+    auto hs = new_element<Heliostat>(sd);
     //hs->set_optics_id(SolTrace::Data::OPTICS_ID_VIRTUAL);
     //hs->set_mirror_optics(mirror);
     // hs->set_origin(hs_origin);
@@ -554,7 +555,7 @@ TEST(Heliostat, UpdateGeometry)
     // glm::dvec3 hs_origin(1.0, 1.0, 0.0);
     glm::dvec3 abs_origin(0.0, 0.0, 2.0);
 
-    auto hs = SolTrace::Data::make_element<Heliostat>();
+    auto hs = new_element<Heliostat>(my_sim);
     hs->set_optics(hs_ref);
     hs->set_origin(1.0, 1.0, 0.0);
     hs->set_aperture_size(12.0, 12.0);
@@ -567,7 +568,7 @@ TEST(Heliostat, UpdateGeometry)
     hs->set_name("Heliostat");
     hs->enable();
 
-    auto ret = my_sim.add_element(hs);
+    auto ret = register_element(my_sim, hs);
     EXPECT_TRUE(SolTrace::Data::Element::is_success(ret));
 
     hs->update_geometry(sun_az, sun_el);
@@ -582,14 +583,15 @@ TEST(Heliostat, UpdateGeometry)
 
     // TODO: Test for correct z-rotation...
 
-    auto absorb = SolTrace::Data::make_element<SingleElement>();
+    auto absorb = new_element<SingleElement>(my_sim);
     SolTrace::Data::OpticalPropertySet ab_opt_set(InteractionType::REFLECTION);
     ab_opt_set.set_ideal_absorption(OpticalSide::Both);
     auto ab_ref = my_sim.add_optical_property_set(ab_opt_set);
 
     absorb->set_optical_property_set(ab_ref);
-    absorb->set_aperture(SolTrace::Data::make_aperture<SolTrace::Data::Rectangle>(5.0, 5.0));
-    absorb->set_surface(SolTrace::Data::make_surface<SolTrace::Data::Flat>());
+    set_element_shape(my_sim, absorb,
+                      SolTrace::Data::make_aperture<SolTrace::Data::Rectangle>(5.0, 5.0),
+                      SolTrace::Data::make_surface<SolTrace::Data::Flat>());
     // absorb->set_origin(abs_origin);
     // absorb->set_aim_vector(0.0, 0.0, -1.0);
     // absorb->set_zrot(0.0);
@@ -602,7 +604,7 @@ TEST(Heliostat, UpdateGeometry)
     absorb->set_reference_frame_geometry(abs_origin, aim_point, 0.0);
     absorb->set_name("Absorber");
     absorb->enable();
-    ret = my_sim.add_element(absorb);
+    ret = register_element(my_sim, absorb);
     EXPECT_TRUE(SolTrace::Data::Element::is_success(ret));
 
     auto sun = SolTrace::Data::make_ray_source<Sun>();

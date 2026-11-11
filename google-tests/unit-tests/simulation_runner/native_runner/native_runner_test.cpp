@@ -132,9 +132,8 @@ TEST(NativeRunner, ErrorOnUnsupportedOptions)
     sun->set_shape(SolTrace::Data::SunShape::GAUSSIAN, 1.0, -5.0, 0.0);
     my_sim.add_ray_source(sun);
 
-    auto mirror = SolTrace::Data::make_element<SingleElement>();
-    mirror->set_aperture(make_aperture<Rectangle>(10.0, 10.0));
-    mirror->set_surface(make_surface<Flat>());
+    auto mirror = new_element<SingleElement>(my_sim);
+    set_element_shape(my_sim, mirror, make_aperture<Rectangle>(10.0, 10.0), make_surface<Flat>());
     SolTrace::Data::OpticalPropertySet mirror_optics(SolTrace::Data::InteractionType::REFLECTION, "Mirror");
     mirror_optics.set_ideal_one_sided_reflector(SolTrace::Data::OpticalSide::Front);
 
@@ -182,7 +181,7 @@ TEST(NativeRunner, SmokeTest)
     sun->set_shape(SolTrace::Data::SunShape::GAUSSIAN, 1.0, -5.0, 0.0);
     my_sim.add_ray_source(sun);
 
-    auto my_st = SolTrace::Data::make_stage(0);
+    auto my_st = new_stage(my_sim, 0);
     const int NUM_ELEMENTS = 4;
     double x[NUM_ELEMENTS] = {1.0, 0.0, -1.0, 0.0};
     double y[NUM_ELEMENTS] = {0.0, 1.0, 0.0, -1.0};
@@ -196,18 +195,18 @@ TEST(NativeRunner, SmokeTest)
 
     for (int k = 0; k < NUM_ELEMENTS; ++k)
     {
-        element_ptr el = SolTrace::Data::make_element<SingleElement>();
-        el->set_aperture(SolTrace::Data::make_aperture<Circle>(2.0));
-        el->set_surface(SolTrace::Data::make_surface<Flat>());
+        element_ptr el = make_single(my_sim,
+                                     SolTrace::Data::make_aperture<Circle>(2.0),
+                                     SolTrace::Data::make_surface<Flat>(),
+                                     optics_ref);
         el->set_reference_frame_geometry(glm::dvec3(x[k], y[k], 0.0),
                                          glm::dvec3(-x[k], -y[k], 1.0),
                                          0.0);
-        el->set_optical_property_set(optics_ref);
-        my_st->add_element(el);
+        attach_child(my_st, el);
     }
 
     ASSERT_EQ(my_st->get_number_of_elements(), NUM_ELEMENTS);
-    my_sim.add_stage(my_st);
+    register_stage(my_sim, my_st);
     ASSERT_EQ(my_sim.get_number_of_elements(), NUM_ELEMENTS);
 
     RunnerStatus sts;
@@ -274,7 +273,7 @@ TEST(NativeRunner, RaysLaunchedEqualsRequestedAfterRun)
     sun->set_shape(SolTrace::Data::SunShape::GAUSSIAN, 1.0, -5.0, 0.0);
     my_sim.add_ray_source(sun);
 
-    auto my_st = SolTrace::Data::make_stage(0);
+    auto my_st = new_stage(my_sim, 0);
     const int NUM_ELEMENTS = 4;
     double x[NUM_ELEMENTS] = {1.0, 0.0, -1.0, 0.0};
     double y[NUM_ELEMENTS] = {0.0, 1.0, 0.0, -1.0};
@@ -287,16 +286,16 @@ TEST(NativeRunner, RaysLaunchedEqualsRequestedAfterRun)
     auto optics_ref = my_sim.add_optical_property_set(mirror_optics_set);
     for (int k = 0; k < NUM_ELEMENTS; ++k)
     {
-        element_ptr el = SolTrace::Data::make_element<SingleElement>();
-        el->set_aperture(SolTrace::Data::make_aperture<Circle>(2.0));
-        el->set_surface(SolTrace::Data::make_surface<Flat>());
+        element_ptr el = make_single(my_sim,
+                                     SolTrace::Data::make_aperture<Circle>(2.0),
+                                     SolTrace::Data::make_surface<Flat>(),
+                                     optics_ref);
         el->set_reference_frame_geometry(glm::dvec3(x[k], y[k], 0.0),
                                          glm::dvec3(-x[k], -y[k], 1.0),
                                          0.0);
-        el->set_optical_property_set(optics_ref);
-        my_st->add_element(el);
+        attach_child(my_st, el);
     }
-    my_sim.add_stage(my_st);
+    register_stage(my_sim, my_st);
 
     RunnerStatus sts = runner.initialize();
     ASSERT_EQ(sts, RunnerStatus::SUCCESS);
@@ -323,13 +322,12 @@ TEST(NativeRunner, PowerTowerSmokeTest)
     sd.add_ray_source(sun);
 
     // Absorber -- Flat
-    auto absorber = SolTrace::Data::make_element<SingleElement>();
+    auto absorber = new_element<SingleElement>(sd);
     absorber->set_origin(0.0, 0.0, 10.0);
     absorber->set_aim_vector(0.0, 0.0, 5.0);
     absorber->set_zrot(0.0);
     absorber->compute_coordinate_rotations();
-    absorber->set_surface(SolTrace::Data::make_surface<Flat>()); // surface(nullptr)
-    absorber->set_aperture(SolTrace::Data::make_aperture<Rectangle>(2.0, 2.0));
+    set_element_shape(sd, absorber, SolTrace::Data::make_aperture<Rectangle>(2.0, 2.0), SolTrace::Data::make_surface<Flat>()); // surface(nullptr)
     SolTrace::Data::OpticalPropertySet absorber_optics(SolTrace::Data::InteractionType::REFLECTION, "Absorber");
     absorber_optics.set_ideal_absorption(SolTrace::Data::OpticalSide::Both);
     auto absorber_optics_ref = sd.add_optical_property_set(absorber_optics);
@@ -337,7 +335,7 @@ TEST(NativeRunner, PowerTowerSmokeTest)
 
     // Make stage 1 -- second stage -- these can be added to SimulationData
     // in any order but should be numbered in the desired order
-    auto st1 = SolTrace::Data::make_stage(1);
+    auto st1 = new_stage(sd, 1);
     // Origin is initialized to zero but set it explicitly
     st1->set_origin(0.0, 0.0, 0.0);
     // Set aim vector so stage and global coordinates are identical
@@ -346,11 +344,11 @@ TEST(NativeRunner, PowerTowerSmokeTest)
     st1->set_zrot(0.0);
     // Compute coordinate rotations
     st1->compute_coordinate_rotations();
-    st1->add_element(absorber);
+    attach_child(st1, absorber);
     // Optional -- to help the user identify things
 
     // Make stage 0 -- this will be the first stage if the runner uses stages
-    auto st0 = SolTrace::Data::make_stage(0);
+    auto st0 = new_stage(sd, 0);
     st0->set_origin(0.0, 0.0, 0.0);
     st0->set_aim_vector(0.0, 0.0, 1.0);
 
@@ -360,7 +358,7 @@ TEST(NativeRunner, PowerTowerSmokeTest)
     const int NUM_ELEMENTS = 10;
     for (int k = 0; k < NUM_ELEMENTS; ++k)
     {
-        auto el = SolTrace::Data::make_element<SingleElement>();
+        auto el = new_element<SingleElement>(sd);
         SolTrace::Data::OpticalPropertySet mirror_optics(SolTrace::Data::InteractionType::REFLECTION, "Mirror");
         mirror_optics.set_ideal_one_sided_reflector(SolTrace::Data::OpticalSide::Front);
         mirror_optics.set_ideal_absorption(SolTrace::Data::OpticalSide::Back);
@@ -376,15 +374,14 @@ TEST(NativeRunner, PowerTowerSmokeTest)
 
         el->set_reference_frame_geometry(pos, aim, 0.0);
 
-        el->set_surface(SolTrace::Data::make_surface<Flat>());
-        el->set_aperture(SolTrace::Data::make_aperture<Circle>(2.0));
+        set_element_shape(sd, el, SolTrace::Data::make_aperture<Circle>(2.0), SolTrace::Data::make_surface<Flat>());
 
-        st0->add_element(el);
+        attach_child(st0, el);
     }
     EXPECT_EQ(st0->get_number_of_elements(), NUM_ELEMENTS);
-    sd.add_stage(st0);
+    register_stage(sd, st0);
     EXPECT_EQ(sd.get_number_of_elements(), NUM_ELEMENTS);
-    sd.add_stage(st1);
+    register_stage(sd, st1);
     EXPECT_EQ(sd.get_number_of_elements(), NUM_ELEMENTS + 1);
 
     // Set parameters
@@ -481,35 +478,33 @@ TEST(NativeRunner, SingleRayValidationTest)
     sun->set_shape(SolTrace::Data::SunShape::PILLBOX, -1.0, 1.0, 0.0);
     sd.add_ray_source(sun);
 
-    auto sph = SolTrace::Data::make_element<SingleElement>();
+    auto sph = new_element<SingleElement>(sd);
     glm::dvec3 origin(0.0, 0.0, z0);
     glm::dvec3 aim(0.0, 0.0, -1.0);
     double zrot = 0.0;
     sph->set_reference_frame_geometry(origin, aim, zrot);
-    sph->set_aperture(SolTrace::Data::make_aperture<Hexagon>(20.0));
-    sph->set_surface(SolTrace::Data::make_surface<Sphere>(c));
+    set_element_shape(sd, sph, SolTrace::Data::make_aperture<Hexagon>(20.0), SolTrace::Data::make_surface<Sphere>(c));
     SolTrace::Data::OpticalPropertySet sphere_optics(SolTrace::Data::InteractionType::REFLECTION, "Sphere");
     sphere_optics.set_ideal_reflection(SolTrace::Data::OpticalSide::Both);
     sphere_optics.set_errors(SolTrace::Data::OpticalSide::Both, SolTrace::Data::DistributionType::NONE, 0.0, 0.0);
     auto sphere_optics_ref = sd.add_optical_property_set(sphere_optics);
     sph->set_optical_property_set(sphere_optics_ref);
     sph->set_name("Sphere");
-    sd.add_element(sph);
+    register_element(sd, sph);
 
-    auto para = SolTrace::Data::make_element<SingleElement>();
+    auto para = new_element<SingleElement>(sd);
     origin = {0.0, 0.0, -1.0};
     aim = {};
     zrot = 0.0;
     para->set_reference_frame_geometry(origin, aim, zrot);
-    para->set_aperture(SolTrace::Data::make_aperture<Rectangle>(31.0, 31.0));
-    para->set_surface(SolTrace::Data::make_surface<Parabola>(0.5 / 0.03, 0.5 / 0.03));
+    set_element_shape(sd, para, SolTrace::Data::make_aperture<Rectangle>(31.0, 31.0), SolTrace::Data::make_surface<Parabola>(0.5 / 0.03, 0.5 / 0.03));
     SolTrace::Data::OpticalPropertySet parabola_optics(SolTrace::Data::InteractionType::REFLECTION, "Parabola");
     parabola_optics.set_ideal_absorption(SolTrace::Data::OpticalSide::Both);
     parabola_optics.set_errors(SolTrace::Data::OpticalSide::Both, SolTrace::Data::DistributionType::NONE, 0.0, 0.0);
     auto parabola_optics_ref = sd.add_optical_property_set(parabola_optics);
     para->set_optical_property_set(parabola_optics_ref);
     para->set_name("Parabola");
-    sd.add_element(para);
+    register_element(sd, para);
 
     NativeRunner runner;
     RunnerStatus sts = runner.initialize();
@@ -720,16 +715,16 @@ namespace
         mirror_optics.set_reflectivity_table(OpticalSide::Front, reflectivity_table);
         auto optics_ref = sd.add_optical_property_set(mirror_optics);
 
-        auto mirror = SolTrace::Data::make_element<SingleElement>();
-        mirror->set_aperture(SolTrace::Data::make_aperture<Circle>(5.0));
-        mirror->set_surface(SolTrace::Data::make_surface<Flat>());
+        auto mirror = make_single(sd,
+            SolTrace::Data::make_aperture<Circle>(5.0),
+            SolTrace::Data::make_surface<Flat>(),
+            optics_ref);
         mirror->set_reference_frame_geometry(
             glm::dvec3(0.0, 0.0, 0.0),
             glm::dvec3(std::sin(incidence_angle_rad), 0.0, std::cos(incidence_angle_rad)),
             0.0);
-        mirror->set_optical_property_set(optics_ref);
 
-        return sd.add_element(mirror);
+        return register_element(sd, mirror);
     }
 } // namespace
 

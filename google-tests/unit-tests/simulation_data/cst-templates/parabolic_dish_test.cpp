@@ -41,8 +41,8 @@ TEST(ParabolicDish, ArcLength)
 
 TEST(ParabolicDish, Build)
 {
-    auto dish = SolTrace::Data::make_element<ParabolicDish>();
     SimulationData sd;
+    auto dish = new_element<ParabolicDish>(sd);
     auto optics = OpticalPropertySet();
     auto optics_ref = sd.add_optical_property_set(optics);
     dish->set_optics(optics_ref, optics_ref);
@@ -55,7 +55,7 @@ TEST(ParabolicDish, Build)
     dish->set_receiver_dimensions(0.25, 7.25);
     dish->create_geometry();
 
-    dish = SolTrace::Data::make_element<ParabolicDish>();
+    dish = new_element<ParabolicDish>(sd);
     dish->set_optics(optics_ref, optics_ref);
     dish->set_origin(20.0, -20.0, 30.0);
     dish->set_aperture_size(10.0);
@@ -96,7 +96,7 @@ TEST(ParabolicDish, Tracing)
     absorber_optics.set_errors(SolTrace::Data::OpticalSide::Both, SolTrace::Data::DistributionType::NONE, 1e-5, 1e-5);
     auto abs_opt_ref = my_sim.add_optical_property_set(absorber_optics);
 
-    auto dish = SolTrace::Data::make_element<ParabolicDish>();
+    auto dish = new_element<ParabolicDish>(my_sim);
     dish->set_optics(mirror_opt_ref, abs_opt_ref);
     dish->set_origin(2.0, -2.0, 0.0);
     dish->set_aperture_size(10.0);
@@ -117,7 +117,7 @@ TEST(ParabolicDish, Tracing)
     dish->set_aim_vector(sun->get_position());
     dish->set_zrot(0.0);
     dish->compute_coordinate_rotations();
-    my_sim.add_element(dish);
+    register_element(my_sim, dish);
 
     // // We can go over all the elements added
     // for (auto iter = my_sim.get_iterator();
@@ -198,7 +198,7 @@ TEST(ParabolicDish, UpdateGeometry)
     absorber_optics.set_errors(SolTrace::Data::OpticalSide::Both, SolTrace::Data::DistributionType::NONE, 1e-5, 1e-5);
     auto abs_opt_ref = my_sim.add_optical_property_set(absorber_optics);
 
-    auto dish = SolTrace::Data::make_element<ParabolicDish>();
+    auto dish = new_element<ParabolicDish>(my_sim);
     dish->set_optics(mirror_opt_ref, abs_opt_ref);
     dish->set_origin(10.0, 2.0, 0.0);
     dish->set_aperture_size(10.0);
@@ -219,7 +219,7 @@ TEST(ParabolicDish, UpdateGeometry)
     // std::cout << "Sun Position: " << sun->get_position() << std::endl;
     my_sim.add_ray_source(sun);
 
-    my_sim.add_element(dish);
+    register_element(my_sim, dish);
     dish->update_geometry(sun_az, sun_el);
 
     // std::cout << std::setprecision(14);
@@ -295,7 +295,8 @@ TEST(ParabolicDish, UpdateGeometry)
 // Error Checking Tests for ParabolicDish
 TEST(ParabolicDish, ErrorChecking_SetApertureSize)
 {
-    auto dish = SolTrace::Data::make_element<ParabolicDish>();
+    SimulationData sd;
+    auto dish = new_element<ParabolicDish>(sd);
 
     // Test negative aperture size
     EXPECT_THROW(dish->set_aperture_size(-10.0), std::invalid_argument);
@@ -311,7 +312,8 @@ TEST(ParabolicDish, ErrorChecking_SetApertureSize)
 
 TEST(ParabolicDish, ErrorChecking_SetFocalLength)
 {
-    auto dish = SolTrace::Data::make_element<ParabolicDish>();
+    SimulationData sd;
+    auto dish = new_element<ParabolicDish>(sd);
 
     // Test negative focal length
     EXPECT_THROW(dish->set_focal_length(-7.5), std::invalid_argument);
@@ -327,7 +329,8 @@ TEST(ParabolicDish, ErrorChecking_SetFocalLength)
 
 TEST(ParabolicDish, ErrorChecking_SetNumberPanels)
 {
-    auto dish = SolTrace::Data::make_element<ParabolicDish>();
+    SimulationData sd;
+    auto dish = new_element<ParabolicDish>(sd);
 
     // Test invalid panel counts
     EXPECT_THROW(dish->set_number_of_panels(0, 2), std::invalid_argument);
@@ -343,7 +346,8 @@ TEST(ParabolicDish, ErrorChecking_SetNumberPanels)
 
 TEST(ParabolicDish, ErrorChecking_SetGaps)
 {
-    auto dish = SolTrace::Data::make_element<ParabolicDish>();
+    SimulationData sd;
+    auto dish = new_element<ParabolicDish>(sd);
 
     // Test negative gap values
     EXPECT_THROW(dish->set_gaps(-0.02, 0.01, 0.5), std::invalid_argument);
@@ -358,7 +362,8 @@ TEST(ParabolicDish, ErrorChecking_SetGaps)
 
 TEST(ParabolicDish, ErrorChecking_SetReceiverDimensions)
 {
-    auto dish = SolTrace::Data::make_element<ParabolicDish>();
+    SimulationData sd;
+    auto dish = new_element<ParabolicDish>(sd);
 
     // Test invalid receiver diameter
     EXPECT_THROW(dish->set_receiver_dimensions(0.0, 7.25), std::invalid_argument);
@@ -374,9 +379,9 @@ TEST(ParabolicDish, ErrorChecking_SetReceiverDimensions)
 
 TEST(ParabolicDish, ErrorChecking_CreateGeometryWithoutParameters)
 {
-    auto dish = SolTrace::Data::make_element<ParabolicDish>();
-
     SimulationData sd;
+    auto dish = new_element<ParabolicDish>(sd);
+
     auto optics = OpticalPropertySet();
     auto optics_ref = sd.add_optical_property_set(optics);
     dish->set_optics(optics_ref, optics_ref);
@@ -403,9 +408,9 @@ TEST(ParabolicDish, ErrorChecking_CreateGeometryWithoutParameters)
 
 TEST(ParabolicDish, ErrorChecking_UpdateGeometry)
 {
-    auto dish = SolTrace::Data::make_element<ParabolicDish>();
-
     SimulationData sd;
+    auto dish = new_element<ParabolicDish>(sd);
+
     auto optics = OpticalPropertySet();
     auto optics_ref = sd.add_optical_property_set(optics);
     dish->set_optics(optics_ref, optics_ref);

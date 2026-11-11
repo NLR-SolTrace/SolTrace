@@ -21,11 +21,10 @@ TEST(OpticalProperties, OutputOperator)
 TEST(Element, ConstructionSmokeTest)
 {
     // Smoke tests
-    auto elem = SolTrace::Data::make_element<SingleElement>();
-    auto comp = SolTrace::Data::make_element<CompositeElement>();
-    // auto ve = SolTrace::Data::make_element<VirtualElement>();
-    // auto vp = SolTrace::Data::make_element<VirtualPlane>(10.0, 10.0);
-    auto st = SolTrace::Data::make_stage(1);
+    SimulationData sd;
+    auto elem = new_element<SingleElement>(sd);
+    auto comp = new_element<CompositeElement>(sd);
+    auto st = new_stage(sd, 1);
 }
 
 TEST(Element, SingleElementAccessors)
@@ -151,7 +150,7 @@ TEST(Element, VirtualPlane)
 TEST(Element, CompositeElementAccessors)
 {
     SimulationData sd;
-    auto cmp = SolTrace::Data::make_element<CompositeElement>();
+    auto cmp = new_element<CompositeElement>(sd);
     EXPECT_TRUE(cmp->is_composite());
 
     // Things that should be empty...
@@ -169,7 +168,7 @@ TEST(Element, CompositeElementAccessors)
     for (int i = 0; i < NUM_ELEMENTS; ++i)
     {
         auto elem = make_configured_element(sd);
-        cmp->add_element(elem);
+        attach_child(cmp, elem);
         // EXPECT_EQ(elem->get_stage(), STAGE);
     }
     EXPECT_EQ(cmp->get_number_of_elements(), NUM_ELEMENTS);
@@ -178,7 +177,7 @@ TEST(Element, CompositeElementAccessors)
     EXPECT_EQ(cmp->get_number_of_elements(), NUM_ELEMENTS - 1);
     EXPECT_EQ(cmp->get_element(0), nullptr);
     auto elem = make_configured_element(sd);
-    auto id = cmp->add_element(elem);
+    auto id = attach_child(cmp, elem);
     EXPECT_EQ(cmp->get_element(id).get(), elem.get());
 
     // Removing an element and adding another one in its place
@@ -186,12 +185,12 @@ TEST(Element, CompositeElementAccessors)
     EXPECT_EQ(cmp->get_element(id), nullptr);
     auto elem2 = make_configured_element(sd);
     EXPECT_NE(elem.get(), elem2.get());
-    auto id2 = cmp->add_element(elem2);
+    auto id2 = attach_child(cmp, elem2);
     EXPECT_EQ(cmp->get_element(id2).get(), elem2.get());
 
     // Recursive CompositeElements -- this is disallowed!
-    auto cmp2 = SolTrace::Data::make_element<CompositeElement>();
-    auto cid = cmp->add_element(cmp2);
+    auto cmp2 = new_element<CompositeElement>(sd);
+    auto cid = attach_child(cmp, cmp2);
     EXPECT_FALSE(SolTrace::Data::Element::is_success(cid));
     EXPECT_EQ(cid, SolTrace::Data::ELEMENT_INVALID_SETUP);
     EXPECT_EQ(cmp->get_number_of_elements(), NUM_ELEMENTS);
@@ -216,7 +215,7 @@ TEST(Element, CompositeElementAccessors)
     cmp->mark_virtual();
     auto elem3 = make_configured_element(sd);
     EXPECT_FALSE(elem3->is_virtual());
-    cmp->add_element(elem3);
+    attach_child(cmp, elem3);
     EXPECT_TRUE(elem3->is_virtual());
     cmp->unmark_virtual();
     EXPECT_FALSE(elem3->is_virtual());
@@ -242,19 +241,19 @@ TEST(Element, StageElementAccessors)
     SimulationData sd;
     const int_fast64_t STAGE = 10;
     const int_fast64_t RESET_STAGE = 20;
-    auto st1 = SolTrace::Data::make_stage(10);
+    auto st1 = new_stage(sd, 10);
 
     auto el1 = make_configured_element(sd);
-    auto cmp1 = SolTrace::Data::make_element<CompositeElement>();
+    auto cmp1 = new_element<CompositeElement>(sd);
     auto sub1 = make_configured_element(sd);
     auto sub2 = make_configured_element(sd);
     auto sub3 = make_configured_element(sd);
-    EXPECT_TRUE(SolTrace::Data::Element::is_success(cmp1->add_element(sub1)));
-    EXPECT_TRUE(SolTrace::Data::Element::is_success(cmp1->add_element(sub2)));
-    EXPECT_TRUE(SolTrace::Data::Element::is_success(cmp1->add_element(sub3)));
+    EXPECT_TRUE(SolTrace::Data::Element::is_success(attach_child(cmp1, sub1)));
+    EXPECT_TRUE(SolTrace::Data::Element::is_success(attach_child(cmp1, sub2)));
+    EXPECT_TRUE(SolTrace::Data::Element::is_success(attach_child(cmp1, sub3)));
 
-    EXPECT_TRUE(SolTrace::Data::Element::is_success(st1->add_element(el1)));
-    EXPECT_TRUE(SolTrace::Data::Element::is_success(st1->add_element(cmp1)));
+    EXPECT_TRUE(SolTrace::Data::Element::is_success(attach_child(st1, el1)));
+    EXPECT_TRUE(SolTrace::Data::Element::is_success(attach_child(st1, cmp1)));
 
     EXPECT_EQ(st1->get_number_of_elements(), 4);
     EXPECT_EQ(st1->get_stage(), STAGE);
@@ -273,7 +272,7 @@ TEST(Element, CoordinateComputationsIdentity)
 {
     SimulationData sd;
     auto el = make_configured_element(sd);
-    auto st = SolTrace::Data::make_stage(0);
+    auto st = new_stage(sd, 0);
     glm::dvec3 origin(0.0, 0.0, 0.0);
     glm::dvec3 aim(0.0, 0.0, 1.0);
     glm::dvec3 local(1.0, 1.0, 1.0);
@@ -306,7 +305,7 @@ TEST(Element, CoordinateComputationsIdentity)
     EXPECT_TRUE(is_identical(ref, result));
     result = glm::dvec3(0.0);
 
-    st->add_element(el);
+    attach_child(st, el);
     el->convert_local_to_global(result, local);
     EXPECT_TRUE(is_identical(ref, result));
     result = glm::dvec3(0.0);
@@ -409,9 +408,9 @@ TEST(Element, CoordinateComputationsRotations)
     auto el = make_configured_element(sd);
     el->set_reference_frame_geometry(Origin, aim1, zrot1);
 
-    auto st = SolTrace::Data::make_stage(0);
+    auto st = new_stage(sd, 0);
     st->set_reference_frame_geometry(Origin, aim2, zrot2);
-    st->add_element(el);
+    attach_child(st, el);
 
     // **** Tests **** //
     const double TOL = 1e-12;
@@ -491,9 +490,9 @@ TEST(Element, CoordinateComputationsTranslations)
     auto el = make_configured_element(sd);
     el->set_reference_frame_geometry(Origin1, aim1, zrot);
 
-    auto st = SolTrace::Data::make_stage(0);
+    auto st = new_stage(sd, 0);
     st->set_reference_frame_geometry(Origin2, aim2, zrot);
-    st->add_element(el);
+    attach_child(st, el);
 
     // **** Tests **** //
     const double TOL = 1e-12;
@@ -611,9 +610,9 @@ TEST(Element, CoordinateComputations)
     auto el = make_configured_element(sd);
     el->set_reference_frame_geometry(Origin1, aim1, zrot1);
 
-    auto st = SolTrace::Data::make_stage(0);
+    auto st = new_stage(sd, 0);
     st->set_reference_frame_geometry(Origin2, aim2, zrot2);
-    st->add_element(el);
+    attach_child(st, el);
 
     // **** Tests **** //
     const double TOL = 1e-12;
@@ -758,9 +757,9 @@ TEST(Element, VectorCoordinateComputations)
     auto el = make_configured_element(sd);
     el->set_reference_frame_geometry(Origin1, aim1, zrot1);
 
-    auto st = SolTrace::Data::make_stage(0);
+    auto st = new_stage(sd, 0);
     st->set_reference_frame_geometry(Origin2, aim2, zrot2);
-    st->add_element(el);
+    attach_child(st, el);
 
     // **** Tests **** //
     const double TOL = 1e-12;
@@ -833,7 +832,7 @@ TEST(Element, SingleElementEnforceUserFieldsSet)
         0.75, 0.25, 0.1, 0.001);
     auto optics_ref = sd.add_optical_property_set(opt_set);
 
-    auto elem = SolTrace::Data::make_element<SingleElement>();
+    auto elem = new_element<SingleElement>(sd);
     elem->set_optical_property_set(optics_ref);
 
     // SingleElement requires aperture and surface to be set
@@ -852,21 +851,22 @@ TEST(Element, SingleElementEnforceUserFieldsSet)
 TEST(Element, CompositeElementEnforceUserFieldsSet)
 {
     SimulationData sd;
-    auto comp = SolTrace::Data::make_element<CompositeElement>();
+    auto comp = new_element<CompositeElement>(sd);
 
     // CompositeElement requires at least one subelement
     // Test that it throws when no subelements are present
     EXPECT_THROW(comp->enforce_user_fields_set(), std::invalid_argument);
 
     // Add a child element that is not properly configured
-    auto elem1 = SolTrace::Data::make_element<SingleElement>();
-    EXPECT_THROW(comp->add_element(elem1), std::invalid_argument);
+    auto elem1 = new_element<SingleElement>(sd);
+    EXPECT_THROW(attach_child(comp, elem1), std::invalid_argument);
 
     // Add properly configured child elements
     auto elem2 = make_configured_element(sd);
-    elem2->set_aperture(SolTrace::Data::make_aperture<SolTrace::Data::Rectangle>(2.0, 3.0));
-    elem2->set_surface(SolTrace::Data::make_surface<SolTrace::Data::Parabola>(1.0, 2.0));
-    EXPECT_NO_THROW(comp->add_element(elem2));
+    set_element_shape(sd, elem2,
+        SolTrace::Data::make_aperture<SolTrace::Data::Rectangle>(2.0, 3.0),
+        SolTrace::Data::make_surface<SolTrace::Data::Parabola>(1.0, 2.0));
+    EXPECT_NO_THROW(attach_child(comp, elem2));
 
     // Should still not throw for the CompositeElement
     EXPECT_NO_THROW(comp->enforce_user_fields_set());

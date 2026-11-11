@@ -41,16 +41,16 @@ namespace
         mirror_optics.set_reflectivity_table(OpticalSide::Front, reflectivity_table);
         auto optics_ref = sd.add_optical_property_set(mirror_optics);
 
-        auto mirror = SolTrace::Data::make_element<SingleElement>();
-        mirror->set_aperture(SolTrace::Data::make_aperture<Circle>(5.0));
-        mirror->set_surface(SolTrace::Data::make_surface<Flat>());
+        auto mirror = make_single(sd,
+            SolTrace::Data::make_aperture<Circle>(5.0),
+            SolTrace::Data::make_surface<Flat>(),
+            optics_ref);
         mirror->set_reference_frame_geometry(
             glm::dvec3(0.0, 0.0, 0.0),
             glm::dvec3(std::sin(incidence_angle_rad), 0.0, std::cos(incidence_angle_rad)),
             0.0);
-        mirror->set_optical_property_set(optics_ref);
 
-        return sd.add_element(mirror);
+        return register_element(sd, mirror);
     }
 
     // Nominal incidence angle sits inside the table's fully-reflective

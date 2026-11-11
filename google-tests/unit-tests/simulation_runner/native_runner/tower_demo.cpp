@@ -33,13 +33,12 @@ SimulationData create_tower_demo_simulation_data(bool create_stages)
     sd.add_ray_source(sun);
 
     // Absorber -- Flat
-    auto absorber = make_element<SingleElement>();
+    auto absorber = new_element<SingleElement>(sd);
     absorber->set_origin(0.0, 0.0, 10.0);
     absorber->set_aim_vector(0.0, 5.0, 0.0);
     absorber->set_zrot(0.0);
     absorber->compute_coordinate_rotations();
-    absorber->set_surface(make_surface<Flat>()); // surface(nullptr)
-    absorber->set_aperture(make_aperture<Rectangle>(2.0, 2.0));
+    set_element_shape(sd, absorber, make_aperture<Rectangle>(2.0, 2.0), make_surface<Flat>()); // surface(nullptr)
 
     SolTrace::Data::OpticalPropertySet abs_optics(SolTrace::Data::InteractionType::REFLECTION, "Absorber");
     abs_optics.set_ideal_absorption(SolTrace::Data::OpticalSide::Both);
@@ -52,19 +51,19 @@ SimulationData create_tower_demo_simulation_data(bool create_stages)
     if (create_stages) {
         // Make stage 1 -- second stage -- these can be added to SimulationData
         // in any order but should be numbered in the desired order
-        st1 = make_stage(1);
+        st1 = new_stage(sd, 1);
         // Origin is initialized to zero but set it explicitly
         st1->set_origin(0.0, 0.0, 0.0);
         // Set aim vector so stage and global coordinates are identical
         st1->set_aim_vector(0.0, 0.0, 1.0);
         st1->set_zrot(0.0);
         st1->compute_coordinate_rotations();
-        st1->add_element(absorber);
+        attach_child(st1, absorber);
         // Optional -- to help the user identify things
         st1->set_name("Stage 1--Absorber");
 
         // Make stage 0 -- this will be the first stage if the runner uses stages
-        st0 = make_stage(0);
+        st0 = new_stage(sd, 0);
         st0->set_origin(0.0, 0.0, 0.0);
         st0->set_aim_vector(0.0, 0.0, 1.0);
         st0->set_zrot(0.0);
@@ -73,7 +72,7 @@ SimulationData create_tower_demo_simulation_data(bool create_stages)
     }
     else {
         // Add absorber directly
-        sd.add_element(absorber);
+        register_element(sd, absorber);
     }
 
     glm::dvec3 rvec, svec, avec;
@@ -85,8 +84,7 @@ SimulationData create_tower_demo_simulation_data(bool create_stages)
 
     for (int i = -1; i < 2; ++i)
     {
-        auto el = make_element<SingleElement>();
-        el->set_optical_property_set(mirror_optics_ref);
+        auto el = make_single(sd, make_aperture<Rectangle>(1.0, 1.95), make_surface<Flat>(), mirror_optics_ref);
 
         pos = {5 * sin(i * PI / 2.0), 5 * cos(i * PI / 2.0), 0.0};
         el->set_origin(pos);
@@ -105,23 +103,20 @@ SimulationData create_tower_demo_simulation_data(bool create_stages)
         // el->set_zrot_radians(PI / 3.0 * i);
         el->compute_coordinate_rotations();
 
-        el->set_surface(make_surface<Flat>());
-        el->set_aperture(make_aperture<Rectangle>(1.0, 1.95));
-
         std::stringstream name;
         name << "Reflector " << i;
         el->set_name(name.str());
 
         if (create_stages)
-            st0->add_element(el);
+            attach_child(st0, el);
         else
-            sd.add_element(el);
+            register_element(sd, el);
     }
 
     if (create_stages) {
         // Stages must have all elements present before adding to SimulationData!!
-        sd.add_stage(st0);
-        sd.add_stage(st1);
+        register_stage(sd, st0);
+        register_stage(sd, st1);
     }
 
     // Set parameters

@@ -805,7 +805,8 @@ TEST(io_json, stage_read_fail)
     jstage["elements"] = json::object(); // Empty node
 
     // Try to make stage
-    EXPECT_THROW(make_stage(jstage, nullptr), std::invalid_argument);
+    SimulationData sd;
+    EXPECT_THROW(new_stage(sd, jstage, nullptr), std::invalid_argument);
 
 }
 
@@ -1072,49 +1073,49 @@ TEST(io_json, element_groups)
     // test an element with no group
     json j_no_group;
     get_default_single_element(j_no_group, opt_id_int);
-    auto e_no_group = SolTrace::Data::make_element<SingleElement>(j_no_group, resolve_optics);
+    auto e_no_group = new_element<SingleElement>(sd, j_no_group, resolve_optics);
 
     ASSERT_EQ(e_no_group->get_group(), -1);
     
-    sd.add_element(e_no_group);
+    register_element(sd, e_no_group);
     ASSERT_EQ(sd.get_groups().size(), 0);
 
     // test 2 elements with a group 0
     json j_group_0_1;
     get_default_single_element(j_group_0_1, opt_id_int);
     j_group_0_1["group"] = 0;
-    auto e_group_0_1 = SolTrace::Data::make_element<SingleElement>(j_group_0_1, resolve_optics);
+    auto e_group_0_1 = new_element<SingleElement>(sd, j_group_0_1, resolve_optics);
     ASSERT_EQ(e_group_0_1->get_group(), 0);
     
-    sd.add_element(e_group_0_1);
+    register_element(sd, e_group_0_1);
     ASSERT_EQ(sd.get_groups().size(), 1);
     
     json j_group_0_2;
     get_default_single_element(j_group_0_2, opt_id_int);
     j_group_0_2["group"] = 0;
-    auto e_group_0_2 = SolTrace::Data::make_element<SingleElement>(j_group_0_2, resolve_optics);
+    auto e_group_0_2 = new_element<SingleElement>(sd, j_group_0_2, resolve_optics);
     ASSERT_EQ(e_group_0_2->get_group(), 0);
     
-    sd.add_element(e_group_0_2);
+    register_element(sd, e_group_0_2);
     ASSERT_EQ(sd.get_groups().size(), 1);
     
     // add group 1
     json j_group_1;
     get_default_single_element(j_group_1, opt_id_int);
     j_group_1["group"] = 1;
-    auto e_group_1 = SolTrace::Data::make_element<SingleElement>(j_group_1, resolve_optics);
+    auto e_group_1 = new_element<SingleElement>(sd, j_group_1, resolve_optics);
     ASSERT_EQ(e_group_1->get_group(), 1);
     
-    sd.add_element(e_group_1);
+    register_element(sd, e_group_1);
     ASSERT_EQ(sd.get_groups().size(), 2);
 
     json j_group_0_3;
     get_default_single_element(j_group_0_3, opt_id_int);
     j_group_0_3["group"] = 0;
-    auto e_group_0_3 = SolTrace::Data::make_element<SingleElement>(j_group_0_3, resolve_optics);
+    auto e_group_0_3 = new_element<SingleElement>(sd, j_group_0_3, resolve_optics);
     ASSERT_EQ(e_group_0_3->get_group(), 0);
     
-    sd.add_element(e_group_0_3);
+    register_element(sd, e_group_0_3);
     ASSERT_EQ(sd.get_groups().size(), 2);
     
     // check vector is the starting index of the groups
