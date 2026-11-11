@@ -275,7 +275,7 @@ void SunModule::update_database_connections() {
 
 namespace {
 
-constexpr double DEFAULT_SIGMA     = 4.65;
+constexpr double DEFAULT_SIGMA     = 2.73;
 constexpr double DEFAULT_HALFWIDTH = 4.65;
 constexpr double DEFAULT_CSR       = 0.1;
 

@@ -228,7 +228,7 @@ void patch_sun_shape(SD::ray_source_ptr const& source,
     auto half_width = source->get_half_width();
     auto csr        = source->get_circumsolar_ratio();
 
-    if (std::isnan(sigma)) { sigma = 4.65; }
+    if (std::isnan(sigma)) { sigma = 2.73; }
     if (std::isnan(half_width)) { half_width = 4.65; }
     if (std::isnan(csr)) { csr = 0.1; }
 

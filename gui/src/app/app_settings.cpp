@@ -116,7 +116,7 @@ void AppSettings::load_session(AppData& app) {
 
     sun->shape()->set_shape(
         static_cast<SunShape::Shape>(s.value("shape", 0).toDouble()));
-    sun->shape()->set_sigma(s.value("sigma", 4.65).toDouble());
+    sun->shape()->set_sigma(s.value("sigma", 2.73).toDouble());
     sun->shape()->set_half_width(s.value("half_width", 4.65).toDouble());
     sun->shape()->set_csr(s.value("buie_csr", 0.1).toDouble());
 
