@@ -106,7 +106,7 @@ ColumnLayout {
 
             STComboBox {
                 Layout.fillWidth: true
-                Layout.minimumWidth: 90
+                Layout.minimumWidth: 110
                 model: [
                     qsTr("January"), qsTr("February"), qsTr("March"),
                     qsTr("April"), qsTr("May"), qsTr("June"),
@@ -121,8 +121,8 @@ ColumnLayout {
             }
 
             STDoubleSpinBox {
-                Layout.minimumWidth: 72
-                Layout.preferredWidth: 72
+                Layout.minimumWidth: 90
+                Layout.preferredWidth: 90
                 from: 1
                 to: 31
                 decimals: 0
@@ -134,8 +134,8 @@ ColumnLayout {
             }
 
             STDoubleSpinBox {
-                Layout.minimumWidth: 90
-                Layout.preferredWidth: 96
+                Layout.minimumWidth: 110
+                Layout.preferredWidth: 110
                 from: 1900
                 to: 2200
                 decimals: 0
