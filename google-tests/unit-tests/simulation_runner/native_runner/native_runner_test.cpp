@@ -502,7 +502,7 @@ TEST(NativeRunner, SingleRayValidationTest)
     zrot = 0.0;
     para->set_reference_frame_geometry(origin, aim, zrot);
     para->set_aperture(SolTrace::Data::make_aperture<Rectangle>(31.0, 31.0));
-    para->set_surface(SolTrace::Data::make_surface<Parabola>(0.5 / 0.03, 0.5 / 0.03));
+    para->set_surface(SolTrace::Data::make_surface<Parabola>(0.03, 0.03));
     SolTrace::Data::OpticalPropertySet parabola_optics(SolTrace::Data::InteractionType::REFLECTION, "Parabola");
     parabola_optics.set_ideal_absorption(SolTrace::Data::OpticalSide::Both);
     parabola_optics.set_errors(SolTrace::Data::OpticalSide::Both, SolTrace::Data::DistributionType::NONE, 0.0, 0.0);

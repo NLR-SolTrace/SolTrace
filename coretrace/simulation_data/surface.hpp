@@ -177,20 +177,24 @@ namespace SolTrace::Data
 
     struct Parabola : public Surface
     {
-        // z(x,y) = (cx * x^2 + cy * y^2) / 2
-        // TODO: Assuming that vertex_x_curv gives cx and
-        // that vertex_y_curv gives cy
-        double focal_length_x;
-        double focal_length_y;
+        // z(x,y) = (cx * x^2 + cy * y^2) / 2, with c = 1 / (2 f)
+        // A curvature of 0 is flat in that direction. Both curvatures
+        // being 0 is rejected; use Flat instead.
+        double vertex_curv_x;
+        double vertex_curv_y;
 
-        Parabola(double focal_x, double focal_y) : Surface(SurfaceType::PARABOLA),
-                                                   focal_length_x(focal_x),
-                                                   focal_length_y(focal_y)
+        Parabola(double curv_x, double curv_y) : Surface(SurfaceType::PARABOLA),
+                                                 vertex_curv_x(curv_x),
+                                                 vertex_curv_y(curv_y)
         {
             validate();
         }
         Parabola(const nlohmann::ordered_json &jnode);
         virtual ~Parabola() {}
+
+        // Converts a focal length to vertex curvature (c = 1 / (2 f)).
+        // An infinite focal length is flat (c = 0). Zero or NaN throws.
+        static double curvature_from_focal_length(double focal_length);
         virtual void bounding_box(const double x_minmax[2],
                                   const double y_minmax[2],
                                   double &z_min,

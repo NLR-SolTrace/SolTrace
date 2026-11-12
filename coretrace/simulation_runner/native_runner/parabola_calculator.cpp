@@ -28,31 +28,14 @@ namespace SolTrace::NativeRunner
             throw std::invalid_argument("ParabolaCalculator: Surface must be of type Parabola");
         }
 
-        // TODO: Check that this is the correct thing to do
-        // this->cx = para->vertex_x_curv;
-        // this->cy = para->vertex_y_curv;
-
-        double fx = para->focal_length_x;
-        double fy = para->focal_length_y;
-
-        // Validate focal lengths
-        if (std::isnan(fx) || std::isnan(fy))
-        {
-            throw std::invalid_argument("ParabolaCalculator: Focal lengths cannot be NaN");
-        }
-
-        if (std::isinf(fx) && std::isinf(fy))
-        {
-            throw std::invalid_argument("ParabolaCalculator: Both focal lengths cannot be infinite");
-        }
-
         if (ap == nullptr)
         {
             throw std::invalid_argument("ParabolaCalculator: Aperture pointer cannot be null");
         }
 
-        this->cx = fabs(fx) < 1e-12 ? 0.0 : 0.5 / fx;
-        this->cy = fabs(fy) < 1e-12 ? 0.0 : 0.5 / fy;
+        // Curvatures are validated by Parabola (finite, not both zero)
+        this->cx = para->vertex_curv_x;
+        this->cy = para->vertex_curv_y;
 
         // std::cout << "cx: " << cx
         //           << "\ncy: " << cy

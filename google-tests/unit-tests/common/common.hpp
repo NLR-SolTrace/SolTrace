@@ -33,9 +33,9 @@ inline std::shared_ptr<Flat> create_flat_surface()
     return flat;
 }
 
-inline std::shared_ptr<Parabola> create_parabola_surface(double focal_length = 1.0)
+inline std::shared_ptr<Parabola> create_parabola_surface(double vertex_curvature = 1.0)
 {
-    auto parabola = std::make_shared<Parabola>(focal_length, focal_length);
+    auto parabola = std::make_shared<Parabola>(vertex_curvature, vertex_curvature);
     return parabola;
 }
 
