@@ -177,6 +177,8 @@ namespace SolTrace::NativeRunner
 
         if (use_stages)
         {
+            // Create every stage first. An element finds its stage by its own
+            // stage number, so the order of the element IDs does not matter.
             for (auto iter = data->get_const_iterator();
                  !data->is_at_end(iter);
                  ++iter)
@@ -188,32 +190,27 @@ namespace SolTrace::NativeRunner
                     auto retval = my_map.insert(
                         std::make_pair(el->get_stage(), stage));
 
-                    // current_stage_id = stage->stage_id;
-
-                    // std::cout << "Created stage " << el->get_stage()
-                    //           << " with " << stage->ElementList.size() << " elements"
-                    //           << std::endl;
-
                     if (retval.second == false)
                     {
                         throw std::runtime_error("Duplicate stage numbers found.");
                     }
-
-                    current_stage = stage;
-                    // element_number = 1;
                 }
-                else if (el->is_enabled() && el->is_single())
+            }
+
+            for (auto iter = data->get_const_iterator();
+                 !data->is_at_end(iter);
+                 ++iter)
+            {
+                element_ptr el = iter->second;
+                if (el->is_enabled() && el->is_single())
                 {
-                    if (current_stage == nullptr)
+                    auto stage_iter = my_map.find(el->get_stage());
+                    if (stage_iter == my_map.end())
                     {
                         element_found_before_stage = true;
                         continue;
                     }
-                    else if (el->get_stage() != current_stage->stage_id)
-                    {
-                        throw std::runtime_error(
-                            "Element does not match current stage");
-                    }
+                    current_stage = stage_iter->second;
 
                     const auto optics = el->get_optical_property_set();
                     if (optics == nullptr)

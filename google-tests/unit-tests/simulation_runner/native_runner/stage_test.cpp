@@ -377,6 +377,38 @@ TEST(StageTest, ElementBeforeStageThrowsWhenStagesEnabled)
     EXPECT_THROW(runner.setup_simulation(&sd), std::runtime_error);
 }
 
+// Element IDs follow creation order, so every stage can have a lower ID than
+// the elements in the stages. Elements still go to the stage they belong to.
+TEST(StageTest, StagesCreatedBeforeTheirElementsSetUp)
+{
+    SimulationData sd;
+    auto sun = make_ray_source<Sun>();
+    sun->set_position(0.0, 0.0, 100.0);
+    sd.add_ray_source(sun);
+
+    SolTrace::Data::OpticalPropertySet optics(SolTrace::Data::InteractionType::REFLECTION, "stage_order_optics");
+    optics.set_ideal_reflection(SolTrace::Data::OpticalSide::Both);
+    optics.set_errors(SolTrace::Data::OpticalSide::Both, SolTrace::Data::DistributionType::NONE, 0.0, 0.0);
+    auto optics_ref = sd.add_optical_property_set(optics);
+
+    auto st0 = new_stage(sd, 0);
+    auto st1 = new_stage(sd, 1);
+    auto el0 = make_single(sd, make_aperture<Rectangle>(1, 1), make_surface<Flat>(), optics_ref);
+    auto el1 = make_single(sd, make_aperture<Rectangle>(1, 1), make_surface<Flat>(), optics_ref);
+    el0->set_origin(0, 0, 50);
+    el1->set_origin(0, 10, 50);
+    attach_child(st0, el0);
+    attach_child(st1, el1);
+    register_stage(sd, st0);
+    register_stage(sd, st1);
+
+    ASSERT_LT(st1->get_id(), el0->get_id());
+
+    NativeRunner runner;
+    ASSERT_EQ(runner.initialize(), RunnerStatus::SUCCESS);
+    EXPECT_NO_THROW(runner.setup_simulation(&sd));
+}
+
 TEST(StageTest, ElementBeforeStageSucceedsWhenStagesDisabled)
 {
     SimulationData sd;
