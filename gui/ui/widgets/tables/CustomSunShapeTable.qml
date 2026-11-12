@@ -66,6 +66,7 @@ ListView {
 
             from: 0
             to: 60
+            stepSize: 0.5
             decimals: 3
             Layout.preferredWidth: row_del.width * .4
             value: root.model.data(root.model.index(index, 0))
@@ -78,8 +79,8 @@ ListView {
             id: intensity
 
             from: 0
-            to: 1.2
-            stepSize: 0.1
+            to: 1.0
+            stepSize: 0.05
             decimals: 3
             Layout.fillWidth: true
             value: root.model.data(root.model.index(index, 1))
