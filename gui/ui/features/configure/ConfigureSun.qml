@@ -86,7 +86,7 @@ Flickable {
                         anchors.centerIn: parent
                         text: App.sun.type === SunModule.PointSource
                               ? qsTr("Point source")
-                              : qsTr("Directional sun")
+                              : qsTr("Directional")
                         color: App.theme.fontColor
                         font.pointSize: App.theme.labelSize
                     }
