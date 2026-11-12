@@ -1,8 +1,8 @@
 #pragma once
 
+#include "scene_models/element_models.h"
 #include "scene_models/hierarchy_models.h"
 #include "scene_models/instance_editor.h"
-#include "scene_models/element_models.h"
 #include "scene_models/instance_sort_filter.h"
 #include "scene_models/world_geometry_model.h"
 #include "support/notification.h"
@@ -27,7 +27,6 @@ class LayoutModule : public QObject {
     QPointer<SolTrace::GUI::Data::Database> m_observed_database;
 
 private slots:
-    void viewed_entity_changed();
     void edited_entity_changed();
     void reset(SolTrace::GUI::Data::Database*);
     void identity_changed(entt::entity);
@@ -37,29 +36,24 @@ public:
 
     QOBJECT_WRITABLE_PROPERTY(SolTrace::GUI::Data::Database, current_database)
 
-    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::AllElementsModel, all_elements_model);
+    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::AllElementsModel,
+                              all_elements_model);
 
-    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::RootElementsModel, root_elements_model);
+    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::ElementTreeModel,
+                              element_tree_model);
     QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::InstanceSortFilter,
-                              filtered_root_elements_model);
+                              filtered_element_tree_model);
+    QOBJECT_WRITABLE_PROPERTY(SolTrace::GUI::Data::AnInstanceEditor,
+                              instance_edit);
+    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::WorldGeometryModel,
+                              world_geometry_model);
 
-    QOBJECT_WRITABLE_PROPERTY(SolTrace::GUI::Data::ChildModel, child_model);
-    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::InstanceSortFilter, filtered_child_model);
-
-    QOBJECT_WRITABLE_PROPERTY(SolTrace::GUI::Data::BreadcrumbModel, breadcrumb_model);
-    QOBJECT_WRITABLE_PROPERTY(SolTrace::GUI::Data::AnInstanceEditor, instance_edit);
-    QOBJECT_READONLY_PROPERTY(SolTrace::GUI::Data::WorldGeometryModel, world_geometry_model);
-
-    Q_WRITABLE_PROPERTY(SolTrace::GUI::Data::Entity, viewed_element, { })
     Q_WRITABLE_PROPERTY(SolTrace::GUI::Data::Entity, edited_element, { })
     Q_READONLY_PROPERTY(QString, edited_element_name);
 
     /// we need a selected element lists. need global pos and rot
 
 public slots:
-    /// Clear the element currently shown in the layout details pane.
-    void clear_viewed_element() { set_viewed_element({ }); }
-
     /// Clear the element currently being edited.
     void clear_edited_element() { set_edited_element({ }); }
 

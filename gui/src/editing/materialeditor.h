@@ -6,6 +6,7 @@
 #include "support/qt_helpers.h"
 
 #include <QObject>
+#include <QRangeModel>
 
 namespace SolTrace::GUI::Data {
 
@@ -22,8 +23,10 @@ class MaterialEditor : public QObject, public DatabaseObserver {
     QOBJECT_WRITABLE_PROPERTY(OpticalPropertiesObject, front_editor);
 
     // UX Helpers
-    QOBJECT_READONLY_PROPERTY(QStringListModel, interaction_type_model);
-    QOBJECT_READONLY_PROPERTY(QStringListModel, distribution_type_model);
+    QOBJECT_READONLY_PROPERTY(QRangeModel, interaction_type_model);
+    QOBJECT_READONLY_PROPERTY(QRangeModel, distribution_type_model);
+
+    Q_PROPERTY(qint32 reflection_type READ reflection_type CONSTANT)
 
 private slots:
     void parameters_changed(entt::entity);
@@ -34,6 +37,10 @@ public:
 
     /// Observe database material group and synchronize front/back editors.
     void set(Database*, entt::entity group);
+
+    qint32 reflection_type() const {
+        return static_cast<qint32>(SD::InteractionType::REFLECTION);
+    }
 
 signals:
 

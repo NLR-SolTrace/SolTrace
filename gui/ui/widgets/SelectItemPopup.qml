@@ -15,6 +15,7 @@ STPopup {
     property string filterText
 
     property list<db_entity> exclude
+    property var acceptEntity: null
 
     signal selectedEntity(db_entity item)
     signal selectedNothing()
@@ -79,6 +80,13 @@ STPopup {
 
                         function filter(data: NameEntityPair) : bool {
                             return root.exclude.includes(data.entity)
+                        }
+                    },
+                    FunctionFilter {
+                        enabled: root.acceptEntity !== null
+
+                        function filter(data: NameEntityPair) : bool {
+                            return root.acceptEntity(data.entity)
                         }
                     }
                 ]

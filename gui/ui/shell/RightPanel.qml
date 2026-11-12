@@ -42,16 +42,12 @@ ShadowedGlassRectangle {
                 font.bold: true
 
                 elide: Label.ElideRight
-                // horizontalAlignment: App.view.right_panel.size == SplitPanelData.Small ? Label.AlignLeft : Label.AlignHCenter
                 verticalAlignment: Label.AlignVCenter
             }
 
             PanelButtons {
                 id: panel_buttons
                 target: App.view.right_panel
-                otherTarget: App.view.left_panel
-                available_width: root.available_width
-                is_right_panel: true
             }
         }
 

@@ -604,6 +604,32 @@ public:
         }
     }
 
+    const std::vector<AngularTablePoint>&
+    get_reflectivity_table(const OpticalSide side) const
+    {
+        switch (side)
+        {
+        case (OpticalSide::Front): return this->front.reflectivity_table;
+        case (OpticalSide::Back): return this->back.reflectivity_table;
+        default:
+            throw std::invalid_argument(
+                "get_reflectivity_table requires Front or Back");
+        }
+    }
+
+    const std::vector<AngularTablePoint>&
+    get_transmissivity_table(const OpticalSide side) const
+    {
+        switch (side)
+        {
+        case (OpticalSide::Front): return this->front.transmissivity_table;
+        case (OpticalSide::Back): return this->back.transmissivity_table;
+        default:
+            throw std::invalid_argument(
+                "get_transmissivity_table requires Front or Back");
+        }
+    }
+
     // Cached cos(angle) values for the reflectivity/transmissivity tables, in
     // the same order as get_reflectivity_values()/get_transmissivity_values().
     // Empty if no table is set for the given side.

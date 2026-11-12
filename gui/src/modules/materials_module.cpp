@@ -65,10 +65,10 @@ void MaterialsModule::reset(SolTrace::GUI::Data::Database* db) {
 
     m_database = db;
 
-    set_current_geometry({});
-    set_current_geometry_name({});
-    set_current_material({});
-    set_current_material_name({});
+    set_current_geometry({ });
+    set_current_geometry_name({ });
+    set_current_material({ });
+    set_current_material_name({ });
 
     m_material_edit->set(db, entt::null);
     m_geometry_edit->set(db, entt::null);

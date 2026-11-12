@@ -1,6 +1,6 @@
-#include "data/database.h"
 #include "conversion.h"
 #include "data/components.h"
+#include "data/database.h"
 #include "data_io/database_notification.h"
 #include "support/math_utility.h"
 
@@ -20,7 +20,8 @@ void hash_combine(size_t& seed, T const& v) {
 
 template <>
 struct std::hash<SolTrace::GUI::Data::GeometryComponent> {
-    std::size_t operator()(SolTrace::GUI::Data::GeometryComponent const& a) const {
+    std::size_t
+    operator()(SolTrace::GUI::Data::GeometryComponent const& a) const {
         size_t seed = 0;
 
         if (a.aperture) hash_combine(seed, *a.aperture);
@@ -172,7 +173,8 @@ TransformComponent extract_tf(SD::Element const& e) {
     auto quat = dir_roll_to_quat(aim, e.get_zrot_radians());
     (void)quat;
 
-    // TODO: Verify transform conversion against SolTrace coordinate conventions.
+    // TODO: Verify transform conversion against SolTrace coordinate
+    // conventions.
     auto quat2 = glm::quat_cast(e.get_local_to_reference());
 
     return TransformComponent { .position = pos, .rotation = quat2 };
@@ -312,7 +314,7 @@ struct StageComponent {
 void Database::import(SD::SimulationData& data, bool legacy_import) {
 
     // Assuming we are not re-using registries, which we are not for the moment
-    auto imported_tag = create_tag("imported");
+    auto imported_tag = create_tag("imported", true);
 
     // we use pointers as element IDs are scoped to global AND composite
     std::unordered_map<SD::Element*, entt::entity> element_to_entity;
@@ -390,7 +392,8 @@ void Database::import(SD::SimulationData& data, bool legacy_import) {
             name.toLong(&ok);
 
             if (legacy_import && ok) {
-                // Legacy numeric names are not descriptive; add context when possible.
+                // Legacy numeric names are not descriptive; add context when
+                // possible.
 
                 auto id = element.get_id();
 
@@ -461,8 +464,7 @@ void Database::import(SD::SimulationData& data, bool legacy_import) {
         .source = data.get_ray_source(),
     });
 
-    simulation_parameters_resource.set(
-        data.get_simulation_parameters());
+    simulation_parameters_resource.set(data.get_simulation_parameters());
 
     qInfo() << "Imported" << this->m_registry.view<ElementComponent>()->size()
             << "elements";

@@ -9,6 +9,7 @@ Rectangle {
     property var blur_source
     property int blurMax: 32
     property color glassColor: App.theme.glassColor
+    property bool show_border: true
 
     clip: true
     color: "transparent"
@@ -74,6 +75,7 @@ Rectangle {
 
     Rectangle {
         id: background
+        visible: root.show_border
         color: root.glassColor
         border.width: 1
         border.color: Qt.rgba(0.9, 0.9, 0.9, 0.15)

@@ -13,7 +13,6 @@ ColumnLayout {
         Layout.leftMargin: 10
         Layout.rightMargin: 10
         Layout.bottomMargin: 8
-        showTitle: false
     }
 
     LoadSceneListPane {

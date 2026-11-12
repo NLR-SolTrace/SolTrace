@@ -11,7 +11,7 @@ Item {
     width: 0
     height: 0
 
-    property alias recent_files: file_settings.recent_files
+    readonly property var recent_files: App.file_source.recent_files
 
     function load_new() {
         App.file_source.load_new()
@@ -56,51 +56,17 @@ Item {
         exampleFileDialog.open()
     }
 
-    function recent_files_array() {
-        var files = []
-
-        if (!file_settings.recent_files) {
-            return files
-        }
-
-        for (var i = 0; i < file_settings.recent_files.length; ++i) {
-            files.push(file_url_text(file_settings.recent_files[i]))
-        }
-
-        return files
-    }
-
-    function set_recent_files(files) {
-        file_settings.recent_files = files
-    }
-
     function clear_recent_files() {
-        set_recent_files([])
+        App.file_source.clear_recent_files()
     }
 
     function add_files(file_path) {
-        var normalized_file_path = file_url_text(file_path)
-        var files = recent_files_array()
-        var index = files.indexOf(normalized_file_path)
-
-        if (index !== -1) {
-            files.splice(index, 1)
-        }
-
-        files.unshift(normalized_file_path)
-
-        if (files.length > 5) {
-            files.pop()
-        }
-
-        // Assign a fresh array so views using recent_files are notified.
-        set_recent_files(files)
+        App.file_source.add_recent_file(Qt.url(file_url_text(file_path)))
     }
 
     QtObject {
         id: file_settings
 
-        property var recent_files: []
         property url last_selected_file
         property url last_selected_folder: StandardPaths.standardLocations(
                                                StandardPaths.DocumentsLocation)[0]
@@ -111,7 +77,6 @@ Item {
 
         category: "file_history"
 
-        property alias recent_files: file_settings.recent_files
         property alias last_selected_file: file_settings.last_selected_file
         property alias last_selected_folder: file_settings.last_selected_folder
     }

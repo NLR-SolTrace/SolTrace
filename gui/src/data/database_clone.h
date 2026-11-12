@@ -18,7 +18,7 @@ struct DatabaseCloneResult {
 
 /// Clone a given database, with a given name, and a parent
 DatabaseCloneResult clone_database_with_entity_map(Database const& from,
-                                                   QString new_database_name,
+                                                   QString  new_database_name,
                                                    QObject* p);
 
 } // namespace SolTrace::GUI::Data

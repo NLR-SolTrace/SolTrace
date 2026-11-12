@@ -1,8 +1,12 @@
 #include "apertureeditor.h"
+#include "support/enummodel.h"
 
 #include <magic_enum/magic_enum.hpp>
 
 #include <QtMath>
+
+#include <algorithm>
+#include <cmath>
 
 namespace SolTrace::GUI::Data {
 
@@ -156,8 +160,9 @@ QVector<ApertureParameter> make_parameters_for(SD::ApertureType type) {
     return ret;
 }
 
-std::vector<double> factory_arguments_for(
-    SD::ApertureType type, QVector<ApertureParameter> const& records) {
+std::vector<double>
+factory_arguments_for(SD::ApertureType                  type,
+                      QVector<ApertureParameter> const& records) {
     if (type == SD::ApertureType::RECTANGLE && records.size() >= 4) {
         return { records[2].content, records[3].content };
     }
@@ -173,16 +178,34 @@ std::vector<double> factory_arguments_for(
 
 } // namespace
 
+ApertureTypeModel::ApertureTypeModel(QObject* parent)
+    : StructTableModel(parent) { }
+
+void ApertureTypeModel::set_for_surface(SD::SurfaceType surface_type) {
+    QVector<ApertureTypeRecord> records;
+
+    for (auto type :
+         ApertureParameterModel::valid_apertures_for_surf(surface_type)) {
+        records.push_back({
+            .name = Support::EnumModel<SD::ApertureType>::default_display_name(
+                type),
+            .value = static_cast<qint32>(type),
+        });
+    }
+
+    if (records == m_records) return;
+    reset(std::move(records));
+}
+
 std::span<SD::ApertureType const>
 ApertureParameterModel::valid_apertures_for_surf(SD::SurfaceType st) {
 
-    static constexpr std::array<SD::ApertureType, 8> all_valid = {
+    static constexpr std::array<SD::ApertureType, 7> all_valid = {
         SolTrace::Data::ANNULUS,
         SolTrace::Data::CIRCLE,
         SolTrace::Data::HEXAGON,
         SolTrace::Data::RECTANGLE,
         SolTrace::Data::EQUILATERAL_TRIANGLE,
-        SolTrace::Data::SINGLE_AXIS_CURVATURE_SECTION,
         SolTrace::Data::IRREGULAR_TRIANGLE,
         SolTrace::Data::IRREGULAR_QUADRILATERAL,
     };
@@ -210,17 +233,15 @@ ApertureParameterModel::valid_apertures_for_surf(SD::SurfaceType st) {
     case SolTrace::Data::SPHERE:
     case SolTrace::Data::GENERAL_SPENCER_MURTY:
     case SolTrace::Data::TORUS: return all_valid;
-    case SolTrace::Data::SURFACE_UNKNOWN: return {};
+    case SolTrace::Data::SURFACE_UNKNOWN: return { };
     }
 
-    return {};
+    return { };
 }
 
 ApertureParameterModel::ApertureParameterModel(QObject* parent)
     : StructTableModel(parent),
-      m_aperture_type_model(new QStringListModel(this)) {
-
-    build_options<SD::ApertureType>(*m_aperture_type_model);
+      m_aperture_type_model(new ApertureTypeModel(this)) {
 
     connect(this,
             &ApertureParameterModel::dataChanged,
@@ -235,9 +256,7 @@ ApertureParameterModel::ApertureParameterModel(QObject* parent)
 
                 database()->geometry_parameters.try_patch(
                     m_current_group, [this](GeometryComponent& params) {
-                        if (params.aperture) {
-                            write_back(*params.aperture);
-                        }
+                        if (params.aperture) { write_back(*params.aperture); }
                     });
             });
 
@@ -273,17 +292,49 @@ void ApertureParameterModel::parameters_changed(entt::entity e) {
     auto* params = database()->geometry_parameters.get(m_current_group);
     if (!params) return;
 
+    auto surface_type = params->surface ? params->surface->my_type
+                                        : SD::SurfaceType::SURFACE_UNKNOWN;
+    m_aperture_type_model->set_for_surface(surface_type);
+
+    if (surface_type == SD::SurfaceType::CYLINDER && params->surface &&
+        params->aperture) {
+        auto const* cylinder =
+            dynamic_cast<SD::Cylinder const*>(params->surface.get());
+        auto const* rectangle =
+            dynamic_cast<SD::Rectangle const*>(params->aperture.get());
+
+        if (cylinder && rectangle) {
+            auto const radius = cylinder->radius;
+            auto const close  = [](double a, double b) {
+                return std::abs(a - b) <= 1.0e-8;
+            };
+
+            if (!close(rectangle->x_coord(), -radius) ||
+                !close(rectangle->x_length(), 2.0 * radius)) {
+                database()->geometry_parameters.try_patch(
+                    m_current_group, [radius](GeometryComponent& geometry) {
+                        auto* rect = dynamic_cast<SD::Rectangle*>(
+                            geometry.aperture.get());
+                        if (!rect) return;
+                        rect->set_x_coord(-radius);
+                        rect->set_x_length(2.0 * radius);
+                    });
+                return;
+            }
+        }
+    }
+
     auto new_apt = SD::ApertureType::RECTANGLE;
 
     if (params->aperture) {
         new_apt = params->aperture->my_type;
-        set_from(*params->aperture);
+        set_from(*params->aperture, surface_type == SD::SurfaceType::CYLINDER);
     } else {
         set_for(new_apt);
     }
 
     m_syncing_from_database = true;
-    set_aperture_kind(QString(magic_enum::enum_name(new_apt).data()));
+    set_aperture_kind(static_cast<qint32>(new_apt));
     m_syncing_from_database = false;
 }
 
@@ -291,7 +342,8 @@ void ApertureParameterModel::set_for(SD::ApertureType type) {
     this->reset(make_parameters_for(type));
 }
 
-void ApertureParameterModel::set_from(SD::Aperture const& aperture) {
+void ApertureParameterModel::set_from(SD::Aperture const& aperture,
+                                      bool                cylinder_surface) {
     auto ret = make_parameters_for(aperture.my_type);
 
     switch (aperture.my_type) {
@@ -370,6 +422,12 @@ void ApertureParameterModel::set_from(SD::Aperture const& aperture) {
     case SolTrace::Data::APERTURE_UNKNOWN: break;
     }
 
+    if (cylinder_surface && aperture.my_type == SD::ApertureType::RECTANGLE &&
+        ret.size() >= 4) {
+        ret[0].editable = false;
+        ret[2].editable = false;
+    }
+
     this->reset(ret);
 }
 
@@ -410,8 +468,7 @@ void ApertureParameterModel::write_back(SD::Aperture& aperture) const {
         ptr->circumscribe_diameter = m_records[0].content;
         break;
     }
-    case SolTrace::Data::SINGLE_AXIS_CURVATURE_SECTION:
-        break;
+    case SolTrace::Data::SINGLE_AXIS_CURVATURE_SECTION: break;
     case SolTrace::Data::IRREGULAR_TRIANGLE: {
         auto* ptr = dynamic_cast<SD::IrregularTriangle*>(&aperture);
         if (!ptr || m_records.size() < 6) break;
@@ -436,8 +493,7 @@ void ApertureParameterModel::write_back(SD::Aperture& aperture) const {
         ptr->y4 = m_records[7].content;
         break;
     }
-    case SolTrace::Data::APERTURE_UNKNOWN:
-        break;
+    case SolTrace::Data::APERTURE_UNKNOWN: break;
     }
 }
 
@@ -462,12 +518,12 @@ void ApertureParameterModel::make_new_aperture(SD::ApertureType type) {
 void ApertureParameterModel::apt_changed() {
     if (m_syncing_from_database) return;
 
-    auto str = aperture_kind().toStdString();
+    auto new_apt = static_cast<SD::ApertureType>(aperture_kind());
+    if (!magic_enum::enum_contains(new_apt)) {
+        new_apt = SD::ApertureType::APERTURE_UNKNOWN;
+    }
 
-    auto new_apt = magic_enum::enum_cast<SD::ApertureType>(str).value_or(
-        SD::ApertureType::APERTURE_UNKNOWN);
-
-    set_aperture_kind(QString(magic_enum::enum_name(new_apt).data()));
+    set_aperture_kind(static_cast<qint32>(new_apt));
     make_new_aperture(new_apt);
 }
 

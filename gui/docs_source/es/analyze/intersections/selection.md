@@ -1,0 +1,5 @@
+---
+title: "Rayo Seleccionado"
+---
+
+Seleccione un rayo visible en la vista para inspeccionar su historial de interacciones. Cada entrada muestra el evento, el elemento cuando está disponible y la posición registrada. Borrar la selección vuelve a la vista de rayos filtrados.

@@ -1,7 +1,7 @@
 #include "app/app_data.h"
 
-#include "app_build_info.h"
 #include "app/app_settings.h"
+#include "app_build_info.h"
 
 #include <QApplication>
 #include <QClipboard>
@@ -72,13 +72,14 @@ AppData* AppData::create(QQmlEngine* qmlEngine, QJSEngine*) {
 AppData::AppData(QObject*       parent,
                  QQmlEngine*    engine,
                  const QString& documentation_directory)
-    : m_file_source(new DatabaseModule(this)),
-      m_log_list(current_log_list()),
-      m_view(new ViewModule(this)),
+    : m_log_list(current_log_list()),
+      m_color_maps(new SolTrace::GUI::Data::ColorMapModel(this)),
+      m_file_source(new DatabaseModule(this)),
       m_docs(new DocumentationModule(this)),
       m_sun(new SunModule(this)),
       m_materials(new MaterialsModule(this)),
       m_layout(new LayoutModule(this)),
+      m_view(new ViewModule(this)),
       m_simulation(new SimulationModule(this)),
       m_intersections(new IntersectionsModule(this)),
       m_flux(new FluxModule(engine, this)),
@@ -145,8 +146,10 @@ AppData::AppData(QObject*       parent,
             this,
             &AppData::new_results);
 
-    connect(
-        this, &AppData::new_database, m_script, &Scripting::Script::set_database);
+    connect(this,
+            &AppData::new_database,
+            m_script,
+            &Scripting::Script::set_database);
 
     m_script->set_services(m_file_source, m_simulation);
 
@@ -167,7 +170,7 @@ AppData::AppData(QObject*       parent,
     connect(m_flux->pending_flux_maps(),
             &SolTrace::GUI::Data::PendingFluxMapModel::ready,
             m_exporter,
-            &ExportModule::cache_flux_map);
+            &ExportModule::flux_map_ready);
 
     connect(m_simulation,
             &SimulationModule::edit_result_copy_requested,
@@ -189,6 +192,10 @@ void AppData::copy_build_info_to_clipboard() {
     QGuiApplication::clipboard()->setText(current_build_info());
     emit notification(
         Support::ANotification::info("Copied build info to clipboard."));
+}
+
+void AppData::copy_text_to_clipboard(QString text) {
+    QGuiApplication::clipboard()->setText(std::move(text));
 }
 
 AppData::~AppData() {

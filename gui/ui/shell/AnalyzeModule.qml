@@ -15,11 +15,10 @@ ColumnLayout {
         Layout.leftMargin: 10
         Layout.rightMargin: 10
         Layout.bottomMargin: 8
-        showTitle: false
     }
 
 
-    STComboBar {
+    STTabBar {
         id: bar
 
         currentIndex: Math.min(App.view.analyze_section, 3)
@@ -27,8 +26,8 @@ ColumnLayout {
 
         Layout.fillWidth: true
 
-        iconModel: ["\uf03a", "\ue4bc", "\uf06d", "\uf019"]
-        model: ["Results", "Intersections", "Flux", "Export"]
+        model: [qsTr("Results"), qsTr("Intersections"), qsTr("Flux"),
+                qsTr("Export")]
     }
 
     Rectangle {

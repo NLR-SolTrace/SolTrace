@@ -11,13 +11,6 @@ RowLayout {
         id: file_controller
     }
 
-    STIconButton {
-        enabled: !!AppData.file_source.current_database
-        icon: "\uf2ed"
-        toolTip: "Delete Scene"
-        onClicked: AppData.file_source.delete_current()
-    }
-
     Item {
         Layout.fillWidth: true
     }

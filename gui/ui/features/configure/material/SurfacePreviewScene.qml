@@ -12,6 +12,51 @@ View3D {
 
     property real light_scale: 0.001
 
+    function fitGeometry() {
+        const geometry = App.materials.geometry_edit.surface_geometry
+        if (!geometry || geometry.vertex_count === 0) {
+            return
+        }
+
+        const bounds = geometry.bounding_box
+        let minX = Infinity
+        let minY = Infinity
+        let minZ = Infinity
+        let maxX = -Infinity
+        let maxY = -Infinity
+        let maxZ = -Infinity
+
+        for (let x = 0; x < 2; ++x) {
+            for (let y = 0; y < 2; ++y) {
+                for (let z = 0; z < 2; ++z) {
+                    const localPoint = Qt.vector3d(x ? bounds.max.x : bounds.min.x,
+                                                   y ? bounds.max.y : bounds.min.y,
+                                                   z ? bounds.max.z : bounds.min.z)
+                    const point = geometry_node.mapPositionToScene(localPoint)
+                    minX = Math.min(minX, point.x)
+                    minY = Math.min(minY, point.y)
+                    minZ = Math.min(minZ, point.z)
+                    maxX = Math.max(maxX, point.x)
+                    maxY = Math.max(maxY, point.y)
+                    maxZ = Math.max(maxZ, point.z)
+                }
+            }
+        }
+
+        camera_controller.fit_bounds(Qt.vector3d(minX, minY, minZ),
+                                     Qt.vector3d(maxX, maxY, maxZ))
+    }
+
+    Connections {
+        target: App.materials.geometry_edit.surface_geometry
+
+        function onVertex_count_changed() {
+            if (target.vertex_count > 0) {
+                Qt.callLater(root.fitGeometry)
+            }
+        }
+    }
+
     environment: SceneEnvironment {
         antialiasingMode: SceneEnvironment.MSAA
         antialiasingQuality: SceneEnvironment.VeryHigh
@@ -100,6 +145,7 @@ View3D {
     }
 
     CameraController {
+        id: camera_controller
         anchors.fill: parent
         perspective_camera: camera
 
@@ -107,6 +153,7 @@ View3D {
     }
 
     Node {
+        id: geometry_node
         rotation: Quaternion.fromEulerAngles(-90,0,0)
 
         Model {

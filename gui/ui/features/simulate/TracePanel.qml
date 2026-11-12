@@ -6,7 +6,7 @@ import QtQuick.Layouts
 
 import SolTrace
 
-ScrollView {
+STScrollView {
     id: root
 
     Layout.fillHeight: true
@@ -38,13 +38,12 @@ ScrollView {
     ColumnLayout {
         width: root.availableWidth
 
-        InlineDocumentation {
-            key: "simulate.trace"
-            title: "Simulation Runner"
-        }
-
         STFormPanel {
             title: "Trace Configuration"
+
+            STDocumentationSection {
+                key: "simulate.trace"
+            }
 
             STComboBox {
                 Layout.fillWidth: true
@@ -59,7 +58,7 @@ ScrollView {
                 }
             }
 
-            STFormHelp {
+            STDocumentationSection {
                 key: "simulate.trace.rays"
             }
 
@@ -70,7 +69,32 @@ ScrollView {
                     Layout.fillWidth: true
                     from: 1
                     to: 1000000000
-                    onValueModified: AppData.simulation.update_ray_count(value)
+                    stepSize: 1
+                    editable: true
+
+                    property bool keyStepUp: false
+                    property bool keyStepDown: false
+                    Keys.onPressed: (event) => {
+                        keyStepUp = event.key === Qt.Key_Up
+                        keyStepDown = event.key === Qt.Key_Down
+                    }
+
+                    // Typed values are used as-is; only button/key steps are rescaled
+                    onValueModified: {
+                        var current = AppData.simulation.ray_count
+                        var newValue = value
+                        if (keyStepDown || value < current) {
+                            // Hack: I couldn't get up/down.pressed to work because of indicator
+                            if (current - value === stepSize)
+                                newValue = Math.max(from, Math.round(current / 10))
+                        }
+                        if (keyStepUp || value > current) {
+                            if (value - current === stepSize)
+                                newValue = Math.min(to, current * 10)
+                        }
+                        AppData.simulation.update_ray_count(newValue)
+                        keyStepUp = keyStepDown = false
+                    }
                     value: AppData.simulation.ray_count
                 }
             }
@@ -81,9 +105,32 @@ ScrollView {
                 STSpinBox {
                     Layout.fillWidth: true
                     from: 1
-                    value: AppData.simulation.max_ray_count
+
                     to: 1000000000
-                    onValueModified: AppData.simulation.update_max_ray_count(value)
+
+                    property bool keyStepUp: false
+                    property bool keyStepDown: false
+                    Keys.onPressed: (event) => {
+                        keyStepUp = event.key === Qt.Key_Up
+                        keyStepDown = event.key === Qt.Key_Down
+                    }
+
+                    onValueModified: {
+                        var current = AppData.simulation.max_ray_count
+                        var newValue = value
+                        if (keyStepDown || value < current) {
+                            // Hack: I couldn't get up/down.pressed to work because of indicator
+                            if (current - value === stepSize)
+                                newValue = Math.max(from, Math.round(current / 10))
+                        }
+                        if (keyStepUp || value > current) {
+                            if (value - current === stepSize)
+                                newValue = Math.min(to, current * 10)
+                        }
+                        AppData.simulation.update_max_ray_count(newValue)
+                        keyStepUp = keyStepDown = false
+                    }
+                    value: AppData.simulation.max_ray_count
                 }
             }
 
@@ -112,7 +159,7 @@ ScrollView {
                 }
             }
 
-            STFormHelp {
+            STDocumentationSection {
                 key: "simulate.trace.options"
             }
 
@@ -146,6 +193,7 @@ ScrollView {
         STFormPanel {
             collapsible: true
             title: "Execution"
+            documentationKey: "simulate.trace.results"
 
             STFormRow {
                 label: "Progress"
@@ -192,21 +240,6 @@ ScrollView {
                 }
             }
 
-            STFormHelp {
-                key: "simulate.trace.results"
-            }
-
-            STIconButton {
-                Layout.fillWidth: false
-                Layout.alignment: Qt.AlignRight
-                icon: "\uf1da"
-                label: "View Results"
-                onClicked: {
-                    App.view.workflow_phase = ViewModule.Analyze
-                    App.view.analyze_section = 0
-                    App.view.simulation_content_view = true
-                }
-            }
         }
     }
 }

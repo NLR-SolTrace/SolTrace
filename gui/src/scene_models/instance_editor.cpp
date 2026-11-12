@@ -37,11 +37,10 @@ QVector3D degrees(glm::dvec3 radians) {
 
 void AnInstanceEditor::recompute() {
     if (m_host && m_host->valid(m_entity)) {
-        auto previous = m_euler_angles_xyz_valid
-                ? radians(m_euler_angles_xyz)
-                : glm::dvec3 { 0.0 };
-        auto euler = compatible_euler_xyz_from_quat(convert(orientation()),
-                                                    previous);
+        auto previous = m_euler_angles_xyz_valid ? radians(m_euler_angles_xyz)
+                                                 : glm::dvec3 { 0.0 };
+        auto euler =
+            compatible_euler_xyz_from_quat(convert(orientation()), previous);
         m_euler_angles_xyz       = degrees(euler);
         m_euler_angles_xyz_valid = true;
     } else {
@@ -105,7 +104,7 @@ void AnInstanceEditor::reset(Database* database) {
         QObject::disconnect(m_host->parent.self(), nullptr, this, nullptr);
     }
 
-    m_host = database;
+    m_host                   = database;
     m_euler_angles_xyz_valid = false;
 
     if (!database) {
@@ -270,11 +269,10 @@ void AnInstanceEditor::set_orientation(const QQuaternion& newOrientation) {
 
     FIND(transform);
 
-    auto previous = m_euler_angles_xyz_valid
-            ? radians(m_euler_angles_xyz)
-            : glm::dvec3 { 0.0 };
-    auto euler = compatible_euler_xyz_from_quat(convert(newOrientation),
-                                                previous);
+    auto previous = m_euler_angles_xyz_valid ? radians(m_euler_angles_xyz)
+                                             : glm::dvec3 { 0.0 };
+    auto euler =
+        compatible_euler_xyz_from_quat(convert(newOrientation), previous);
 
     component.patch(m_entity, [&](TransformComponent& a) {
         a.rotation = convert(newOrientation);
@@ -290,8 +288,8 @@ void AnInstanceEditor::set_orientation(const QQuaternion& newOrientation) {
 QVector3D AnInstanceEditor::euler_angles_xyz() const {
     if (!m_euler_angles_xyz_valid) {
         auto previous = glm::dvec3 { 0.0 };
-        auto euler = compatible_euler_xyz_from_quat(convert(orientation()),
-                                                    previous);
+        auto euler =
+            compatible_euler_xyz_from_quat(convert(orientation()), previous);
         m_euler_angles_xyz       = degrees(euler);
         m_euler_angles_xyz_valid = true;
     }
@@ -406,7 +404,8 @@ SolTrace::GUI::Data::Entity AnInstanceEditor::material_group() const {
     return { };
 }
 
-void AnInstanceEditor::set_material_group(SolTrace::GUI::Data::Entity newGroup) {
+void AnInstanceEditor::set_material_group(
+    SolTrace::GUI::Data::Entity newGroup) {
     if (material_group() == newGroup) return;
     if (!m_host) return;
     if (!m_host->valid(m_entity)) return;
@@ -428,7 +427,8 @@ SolTrace::GUI::Data::Entity AnInstanceEditor::geometry_group() const {
     return { };
 }
 
-void AnInstanceEditor::set_geometry_group(SolTrace::GUI::Data::Entity newGroup) {
+void AnInstanceEditor::set_geometry_group(
+    SolTrace::GUI::Data::Entity newGroup) {
     if (geometry_group() == newGroup) return;
     if (!m_host) return;
     if (!m_host->valid(m_entity)) return;
@@ -483,34 +483,11 @@ SolTrace::GUI::Data::Entity AnInstanceEditor::parent() const {
 void AnInstanceEditor::set_parent(SolTrace::GUI::Data::Entity newParent) {
     if (parent() == newParent) return;
 
-    if (newParent == m_entity) {
-        emit notify(
-            ANotification::error("An element cannot be its own parent."));
+    if (!m_host || !m_host->set_parent(m_entity, newParent)) {
+        emit notify(ANotification::error(
+            "That parent would create an invalid element hierarchy."));
         return;
     }
-
-    // Guard cycles
-    {
-        auto cursor = newParent;
-
-        while (true) {
-            auto ptr = m_host->parent.get(cursor);
-
-            if (!ptr) { break; }
-
-            if (ptr->parent == m_entity) {
-                // cycle
-                emit notify(
-                    ANotification::error("That parent would create a loop in "
-                                         "the element hierarchy."));
-                return;
-            }
-
-            cursor = ptr->parent;
-        }
-    }
-
-    m_host->set_parent(m_entity, newParent);
 
     emit parent_changed();
     emit parent_name_changed();
@@ -525,6 +502,10 @@ QString AnInstanceEditor::parent_name() const {
     return { };
 }
 
+bool AnInstanceEditor::can_set_parent(Entity candidate) const {
+    return m_host && m_host->can_set_parent(m_entity, candidate);
+}
+
 QVector<SolTrace::GUI::Data::Entity> AnInstanceEditor::tags() const {
     if (m_host and m_host->valid(m_entity)) {
         if (auto tf = m_host->tag_membership.get(m_entity); tf) {
@@ -535,12 +516,14 @@ QVector<SolTrace::GUI::Data::Entity> AnInstanceEditor::tags() const {
     return { };
 }
 
-void AnInstanceEditor::set_tags(QVector<SolTrace::GUI::Data::Entity> const& newTags) {
+void AnInstanceEditor::set_tags(
+    QVector<SolTrace::GUI::Data::Entity> const& newTags) {
     auto current_tags = tags();
 
-    std::unordered_set<SolTrace::GUI::Data::Entity> incoming(newTags.begin(), newTags.end());
-    std::unordered_set<SolTrace::GUI::Data::Entity> current(current_tags.begin(),
-                                           current_tags.end());
+    std::unordered_set<SolTrace::GUI::Data::Entity> incoming(newTags.begin(),
+                                                             newTags.end());
+    std::unordered_set<SolTrace::GUI::Data::Entity> current(
+        current_tags.begin(), current_tags.end());
 
     if (incoming == current) return;
     if (!m_host) return;

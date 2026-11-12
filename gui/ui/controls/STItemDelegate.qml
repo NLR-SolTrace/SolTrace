@@ -7,7 +7,9 @@ import SolTrace
 
 ItemDelegate {
     id: control
+
     width: ListView.view ? ListView.view.width : implicitWidth
+
     highlighted: ListView.isCurrent ? ListView.isCurrent : false
 
     hoverEnabled: true

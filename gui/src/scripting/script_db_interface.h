@@ -20,16 +20,20 @@ class ScriptDBInterface : public QObject {
     Q_OBJECT
 
     QPointer<SolTrace::GUI::Data::Database> m_database;
-    QString                m_working_directory;
+    QString                                 m_working_directory;
 
 public:
-    explicit ScriptDBInterface(SolTrace::GUI::Data::Database*, QObject* parent = nullptr);
+    explicit ScriptDBInterface(SolTrace::GUI::Data::Database*,
+                               QObject* parent = nullptr);
 
     /// Retarget the API to a new current database.
     void set_database(SolTrace::GUI::Data::Database*);
 
     /// Update the base directory used by get_text_content/get_json_content.
     void update_working_directory(QString);
+
+signals:
+    void database_changed(SolTrace::GUI::Data::Database* database);
 
 public slots:
     /// Construct a 3-vector with all components set to value.
@@ -108,7 +112,56 @@ public slots:
     SolTrace::GUI::Data::Entity create();
 
     /// Destroy an entity and its database-owned relationships.
-    void destroy(SolTrace::GUI::Data::Entity entity);
+    void destroy_entity(SolTrace::GUI::Data::Entity entity);
+
+    /// Return an element's parent, or an invalid handle when top-level.
+    SolTrace::GUI::Data::Entity get_parent(SolTrace::GUI::Data::Entity entity);
+
+    /// Return an element's immediate children.
+    QVector<SolTrace::GUI::Data::Entity>
+    get_children(SolTrace::GUI::Data::Entity entity);
+
+    /// Check whether a parent relationship would be valid and acyclic.
+    bool can_set_parent(SolTrace::GUI::Data::Entity child,
+                        SolTrace::GUI::Data::Entity parent);
+
+    /// Assign an element's parent.
+    bool set_parent(SolTrace::GUI::Data::Entity child,
+                    SolTrace::GUI::Data::Entity parent);
+
+    /// Make an element top-level.
+    bool clear_parent(SolTrace::GUI::Data::Entity child);
+
+    /// Return all user-visible tags in the database.
+    QVector<SolTrace::GUI::Data::Entity> get_all_tags();
+
+    /// Create a user-visible tag with a sanitized, unique name.
+    SolTrace::GUI::Data::Entity create_tag(QString name);
+
+    /// Return an exact-name visible tag, creating it when absent.
+    SolTrace::GUI::Data::Entity ensure_tag(QString name);
+
+    /// Find an exact-name visible tag.
+    SolTrace::GUI::Data::Entity find_tag(QString name);
+
+    /// Return the visible tags assigned to an entity.
+    QVector<SolTrace::GUI::Data::Entity>
+    get_tags(SolTrace::GUI::Data::Entity entity);
+
+    /// Return the entities assigned to a visible tag.
+    QVector<SolTrace::GUI::Data::Entity>
+    get_tagged(SolTrace::GUI::Data::Entity tag);
+
+    /// Assign an entity to a visible tag.
+    bool assign_tag(SolTrace::GUI::Data::Entity entity,
+                    SolTrace::GUI::Data::Entity tag);
+
+    /// Remove an entity from a visible tag.
+    bool unassign_tag(SolTrace::GUI::Data::Entity entity,
+                      SolTrace::GUI::Data::Entity tag);
+
+    /// Delete a visible tag without deleting its members.
+    bool delete_tag(SolTrace::GUI::Data::Entity tag);
 
     /// Check whether an entity is valid in the current database.
     bool valid(SolTrace::GUI::Data::Entity entity);
@@ -129,7 +182,8 @@ public slots:
     QJsonObject get_transform(SolTrace::GUI::Data::Entity entity);
 
     /// Set local transform from JSON.
-    void set_transform(SolTrace::GUI::Data::Entity entity, QJsonObject transform);
+    void set_transform(SolTrace::GUI::Data::Entity entity,
+                       QJsonObject                 transform);
 
     /// Return all material group entities.
     QVector<SolTrace::GUI::Data::Entity> get_all_materials();
@@ -141,7 +195,8 @@ public slots:
     QJsonObject get_material_properties(SolTrace::GUI::Data::Entity material);
 
     /// Set material optical properties from JSON.
-    void set_material_properties(SolTrace::GUI::Data::Entity material, QJsonObject properties);
+    void set_material_properties(SolTrace::GUI::Data::Entity material,
+                                 QJsonObject                 properties);
 
     /// Remove a material group.
     void remove_material(SolTrace::GUI::Data::Entity material);
@@ -156,22 +211,27 @@ public slots:
     QJsonObject get_geometry_properties(SolTrace::GUI::Data::Entity geometry);
 
     /// Set geometry surface/aperture properties from JSON.
-    void set_geometry_properties(SolTrace::GUI::Data::Entity geometry, QJsonObject properties);
+    void set_geometry_properties(SolTrace::GUI::Data::Entity geometry,
+                                 QJsonObject                 properties);
 
     /// Remove a geometry group.
     void remove_geometry(SolTrace::GUI::Data::Entity geometry);
 
     /// Get the material group assigned to an element.
-    SolTrace::GUI::Data::Entity get_material_of(SolTrace::GUI::Data::Entity entity);
+    SolTrace::GUI::Data::Entity
+    get_material_of(SolTrace::GUI::Data::Entity entity);
 
     /// Assign a material group to an element.
-    void set_material_of(SolTrace::GUI::Data::Entity entity, SolTrace::GUI::Data::Entity material);
+    void set_material_of(SolTrace::GUI::Data::Entity entity,
+                         SolTrace::GUI::Data::Entity material);
 
     /// Get the geometry group assigned to an element.
-    SolTrace::GUI::Data::Entity get_geometry_of(SolTrace::GUI::Data::Entity entity);
+    SolTrace::GUI::Data::Entity
+    get_geometry_of(SolTrace::GUI::Data::Entity entity);
 
     /// Assign a geometry group to an element.
-    void set_geometry_of(SolTrace::GUI::Data::Entity entity, SolTrace::GUI::Data::Entity geometry);
+    void set_geometry_of(SolTrace::GUI::Data::Entity entity,
+                         SolTrace::GUI::Data::Entity geometry);
 
     /// Read a text file relative to the current working directory.
     QString get_text_content(QString relative_path);

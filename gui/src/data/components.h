@@ -8,7 +8,6 @@
 #include <entt/entt.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include "analysis/flux/baked_flux_map.h"
 #include "aperture.hpp"
 #include "entity.h"
 #include "optical_properties.hpp"
@@ -167,6 +166,10 @@ struct GeometryGroupMemberComponent {
 /// A component indicating this entity is a Tag description
 struct TagComponent { };
 
+/// Marks an internal tag that should not be presented in user-facing tag
+/// selectors. Hidden tags otherwise behave exactly like ordinary tags.
+struct HiddenTagComponent { };
+
 /// This is a tag component that is used, with a string, to indicate membership
 /// in a tag. Do not modify this directly!
 struct ATagMemberComponent { };
@@ -183,6 +186,25 @@ struct TagMembershipComponent {
     }
 };
 
+/// Cardinality of a script-visible, database-scoped entity reference.
+enum class ScriptReferenceKind { Single, Group };
+
+/// A shared reference name used by scripts to find scene entities across
+/// otherwise stateless invocations. These references are intentionally not
+/// serialized until the simulation data format has a metadata representation.
+struct ScriptReference {
+    QString             scope;
+    QString             name;
+    ScriptReferenceKind kind = ScriptReferenceKind::Single;
+
+    bool operator==(ScriptReference const&) const = default;
+};
+
+/// All script references currently attached to an entity.
+struct ScriptReferenceComponent {
+    QVector<ScriptReference> references;
+};
+
 /// Denotes an entity that could not be imported properly
 struct ImportErrorComponent {
     QString reason;
@@ -197,10 +219,10 @@ struct ColorComponent {
     QColor color = Qt::white;
 };
 
-/// Marks if this entity has a flux map
-/// Should be hidden during instance rendering
-struct HasFluxMapComponent {
-    SolTrace::GUI::Analysis::BakedFluxMapPtr map_info;
-};
+/// Result-scene rendering marker for an entity with a flux map.
+///
+/// The map artifact is owned by SimulationResult; this marker contains no
+/// analysis data and is intentionally not copied into editable scene clones.
+struct HasFluxMapComponent { };
 
 } // namespace SolTrace::GUI::Data

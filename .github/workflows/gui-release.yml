@@ -129,7 +129,7 @@ jobs:
             asset_name: SolTrace-Linux-x86_64-Embree.AppImage
             msi_name: ""
 
-          - name: Windows x64 Embree OptiX bundle
+          - name: Windows x64 NVIDIA GPU bundle
             id: windows-x64-embree-optix
             platform: windows
             runner: windows-2022
@@ -144,15 +144,15 @@ jobs:
             embree_enabled: "ON"
             optix_enabled: "ON"
             msi_enabled: "ON"
-            msi_package_name: SolTrace OptiX
-            msi_install_directory: SolTrace OptiX
+            msi_package_name: SolTrace NVIDIA GPU
+            msi_install_directory: SolTrace NVIDIA GPU
             msi_upgrade_guid: D4AB6CD5-6276-5377-8E41-53D1DE59BD33
             embree_asset_regex: ".*x64.*windows.*\\.zip$"
-            artifact_name: SolTrace-Windows-x64-Embree-OptiX
-            asset_name: SolTrace-Windows-x64-Embree-OptiX.zip
-            msi_name: SolTrace-Windows-x64-Embree-OptiX.msi
+            artifact_name: SolTrace-Windows-x64-NVIDIA-GPU
+            asset_name: SolTrace-Windows-x64-NVIDIA-GPU.zip
+            msi_name: SolTrace-Windows-x64-NVIDIA-GPU.msi
 
-          - name: Linux x64 Embree OptiX AppImage
+          - name: Linux x64 NVIDIA GPU AppImage
             id: linux-x64-embree-optix
             platform: linux
             runner: ubuntu-22.04
@@ -169,8 +169,8 @@ jobs:
             msi_install_directory: ""
             msi_upgrade_guid: ""
             embree_asset_regex: ".*(x86_64|x64).*linux.*\\.(tar\\.gz|tgz)$"
-            artifact_name: SolTrace-Linux-x64-Embree-OptiX
-            asset_name: SolTrace-Linux-x86_64-Embree-OptiX.AppImage
+            artifact_name: SolTrace-Linux-x64-NVIDIA-GPU
+            asset_name: SolTrace-Linux-x86_64-NVIDIA-GPU.AppImage
             msi_name: ""
 
     steps:

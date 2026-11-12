@@ -1,10 +1,9 @@
 #pragma once
 
 #include <QPointer>
-#include <QStringList>
-#include <QMetaEnum>
 
-//─── Property Macros ───────────────────────────────────────────────────────────────────
+// ─── Property Macros
+// ───────────────────────────────────────────────────────────────────
 
 #define QOBJECT_WRITABLE_PROPERTY(TYPE, PROPERTY_NAME)                         \
 public:                                                                        \
@@ -129,17 +128,4 @@ Q_SIGNALS:                                                                     \
                                                                                \
 public:
 
-//─── Helper methods ───────────────────────────────────────────────────────────────────
-
-namespace SolTrace::GUI::Support {
-
-template<typename EnumType>
-inline QStringList enum_to_stringlist() {
-    QMetaEnum metaEnum = QMetaEnum::fromType<EnumType>();
-    QStringList result;
-    for (int i = 0; i < metaEnum.keyCount(); ++i) {
-        result << metaEnum.key(i);
-    }
-    return result;
-}
-} // namespace SolTrace::GUI::Support
+// Property macro definitions end here.

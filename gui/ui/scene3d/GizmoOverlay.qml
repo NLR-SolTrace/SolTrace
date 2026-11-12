@@ -10,6 +10,7 @@ View3D {
     required property int activeAxis
     required property int gizmoMode
     required property bool enabled
+    required property bool allowRotation
 
     environment: SceneEnvironment {
         backgroundMode: SceneEnvironment.Transparent
@@ -30,6 +31,7 @@ View3D {
         visible: root.enabled
         activeAxis: root.activeAxis
         gizmoMode: root.gizmoMode
+        allowRotation: root.allowRotation
         scale: Qt.vector3d(0.5, 0.5, 0.5)
     }
 }

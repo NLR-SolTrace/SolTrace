@@ -17,45 +17,6 @@ ColumnLayout {
         id: file_controller
     }
 
-    Label {
-        Layout.fillWidth: true
-        text: "Current Scene"
-        font.bold: true
-    }
-
-    RowLayout {
-        Layout.fillWidth: true
-        enabled: !!root.current_db
-        spacing: 8
-
-        Label {
-            Layout.alignment: Qt.AlignVCenter
-            font.family: "Font Awesome 7 Free"
-            font.pointSize: 16
-            text: "\uf303"
-        }
-
-        STTextField {
-            Layout.fillWidth: true
-            text: root.current_db ? root.current_db.name : ""
-
-            onTextEdited: {
-                if (root.current_db) {
-                    root.current_db.name = text
-                }
-            }
-        }
-
-        STIconButton {
-            enabled: !!root.current_db && !AppData.file_source.is_loading
-            icon: "\uf0c7"
-            label: "Save"
-            toolTip: "Save scene to file"
-
-            onClicked: file_controller.save_current()
-        }
-    }
-
     Rectangle {
         color: Material.dividerColor
         Layout.preferredHeight: 1
@@ -88,19 +49,69 @@ ColumnLayout {
 
         ScrollBar.vertical: STScrollBar { }
 
-        delegate: STItemDelegate {
+        delegate: STExpandingItemDelegate {
             id: db_delegate
 
             required property int index
             required property var database
 
             text: database.name
-            font.pointSize: 18
+
             highlighted: root.current_db === database
 
             onClicked: {
                 AppData.file_source.set_current(index)
                 App.view.simulation_content_view = false
+            }
+
+            onDeleteRequested: AppData.file_source.delete_db_at_index(index)
+
+            onRename: function(text) {
+                if (root.current_db) {
+                    root.current_db.name = text
+                }
+            }
+
+            Item {
+                Layout.fillWidth: true
+            }
+
+            STIconButton {
+                enabled: !!root.current_db && !AppData.file_source.is_loading
+                icon: "\uf0c7"
+                label: "Save"
+                toolTip: "Save scene to file"
+
+                onClicked: file_controller.save_current()
+            }
+
+            STIconButton {
+                enabled: !!root.current_db && !AppData.file_source.is_loading
+                icon: "\uf2ed"
+                label: "Delete"
+                toolTip: "Discard a scene"
+
+                onClicked: confirm_pop.open()
+
+                STDialog {
+                    id: confirm_pop
+                    title: "Confirm Deletion"
+
+                    ColumnLayout {
+                        Label {
+                            text: "Are you sure you wish to delete the following scene?"
+                        }
+
+                        Label {
+                            text: db_delegate.text
+                        }
+                    }
+
+                    standardButtons: Dialog.Ok | Dialog.Cancel
+
+                    onAccepted: db_delegate.deleteRequested()
+
+                }
             }
         }
     }

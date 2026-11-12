@@ -2,7 +2,7 @@
 
 #include <QObject>
 #include <QPointF>
-#include <QStringListModel>
+#include <QtTypes>
 #include <limits>
 
 #include "aperture.hpp"
@@ -27,17 +27,36 @@ enum ApertureParameterType {
 /// TODO: make friendier for coordinates, etc.
 struct ApertureParameter {
     QString name;
-    double  content = 0.0;
-    double  min     = std::numeric_limits<double>::lowest();
-    double  max     = std::numeric_limits<double>::max();
-    int     type    = GenericApertureParameter;
+    double  content  = 0.0;
+    double  min      = std::numeric_limits<double>::lowest();
+    double  max      = std::numeric_limits<double>::max();
+    int     type     = GenericApertureParameter;
+    bool    editable = true;
 
     RECORD_META(ApertureParameter,
                 SM_EXPOSE_RO(name),
                 SM_EXPOSE_RW(content),
                 SM_EXPOSE_RO(min),
                 SM_EXPOSE_RO(max),
-                SM_EXPOSE_RO(type));
+                SM_EXPOSE_RO(type),
+                SM_EXPOSE_RO(editable));
+};
+
+struct ApertureTypeRecord {
+    QString name;
+    qint32  value;
+
+    bool operator==(ApertureTypeRecord const&) const = default;
+
+    RECORD_META(ApertureTypeRecord, SM_EXPOSE_RO(name), SM_EXPOSE_RO(value));
+};
+
+class ApertureTypeModel : public Support::StructTableModel<ApertureTypeRecord> {
+    Q_OBJECT
+
+public:
+    explicit ApertureTypeModel(QObject* parent = nullptr);
+    void set_for_surface(SD::SurfaceType surface_type);
 };
 
 /// Model to present aperture parameters to QML
@@ -51,8 +70,11 @@ class ApertureParameterModel
 
     void set_new_database_connections(Database* ptr) override;
 
-    Q_WRITABLE_PROPERTY(QString, aperture_kind, "APERTURE_UNKNOWN");
-    QOBJECT_READONLY_PROPERTY(QStringListModel, aperture_type_model);
+    Q_WRITABLE_PROPERTY(
+        qint32,
+        aperture_kind,
+        static_cast<qint32>(SD::ApertureType::APERTURE_UNKNOWN));
+    QOBJECT_READONLY_PROPERTY(ApertureTypeModel, aperture_type_model);
 
     void make_new_aperture(SD::ApertureType);
 
@@ -70,7 +92,7 @@ public:
     void set_for(SD::ApertureType);
 
     /// Set from an existing SD aperture
-    void set_from(SD::Aperture const&);
+    void set_from(SD::Aperture const&, bool cylinder_surface = false);
 
     /// Update the SD aperture from this model
     void write_back(SD::Aperture&) const;

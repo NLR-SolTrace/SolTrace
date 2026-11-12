@@ -5,10 +5,10 @@
 #include <QtGui/qvectornd.h>
 #include <QtQuick3D/qquick3dgeometry.h>
 
-#include "editing/apertureeditor.h"
 #include "data/components.h"
 #include "data/database.h"
 #include "data/database_observer.h"
+#include "editing/apertureeditor.h"
 #include "scene_models/surface_parameter_model.h"
 #include "support/qt_helpers.h"
 

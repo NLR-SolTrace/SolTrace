@@ -139,7 +139,7 @@ get_ray_source
 
 Read the current ray source position, shape, and ray generation mode.
 
-Inputs: none. Output: object {type, position, generation, shape, sigma, half_width, csr, user_distribution}. position is [x, y, z]. generation is random or halton. shape is gaussian, pillbox, limb_darkened, buie_csr, user_defined, none, or unknown. user_distribution is an array of {angle, intensity}.
+Inputs: none. Output: object {type, position, generation, shape, sigma, half_width, csr, user_distribution}. type is directional or point_source. position is the sun direction for a directional source and the global source position for a point source. generation is random or halton. shape is gaussian, pillbox, limb_darkened, buie_csr, user_defined, none, or unknown. user_distribution is an array of {angle, intensity}.
 
 Example: const source = db.get_ray_source()
 ---
@@ -191,13 +191,125 @@ Inputs: none. Output: Entity handle for a new scene element with an identity tra
 
 Example: const element = db.create()
 ---
-destroy
+destroy_entity
 
 Destroy an entity or remove a material, geometry, or tag group.
 
 Input: entity handle returned by this API. For material and geometry groups, related assignments are cleaned up through the database API. For scene elements, children are promoted to top-level elements. Output: none.
 
-Example: db.destroy(element)
+Example: db.destroy_entity(element)
+---
+get_parent
+
+Get an element's immediate parent.
+
+Input: element Entity handle. Output: the parent Entity handle, or an invalid handle when the element is top-level or invalid.
+
+Example: const parent = db.get_parent(element)
+---
+get_children
+
+Get an element's immediate children.
+
+Input: element Entity handle. Output: array of child Entity handles.
+
+Example: const children = db.get_children(element)
+---
+can_set_parent
+
+Check whether assigning one element as another element's parent would produce a valid, acyclic hierarchy.
+
+Inputs: child and parent Entity handles. Output: boolean. Self-parenting, non-element entities, invalid handles, and hierarchy cycles return false.
+
+Example: if (db.can_set_parent(child, parent)) { db.set_parent(child, parent) }
+---
+set_parent
+
+Assign an element's immediate parent.
+
+Inputs: child and parent Entity handles. Output: true when the relationship is valid and assigned. Local transforms remain parent-relative, so reparenting may change the element's world position.
+
+Example: db.set_parent(child, parent)
+---
+clear_parent
+
+Remove an element's parent and make it top-level.
+
+Input: child Entity handle. Output: true when the element is top-level. Local transforms are retained, so clearing the parent may change its world position.
+
+Example: db.clear_parent(child)
+---
+get_all_tags
+
+Obtain all user-visible tags in the current scene. Internal tags are excluded.
+
+Inputs: none. Output: array of tag Entity handles. Tags currently last only for the open GUI session.
+
+Example: const tags = db.get_all_tags()
+---
+create_tag
+
+Create a user-visible tag with a unique name.
+
+Input: name string. Whitespace is trimmed, an empty name becomes Tag, and a numeric suffix is added when necessary. Output: the new tag Entity handle.
+
+Example: const tag = db.create_tag("Receivers")
+---
+ensure_tag
+
+Find an exact-name user-visible tag or create it when absent.
+
+Input: name string. Matching is case-sensitive. Output: an existing or newly created tag Entity handle.
+
+Example: const tag = db.ensure_tag("Generated Mirrors")
+---
+find_tag
+
+Find an exact-name user-visible tag.
+
+Input: name string. Matching is case-sensitive and internal tags are excluded. Output: the tag Entity handle, or an invalid handle when absent.
+
+Example: const tag = db.find_tag("Receivers")
+---
+get_tags
+
+Obtain the user-visible tags assigned to an entity.
+
+Input: entity handle. Output: array of tag Entity handles. Internal tags are excluded.
+
+Example: const tags = db.get_tags(element)
+---
+get_tagged
+
+Obtain all entities assigned to a user-visible tag.
+
+Input: tag Entity handle. Output: array of member Entity handles. Invalid, non-tag, and internal-tag handles return an empty array.
+
+Example: const receivers = db.get_tagged(tag)
+---
+assign_tag
+
+Assign an entity to a user-visible tag.
+
+Inputs: entity and tag Entity handles. Repeated assignment is harmless. Output: true when the entity is assigned; false for invalid or internal tags.
+
+Example: db.assign_tag(element, tag)
+---
+unassign_tag
+
+Remove an entity from a user-visible tag.
+
+Inputs: entity and tag Entity handles. Output: true when the entity is no longer assigned; false for invalid or internal tags.
+
+Example: db.unassign_tag(element, tag)
+---
+delete_tag
+
+Delete a user-visible tag without deleting its member entities.
+
+Input: tag Entity handle. Internal tags cannot be deleted from scripts. Output: true when the tag was deleted.
+
+Example: db.delete_tag(tag)
 ---
 valid
 

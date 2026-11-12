@@ -1,0 +1,5 @@
+---
+title: "Directional Sun Position Calculators"
+---
+
+For a directional sun, SolTrace provides four solar position calculators: Legacy, Duffie & Beckman, SOLPOS 2.0, and the Solar Position Algorithm (SPA); alternatively, the sun's azimuth and elevation can be entered directly using the Manual position mode.

@@ -25,13 +25,19 @@ namespace {
 
 QString event_type_name(SolTrace::GUI::Data::RayEventType event) {
     switch (event) {
-    case SolTrace::GUI::Data::RayEventType::CREATE: return QStringLiteral("CREATE");
-    case SolTrace::GUI::Data::RayEventType::ABSORB: return QStringLiteral("ABSORB");
-    case SolTrace::GUI::Data::RayEventType::REFLECT: return QStringLiteral("REFLECT");
-    case SolTrace::GUI::Data::RayEventType::TRANSMIT: return QStringLiteral("TRANSMIT");
-    case SolTrace::GUI::Data::RayEventType::VIRTUAL: return QStringLiteral("VIRTUAL");
+    case SolTrace::GUI::Data::RayEventType::CREATE:
+        return QStringLiteral("CREATE");
+    case SolTrace::GUI::Data::RayEventType::ABSORB:
+        return QStringLiteral("ABSORB");
+    case SolTrace::GUI::Data::RayEventType::REFLECT:
+        return QStringLiteral("REFLECT");
+    case SolTrace::GUI::Data::RayEventType::TRANSMIT:
+        return QStringLiteral("TRANSMIT");
+    case SolTrace::GUI::Data::RayEventType::VIRTUAL:
+        return QStringLiteral("VIRTUAL");
     case SolTrace::GUI::Data::RayEventType::EXIT: return QStringLiteral("EXIT");
-    case SolTrace::GUI::Data::RayEventType::UNKNOWN: return QStringLiteral("UNKNOWN");
+    case SolTrace::GUI::Data::RayEventType::UNKNOWN:
+        return QStringLiteral("UNKNOWN");
     }
 
     return QStringLiteral("UNKNOWN");
@@ -80,8 +86,8 @@ size_t bounded_index(QRandomGenerator* random, size_t upper_exclusive) {
     return static_cast<size_t>(random->generate64() % upper_exclusive);
 }
 
-bool write_flux_map_mesh(QString const&             path,
-                         QString const&             object_name,
+bool write_flux_map_mesh(QString const& path,
+                         QString const& object_name,
                          SolTrace::GUI::Analysis::BakedFluxMapPtr const& map) {
     if (!map) return false;
 
@@ -94,38 +100,39 @@ bool write_flux_map_mesh(QString const&             path,
     out << "# SolTrace extended OBJ flux map mesh\n";
     out << "# fa <face_area>\n";
     out << "# fv <face_bin_ray_count>\n";
-    out << "# power_per_ray " << map->stats.power_per_ray << '\n';
-    out << "# plotted_power " << map->stats.plotted_power << '\n';
+    out << "# power_per_ray " << map->data.stats.power_per_ray << '\n';
+    out << "# plotted_power " << map->data.stats.plotted_power << '\n';
     out << "o " << object_name << '\n';
 
-    for (auto const& vertex : map->mesh.vertex) {
+    for (auto const& vertex : map->data.mesh.vertex) {
         out << "v " << vertex.position.x << ' ' << vertex.position.y << ' '
             << vertex.position.z << '\n';
     }
 
-    for (auto const& vertex : map->mesh.vertex) {
+    for (auto const& vertex : map->data.mesh.vertex) {
         out << "vt " << vertex.uv.x << ' ' << vertex.uv.y << '\n';
     }
 
-    for (auto const& vertex : map->mesh.vertex) {
+    for (auto const& vertex : map->data.mesh.vertex) {
         out << "vn " << vertex.normal.x << ' ' << vertex.normal.y << ' '
             << vertex.normal.z << '\n';
     }
 
-    for (qsizetype i = 0; i < map->mesh.triangles.size(); ++i) {
-        auto const& triangle = map->mesh.triangles[i];
+    for (qsizetype i = 0; i < map->data.mesh.triangles.size(); ++i) {
+        auto const& triangle = map->data.mesh.triangles[i];
 
         auto const a = static_cast<qulonglong>(triangle.x) + 1;
         auto const b = static_cast<qulonglong>(triangle.y) + 1;
         auto const c = static_cast<qulonglong>(triangle.z) + 1;
 
-        out << "f " << a << '/' << a << '/' << a << ' ' << b << '/' << b
-            << '/' << b << ' ' << c << '/' << c << '/' << c << '\n';
+        out << "f " << a << '/' << a << '/' << a << ' ' << b << '/' << b << '/'
+            << b << ' ' << c << '/' << c << '/' << c << '\n';
 
         auto const face_area =
-            i < map->face_area.size() ? map->face_area[i] : 0.0f;
-        auto const face_ray_count =
-            i < map->face_ray_count.size() ? map->face_ray_count[i] : 0;
+            i < map->data.face_area.size() ? map->data.face_area[i] : 0.0f;
+        auto const face_ray_count = i < map->data.face_ray_count.size()
+                                        ? map->data.face_ray_count[i]
+                                        : 0;
 
         out << "fa " << face_area << '\n';
         out << "fv " << face_ray_count << '\n';
@@ -206,24 +213,24 @@ ExportModule::ExportModule(QObject* parent) : QObject(parent) {
     });
 }
 
-void ExportModule::set_results(SolTrace::GUI::Data::SimulationResultPtr results) {
+void ExportModule::set_results(
+    SolTrace::GUI::Data::SimulationResultPtr results) {
     m_results = std::move(results);
-    m_flux_maps.clear();
 
     set_current_result_name(m_results && m_results->database
                                 ? m_results->database->name()
                                 : QString());
-    set_generated_flux_map_count(0);
+    set_generated_flux_map_count(
+        m_results ? static_cast<int>(m_results->flux_maps.size()) : 0);
     update_can_export();
 }
 
-void ExportModule::cache_flux_map(SolTrace::GUI::Data::Entity                entity,
-                                  SolTrace::GUI::Analysis::BakedFluxMapPtr image,
-                                  SolTrace::GUI::Data::Database const*) {
-    if (!m_results || !image || !entity.is_valid()) return;
-
-    m_flux_maps.insert_or_assign(entity, std::move(image));
-    set_generated_flux_map_count(static_cast<int>(m_flux_maps.size()));
+void ExportModule::flux_map_ready(SolTrace::GUI::Data::Entity,
+                                  SolTrace::GUI::Analysis::BakedFluxMapPtr,
+                                  SolTrace::GUI::Data::Database const* database,
+                                  QString) {
+    if (!m_results || m_results->database.get() != database) return;
+    set_generated_flux_map_count(static_cast<int>(m_results->flux_maps.size()));
 }
 
 QString ExportModule::current_result_file_stem() const {
@@ -266,8 +273,9 @@ void ExportModule::export_current() {
             return;
         }
 
-        auto* database = const_cast<SolTrace::GUI::Data::Database*>(m_results->database.get());
-        auto  result   = database->export_to_simdata();
+        auto* database = const_cast<SolTrace::GUI::Data::Database*>(
+            m_results->database.get());
+        auto result = database->export_to_simdata();
 
         if (!result) {
             emit notify(ANotification::error(
@@ -293,10 +301,13 @@ void ExportModule::export_current() {
     }
 
     if (export_flux_map_images() || export_flux_map_meshes()) {
-        for (auto iter = m_flux_maps.begin(); iter != m_flux_maps.end();
+        for (auto iter = m_results->flux_maps.begin();
+             iter != m_results->flux_maps.end();
              ++iter) {
-            auto const entity_id = QString::number(
-                entt::to_integral(iter->first.value));
+            auto const& map = iter->second.artifact;
+            if (!map) continue;
+            auto const entity_id =
+                QString::number(entt::to_integral(iter->first));
             auto const entity_name =
                 m_results->database
                     ? file_safe(m_results->database->name_of(iter->first))
@@ -307,23 +318,23 @@ void ExportModule::export_current() {
                 directory.filePath(base_name + QStringLiteral("_flux-map.png"));
             auto const point_path = directory.filePath(
                 base_name + QStringLiteral("_ray-points.png"));
-            auto const mesh_path =
-                directory.filePath(base_name + QStringLiteral("_flux-mesh.obj"));
+            auto const mesh_path = directory.filePath(
+                base_name + QStringLiteral("_flux-mesh.obj"));
 
             if (export_flux_map_images()) {
-                if (!iter->second->bin_map.isNull() &&
-                    iter->second->bin_map.save(bin_path, "PNG")) {
+                if (!map->render.bin_map.isNull() &&
+                    map->render.bin_map.save(bin_path, "PNG")) {
                     ++files_written;
                 }
 
-                if (!iter->second->point_map.isNull() &&
-                    iter->second->point_map.save(point_path, "PNG")) {
+                if (!map->render.point_map.isNull() &&
+                    map->render.point_map.save(point_path, "PNG")) {
                     ++files_written;
                 }
             }
 
             if (export_flux_map_meshes() &&
-                write_flux_map_mesh(mesh_path, entity_name, iter->second)) {
+                write_flux_map_mesh(mesh_path, entity_name, map)) {
                 ++files_written;
             }
         }
@@ -373,8 +384,8 @@ void ExportModule::export_current() {
                 auto const& event = record.events[event_index];
                 auto const  entity_id =
                     event.entity == entt::null
-                         ? QString()
-                         : QString::number(entt::to_integral(event.entity));
+                        ? QString()
+                        : QString::number(entt::to_integral(event.entity));
                 auto const entity_name =
                     event.entity != entt::null && m_results->database
                         ? m_results->database->name_of(event.entity)
@@ -400,9 +411,9 @@ void ExportModule::export_current() {
         return;
     }
 
-    emit notify(ANotification::info(
-        QStringLiteral("Export complete: wrote %1 file(s).")
-            .arg(files_written)));
+    emit notify(
+        ANotification::info(QStringLiteral("Export complete: wrote %1 file(s).")
+                                .arg(files_written)));
 }
 
 } // namespace SolTrace::GUI::App

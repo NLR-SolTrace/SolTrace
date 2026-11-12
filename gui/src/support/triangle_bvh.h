@@ -51,9 +51,9 @@ private:
         bool leaf() const;
     };
 
-    SolTrace::GUI::Data::Mesh const*     m_mesh = nullptr;
-    std::vector<size_t> m_indices;
-    std::vector<Node>   m_nodes;
+    SolTrace::GUI::Data::Mesh const* m_mesh = nullptr;
+    std::vector<size_t>              m_indices;
+    std::vector<Node>                m_nodes;
 
     Aabb      triangle_bounds(size_t triangle_index) const;
     glm::vec3 triangle_centroid(size_t triangle_index) const;

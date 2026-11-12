@@ -123,6 +123,12 @@ namespace OptixCSP
         /// </summary>
         double get_sun_plane_area() const;
 
+        /// <summary>
+        /// Return the lengths of the two adjacent edges of the sun plane in
+        /// world units.
+        /// </summary>
+        void get_sun_plane_dimensions(double &width, double &height) const;
+
         uint_fast64_t get_N_sun_rays() const { return m_n_sun_rays; }
 
         /// Returns the number of run() iterations executed during the last run() call.
