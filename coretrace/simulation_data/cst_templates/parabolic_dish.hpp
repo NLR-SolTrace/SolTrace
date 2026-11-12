@@ -25,7 +25,7 @@ namespace SolTrace::Data {
 class ParabolicDish : public CompositeElement
 {
 public:
-    ParabolicDish();
+    explicit ParabolicDish(ElementKey key);
     ~ParabolicDish();
 
     void set_aperture_size(double diameter);

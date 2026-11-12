@@ -75,9 +75,7 @@ using SolTrace::Data::surface_ptr;
 
 // Construction Functions
 using SolTrace::Data::make_aperture;
-using SolTrace::Data::make_element;
 using SolTrace::Data::make_ray_source;
-using SolTrace::Data::make_stage;
 using SolTrace::Data::make_surface;
 using SolTrace::Data::make_surface_from_type;
 
@@ -107,7 +105,6 @@ using SolTrace::Data::rotate_vector_radians;
 // Status Constants
 using SolTrace::Data::ELEMENT_ALREADY_REGISTERED;
 using SolTrace::Data::ELEMENT_ERROR;
-using SolTrace::Data::ELEMENT_ID_UNASSIGNED;
 using SolTrace::Data::ELEMENT_INVALID_SETUP;
 using SolTrace::Data::ELEMENT_NULL;
 using SolTrace::Data::ELEMENT_WRONG_MODEL;

@@ -27,7 +27,7 @@ namespace SolTrace::Data {
 class LinearFresnel : public CompositeElement
 {
 public:
-    LinearFresnel();
+    explicit LinearFresnel(ElementKey key);
     ~LinearFresnel();
 
     void set_angles(double azimuth, double tilt);

@@ -15,7 +15,7 @@
 
 namespace SolTrace::Data {
 
-ParabolicDish::ParabolicDish() : CompositeElement(),
+ParabolicDish::ParabolicDish(ElementKey key) : CompositeElement(key),
                                  initialized(false),
                                  aperture_diameter(-1.0),
                                  aperture_radius(-1.0),
@@ -95,7 +95,7 @@ void ParabolicDish::create_geometry()
         this->num_panels_r == 1 &&
         this->num_panels_a == 1)
     {
-        mirror = make_element<SingleElement>();
+        mirror = this->create_child<SingleElement>();
         mirror->set_reference_frame_geometry(origin, aim, zrot);
         mirror->set_aperture(make_aperture<Circle>(this->aperture_diameter));
         mirror->set_surface(make_surface<Parabola>(this->focal_length,
@@ -104,7 +104,6 @@ void ParabolicDish::create_geometry()
         mirror->enable();
 
         this->mirrors.push_back(mirror);
-        this->add_element(mirror);
     }
     else
     {
@@ -118,7 +117,7 @@ void ParabolicDish::create_geometry()
             zrot = 0.0;
             for (int_fast64_t j = 0; j < this->num_panels_a; ++j)
             {
-                mirror = make_element<SingleElement>();
+                mirror = this->create_child<SingleElement>();
                 mirror->set_reference_frame_geometry(origin, aim, zrot);
                 mirror->set_aperture(make_aperture<Annulus>(r0,
                                                             r1,
@@ -130,7 +129,6 @@ void ParabolicDish::create_geometry()
                 mirror->enable();
 
                 this->mirrors.push_back(mirror);
-                this->add_element(mirror);
 
                 zrot += panel_zrot_offset;
             }
@@ -139,7 +137,7 @@ void ParabolicDish::create_geometry()
     }
 
     /**** Create absorber element(s) ****/
-    single_element_ptr abs = make_element<SingleElement>();
+    single_element_ptr abs = this->create_child<SingleElement>();
     origin = {0.0, 0.0, this->abs_distance};
     aim = {0.0, 0.0, this->abs_distance - 1.0};
     abs->set_reference_frame_geometry(origin, aim, 0.0);
@@ -150,7 +148,6 @@ void ParabolicDish::create_geometry()
     abs->enable();
 
     this->absorbers.push_back(abs);
-    this->add_element(abs);
 
     this->initialized = true;
 

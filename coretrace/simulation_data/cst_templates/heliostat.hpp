@@ -32,7 +32,7 @@ public:
         ON_AXIS = 3
     };
 
-    Heliostat();
+    explicit Heliostat(ElementKey key);
     ~Heliostat();
 
     void create_geometry();

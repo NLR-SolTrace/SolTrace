@@ -423,6 +423,7 @@ bool read_element(FILE*                                      fp,
                   std::map<std::string, OpticalPropertySet>& optics_map,
                   element_ptr&                               el,
                   SimulationData&                            sd,
+                  StageElement&                              stage,
                   bool                                       virt)
 {
     char buf[1024];
@@ -478,10 +479,10 @@ bool read_element(FILE*                                      fp,
     std::string     optics_name = tok[27].c_str();
     InteractionType interaction = int_to_interaction(atoi(tok[28].c_str()));
 
-    // Create element
-    if (virt) el = make_element<VirtualElement>();
+    // Create element, attached to the stage
+    if (virt) el = stage.create_child<VirtualElement>();
     else
-        el = make_element<SingleElement>();
+        el = stage.create_child<SingleElement>();
 
     if (!enabled) el->disable();
 
@@ -611,7 +612,8 @@ bool process_stages(FILE*                                      fp,
         read_line(buf, 1023, fp); // read name
 
         // Make stage
-        stage_ptr stage = make_stage(i_stage);
+        auto stage_handle = sd.create_element<StageElement>(i_stage);
+        stage_ptr stage   = stage_handle.get();
         stage->set_origin(X, Y, Z);
         stage->set_aim_vector(AX, AY, AZ);
         stage->set_zrot(ZRot);
@@ -626,23 +628,16 @@ bool process_stages(FILE*                                      fp,
         for (int i_element = 0; i_element < count_element; i_element++)
         {
             element_ptr el;
-            if (!read_element(fp, optics_map, el, sd, virt) || el == nullptr)
+            if (!read_element(fp, optics_map, el, sd, *stage, virt) ||
+                el == nullptr)
             {
                 return false;
             }
             el->set_name(std::to_string(i_element));
             // TODO make virtual if stage is virtual?
-
-            if (!Element::is_success(stage->add_element(el)))
-            {
-                std::cout << "Failed to add element to stage" << std::endl;
-            }
         }
 
-        if (!Element::is_success(sd.add_stage(stage)))
-        {
-            std::cout << "Failed to add stage to SimulationData" << std::endl;
-        }
+        stage_handle.commit();
     }
 
     return true;

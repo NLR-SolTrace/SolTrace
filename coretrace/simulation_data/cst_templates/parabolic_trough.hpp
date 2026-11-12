@@ -31,7 +31,7 @@ namespace SolTrace::Data {
 class ParabolicTrough : public CompositeElement
 {
 public:
-    ParabolicTrough();
+    explicit ParabolicTrough(ElementKey key);
     ~ParabolicTrough();
 
     // void disable() { this->elements->disable(); }

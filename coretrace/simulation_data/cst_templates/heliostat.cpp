@@ -10,8 +10,8 @@
 namespace SolTrace::Data
 {
 
-    Heliostat::Heliostat()
-        : CompositeElement(),
+    Heliostat::Heliostat(ElementKey key)
+        : CompositeElement(key),
           initialized(false),
           aperture_size_x(-1.0),
           aperture_size_y(-1.0),
@@ -99,14 +99,13 @@ namespace SolTrace::Data
         glm::dvec3 aim;
         aperture_ptr ap;
         surface_ptr surf;
-        element_id sts;
         double c, z;
 
         for (int j = 0; j < this->num_panels_y; ++j)
         {
             for (int i = 0; i < this->num_panels_x; ++i)
             {
-                elem = make_element<SingleElement>();
+                elem = this->create_child<SingleElement>();
 
                 if (this->canting_method == NONE)
                 {
@@ -181,11 +180,6 @@ namespace SolTrace::Data
 
                 this->heliostat_area += panel_len_x * panel_len_y;
                 this->facets.push_back(elem);
-                sts = this->add_element(elem);
-                if (!Element::is_success(sts))
-                {
-                    throw std::runtime_error("Failed to add element");
-                }
 
                 panel_x += panel_len_x + this->gap_x;
             }

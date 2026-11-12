@@ -20,12 +20,12 @@ namespace SolTrace::Data {
 class StageElement: public CompositeElement
 {
 public:
-    StageElement(int_fast64_t stage);
-    StageElement(const nlohmann::ordered_json& jnode,
+    StageElement(ElementKey key, int_fast64_t stage);
+    StageElement(ElementKey key,
+        const nlohmann::ordered_json& jnode,
         const OpticalPropertySetResolver& resolve_optics);
     ~StageElement();
     virtual bool is_stage() const override { return true; }
-    virtual element_id add_element(element_ptr el);
     virtual void write_json(nlohmann::ordered_json& jnode) const override;
     
     // only single elements have groups
@@ -34,11 +34,6 @@ private:
 };
 
 using stage_ptr = std::shared_ptr<StageElement>;
-template <typename... Args>
-inline auto make_stage(Args &&...args)
-{
-    return make_element<StageElement>(std::forward<Args>(args)...);
-}
 
 } // namespace SolTrace::Data
 

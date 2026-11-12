@@ -15,8 +15,9 @@
 
 namespace SolTrace::Data {
 
-ParabolicTrough::ParabolicTrough()
-    : initialized(false),
+ParabolicTrough::ParabolicTrough(ElementKey key)
+    : CompositeElement(key),
+      initialized(false),
       //   ready_to_add_self(false),
       azimuth(-1.0),
       tilt(-1.0),
@@ -109,7 +110,7 @@ void ParabolicTrough::create_geometry()
             origin = {0.0, ycoord, 0.0};
             aim = {0.0, ycoord, 1000.0};
 
-            panel = make_element<SingleElement>();
+            panel = this->create_child<SingleElement>();
             panel->set_name("ParabolicMirror");
             panel->set_reference_frame_geometry(origin, aim, 0.0);
             ap = make_aperture<Rectangle>(xstop - xstart,
@@ -123,7 +124,6 @@ void ParabolicTrough::create_geometry()
             panel->enable();
 
             this->mirrors.push_back(panel);
-            this->add_element(panel);
 
             ystart += panel_length_y + this->gap_y;
             ycoord = ystart + 0.5 * panel_length_y;
@@ -137,7 +137,7 @@ void ParabolicTrough::create_geometry()
 
     // Absorber
     // TODO: Single element at the moment. Break up into multiple tubes.
-    auto abs = make_element<SingleElement>();
+    auto abs = this->create_child<SingleElement>();
     abs->set_name("Absorber");
     abs->set_origin(0.0, 0.0,
                     this->focal_length - 0.5 * this->absorber_diameter);
@@ -150,15 +150,9 @@ void ParabolicTrough::create_geometry()
     abs->set_optical_property_set(optics_absorber);
     abs->enable();
     this->absorbers.push_back(abs);
-    auto id = this->add_element(abs);
-    if (!Element::is_success(id))
-    {
-        // TODO: Make this more helpful
-        throw std::runtime_error("Failed to add absorber element");
-    }
 
     // Envelope -- Outer
-    auto envout = make_element<SingleElement>();
+    auto envout = this->create_child<SingleElement>();
     envout->set_name("EnvelopeOuter");
     envout->set_origin(0.0, 0.0,
                        this->focal_length - 0.5 * this->envelope_diameter);
@@ -171,14 +165,9 @@ void ParabolicTrough::create_geometry()
     envout->set_optical_property_set(optics_envelope_outer);
     envout->enable();
     this->envelopes.push_back(envout);
-    id = this->add_element(envout);
-    if (!Element::is_success(id))
-    {
-        throw std::runtime_error("Failed to add outer envelope element");
-    }
 
     // Envelope -- Inner
-    auto envin = make_element<SingleElement>();
+    auto envin = this->create_child<SingleElement>();
     envin->set_name("EnvelopeInner");
     envin->set_origin(0.0, 0.0,
                       this->focal_length - 0.5 * this->envelope_diameter +
@@ -193,11 +182,6 @@ void ParabolicTrough::create_geometry()
     envin->set_optical_property_set(optics_envelope_inner);
     envin->enable();
     this->envelopes.push_back(envin);
-    id = this->add_element(envin);
-    if (!Element::is_success(id))
-    {
-        throw std::runtime_error("Failed to add inner envelope element");
-    }
 
     this->enable();
 

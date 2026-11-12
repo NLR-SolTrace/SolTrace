@@ -4,8 +4,8 @@
 namespace SolTrace::Data {
 
 
-VirtualElement::VirtualElement() 
-    : SingleElement()
+VirtualElement::VirtualElement(ElementKey key)
+    : SingleElement(key)
 {
     auto optics = std::make_shared<OpticalPropertySet>(
         InteractionType::REFRACTION,
@@ -28,8 +28,10 @@ VirtualElement::VirtualElement()
     this->set_optical_property_set(optics_ref);
 }
 
-VirtualElement::VirtualElement(const nlohmann::ordered_json& jnode,
-    const OpticalPropertySetResolver& resolve_optics) : SingleElement(jnode, resolve_optics)
+VirtualElement::VirtualElement(ElementKey key,
+    const nlohmann::ordered_json& jnode,
+    const OpticalPropertySetResolver& resolve_optics)
+    : SingleElement(key, jnode, resolve_optics)
 {
     auto optics = std::make_shared<OpticalPropertySet>(
         InteractionType::REFRACTION,
@@ -56,7 +58,8 @@ VirtualElement::~VirtualElement()
 {
 }
 
-VirtualPlane::VirtualPlane(double x_len, double y_len) : VirtualElement()
+VirtualPlane::VirtualPlane(ElementKey key, double x_len, double y_len)
+    : VirtualElement(key)
 {
     this->aperture = make_aperture<Rectangle>(x_len, y_len);
     this->surface = make_surface<Flat>();

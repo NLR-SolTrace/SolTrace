@@ -9,44 +9,41 @@
 namespace SolTrace::Data
 {
 
-    CompositeElement::CompositeElement() : ElementBase(),
-                                           number_of_elements(0),
-                                           my_elements()
+    CompositeElement::CompositeElement(ElementKey key)
+        : ElementBase(key),
+          my_elements()
     {
         return;
     }
 
-    CompositeElement::CompositeElement(const nlohmann::ordered_json &jnode,
+    CompositeElement::CompositeElement(ElementKey key,
+        const nlohmann::ordered_json &jnode,
         const OpticalPropertySetResolver& resolve_optics) 
-        : ElementBase(jnode), number_of_elements(0),my_elements()
+        : ElementBase(key, jnode), my_elements()
     {
         using json = nlohmann::ordered_json;
 
         // Common parameters are set in ElementBase constructor before here
 
         json jelements = jnode.at("elements");
-        for (auto &[key, jelement] : jelements.items())
+        for (auto &[jkey, jelement] : jelements.items())
         {
             bool is_single = jelement.at("is_single");
             if (is_single)
             {
                 if (jelement.at("virtual_flag") == true)
                 {
-                    element_ptr el = make_element<VirtualElement>(jelement, resolve_optics);
-                    this->add_element(el);
+                    this->create_child<VirtualElement>(jelement, resolve_optics);
                 }
                 else
                 {
-                    element_ptr el = make_element<SingleElement>(jelement, resolve_optics);
-                    this->add_element(el);
+                    this->create_child<SingleElement>(jelement, resolve_optics);
                 }
-                
             }
-            else
-            {
-                composite_element_ptr comp = make_element<CompositeElement>(jelement, resolve_optics);
-                this->add_element(comp);
-            }
+            // Composites inside a composite are skipped, as they always have
+            // been: this object is not yet a StageElement, so the nesting rule
+            // rejected them. The writer also writes every composite at the top
+            // level, which is where they are loaded.
         }
         return;
     }
@@ -115,33 +112,46 @@ namespace SolTrace::Data
         return;
     }
 
-    element_id CompositeElement::add_element(element_ptr el)
+    uint_fast64_t CompositeElement::get_number_of_elements() const
     {
-        // Cannot nest a StageElement in another CompositeElement
-        // assert(!el->is_stage());
-        // Disable adding CompositeElements unless `this` is a StageElement
-        // assert(this->is_stage() || el->is_single());
+        uint_fast64_t n = 0;
+        for (auto iter = this->get_const_iterator();
+             !this->is_at_end(iter);
+             ++iter)
+        {
+            n += iter->second->get_number_of_elements();
+        }
+        return n;
+    }
 
-        if (el->is_stage() ||
-            (el->is_composite() && !this->is_stage()))
+    element_id CompositeElement::attach_child(element_ptr el)
+    {
+        // Cannot nest a StageElement in another CompositeElement, and a
+        // CompositeElement can be added only to a StageElement
+        if (el->is_stage() || (el->is_composite() && !this->is_stage()))
         {
             return ELEMENT_INVALID_SETUP;
         }
 
-        el->enforce_user_fields_set();
-
-        element_id id = this->my_elements.add_item(el);
-        if (is_success(id))
+        element_id key = this->my_elements.add_item(el);
+        if (!is_success(key))
         {
-            this->number_of_elements += el->get_number_of_elements();
-            el->set_reference_element(this);
-            // Mark any added elements as virtual if needed
-            if (this->is_virtual())
-            {
-                el->mark_virtual();
-            }
+            return ELEMENT_ERROR;
         }
-        return id;
+
+        el->set_reference_element(this);
+        // A child belongs to the same stage as its parent, whether it is added
+        // before or after the parent is put in a stage
+        if (this->stage != -1)
+        {
+            el->set_stage(this->stage);
+        }
+        // Mark any added elements as virtual if needed
+        if (this->is_virtual())
+        {
+            el->mark_virtual();
+        }
+        return el->get_id();
     }
 
     uint_fast64_t CompositeElement::remove_element(element_id id)
@@ -152,7 +162,6 @@ namespace SolTrace::Data
         if (nremoved > 0)
         {
             nremoved = el->get_number_of_elements();
-            this->number_of_elements -= nremoved;
         }
 
         return nremoved;
@@ -165,7 +174,6 @@ namespace SolTrace::Data
 
     void CompositeElement::clear()
     {
-        this->number_of_elements = 0;
         this->my_elements.clear();
         return;
     }
@@ -174,13 +182,20 @@ namespace SolTrace::Data
     {
         ElementBase::enforce_user_fields_set();
 
-        if (this->number_of_elements == 0)
+        if (this->get_number_of_elements() == 0)
         {
             std::stringstream ss;
             ss << "CompositeElement (Name: " << this->get_name()
                << ", UUID: " << this->get_id()
                << ") has no subelements.";
             throw std::invalid_argument(ss.str());
+        }
+
+        for (auto iter = this->get_const_iterator();
+             !this->is_at_end(iter);
+             ++iter)
+        {
+            iter->second->enforce_user_fields_set();
         }
         return;
     }

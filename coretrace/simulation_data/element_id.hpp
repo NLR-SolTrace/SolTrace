@@ -12,7 +12,6 @@ namespace SolTrace::Data {
 
 using element_id = std::int_fast64_t;
 const element_id ELEMENT_ERROR = -1;
-const element_id ELEMENT_ID_UNASSIGNED = -2;
 const element_id ELEMENT_ALREADY_REGISTERED = -3;
 const element_id ELEMENT_INVALID_SETUP = -4;
 const element_id ELEMENT_NULL = -5;

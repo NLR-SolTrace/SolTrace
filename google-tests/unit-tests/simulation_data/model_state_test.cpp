@@ -28,9 +28,8 @@ namespace {
 class KeyedElement : public SingleElement
 {
 public:
-    explicit KeyedElement(ElementKey key) : SingleElement()
+    explicit KeyedElement(ElementKey key) : SingleElement(key)
     {
-        this->set_id(key.id());
         this->key_token = key.token();
     }
 
@@ -92,8 +91,7 @@ TEST(ElementIdAllocator, ReserveRejectsBadAndDuplicateIds)
     ElementIdAllocator ids;
     EXPECT_THROW(ids.reserve(0), std::invalid_argument);
     EXPECT_THROW(ids.reserve(-1), std::invalid_argument);
-    EXPECT_THROW(ids.reserve(SolTrace::Data::ELEMENT_ID_UNASSIGNED),
-                 std::invalid_argument);
+    EXPECT_THROW(ids.reserve(-2), std::invalid_argument);
 
     EXPECT_EQ(ids.next(), 1);
     EXPECT_THROW(ids.reserve(1), std::invalid_argument);

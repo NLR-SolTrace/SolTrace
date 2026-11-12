@@ -20,8 +20,9 @@ TEST(SimulationData, AddUnconfiguredSingleElementThrowsError)
     // The element should not be added to the simulation
     EXPECT_EQ(my_sim.get_number_of_elements(), 0);
 
-    // The element should not have been assigned an ID
-    EXPECT_EQ(unconfigured_element->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
+    // The element has its ID but is not registered
+    EXPECT_GT(unconfigured_element->get_id(), 0);
+    EXPECT_EQ(my_sim.get_element(unconfigured_element->get_id()), nullptr);
 }
 
 TEST(SimulationData, AddPartiallyConfiguredSingleElementThrowsError)
@@ -39,8 +40,9 @@ TEST(SimulationData, AddPartiallyConfiguredSingleElementThrowsError)
     // The element should not be added to the simulation
     EXPECT_EQ(my_sim.get_number_of_elements(), 0);
 
-    // The element should not have been assigned an ID
-    EXPECT_EQ(partially_configured->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
+    // The element has its ID but is not registered
+    EXPECT_GT(partially_configured->get_id(), 0);
+    EXPECT_EQ(my_sim.get_element(partially_configured->get_id()), nullptr);
 }
 
 TEST(SimulationData, AddUnconfiguredCompositeElementThrowsError)
@@ -56,8 +58,9 @@ TEST(SimulationData, AddUnconfiguredCompositeElementThrowsError)
     // The element should not be added to the simulation
     EXPECT_EQ(my_sim.get_number_of_elements(), 0);
 
-    // The element should not have been assigned an ID
-    EXPECT_EQ(empty_composite->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
+    // The element has its ID but is not registered
+    EXPECT_GT(empty_composite->get_id(), 0);
+    EXPECT_EQ(my_sim.get_element(empty_composite->get_id()), nullptr);
 }
 
 TEST(SimulationData, AddProperlyConfiguredElementsSucceeds)
@@ -76,7 +79,7 @@ TEST(SimulationData, AddProperlyConfiguredElementsSucceeds)
     // Adding a properly configured element should succeed
     EXPECT_NO_THROW(register_element(my_sim, configured_single));
     EXPECT_EQ(my_sim.get_number_of_elements(), 1);
-    EXPECT_NE(configured_single->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
+    EXPECT_EQ(my_sim.get_element(configured_single->get_id()), configured_single);
 
     // Create a properly configured CompositeElement
     auto configured_composite = new_element<CompositeElement>(my_sim);
@@ -88,8 +91,8 @@ TEST(SimulationData, AddProperlyConfiguredElementsSucceeds)
     // Adding a properly configured composite should succeed
     EXPECT_NO_THROW(register_element(my_sim, configured_composite));
     EXPECT_EQ(my_sim.get_number_of_elements(), 2); // 1 + 1 subelement
-    EXPECT_NE(configured_composite->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
-    EXPECT_NE(configured_sub1->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
+    EXPECT_EQ(my_sim.get_element(configured_composite->get_id()), configured_composite);
+    EXPECT_EQ(my_sim.get_element(configured_sub1->get_id()), configured_sub1);
 }
 
 TEST(SimulationData, ValidationErrorPreservesSimulationState)
@@ -109,7 +112,7 @@ TEST(SimulationData, ValidationErrorPreservesSimulationState)
 
     // The simulation state should be unchanged
     EXPECT_EQ(my_sim.get_number_of_elements(), initial_count);
-    EXPECT_EQ(bad_element->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
+    EXPECT_EQ(my_sim.get_element(bad_element->get_id()), nullptr);
 
     // The good element should still be accessible
     EXPECT_EQ(my_sim.get_element(good_element->get_id()), good_element);
@@ -134,7 +137,6 @@ TEST(SimulationData, AddRemoveGetElements)
     auto id2 = register_element(my_sim, my_comp);
     EXPECT_EQ(id2, my_comp->get_id());
     EXPECT_NE(id1, id2);
-    EXPECT_NE(sub1->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
 
     EXPECT_EQ(my_sim.get_number_of_elements(), 3);
     EXPECT_EQ(my_sim.get_element(id1), my_reflector);
@@ -159,9 +161,10 @@ TEST(SimulationData, AddRemoveGetElements)
     EXPECT_EQ(my_sim.get_element(id2), nullptr);
     EXPECT_EQ(my_sim.get_element(id3), nullptr);
 
-    EXPECT_EQ(my_reflector->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
-    EXPECT_EQ(my_comp->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
-    EXPECT_EQ(sub1->get_id(), SolTrace::Data::ELEMENT_ID_UNASSIGNED);
+    // Removing does not change the IDs, and the elements are no longer registered
+    EXPECT_EQ(my_reflector->get_id(), id1);
+    EXPECT_EQ(my_comp->get_id(), id2);
+    EXPECT_EQ(sub1->get_id(), id3);
 }
 
 TEST(SimulationData, IteratorElement)

@@ -29,7 +29,9 @@ TEST(Element, ConstructionSmokeTest)
 
 TEST(Element, SingleElementAccessors)
 {
-    SingleElement ref;
+    SimulationData sd;
+    auto ref_ptr = new_element<SingleElement>(sd);
+    SingleElement &ref = *ref_ptr;
     glm::dvec3 zero(0.0, 0.0, 0.0);
     glm::dvec3 khat(0.0, 0.0, 1.0);
     EXPECT_TRUE(is_identical(ref.get_origin_ref(), zero));
@@ -90,7 +92,9 @@ TEST(Element, SingleElementAccessors)
 
 TEST(Element, VirtualElement)
 {
-    VirtualElement ve;
+    SimulationData sd;
+    auto ve_ptr = new_element<VirtualElement>(sd);
+    VirtualElement &ve = *ve_ptr;
 
     EXPECT_TRUE(ve.is_virtual());
 
@@ -124,7 +128,9 @@ TEST(Element, VirtualPlane)
 {
     const double LX = 5.0;
     const double LY = 2.5;
-    VirtualPlane vp(LX, LY);
+    SimulationData sd;
+    auto vp_ptr = new_element<VirtualPlane>(sd, LX, LY);
+    VirtualPlane &vp = *vp_ptr;
 
     EXPECT_TRUE(vp.is_virtual());
     EXPECT_EQ(vp.get_aperture()->get_type(), ApertureType::RECTANGLE);
@@ -857,9 +863,13 @@ TEST(Element, CompositeElementEnforceUserFieldsSet)
     // Test that it throws when no subelements are present
     EXPECT_THROW(comp->enforce_user_fields_set(), std::invalid_argument);
 
-    // Add a child element that is not properly configured
+    // An unconfigured child can be attached, since the child is configured
+    // after it is created, but the composite is not valid until it is
     auto elem1 = new_element<SingleElement>(sd);
-    EXPECT_THROW(attach_child(comp, elem1), std::invalid_argument);
+    auto key1 = attach_child(comp, elem1);
+    EXPECT_TRUE(SolTrace::Data::Element::is_success(key1));
+    EXPECT_THROW(comp->enforce_user_fields_set(), std::invalid_argument);
+    EXPECT_EQ(comp->remove_element(key1), 1);
 
     // Add properly configured child elements
     auto elem2 = make_configured_element(sd);

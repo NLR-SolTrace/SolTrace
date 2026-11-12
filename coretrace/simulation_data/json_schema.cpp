@@ -331,22 +331,18 @@ void load_json_file(SimulationData& sd, std::string filename, std::string* upgra
         // Check if stage
         // Note a stage is also a composite, so check stage first
         if (jelement.contains("is_stage") && jelement.at("is_stage") == true) {
-            // Make stage
-            stage_ptr stage = make_stage(jelement, resolve_optics);
-            sd.add_stage(stage);
+            sd.create_element<StageElement>(jelement, resolve_optics).commit();
         }
         // Composite
         else if (jelement.contains("is_composite") &&
                  jelement.at("is_composite") == true) {
-            composite_element_ptr comp =
-                make_element<CompositeElement>(jelement, resolve_optics);
-            sd.add_element(comp);
+            sd.create_element<CompositeElement>(jelement, resolve_optics)
+                .commit();
         }
         // Single Element
         else {
-            single_element_ptr single =
-                make_element<SingleElement>(jelement, resolve_optics);
-            sd.add_element(single);
+            sd.create_element<SingleElement>(jelement, resolve_optics)
+                .commit();
         }
     }
 

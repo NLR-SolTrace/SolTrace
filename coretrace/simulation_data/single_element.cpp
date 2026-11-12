@@ -10,17 +10,18 @@
 
 namespace SolTrace::Data {
 
-SingleElement::SingleElement() : ElementBase(),
-                                 aperture(nullptr),
-                                 surface(nullptr),
-                                 opt_id(OPTICS_ID_UNASSIGNED),
-                                 group(-1)
+SingleElement::SingleElement(ElementKey key) : ElementBase(key),
+                                               aperture(nullptr),
+                                               surface(nullptr),
+                                               opt_id(OPTICS_ID_UNASSIGNED),
+                                               group(-1)
 {
     return;
 }
 
-SingleElement::SingleElement(const nlohmann::ordered_json& jnode,
-    const OpticalPropertySetResolver& resolve_optics) : ElementBase(jnode),
+SingleElement::SingleElement(ElementKey key,
+    const nlohmann::ordered_json& jnode,
+    const OpticalPropertySetResolver& resolve_optics) : ElementBase(key, jnode),
                                                         aperture(nullptr),
                                                         surface(nullptr),
                                                         opt_id(OPTICS_ID_UNASSIGNED)

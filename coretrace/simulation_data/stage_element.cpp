@@ -8,15 +8,17 @@
 
 namespace SolTrace::Data {
 
-StageElement::StageElement(int_fast64_t stage) : CompositeElement()
+StageElement::StageElement(ElementKey key, int_fast64_t stage)
+    : CompositeElement(key)
 {
     this->set_stage(stage);
     return;
 }
 
-StageElement::StageElement(const nlohmann::ordered_json& jnode,
+StageElement::StageElement(ElementKey key,
+    const nlohmann::ordered_json& jnode,
     const OpticalPropertySetResolver& resolve_optics) 
-    : CompositeElement(jnode, resolve_optics)
+    : CompositeElement(key, jnode, resolve_optics)
 {
     // Check that it is a stage
     if (jnode.contains("is_stage") == false || jnode.at("is_stage").get<bool>() == false)
@@ -41,17 +43,6 @@ StageElement::StageElement(const nlohmann::ordered_json& jnode,
 StageElement::~StageElement()
 {
     return;
-}
-
-
-element_id StageElement::add_element(element_ptr el)
-{
-    element_id id = this->CompositeElement::add_element(el);
-    if (Element::is_success(id))
-    {
-        el->set_stage(this->stage);
-    }
-    return id;
 }
 
 void StageElement::write_json(nlohmann::ordered_json& jnode) const

@@ -15,6 +15,9 @@
 #define SOLTRACE_COMPOSITE_ELEMENT_H
 
 #include <memory>
+#include <stdexcept>
+#include <type_traits>
+#include <utility>
 
 #include "container.hpp"
 #include "element.hpp"
@@ -26,10 +29,12 @@ namespace SolTrace::Data
     {
     public:
         /**
-         * @brief Default constructor for composite element
+         * @brief Constructor for composite element
+         * @param key Passkey from the ModelContext that creates the element
          */
-        CompositeElement();
-        CompositeElement(const nlohmann::ordered_json& jnode,
+        explicit CompositeElement(ElementKey key);
+        CompositeElement(ElementKey key,
+            const nlohmann::ordered_json& jnode,
             const OpticalPropertySetResolver& resolve_optics);
         virtual ~CompositeElement();
 
@@ -65,11 +70,7 @@ namespace SolTrace::Data
          * @brief Get the number of sub-elements in this composite
          * @return Number of elements contained in this composite
          */
-        virtual uint_fast64_t get_number_of_elements() const override
-        {
-            // return this->my_elements.get_number_of_items();
-            return this->number_of_elements;
-        }
+        virtual uint_fast64_t get_number_of_elements() const override;
 
         // Element interface functions
         /**
@@ -136,11 +137,93 @@ namespace SolTrace::Data
 
         // CompositeElement accessors
         /**
-         * @brief Add an element to this composite
-         * @param el Shared pointer to element to add
-         * @return Element ID of the added element
+         * @brief Create an element of type `T` as a child of this composite.
+         *
+         * The child is created in this composite's model, receives its ID
+         * immediately, and is attached before the function returns. Nothing
+         * is registered until the root of the tree is committed. Configure the
+         * child through the returned pointer.
+         *
+         * @param args Constructor arguments for `T`, after the ElementKey
+         * @return Pointer to the attached child
+         * @throws std::invalid_argument if this composite is already
+         *         registered, if the model no longer exists or was cleared, or
+         *         if the child cannot be nested here (a stage, or a composite
+         *         in anything but a stage). The ID issued is not reused.
          */
-        element_id add_element(element_ptr el);
+        template <class T, class... Args>
+        std::shared_ptr<T> create_child(Args &&...args)
+        {
+            static_assert(std::is_base_of_v<Element, T>,
+                          "a child must be an Element");
+
+            if (this->model_context.is_registered(this->my_id))
+            {
+                throw std::invalid_argument(
+                    "CompositeElement: cannot add a child to a registered "
+                    "composite");
+            }
+            if (!same_model(this->model_token, this->model_context.token()))
+            {
+                throw std::invalid_argument(
+                    "CompositeElement: the model no longer exists or was "
+                    "cleared");
+            }
+
+            auto pending = this->model_context.template create<T>(
+                std::forward<Args>(args)...);
+            std::shared_ptr<T> child = pending.release();
+            if (!Element::is_success(this->attach_child(child)))
+            {
+                throw std::invalid_argument(
+                    "CompositeElement: a stage cannot be a child, and a "
+                    "composite can be a child only of a stage");
+            }
+            return child;
+        }
+
+        /**
+         * @brief Attach an element that was created earlier to this composite
+         *
+         * For importers that create elements before they know the parent.
+         * Prefer `create_child`. The handle is emptied only on success.
+         *
+         * @param child Handle of the element to attach
+         * @return ID of the child on success. ELEMENT_NULL for an empty
+         *         handle, ELEMENT_WRONG_MODEL for a child from another or a
+         *         destroyed model, ELEMENT_ALREADY_REGISTERED if the child is
+         *         registered, ELEMENT_INVALID_SETUP if this composite is
+         *         registered or the child cannot be nested here.
+         */
+        template <class U>
+        element_id add_child(PendingElement<U> &&child)
+        {
+            if (child.element_ == nullptr)
+            {
+                return ELEMENT_NULL;
+            }
+            if (!same_model(child.token_, this->model_token) ||
+                !same_model(this->model_token, this->model_context.token()))
+            {
+                return ELEMENT_WRONG_MODEL;
+            }
+            if (child.committed_ ||
+                this->model_context.is_registered(child.id_))
+            {
+                return ELEMENT_ALREADY_REGISTERED;
+            }
+            if (this->model_context.is_registered(this->my_id))
+            {
+                return ELEMENT_INVALID_SETUP;
+            }
+
+            const element_id id = this->attach_child(child.element_);
+            if (Element::is_success(id))
+            {
+                child.release();
+            }
+            return id;
+        }
 
         /**
          * @brief Remove an element from this composite
@@ -195,7 +278,9 @@ namespace SolTrace::Data
         virtual void write_json(nlohmann::ordered_json& jnode) const override;
 
     private:
-        uint_fast64_t number_of_elements;
+        // Adds `el` to this composite. Returns ELEMENT_INVALID_SETUP if the
+        // nesting rule is broken, otherwise the ID of `el`.
+        element_id attach_child(element_ptr el);
         ElementContainer my_elements;
     };
 

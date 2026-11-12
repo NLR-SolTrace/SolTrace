@@ -12,8 +12,8 @@
 namespace SolTrace::Data
 {
 
-    LinearFresnel::LinearFresnel()
-        : CompositeElement(),
+    LinearFresnel::LinearFresnel(ElementKey key)
+        : CompositeElement(key),
           initialized(false),
           receiver_height(-1.0),
           azimuth(-1.0),
@@ -301,7 +301,6 @@ namespace SolTrace::Data
                              this->gap_y * (this->num_panels_y - 1);
         panel_len_y /= this->num_panels_y;
 
-        element_id sts;
         glm::dvec3 origin;
         glm::dvec3 aim;
         glm::dvec3 receiver_pos(0.0,
@@ -318,7 +317,7 @@ namespace SolTrace::Data
             panel_y = -0.5 * this->aperture_size_y + 0.5 * panel_len_y;
             for (int_fast64_t j = 0; j < this->num_panels_y; ++j)
             {
-                mirror = make_element<SingleElement>();
+                mirror = this->create_child<SingleElement>();
 
                 origin = {panel_x, panel_y, 0.0};
                 aim = 1.0 * receiver_pos + -1.0 * origin;
@@ -361,12 +360,6 @@ namespace SolTrace::Data
                 mirror->set_name(name.str());
 
                 this->mirrors.push_back(mirror);
-                sts = this->add_element(mirror);
-                if (!Element::is_success(sts))
-                {
-                    // TODO: Make this more helpful
-                    throw std::runtime_error("Failed to add mirror element");
-                }
 
                 panel_y += panel_len_y + this->gap_y;
             }
@@ -383,7 +376,7 @@ namespace SolTrace::Data
 
         // Absorber
         // TODO: Single element at the moment. Break up into multiple tubes.
-        auto abs = make_element<SingleElement>();
+        auto abs = this->create_child<SingleElement>();
         abs->set_name("Absorber");
         origin = {
             0.0,
@@ -400,15 +393,9 @@ namespace SolTrace::Data
         abs->enable();
 
         this->absorbers.push_back(abs);
-        sts = this->add_element(abs);
-        if (!Element::is_success(sts))
-        {
-            // TODO: Make this more helpful
-            throw std::runtime_error("Failed to add absorber element");
-        }
 
         // Envelope -- Outer
-        auto envout = make_element<SingleElement>();
+        auto envout = this->create_child<SingleElement>();
         envout->set_name("EnvelopeOuter");
         origin = {
             0.0,
@@ -425,14 +412,9 @@ namespace SolTrace::Data
         envout->enable();
 
         this->envelope.push_back(envout);
-        sts = this->add_element(envout);
-        if (!Element::is_success(sts))
-        {
-            throw std::runtime_error("Failed to add outer envelope element");
-        }
 
         // Envelope -- Inner
-        auto envin = make_element<SingleElement>();
+        auto envin = this->create_child<SingleElement>();
         envin->set_name("EnvelopeInner");
         origin = {
             0.0,
@@ -449,11 +431,6 @@ namespace SolTrace::Data
         envin->set_optical_property_set(optics_env_in);
         envin->enable();
         this->envelope.push_back(envin);
-        sts = this->add_element(envin);
-        if (!Element::is_success(sts))
-        {
-            throw std::runtime_error("Failed to add inner envelope element");
-        }
 
         this->initialized = true;
 

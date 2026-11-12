@@ -15,14 +15,16 @@ namespace SolTrace::Data {
 
 // ElementContainer ElementBase::empty_container;
 
-ElementBase::ElementBase() : Element(),
-                             coordinates_initialized(true),
-                             active(true),
-                             virtual_flag(false),
-                             my_id(ELEMENT_ID_UNASSIGNED),
-                             stage(-1),
-                             zrot(0.0),
-                             reference_element(nullptr)
+ElementBase::ElementBase(ElementKey key) : Element(),
+                                           active(true),
+                                           virtual_flag(false),
+                                           my_id(key.id()),
+                                           model_context(key.context()),
+                                           model_token(key.token()),
+                                           coordinates_initialized(true),
+                                           stage(-1),
+                                           zrot(0.0),
+                                           reference_element(nullptr)
 {
     // Default local coordinates to match with the reference coordinates
     this->aim = {0.0, 0.0, 1.0};
@@ -35,7 +37,8 @@ ElementBase::ElementBase() : Element(),
     return;
 }
 
-ElementBase::ElementBase(const nlohmann::ordered_json& jnode) : ElementBase()
+ElementBase::ElementBase(ElementKey key, const nlohmann::ordered_json& jnode)
+    : ElementBase(key)
 {
     if (jnode.at("active").get<bool>())
         this->enable();
@@ -47,8 +50,6 @@ ElementBase::ElementBase(const nlohmann::ordered_json& jnode) : ElementBase()
     else
         this->unmark_virtual();
 
-    //this->set_id(jnode["my_id"]);
-    this->set_id(ELEMENT_ID_UNASSIGNED);
     this->set_stage(jnode.at("stage"));
     this->set_name(jnode.at("my_name"));
 

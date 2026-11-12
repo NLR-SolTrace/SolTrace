@@ -21,6 +21,7 @@ set(SIMULATION_DATA_TEST_SRC
     aperture_test.cpp
     surface_test.cpp
     container_test.cpp
+    element_creation_test.cpp
     element_test.cpp
     file_io_test.cpp
     linear_algebra_test.cpp

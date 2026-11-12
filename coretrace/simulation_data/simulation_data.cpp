@@ -64,6 +64,10 @@ ModelContext SimulationData::context()
 
 void SimulationData::bind_model_state()
 {
+    this->model_state->registrar = [this](std::shared_ptr<Element> el)
+    {
+        return this->register_element(el);
+    };
     this->model_state->is_registered = [this](element_id id)
     {
         return this->my_elements.get_item(id) != nullptr;
@@ -77,97 +81,114 @@ void SimulationData::reset_after_move()
     this->clear(true);
 }
 
-element_id SimulationData::add_element(element_ptr el)
-{
-    element_id id = ELEMENT_ERROR;
+namespace {
 
-    if (el->get_id() != ELEMENT_ID_UNASSIGNED)
+bool none_registered(const ElementContainer &registry, const element_ptr &el)
+{
+    if (registry.get_item(el->get_id()) != nullptr)
     {
-        id = ELEMENT_ALREADY_REGISTERED;
+        return false;
+    }
+    auto comp = std::dynamic_pointer_cast<CompositeElement>(el);
+    if (comp != nullptr)
+    {
+        for (auto iter = comp->get_const_iterator();
+             !comp->is_at_end(iter);
+             ++iter)
+        {
+            if (!none_registered(registry, iter->second))
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+// A parent is computed before its children, which read its frame
+void compute_rotations(const element_ptr &el)
+{
+    el->compute_coordinate_rotations();
+    auto comp = std::dynamic_pointer_cast<CompositeElement>(el);
+    if (comp != nullptr)
+    {
+        for (auto iter = comp->get_const_iterator();
+             !comp->is_at_end(iter);
+             ++iter)
+        {
+            compute_rotations(iter->second);
+        }
+    }
+}
+
+} // namespace
+
+element_id SimulationData::register_element(const element_ptr &el)
+{
+    if (el == nullptr)
+    {
+        throw std::invalid_argument("Cannot register a null element");
+    }
+    if (!none_registered(this->my_elements, el))
+    {
+        throw std::invalid_argument(
+            "The element or one of its subelements is already registered");
+    }
+
+    // Nothing is registered if either of these throws
+    // Check that all fields required from the user have been specified
+    el->enforce_user_fields_set();
+    // Make sure coordinate stuff has been computed
+    compute_rotations(el);
+
+    this->insert_element(el);
+    return el->get_id();
+}
+
+void SimulationData::insert_element(const element_ptr &el)
+{
+    const element_id id = el->get_id();
+    const bool inserted = this->my_elements.insert_item(id, el);
+    assert(inserted);
+    (void)inserted;
+
+    if (el->is_composite())
+    {
+        // The CompositeElement itself does not count toward the
+        // number of elements since it does not impact the ray
+        // tracing computation. So we do not increment the
+        // number of elements here.
+        auto cptr = std::dynamic_pointer_cast<CompositeElement>(el);
+        assert(cptr != nullptr);
+        for (auto iter = cptr->get_const_iterator();
+             !cptr->is_at_end(iter);
+             ++iter)
+        {
+            this->insert_element(iter->second);
+        }
     }
     else
     {
-        id = this->my_elements.add_item(el);
-        if (Element::is_success(id))
+        this->number_of_elements++;
+
+        // only check groups on single elements
+        int32_t group = el->get_group();
+
+        if (group > -1)
         {
-            // Check that all fields required from the user have been specified
-            el->enforce_user_fields_set();
-            // Make sure coordinate stuff has been computed
-            el->compute_coordinate_rotations();
-            el->set_id(id);
-            if (el->is_composite())
+            // ensure that group index exists by adding empty groups if necessary
+            size_t my_groups_size = this->my_groups.size();
+            if (group >= my_groups_size)
             {
-                // The CompositeElement itself does not count toward the
-                // number of elements since it does not impact the ray
-                // tracing computation. So we do not increment the
-                // number of elements here.
-                uint_fast64_t n = this->add_subelements(el);
-                assert(n == el->get_number_of_elements());
-            }
-            else
-            {
-                this->number_of_elements++;
-
-                // only check groups on single elements
-                int32_t group = el->get_group();
-
-                if (group > -1)
+                for (size_t i = my_groups_size; i <= (size_t)group; ++i)
                 {
-                    // ensure that group index exists by adding empty groups if necessary
-                    size_t my_groups_size = this->my_groups.size();
-                    if (group >= my_groups_size)
-                    {        
-                        for (size_t i = my_groups_size; i <= (size_t)group; ++i)
-                        {
-                            this->my_groups.push_back(std::set<uint_fast64_t>());
-                        }
-                    }
-                    
-                    this->my_groups[group].insert(id);
+                    this->my_groups.push_back(std::set<uint_fast64_t>());
                 }
             }
-        }
-        else
-        {
-            // TODO: Throw an error here
+
+            this->my_groups[group].insert(id);
         }
     }
-
-    return id;
-}
-
-// void SimulationData::add_single_element(element_id key,
-//                                         element_ptr el)
-// {
-//     SingleElementMap::value_type to_insert(key, el);
-//     auto result = this->my_elements.insert(to_insert);
-//     assert(result.second);
-//     return;
-// }
-
-uint_fast64_t SimulationData::add_subelements(element_ptr el)
-{
-    // CompositeElementMap::value_type to_insert(key, el);
-    // auto result = this->composite_elements.insert(to_insert);
-    // assert(result.second);
-
-    composite_element_ptr cptr =
-        std::dynamic_pointer_cast<CompositeElement>(el);
-    assert(cptr != nullptr);
-
-    uint_fast64_t nadded = cptr->get_number_of_elements();
-
-    auto iter = cptr->get_const_iterator();
-    while (!cptr->is_at_end(iter))
-    {
-        auto id = this->add_element(iter->second);
-        assert(Element::is_success(id));
-        // // Make sure coordinate stuff has been computed
-        // iter->second->compute_coordinate_rotations();
-        ++iter;
-    }
-
-    return nadded;
 }
 
 element_ptr SimulationData::get_element(element_id id) const
@@ -200,7 +221,6 @@ uint_fast64_t SimulationData::remove_element(element_id id)
     if (el != nullptr)
     {
         this->my_elements.remove_item(id);
-        el->set_id(ELEMENT_ID_UNASSIGNED);
         if (el->is_composite())
         {
             // The CompositeElement itself does not count toward the number
@@ -212,6 +232,11 @@ uint_fast64_t SimulationData::remove_element(element_id id)
         else
         {
             this->number_of_elements--;
+            const int32_t group = el->get_group();
+            if (group > -1 && static_cast<size_t>(group) < this->my_groups.size())
+            {
+                this->my_groups[group].erase(id);
+            }
             nremoved = 1;
         }
     }

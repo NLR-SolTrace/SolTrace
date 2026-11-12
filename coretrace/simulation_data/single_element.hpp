@@ -26,8 +26,9 @@ namespace SolTrace::Data {
 class SingleElement : public ElementBase
 {
 public:
-    SingleElement();
-    SingleElement(const nlohmann::ordered_json& jnode,
+    explicit SingleElement(ElementKey key);
+    SingleElement(ElementKey key,
+        const nlohmann::ordered_json& jnode,
         const OpticalPropertySetResolver& resolve_optics);
     virtual ~SingleElement();
 

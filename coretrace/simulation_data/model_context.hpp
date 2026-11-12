@@ -25,6 +25,7 @@ namespace SolTrace::Data {
 template <class T>
 class PendingElement;
 
+class CompositeElement;
 // Cheap to copy. Holds a weak reference to the state of one model, so it does
 // not keep the model alive.
 class ModelContext
@@ -192,6 +193,8 @@ public:
 
 private:
     friend class ModelContext;
+    // add_child takes the element out of a handle
+    friend class CompositeElement;
     template <class>
     friend class PendingElement;
 
@@ -206,10 +209,13 @@ private:
     {
     }
 
+    // Leaves the handle empty
+    std::shared_ptr<T> release() { return std::move(this->element_); }
+
     std::shared_ptr<T> element_;
     ModelContext context_;
     ModelToken token_;
-    element_id id_ = ELEMENT_ID_UNASSIGNED;
+    element_id id_ = ELEMENT_NULL;
     bool committed_ = false;
 };
 

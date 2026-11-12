@@ -141,7 +141,7 @@ namespace SolTrace::NativeRunner
 
         // Optics = nullptr;
         element_number = -1; // mjw nonsense
-        sim_data_id = ELEMENT_ID_UNASSIGNED;
+        sim_data_id = ELEMENT_NULL;
         // stage_index = -1;
     }
 

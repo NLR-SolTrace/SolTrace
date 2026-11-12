@@ -24,6 +24,7 @@
 #include "constants.hpp"
 #include "container.hpp"
 #include "element_id.hpp"
+#include "model_context.hpp"
 #include "optical_properties.hpp"
 #include "ray_source.hpp"
 #include "surface.hpp"
@@ -72,8 +73,9 @@ public:
   virtual void mark_virtual() const = 0;
   virtual void unmark_virtual() const = 0;
 
-  /// @brief Get the element id assigned when registered with SimulationData
-  /// @return id if registered with SimulationData, ELEMENT_ID_UNASSIGNED if not
+  /// @brief Get the element id, which is assigned when the element is created
+  ///        and never changes
+  /// @return id of the element (1 or greater)
   virtual element_id get_id() const = 0;
 
   /// @brief Get the group number this element belongs to
@@ -276,9 +278,6 @@ public:
   // These are used by other classes to set things up correctly and
   // not meant for the casual user. You have been warned!
 
-  /// @brief Set the element id--used by SimulationData
-  /// @param id id assigned and to set
-  virtual void set_id(element_id id) = 0;
   virtual void set_reference_element(Element *reference) = 0;
   virtual void set_stage(int_fast64_t stage) = 0;
 
@@ -309,10 +308,16 @@ private:
 class ElementBase : public Element
 {
 public:
-  ElementBase();
-  // ElementBase(const glm::dvec3 &origin, const glm::dvec3 &aim);
-  ElementBase(const nlohmann::ordered_json& jnode);
+  // Only a ModelContext can make an ElementKey, so an element cannot be built
+  // without a model. Use SimulationData::create_element or
+  // CompositeElement::create_child.
+  explicit ElementBase(ElementKey key);
+  ElementBase(ElementKey key, const nlohmann::ordered_json& jnode);
   virtual ~ElementBase();
+
+  // Copying would duplicate the element's ID
+  ElementBase(const ElementBase &) = delete;
+  ElementBase &operator=(const ElementBase &) = delete;
 
   virtual inline void disable() const override { this->active = false; }
   virtual inline void enable() const override { this->active = true; }
@@ -342,11 +347,9 @@ public:
   virtual uint_fast64_t get_number_of_elements() const override { return 1; }
 
   virtual element_id get_id() const override { return this->my_id; }
-  virtual void set_id(element_id id) override
-  {
-    this->my_id = id;
-    return;
-  }
+
+  /// @brief Identity of the model this element was created for
+  const ModelToken &get_model_token() const { return this->model_token; }
 
   virtual int32_t get_group() const override { return -2; }
 
@@ -516,7 +519,11 @@ protected:
   // TODO: Do these need to be mutable?
   mutable bool active;
   mutable bool virtual_flag;
-  mutable element_id my_id;
+  const element_id my_id;
+
+  // The model this element was created for, used to create children
+  ModelContext model_context;
+  ModelToken model_token;
 
   bool coordinates_initialized;
 
@@ -544,12 +551,6 @@ private:
 
 // using element_ptr = typename std::shared_ptr<Element>;
 // using ElementContainer = std::map<element_id, element_ptr>;
-
-template <typename C, typename... Args>
-inline auto make_element(Args &&...args)
-{
-  return ElementContainer::make_pointer<C>(std::forward<Args>(args)...);
-}
 
 } // namespace SolTrace::Data
 

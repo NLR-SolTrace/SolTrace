@@ -117,19 +117,14 @@ public:
         return this->my_sources.is_at_end(it);
     }
 
-    /// @brief Add the given Element to the SimulationData. When adding a
-    ///        CompositeElement, all subelements must already be present.
-    ///        Any subelements added to the CompositeElement after calling
-    ///        `add_element` will not be used in any ray tracing.
-    /// @param el Element to add
-    /// @return unique identifier for the given object
-    element_id add_element(element_ptr el);
-    inline element_id add_stage(element_ptr el)
-    {
-        return add_element(el);
-    }
+    /// @brief Elements are added with `create_element(...)` followed by
+    ///        `commit()` on the returned handle. A CompositeElement is
+    ///        committed with all of its subelements, so they must be created
+    ///        with `create_child` or attached with `add_child` before then.
 
     /// @brief Remove the Element corresponding to the unique identifier `id`
+    ///        (and, for a CompositeElement, its subelements). The IDs are not
+    ///        reused, and a removed element is not registered again.
     /// @param id unique identifier of element to remove
     /// @return number of elements removed
     uint_fast64_t remove_element(element_id id);
@@ -333,11 +328,11 @@ private:
     // Puts a moved-from object back in a usable, empty state
     void reset_after_move();
 
-    // void add_single_element(element_id key, element_ptr el);
-    // void add_composite_element(element_id key, element_ptr el);
-    // uint_fast64_t remove_single_element(ElementContainer::iterator iter);
-    // uint_fast64_t remove_composite_element(element_ptr el);
-    uint_fast64_t add_subelements(element_ptr el);
+    // The only way an element enters the registry; reached through the
+    // `commit()` of a PendingElement. Validates the element and its
+    // subelements first, so that nothing is registered if it throws.
+    element_id register_element(const element_ptr &el);
+    void insert_element(const element_ptr &el);
     uint_fast64_t remove_subelements(element_ptr el);
 
     const OpticalPropertySet* get_optical_property_set(optics_id id) const;

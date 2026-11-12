@@ -18,8 +18,9 @@ namespace SolTrace::Data {
 class VirtualElement : public SingleElement
 {
 public:
-    VirtualElement();
-    VirtualElement(const nlohmann::ordered_json& jnode,
+    explicit VirtualElement(ElementKey key);
+    VirtualElement(ElementKey key,
+        const nlohmann::ordered_json& jnode,
         const OpticalPropertySetResolver& resolve_optics);
     virtual ~VirtualElement();
 
@@ -37,7 +38,7 @@ private:
 class VirtualPlane : public VirtualElement
 {
 public:
-    VirtualPlane(double x_len, double y_len);
+    VirtualPlane(ElementKey key, double x_len, double y_len);
     virtual ~VirtualPlane();
 
     void set_aperture(aperture_ptr ap) override {}
