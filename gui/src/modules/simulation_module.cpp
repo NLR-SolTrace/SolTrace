@@ -393,7 +393,7 @@ void SimulationModule::duplicate_current_result_for_edit() {
 }
 
 void SimulationModule::update_ray_count(int new_count) {
-    if (new_count > max_ray_count()) { set_max_ray_count(new_count); }
+    if (new_count > max_ray_count()) { set_max_ray_count(new_count * 10); }
     set_ray_count(new_count);
 }
 
