@@ -23,6 +23,8 @@
 
 #include "container.hpp"
 #include "element.hpp"
+#include "model_context.hpp"
+#include "model_state.hpp"
 #include "ray_source.hpp"
 #include "simulation_parameters.hpp"
 
@@ -35,6 +37,35 @@ class SimulationData
 public:
     SimulationData();
     virtual ~SimulationData();
+
+    // Copying is not allowed. A move keeps every context, element token, and
+    // reference that was made for the original valid for the new object. The
+    // moved-from object is empty, belongs to a new model, and can still be
+    // used or destroyed.
+    SimulationData(const SimulationData&) = delete;
+    SimulationData& operator=(const SimulationData&) = delete;
+    SimulationData(SimulationData&& other);
+    SimulationData& operator=(SimulationData&& other);
+
+    /// @brief Get a context for creating elements that belong to this model
+    ModelContext context();
+
+    /// @brief Create an element that belongs to this model. Equivalent to
+    ///        `context().create<T>(args...)`.
+    template <class T, class... Args>
+    [[nodiscard]] PendingElement<T> create_element(Args&&... args)
+    {
+        return this->context().template create<T>(std::forward<Args>(args)...);
+    }
+
+    /// @brief Create an element with an ID that was saved elsewhere.
+    template <class T, class... Args>
+    [[nodiscard]] PendingElement<T> create_element_with_id(element_id id,
+                                                           Args&&... args)
+    {
+        return this->context().template create_with_id<T>(
+            id, std::forward<Args>(args)...);
+    }
 
     /// @brief Add the given RaySource to the simulation data
     /// @param src RaySource to add
@@ -326,6 +357,14 @@ private:
     RaySourceContainer my_sources;
     SimulationParameters my_parameters;
     OpticalPropertySetContainer my_optical_property_sets;
+
+    // Shared with the contexts, elements, and references made for this model
+    std::shared_ptr<ModelState> model_state;
+
+    // Points the callbacks in `model_state` at this object
+    void bind_model_state();
+    // Puts a moved-from object back in a usable, empty state
+    void reset_after_move();
 
     // void add_single_element(element_id key, element_ptr el);
     // void add_composite_element(element_id key, element_ptr el);

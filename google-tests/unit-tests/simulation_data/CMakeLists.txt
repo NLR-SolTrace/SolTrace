@@ -24,6 +24,7 @@ set(SIMULATION_DATA_TEST_SRC
     element_test.cpp
     file_io_test.cpp
     linear_algebra_test.cpp
+    model_state_test.cpp
     optical_properties_test.cpp
     simulation_data_test.cpp
     sun_position_test.cpp

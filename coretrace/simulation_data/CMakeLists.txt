@@ -25,6 +25,7 @@ set(SIMDATA_SRC
     element.cpp
     json_schema.cpp
     matvec.cpp
+    model_state.cpp
     optical_properties.cpp
     simdata_io.cpp
     simulation_data.cpp
@@ -53,11 +54,15 @@ set(SIMDATA_HDRS
     container.hpp
     datetime.hpp
     element.hpp
+    element_id.hpp
     error_distributions.hpp
     json_helpers.hpp
     json_schema.hpp
     simulation_data_export.hpp
     matvec.hpp
+    model_context.hpp
+    model_identity.hpp
+    model_state.hpp
     optical_properties.hpp
     ray_source.hpp
     simdata_io.hpp

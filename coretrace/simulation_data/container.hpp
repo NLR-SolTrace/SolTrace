@@ -61,6 +61,13 @@ public:
      */
     ~Container() { this->clear(); }
 
+    // Declaring the destructor suppresses the implicit move operations, so
+    // they are defaulted here along with the copy operations.
+    Container(const Container &) = default;
+    Container &operator=(const Container &) = default;
+    Container(Container &&) = default;
+    Container &operator=(Container &&) = default;
+
     /**
      * @brief Add an item to the container
      * @param item Shared pointer to item to add

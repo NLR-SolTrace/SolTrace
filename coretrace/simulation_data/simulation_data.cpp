@@ -12,15 +12,69 @@ namespace SolTrace::Data {
 SimulationData::SimulationData() : number_of_elements(0),
                                    my_elements(1),
                                    my_sources(0),
-                                   my_optical_property_sets(0)
+                                   my_optical_property_sets(0),
+                                   model_state(std::make_shared<ModelState>())
 {
+    this->bind_model_state();
     return;
+}
+
+SimulationData::SimulationData(SimulationData&& other)
+    : number_of_elements(other.number_of_elements),
+      my_groups(std::move(other.my_groups)),
+      my_elements(std::move(other.my_elements)),
+      my_sources(std::move(other.my_sources)),
+      my_parameters(std::move(other.my_parameters)),
+      my_optical_property_sets(std::move(other.my_optical_property_sets)),
+      model_state(std::move(other.model_state))
+{
+    this->bind_model_state();
+    other.reset_after_move();
+}
+
+SimulationData& SimulationData::operator=(SimulationData&& other)
+{
+    if (this != &other)
+    {
+        this->number_of_elements = other.number_of_elements;
+        this->my_groups = std::move(other.my_groups);
+        this->my_elements = std::move(other.my_elements);
+        this->my_sources = std::move(other.my_sources);
+        this->my_parameters = std::move(other.my_parameters);
+        this->my_optical_property_sets =
+            std::move(other.my_optical_property_sets);
+        // Contexts made for the model this object had before expire here
+        this->model_state = std::move(other.model_state);
+        this->bind_model_state();
+        other.reset_after_move();
+    }
+    return *this;
 }
 
 SimulationData::~SimulationData()
 {
     this->clear(true);
     return;
+}
+
+ModelContext SimulationData::context()
+{
+    return ModelContext(this->model_state);
+}
+
+void SimulationData::bind_model_state()
+{
+    this->model_state->is_registered = [this](element_id id)
+    {
+        return this->my_elements.get_item(id) != nullptr;
+    };
+}
+
+void SimulationData::reset_after_move()
+{
+    this->model_state = std::make_shared<ModelState>();
+    this->bind_model_state();
+    this->clear(true);
 }
 
 element_id SimulationData::add_element(element_ptr el)
@@ -317,6 +371,12 @@ void SimulationData::clear(bool reset_parameters)
     this->number_of_elements = 0;
 
     this->my_optical_property_sets.reset(0);
+
+    // Everything created for the model before this point no longer belongs to it
+    if (this->model_state != nullptr)
+    {
+        this->model_state->reset();
+    }
 
     if (reset_parameters)
         this->my_parameters = SimulationParameters();   // Reset
