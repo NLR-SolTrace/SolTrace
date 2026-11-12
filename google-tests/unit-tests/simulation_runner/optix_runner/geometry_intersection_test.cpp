@@ -10,6 +10,8 @@
 #include <iostream>
 #include <limits>
 
+#include "element_builders.hpp"
+
 using SolTrace::Data::D2R;
 using SolTrace::Runner::RunnerStatus;
 
@@ -70,7 +72,7 @@ element_id set_default_sd(SimulationData &sd,
     sd.add_ray_source(sun);
 
     // Make target element
-    element_ptr el = make_element<SingleElement>();
+    element_ptr el = new_element<SingleElement>(sd);
     el->set_origin(0, 0, Z_ELEM);
     el->set_aim_vector(0, 0, 100); // Face up towards sun
     el->set_surface(surf);
@@ -85,11 +87,11 @@ element_id set_default_sd(SimulationData &sd,
     el->set_zrot(rotation);
 
     // Add element to stage
-    element_id id = sd.add_element(el);
+    element_id id = register_element(sd, el);
 
     // Back stop element that is bigger than the created element so that the
     // testing element casts a shadow on this big thing.
-    element_ptr stop = make_element<SingleElement>();
+    element_ptr stop = new_element<SingleElement>(sd);
     double xlb, xub, ylb, yub, zlb, zub;
     ap->bounding_box(xlb, xub, ylb, yub);
     surf->bounding_box(xlb, xub, ylb, yub, zlb, zub);
@@ -109,7 +111,7 @@ element_id set_default_sd(SimulationData &sd,
     stop->set_surface(make_surface<Flat>());
     stop->set_aperture(make_aperture<Rectangle>(2.0 * sx, 2.0 * sy));
     stop->set_optical_property_set(opt_ref);
-    sd.add_element(stop);
+    register_element(sd, stop);
 
     // Set parameters
     SimulationParameters &params = sd.get_simulation_parameters();

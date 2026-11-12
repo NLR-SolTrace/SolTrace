@@ -15,6 +15,8 @@
 #include <iostream>
 #include <sstream>
 
+#include "element_builders.hpp"
+
 using SolTrace::Runner::RunnerStatus;
 
 TEST(GpuTowerDemo, OptixRunnerWithStages)
@@ -27,7 +29,7 @@ TEST(GpuTowerDemo, OptixRunnerWithStages)
     sd.add_ray_source(sun);
 
     // Absorber -- Flat
-    auto absorber = make_element<SingleElement>();
+    auto absorber = new_element<SingleElement>(sd);
     absorber->set_origin(0.0, 0.0, 10.0);
     absorber->set_aim_vector(0.0, 5.0, 0.0);
     absorber->set_surface(make_surface<Flat>());
@@ -58,17 +60,17 @@ TEST(GpuTowerDemo, OptixRunnerWithStages)
 
     // Make stage 1 -- second stage -- these can be added to SimulationData
     // in any order but should be numbered in the desired order
-    auto st1 = make_stage(1);
+    auto st1 = new_stage(sd, 1);
     // Origin is initialized to zero but set it explicitly
     st1->set_origin(0.0, 0.0, 0.0);
     // Set aim vector so stage and global coordinates are identical
     st1->set_aim_vector(0.0, 0.0, 1.0);
-    st1->add_element(absorber);
+    attach_child(st1, absorber);
     // Optional -- to help the user identify things
     st1->set_name("Stage 1--Absorber");
 
     // Make stage 0 -- this will be the first stage if the runner uses stages
-    auto st0 = make_stage(0);
+    auto st0 = new_stage(sd, 0);
     st0->set_origin(0.0, 0.0, 0.0);
     st0->set_aim_vector(0.0, 0.0, 1.0);
     st0->set_name("Stage 0--Reflectors");
@@ -88,7 +90,7 @@ TEST(GpuTowerDemo, OptixRunnerWithStages)
 
     for (int i = -1; i < 4; ++i)
     {
-        auto el = make_element<SingleElement>();
+        auto el = new_element<SingleElement>(sd);
         el->set_optical_property_set(reflector_optics_ref);
 
         pos = {5 * sin(i * spacing),
@@ -114,12 +116,12 @@ TEST(GpuTowerDemo, OptixRunnerWithStages)
         name << "Reflector " << i;
         el->set_name(name.str());
 
-        st0->add_element(el);
+        attach_child(st0, el);
     }
 
     // Stages must have all elements present before adding to SimulationData!!
-    sd.add_stage(st0);
-    sd.add_stage(st1);
+    register_stage(sd, st0);
+    register_stage(sd, st1);
 
     // Set parameters
     SimulationParameters &params = sd.get_simulation_parameters();
@@ -180,7 +182,7 @@ static void setup_tower_sd(SimulationData &sd, uint_fast64_t nrays)
     sun->set_position(0.0, 0.0, 100.0);
     sd.add_ray_source(sun);
 
-    auto absorber = make_element<SingleElement>();
+    auto absorber = new_element<SingleElement>(sd);
     absorber->set_origin(0.0, 0.0, 10.0);
     absorber->set_aim_vector(0.0, 5.0, 0.0);
     absorber->set_surface(make_surface<Flat>());
@@ -194,12 +196,12 @@ static void setup_tower_sd(SimulationData &sd, uint_fast64_t nrays)
     auto absorber_optics_ref = sd.add_optical_property_set(absorber_optics);
     absorber->set_optical_property_set(absorber_optics_ref);
 
-    auto st1 = make_stage(1);
+    auto st1 = new_stage(sd, 1);
     st1->set_origin(0.0, 0.0, 0.0);
     st1->set_aim_vector(0.0, 0.0, 1.0);
-    st1->add_element(absorber);
+    attach_child(st1, absorber);
 
-    auto st0 = make_stage(0);
+    auto st0 = new_stage(sd, 0);
     st0->set_origin(0.0, 0.0, 0.0);
     st0->set_aim_vector(0.0, 0.0, 1.0);
 
@@ -213,7 +215,7 @@ static void setup_tower_sd(SimulationData &sd, uint_fast64_t nrays)
     auto reflector_optics_ref = sd.add_optical_property_set(reflector_optics);
     for (int i = -1; i < 4; ++i)
     {
-        auto el = make_element<SingleElement>();
+        auto el = new_element<SingleElement>(sd);
         el->set_optical_property_set(reflector_optics_ref);
 
         glm::dvec3 pos = {5 * sin(i * spacing), 5 * cos(i * spacing), 0.0};
@@ -225,11 +227,11 @@ static void setup_tower_sd(SimulationData &sd, uint_fast64_t nrays)
         el->set_zrot(30.0 * i);
         el->set_surface(make_surface<Flat>());
         el->set_aperture(make_aperture<Rectangle>(1.0, 1.95));
-        st0->add_element(el);
+        attach_child(st0, el);
     }
 
-    sd.add_stage(st0);
-    sd.add_stage(st1);
+    register_stage(sd, st0);
+    register_stage(sd, st1);
 
     SimulationParameters &params = sd.get_simulation_parameters();
     params.number_of_rays = nrays;

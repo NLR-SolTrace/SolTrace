@@ -18,6 +18,7 @@
 #include <cmath>
 #include <functional>
 #include <numeric>
+#include "element_builders.hpp"
 
 using SolTrace::Runner::RunnerStatus;
 
@@ -102,12 +103,12 @@ namespace
     {
         sd.clear();
 
-        auto stage = make_stage(0);
+        auto stage = new_stage(sd, 0);
         stage->set_origin(0, 0, 0);
         stage->set_aim_vector(0, 0, 1);
         stage->set_name("stage");
 
-        auto plate = make_element<SingleElement>();
+        auto plate = new_element<SingleElement>(sd);
         plate->set_origin(0, 0, 50);
         plate->set_aim_vector(0, 0, 100);
         plate->set_surface(make_surface<Flat>());
@@ -122,8 +123,8 @@ namespace
         plate->set_optical_property_set(plate_optics_ref);
         plate->set_name("plate");
 
-        stage->add_element(plate);
-        sd.add_stage(stage);
+        attach_child(stage, plate);
+        register_stage(sd, stage);
 
         SimulationParameters& params       = sd.get_simulation_parameters();
         params.number_of_rays              = 20000;

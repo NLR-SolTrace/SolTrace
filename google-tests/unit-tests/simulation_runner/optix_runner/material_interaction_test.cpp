@@ -9,6 +9,7 @@
 #include <simulation_data.hpp>
 #include <simulation_data_export.hpp>
 #include <simulation_result_export.hpp>
+#include "element_builders.hpp"
 
 using SolTrace::Runner::RunnerStatus;
 
@@ -34,12 +35,12 @@ void make_tilted_plate_sd(SimulationData& sd,
     sun->set_position(0, 0, 100);
     sd.add_ray_source(sun);
 
-    auto stage = make_stage(0);
+    auto stage = new_stage(sd, 0);
     stage->set_origin(0, 0, 0);
     stage->set_aim_vector(0, 0, 1);
     stage->set_name("stage");
 
-    plate = make_element<SingleElement>();
+    plate = new_element<SingleElement>(sd);
     plate->set_origin(0, 0, 50);
 
     const double theta = incidence_angle_deg * D2R;
@@ -58,8 +59,8 @@ void make_tilted_plate_sd(SimulationData& sd,
     auto default_optics_ref = sd.add_optical_property_set(default_optics);
     plate->set_optical_property_set(default_optics_ref);
 
-    stage->add_element(plate);
-    sd.add_stage(stage);
+    attach_child(stage, plate);
+    register_stage(sd, stage);
 
     SimulationParameters& params    = sd.get_simulation_parameters();
     params.number_of_rays           = 20000;
@@ -382,7 +383,7 @@ void make_mirror_and_target_sd(SimulationData& sd,
     sun->set_position(0, 0, 100);
     sd.add_ray_source(sun);
 
-    auto stage = make_stage(0);
+    auto stage = new_stage(sd, 0);
     stage->set_origin(0, 0, 0);
     stage->set_aim_vector(0, 0, 1);
     stage->set_name("stage");
@@ -390,7 +391,7 @@ void make_mirror_and_target_sd(SimulationData& sd,
     const double theta     = tilt_angle_deg * D2R;
     const double mirror_x = 0.0, mirror_y = 0.0, mirror_z = 50.0;
 
-    mirror = make_element<SingleElement>();
+    mirror = new_element<SingleElement>(sd);
     mirror->set_origin(mirror_x, mirror_y, mirror_z);
     mirror->set_aim_vector(mirror_x,
                            mirror_y + 100.0 * std::sin(theta),
@@ -415,7 +416,7 @@ void make_mirror_and_target_sd(SimulationData& sd,
     const double target_y = mirror_y + distance * ry;
     const double target_z = mirror_z + distance * rz;
 
-    target = make_element<SingleElement>();
+    target = new_element<SingleElement>(sd);
     target->set_origin(target_x, target_y, target_z);
     target->set_aim_vector(
         target_x - 100.0 * rx, target_y - 100.0 * ry, target_z - 100.0 * rz);
@@ -429,9 +430,9 @@ void make_mirror_and_target_sd(SimulationData& sd,
     auto target_optics_ref = sd.add_optical_property_set(target_optics);
     target->set_optical_property_set(target_optics_ref);
 
-    stage->add_element(mirror);
-    stage->add_element(target);
-    sd.add_stage(stage);
+    attach_child(stage, mirror);
+    attach_child(stage, target);
+    register_stage(sd, stage);
 
     SimulationParameters& params    = sd.get_simulation_parameters();
     params.number_of_rays           = 20000;
@@ -495,7 +496,7 @@ void make_refracting_plate_and_target_sd(SimulationData& sd,
     sun->set_position(0, 0, 100);
     sd.add_ray_source(sun);
 
-    auto stage = make_stage(0);
+    auto stage = new_stage(sd, 0);
     stage->set_origin(0, 0, 0);
     stage->set_aim_vector(0, 0, 1);
     stage->set_name("stage");
@@ -506,7 +507,7 @@ void make_refracting_plate_and_target_sd(SimulationData& sd,
     // without changing the (unsigned) incidence angle the shader sees.
     const double normal_sign = hit_back_side ? -1.0 : 1.0;
 
-    plate = make_element<SingleElement>();
+    plate = new_element<SingleElement>(sd);
     plate->set_origin(plate_x, plate_y, plate_z);
     plate->set_aim_vector(plate_x,
                          plate_y + normal_sign * 100.0 * std::sin(theta),
@@ -548,7 +549,7 @@ void make_refracting_plate_and_target_sd(SimulationData& sd,
     const double target_y = plate_y + distance * dt_y;
     const double target_z = plate_z + distance * dt_z;
 
-    target = make_element<SingleElement>();
+    target = new_element<SingleElement>(sd);
     target->set_origin(target_x, target_y, target_z);
     target->set_aim_vector(
         target_x, target_y - 100.0 * dt_y, target_z - 100.0 * dt_z);
@@ -562,9 +563,9 @@ void make_refracting_plate_and_target_sd(SimulationData& sd,
     auto target_optics_ref = sd.add_optical_property_set(target_optics);
     target->set_optical_property_set(target_optics_ref);
 
-    stage->add_element(plate);
-    stage->add_element(target);
-    sd.add_stage(stage);
+    attach_child(stage, plate);
+    attach_child(stage, target);
+    register_stage(sd, stage);
 
     SimulationParameters& params    = sd.get_simulation_parameters();
     params.number_of_rays           = 20000;

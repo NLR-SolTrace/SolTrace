@@ -10,6 +10,8 @@
 
 #include <optix_runner.hpp>
 
+#include "element_builders.hpp"
+
 using SolTrace::Runner::RunnerStatus;
 
 static OpticalPropertySetReference
@@ -40,13 +42,13 @@ TEST(OpticalErrors, Disabled)
     sd.add_ray_source(sun);
 
     // Make stage
-    auto stage = make_stage(0);
+    auto stage = new_stage(sd, 0);
     stage->set_origin(0, 0, 0);
     stage->set_aim_vector(0, 0, 1);
     stage->set_name("stage");
 
     // Make reflective flat plate
-    auto plate = make_element<SingleElement>();
+    auto plate = new_element<SingleElement>(sd);
     plate->set_origin(0, 0, 0);
     plate->set_aim_vector(0, 0, 100); // Face up towards sun
     plate->set_surface(make_surface<Flat>());
@@ -56,10 +58,10 @@ TEST(OpticalErrors, Disabled)
         add_plate_optics(sd, DistributionType::GAUSSIAN));
 
     // Add element to stage
-    stage->add_element(plate);
+    attach_child(stage, plate);
 
     // Add stage to sd
-    sd.add_stage(stage);
+    register_stage(sd, stage);
 
     // Set parameters
     SimulationParameters& params    = sd.get_simulation_parameters();
@@ -139,13 +141,13 @@ TEST(OpticalErrors, None)
     sd.add_ray_source(sun);
 
     // Make stage
-    auto stage = make_stage(0);
+    auto stage = new_stage(sd, 0);
     stage->set_origin(0, 0, 0);
     stage->set_aim_vector(0, 0, 1);
     stage->set_name("stage");
 
     // Make reflective flat plate
-    auto plate = make_element<SingleElement>();
+    auto plate = new_element<SingleElement>(sd);
     plate->set_origin(0, 0, 0);
     plate->set_aim_vector(0, 0, 100); // Face up towards sun
     plate->set_surface(make_surface<Flat>());
@@ -155,10 +157,10 @@ TEST(OpticalErrors, None)
         add_plate_optics(sd, DistributionType::NONE));
 
     // Add element to stage
-    stage->add_element(plate);
+    attach_child(stage, plate);
 
     // Add stage to sd
-    sd.add_stage(stage);
+    register_stage(sd, stage);
 
     // Set parameters
     SimulationParameters& params    = sd.get_simulation_parameters();
@@ -238,13 +240,13 @@ TEST(OpticalErrors, Gaussian)
     sd.add_ray_source(sun);
 
     // Make stage
-    auto stage = make_stage(0);
+    auto stage = new_stage(sd, 0);
     stage->set_origin(0, 0, 0);
     stage->set_aim_vector(0, 0, 1);
     stage->set_name("stage");
 
     // Make reflective flat plate
-    auto plate = make_element<SingleElement>();
+    auto plate = new_element<SingleElement>(sd);
     plate->set_origin(0, 0, 0);
     plate->set_aim_vector(0, 0, 100); // Face up towards sun
     plate->set_surface(make_surface<Flat>());
@@ -254,10 +256,10 @@ TEST(OpticalErrors, Gaussian)
         add_plate_optics(sd, DistributionType::GAUSSIAN));
 
     // Add element to stage
-    stage->add_element(plate);
+    attach_child(stage, plate);
 
     // Add stage to sd
-    sd.add_stage(stage);
+    register_stage(sd, stage);
 
     // Set parameters
     SimulationParameters& params    = sd.get_simulation_parameters();
@@ -336,13 +338,13 @@ TEST(OpticalErrors, Pillbox)
     sd.add_ray_source(sun);
 
     // Make stage
-    auto stage = make_stage(0);
+    auto stage = new_stage(sd, 0);
     stage->set_origin(0, 0, 0);
     stage->set_aim_vector(0, 0, 1);
     stage->set_name("stage");
 
     // Make reflective flat plate
-    auto plate = make_element<SingleElement>();
+    auto plate = new_element<SingleElement>(sd);
     plate->set_origin(0, 0, 0);
     plate->set_aim_vector(0, 0, 100); // Face up towards sun
     plate->set_surface(make_surface<Flat>());
@@ -352,10 +354,10 @@ TEST(OpticalErrors, Pillbox)
         add_plate_optics(sd, DistributionType::PILLBOX));
 
     // Add element to stage
-    stage->add_element(plate);
+    attach_child(stage, plate);
 
     // Add stage to sd
-    sd.add_stage(stage);
+    register_stage(sd, stage);
 
     // Set parameters
     SimulationParameters& params    = sd.get_simulation_parameters();
@@ -430,19 +432,19 @@ TEST(OpticalErrors, DiffuseIsLambertian)
     sun->set_position(0.0, 0.0, 100.0);
     simulation.add_ray_source(sun);
 
-    auto stage = make_stage(0);
+    auto stage = new_stage(simulation, 0);
     stage->set_origin(0.0, 0.0, 0.0);
     stage->set_aim_vector(0.0, 0.0, 1.0);
 
-    auto plate = make_element<SingleElement>();
+    auto plate = new_element<SingleElement>(simulation);
     plate->set_origin(0.0, 0.0, 0.0);
     plate->set_aim_vector(normal.x, normal.y, normal.z);
     plate->set_surface(make_surface<Flat>());
     plate->set_aperture(make_aperture<Rectangle>(40.0, 40.0));
     plate->set_optical_property_set(
         add_plate_optics(simulation, DistributionType::DIFFUSE));
-    stage->add_element(plate);
-    simulation.add_stage(stage);
+    attach_child(stage, plate);
+    register_stage(simulation, stage);
     const element_id plate_id = plate->get_id();
 
     SimulationParameters& params    = simulation.get_simulation_parameters();
@@ -505,19 +507,19 @@ TEST(OpticalErrors, DiffuseUsesSurfaceNormal)
     sun->set_position(0.0, 0.0, 100.0);
     simulation.add_ray_source(sun);
 
-    auto stage = make_stage(0);
+    auto stage = new_stage(simulation, 0);
     stage->set_origin(0.0, 0.0, 0.0);
     stage->set_aim_vector(0.0, 0.0, 1.0);
 
-    auto plate = make_element<SingleElement>();
+    auto plate = new_element<SingleElement>(simulation);
     plate->set_origin(0.0, 0.0, 0.0);
     plate->set_aim_vector(normal.x, normal.y, normal.z);
     plate->set_surface(make_surface<Flat>());
     plate->set_aperture(make_aperture<Rectangle>(40.0, 40.0));
     plate->set_optical_property_set(
         add_plate_optics(simulation, DistributionType::DIFFUSE));
-    stage->add_element(plate);
-    simulation.add_stage(stage);
+    attach_child(stage, plate);
+    register_stage(simulation, stage);
     const element_id plate_id = plate->get_id();
 
     SimulationParameters& params    = simulation.get_simulation_parameters();

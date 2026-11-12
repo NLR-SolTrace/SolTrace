@@ -5,6 +5,7 @@
 #include <simulation_data.hpp>
 #include <simulation_data_export.hpp>
 #include <simulation_result_export.hpp>
+#include "element_builders.hpp"
 
 using SolTrace::Runner::RunnerStatus;
 
@@ -18,14 +19,14 @@ void make_two_plate_sd(SimulationData& sd, element_ptr& plate1, element_ptr& pla
 	sd.add_ray_source(sun);
 
 	// Make stage
-	auto stage = make_stage(0);
+	auto stage = new_stage(sd, 0);
 	stage->set_origin(0, 0, 0);
 	stage->set_aim_vector(0, 0, 1);
 	stage->set_name("stage");
 
 	// Plate 1: Angled 45 degrees, receives rays from sun and reflects toward plate 2
 	// Position at origin, tilted to reflect rays in +Y direction
-	plate1 = make_element<SingleElement>();
+	plate1 = new_element<SingleElement>(sd);
 	plate1->set_origin(0, 0, 50);
 	plate1->set_aim_vector(0, 50, 100);  // Tilted 45 degrees toward +Y
 	plate1->set_surface(make_surface<Flat>());
@@ -42,7 +43,7 @@ void make_two_plate_sd(SimulationData& sd, element_ptr& plate1, element_ptr& pla
 
 	// Plate 2: Positioned to receive reflected rays from plate 1
 	// At Y=50, tilted 45 degrees to face plate 1
-	plate2 = make_element<SingleElement>();
+	plate2 = new_element<SingleElement>(sd);
 	plate2->set_origin(0, 50, 50);
 	plate2->set_aim_vector(0, 0, 100);  // Tilted 45 degrees toward -Y (facing plate 1)
 	plate2->set_surface(make_surface<Flat>());
@@ -58,11 +59,11 @@ void make_two_plate_sd(SimulationData& sd, element_ptr& plate1, element_ptr& pla
 	plate2->set_name("plate2");
 
 	// Add elements to stage
-	stage->add_element(plate1);
-	stage->add_element(plate2);
+	attach_child(stage, plate1);
+	attach_child(stage, plate2);
 
 	// Add stage to sd
-	sd.add_stage(stage);
+	register_stage(sd, stage);
 
 	// Set parameters
 	SimulationParameters& params = sd.get_simulation_parameters();

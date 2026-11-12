@@ -36,7 +36,7 @@ namespace
         mirror_optics.set_reflectivity_table(OpticalSide::Front, reflectivity_table);
         auto optics_ref = sd.add_optical_property_set(mirror_optics);
 
-        auto mirror = SolTrace::Data::make_element<SingleElement>();
+        auto mirror = new_element<SingleElement>(sd);
         mirror->set_aperture(SolTrace::Data::make_aperture<Circle>(5.0));
         mirror->set_surface(SolTrace::Data::make_surface<Flat>());
         mirror->set_reference_frame_geometry(
@@ -45,7 +45,7 @@ namespace
             0.0);
         mirror->set_optical_property_set(optics_ref);
 
-        return sd.add_element(mirror);
+        return register_element(sd, mirror);
     }
 
     // Nominal incidence angle sits inside the table's fully-reflective

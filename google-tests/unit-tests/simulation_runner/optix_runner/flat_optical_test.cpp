@@ -5,6 +5,7 @@
 #include <simulation_data.hpp>
 #include <simulation_data_export.hpp>
 #include <simulation_result_export.hpp>
+#include "element_builders.hpp"
 
 using SolTrace::Runner::RunnerStatus;
 
@@ -20,13 +21,13 @@ void make_default_sd(SimulationData& sd, element_ptr& plate)
 	sd.add_ray_source(sun);
 
 	// Make stage
-	auto stage = make_stage(0);
+	auto stage = new_stage(sd, 0);
 	stage->set_origin(0, 0, 0);
 	stage->set_aim_vector(0, 0, 1);
 	stage->set_name("stage");
 
 	// Make reflective flat plate
-	plate = make_element<SingleElement>();
+	plate = new_element<SingleElement>(sd);
 	plate->set_origin(0, 0, 50);
 	plate->set_aim_vector(0, 0, 100);	// Face up towards sun
 	plate->set_surface(make_surface<Flat>());
@@ -49,10 +50,10 @@ void make_default_sd(SimulationData& sd, element_ptr& plate)
 	plate->set_name("plate");
 
 	// Add element to stage
-	stage->add_element(plate);
+	attach_child(stage, plate);
 
 	// Add stage to sd
-	sd.add_stage(stage);
+	register_stage(sd, stage);
 
 	// Set parameters
 	SimulationParameters& params = sd.get_simulation_parameters();
