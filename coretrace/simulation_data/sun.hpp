@@ -14,7 +14,6 @@
 #include <nlohmann/json.hpp>
 
 #include "ray_source.hpp"
-#include "datetime.hpp"
 
 #include <glm/vec3.hpp>
 
@@ -51,7 +50,6 @@ public:
         this->my_position = glm::dvec3(x, y, z);
         return;
     }
-    virtual void set_position(const DateTime &, double lat, double long) override {}
     virtual SunShape get_shape() const override
     {
         return this->my_shape;

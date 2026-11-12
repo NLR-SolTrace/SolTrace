@@ -19,9 +19,6 @@ namespace SolTrace::Data {
 struct SimulationParameters
 {
 public:
-    // TODO: Figure out how to store time...
-    DateTime sim_dt;
-
     std::uint_fast64_t number_of_rays;
     std::uint_fast64_t max_number_of_rays;
     double tolerance;

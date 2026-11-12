@@ -52,7 +52,6 @@ set(SIMDATA_HDRS
     composite_element.hpp
     constants.hpp
     container.hpp
-    datetime.hpp
     element.hpp
     element_id.hpp
     error_distributions.hpp

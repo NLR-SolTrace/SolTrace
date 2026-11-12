@@ -325,24 +325,6 @@ int SimulationData::update_simulation_positions()
     return sts;
 }
 
-int SimulationData::update_simulation_positions(const Time &t)
-{
-    this->my_parameters.sim_dt.my_time = t;
-    return this->update_simulation_positions();
-}
-
-int SimulationData::update_simulation_positions(const Date &d)
-{
-    this->my_parameters.sim_dt.my_date = d;
-    return this->update_simulation_positions();
-}
-
-int SimulationData::update_simulation_positions(const DateTime &dt)
-{
-    this->my_parameters.sim_dt.set(dt);
-    return this->update_simulation_positions();
-}
-
 bool SimulationData::import_from_file(const char *file_name)
 {
     return load_stinput_file(*this, file_name);

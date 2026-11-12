@@ -73,10 +73,6 @@ SolarCalculatorData::SolarCalculatorData(QObject* parent) : QObject(parent) {
             &SolarCalculatorData::changed);
 }
 
-DateTime SolarCalculatorData::get_datetime_data() const {
-    return DateTime { }; // TODO: stub
-}
-
 void SolarCalculatorData::set_spring() {
     set_month(3);
     set_day(20);

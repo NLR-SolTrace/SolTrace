@@ -21,7 +21,6 @@
 #include "surface.hpp"
 
 // Ray sources
-#include "datetime.hpp"
 #include "ray_source.hpp"
 #include "sun.hpp"
 

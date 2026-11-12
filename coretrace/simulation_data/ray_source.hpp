@@ -19,7 +19,6 @@
 #include <glm/vec3.hpp>
 
 #include "container.hpp"
-#include "datetime.hpp"
 
 
 namespace SolTrace::Data {
@@ -71,7 +70,6 @@ public:
     virtual glm::dvec3 &get_position() = 0;
     virtual void set_position(const glm::dvec3 &) = 0;
     virtual void set_position(double, double, double) = 0;
-    virtual void set_position(const DateTime &, double lat, double long) = 0;
     virtual SunShape get_shape() const = 0;
     virtual void set_shape(SunShape shape, double _sigma, double _half_width, double _csr,
         std::vector<double> _user_angle = {}, std::vector<double> _user_intensity = {}) = 0;

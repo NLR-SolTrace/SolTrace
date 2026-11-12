@@ -1,6 +1,5 @@
 #pragma once
 
-#include "datetime.hpp"
 #include "support/qt_helpers.h"
 
 #include <QObject>
@@ -14,9 +13,6 @@ class SolarCalculatorData : public QObject {
     QML_ELEMENT
 public:
     explicit SolarCalculatorData(QObject* parent = nullptr);
-
-    /// Convert UI fields to the library DateTime representation.
-    DateTime get_datetime_data() const;
 
     // Calculator
     enum class Calculator { Legacy, Duffie, SOLPOS, SPA };

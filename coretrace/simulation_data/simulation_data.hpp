@@ -273,36 +273,6 @@ public:
         return this->my_parameters.longitude;
     }
 
-    void set_simulation_date(const Date &d)
-    {
-        this->my_parameters.sim_dt.my_date = d;
-        return;
-    }
-    const Date &get_simulation_date() const
-    {
-        return this->my_parameters.sim_dt.my_date;
-    }
-
-    void set_simulation_datetime(const DateTime &dt)
-    {
-        this->my_parameters.sim_dt = dt;
-        return;
-    }
-    const DateTime &get_simulation_datetime() const
-    {
-        return this->my_parameters.sim_dt;
-    }
-
-    void set_simulation_time(const Time &t)
-    {
-        this->my_parameters.sim_dt.my_time = t;
-        return;
-    }
-    const Time &get_simulation_time() const
-    {
-        return this->my_parameters.sim_dt.my_time;
-    }
-
     SimulationParameters &get_simulation_parameters()
     {
         return this->my_parameters;
@@ -318,9 +288,6 @@ public:
     }
 
     int update_simulation_positions();
-    int update_simulation_positions(const Time &);
-    int update_simulation_positions(const Date &);
-    int update_simulation_positions(const DateTime &);
 
     bool import_from_file(const char *file_name);
     bool import_from_file(const std::string file_name);
