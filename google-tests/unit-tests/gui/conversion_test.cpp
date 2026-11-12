@@ -1,5 +1,6 @@
 #include "data_io/conversion.h"
 
+#include "simulation_data.hpp"
 #include "single_element.hpp"
 
 #include <gtest/gtest.h>
@@ -40,7 +41,9 @@ struct Basis {
 };
 
 Basis materialize_in_simdata(glm::dvec3 const& direction, double roll) {
-    SolTrace::Data::SingleElement element;
+    SolTrace::Data::SimulationData sd;
+    auto handle   = sd.create_element<SolTrace::Data::SingleElement>();
+    auto& element = *handle;
     element.set_origin(glm::dvec3(0.0));
     element.set_aim_vector(glm::normalize(direction) * 100.0);
     element.set_zrot_radians(roll);
@@ -164,7 +167,9 @@ TEST(DirRollToQuat, MaterializesPowerTowerSurroundElement10028InSimData) {
 
     glm::dvec3 const origin(-859.977, 573.788, -0.520187);
 
-    SolTrace::Data::SingleElement element;
+    SolTrace::Data::SimulationData sd;
+    auto handle   = sd.create_element<SolTrace::Data::SingleElement>();
+    auto& element = *handle;
     element.set_origin(origin);
     element.set_aim_vector(origin + exported_direction * 100.0);
     element.set_zrot_radians(exported_roll);

@@ -49,7 +49,10 @@ with_optical_name(SD::OpticalPropertySet const& optics, QString const& name) {
 
 Support::Result<std::shared_ptr<DatabaseExport>, QString>
 Database::export_to_simdata() {
-    SD::SimulationData ret;
+    // Built in place: the elements are created for this model, so it is not
+    // moved afterwards.
+    auto  data = std::make_shared<SD::SimulationData>();
+    auto& ret  = *data;
 
     auto param_ptr = simulation_parameters_resource.get();
     if (!param_ptr) {
@@ -75,23 +78,29 @@ Database::export_to_simdata() {
 
     std::unordered_map<entt::entity, SD::element_ptr> entity_element_map;
 
+    // Elements are created before their parents are known, so each one is held
+    // in a handle until it is attached to a parent or committed.
+    std::unordered_map<entt::entity, SD::PendingElement<SD::Element>> pending;
+
     // Mirror all elements
 
     {
+        auto create = [&](entt::entity e) -> SD::PendingElement<SD::Element> {
+            if (children_of(e).size()) {
+                return ret.create_element<SD::CompositeElement>();
+            }
+            if (m_registry.all_of<VirtualTagComponent>(e)) {
+                return ret.create_element<SD::VirtualElement>();
+            }
+            return ret.create_element<SD::SingleElement>();
+        };
+
         auto view = m_registry.view<const ElementComponent>();
         for (auto const& [e] : view.each()) {
-            SD::element_ptr ptr;
+            auto [iter, inserted] = pending.emplace(e, create(e));
+            Q_ASSERT(inserted);
 
-            if (children_of(e).size()) {
-                auto n = std::make_shared<SD::CompositeElement>();
-                ptr    = n;
-            } else if (m_registry.all_of<VirtualTagComponent>(e)) {
-                auto n = std::make_shared<SD::VirtualElement>();
-                ptr    = n;
-            } else {
-                auto n = std::make_shared<SD::SingleElement>();
-                ptr    = n;
-            }
+            SD::element_ptr ptr = iter->second.get();
 
             ptr->set_name(name_of(e).toStdString());
 
@@ -156,8 +165,7 @@ Database::export_to_simdata() {
                         dynamic_cast<SD::CompositeElement*>(element.get());
                     Q_ASSERT(composite);
 
-                    auto n = std::make_shared<SD::SingleElement>();
-                    composite->add_element(n);
+                    auto n = composite->create_child<SD::SingleElement>();
                     install_group(n, mat_group, geom_group);
 
                     continue;
@@ -193,9 +201,11 @@ Database::export_to_simdata() {
                     continue;
                 }
 
-                auto ret = composite->add_element(iter->second);
+                auto status = composite->add_child(std::move(pending.at(child)));
 
-                if (ret < 0) { qCritical() << "Add failed"; }
+                if (!SD::Element::is_success(status)) {
+                    qCritical() << "Add failed";
+                }
             }
         }
     }
@@ -208,7 +218,7 @@ Database::export_to_simdata() {
         }
         auto const& ptr = iter.second;
         try {
-            ret.add_element(iter.second);
+            pending.at(iter.first).commit();
         } catch (std::exception const& e) {
             qCritical() << "Unable to export element"
                         << entt::to_integral(iter.first)
@@ -244,7 +254,7 @@ Database::export_to_simdata() {
     }
 
     DatabaseExport export_ret;
-    export_ret.data = std::make_shared<SD::SimulationData>(std::move(ret));
+    export_ret.data = std::move(data);
     export_ret.element_map = std::move(entity_rev_map);
     export_ret.source_database = std::move(clone_result.database);
 
