@@ -72,7 +72,9 @@ ST_RETURN_CODE_ERROR_MSG = {
     dot_h.st_return_code.RESULT_NOT_REPORTED:                          'Reporting level does not include this information. Change to appropriate level.',
     dot_h.st_return_code.EXCEPTION:                                    'Exception raised. Check validity of the arguments passed to the '
                                                                        'function called or of the JSON against SolTrace schema version used.',
-    dot_h.st_return_code.UKNOWN_BATCH_API_CALL_FAILURE:                'Unknown batch call received.'
+    dot_h.st_return_code.UKNOWN_BATCH_API_CALL_FAILURE:                'Unknown batch call received.',
+    dot_h.st_return_code.BAD_ALLOCATION:                               'Bad allocation.',
+    dot_h.st_return_code.UKNOWN_CPP_EXCEPTION:                         'Unknown C++ exception.',
 }
 ST_RETURN_CODE_WARNING_MSG = {
     dot_h.st_return_code.WARNING_FELLBACK_FROM_EMBREE:       'Requested EmbreeRunner, but is not installed. Fellback to NativeRunner.',
