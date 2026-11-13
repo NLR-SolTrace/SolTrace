@@ -7,7 +7,7 @@
 
 STAPI_V2 st_return_t st_set_simulation_parameters(st_context_v2_t pcxt, args_simulation_parameters *params) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_set_simulation_parameters", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
     
@@ -32,7 +32,7 @@ STAPI_V2 st_return_t st_sim_params(st_context_v2_t pcxt,
 								   uint_fast64_t   maxcount,
 								   bool 		   include_dynamic_group) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_sim_params", [&]() -> st_return_t {
 	CONTEXT(pcxt);
     DATA(cxt);
     
@@ -47,7 +47,7 @@ STAPI_V2 st_return_t st_sim_rays(st_context_v2_t pcxt,
 								 uint_fast64_t   raycount,
 								 uint_fast64_t   maxcount) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_sim_rays", [&]() -> st_return_t {
 	CONTEXT(pcxt);
     DATA(cxt);
     
@@ -60,7 +60,7 @@ return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
 STAPI_V2 st_return_t st_sim_power_tower(st_context_v2_t pcxt,
 								        bool 		    is_power_tower) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_sim_power_tower", [&]() -> st_return_t {
 	CONTEXT(pcxt);
     DATA(cxt);
 
@@ -73,7 +73,7 @@ STAPI_V2 st_return_t st_sim_errors(st_context_v2_t pcxt,
 								   bool			   include_sun_shape,
 								   bool			   include_optics) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_sim_errors", [&]() -> st_return_t {
 	CONTEXT(pcxt);
     DATA(cxt);
     
@@ -87,7 +87,7 @@ STAPI_V2 st_return_t st_sim_location(st_context_v2_t pcxt,
 								     double		     latitude,
 								     double		     longitude) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_sim_location", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
 
@@ -100,7 +100,7 @@ return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
 
 STAPI_V2 st_return_t st_sim_tolerance(st_context_v2_t pcxt, double tolerance) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_sim_tolerance", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
 
@@ -112,7 +112,7 @@ return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
 
 STAPI_V2 st_return_t st_get_simulation_parameters(st_context_v2_t pcxt, args_simulation_parameters *params) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_get_simulation_parameters", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
 

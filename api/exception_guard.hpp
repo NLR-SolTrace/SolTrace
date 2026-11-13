@@ -9,25 +9,25 @@
 namespace st_guard {
 
 // Reporting must itself never throw: a throwing callback would defeat the guard.
-inline void report(p_callback cb, const char* what) noexcept
+inline void report(p_callback cb, const char* where, const char* what) noexcept
 {
     if (!cb) return;
-    try { cb("stapi_guard", what); } catch (...) {}
+    try { cb(where, what); } catch (...) {}
 }
 
 template <class F>
-st_return_t guarded(p_callback cb, F&& body) noexcept
+st_return_t guarded(p_callback cb, const char* where, F&& body) noexcept
 {
     try {
         return body();
     } catch (const std::bad_alloc&) {
-        report(cb, "out of memory");
+        report(cb, where, "out of memory");
         return st_return_code::BAD_ALLOCATION;
     } catch (const std::exception& e) {
-        report(cb, e.what());
+        report(cb, where, e.what());
         return st_return_code::EXCEPTION;
     } catch (...) {
-        report(cb, "unknown C++ exception");
+        report(cb, where, "unknown C++ exception");
         return st_return_code::UKNOWN_CPP_EXCEPTION;
     }
 }
@@ -36,7 +36,7 @@ st_return_t guarded(p_callback cb, F&& body) noexcept
 
 // Usage:
 //   extern "C" st_return_t st_sim_setup(st_context_v2_t cxt, args_setup* a) noexcept {
-//       return st_guard::guarded(get_cb(cxt), [&]() -> st_return_t {
+//       return st_guard::guarded(get_cb(cxt), "st_sim_setup", [&]() -> st_return_t {
 //           ... existing body; free to throw ...
 //       });
 //   }

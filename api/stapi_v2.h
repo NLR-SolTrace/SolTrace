@@ -226,6 +226,7 @@ typedef enum st_return_code : st_return_t {
 	WARNING_FELLBACK_FROM_EMBREE,
 	WARNING_FELLBACK_FROM_OPTIX,
 	WARNING_ARGUMENT_IGNORED_BY_RUNNER,
+	WARNING_MAX_RAYS,
 	WARNING_SUN_SHAPE_IGNORED,
 	WARNING_GROUP_IGNORED,
 	WARNING_NOT_FOUND,
@@ -365,6 +366,9 @@ STAPI_V2 st_return_t st_get_element(st_context_v2_t pcxt,
 									args_element    *args,
 									int_fast64_t    *opt_id,
 									args_geometry	*geom) noexcept;
+STAPI_V2 st_return_t st_get_element_area(st_context_v2_t pcxt,
+                                         uint_fast64_t idx,
+                                         double *area) noexcept;
 STAPI_V2 st_return_t st_delete_element(st_context_v2_t pcxt, st_uint_t idx) noexcept;
 STAPI_V2 st_return_t st_clear_elements(st_context_v2_t pcxt) noexcept;
 // functions to modify elements
@@ -398,6 +402,9 @@ STAPI_V2 st_return_t st_element_surface(st_context_v2_t pcxt,
 STAPI_V2 st_return_t st_element_geometry(st_context_v2_t pcxt,
                                          st_uint_t 	     idx,
                                          args_geometry	 *geom) noexcept;
+STAPI_V2 st_return_t st_get_aperture_area(st_context_v2_t pcxt,
+                                          args_geometry   *geom,
+                                          double          *area) noexcept;
 STAPI_V2 st_return_t st_element_optic(st_context_v2_t pcxt,
 									  st_uint_t 	  idx,
 									  int_fast64_t 	  opt_id) noexcept;

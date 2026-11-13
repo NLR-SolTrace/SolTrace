@@ -453,11 +453,11 @@ class ParametersTests(STAPIv2TestCase):
         self.assertDictEqual(rt_params, self.params.ctype.value)
 
     def test_set_ray_parameters(self):
-        self.stapi.parameters.rays(10, 1000)
+        self.stapi.parameters.rays(10, 10000)
 
         rt_params = self.stapi.parameters.get()
         self.assertEqual(rt_params['number_of_rays'], 10)
-        self.assertEqual(rt_params['max_number_of_rays'], 1000)
+        self.assertEqual(rt_params['max_number_of_rays'], 10000)
 
     def test_set_power_tower_parameter(self):
         self.stapi.parameters.power_tower(True)
@@ -934,7 +934,7 @@ class RunnerTests(STAPIv2TestCase):
             self.stapi.runner.run()
         self.assertEqual(ex.exception.code, dot_h.st_return_code.RUNNER_NOT_FOUND)
 
-        self.stapi.parameters.rays(1000, 10000)
+        self.stapi.parameters.rays(1000, 100000)
         self.stapi.runner.setup(runner_type)
         self.stapi.runner.run()
 
@@ -951,7 +951,7 @@ class RunnerTests(STAPIv2TestCase):
             self.stapi.runner.report()
         self.assertEqual(ex.exception.code, dot_h.st_return_code.RUNNER_NOT_FOUND)
 
-        self.stapi.parameters.rays(1000, 10000)
+        self.stapi.parameters.rays(1000, 100000)
         self.stapi.runner.setup(runner_type)
 
         with self.assertRaises(STAPIv2Exception) as ex:
@@ -1014,7 +1014,7 @@ class ResultsNativeTests(STAPIv2TestCase, Results):
         super().setUp()
         self.runner_type = dot_h.st_runner_type_t.NATIVE
         self.stapi.data.json.load(locate('sample.json'))
-        self.stapi.parameters.rays(1000, 10000)
+        self.stapi.parameters.rays(1000, 100000)
         self.stapi.runner.setup(self.runner_type)
         self.stapi.runner.run()
         self.stapi.runner.report()
@@ -1027,7 +1027,7 @@ class ResultsEmbreeTests(STAPIv2TestCase, Results):
         super().setUp()
         self.runner_type = dot_h.st_runner_type_t.EMBREE
         self.stapi.data.json.load(locate('sample.json'))
-        self.stapi.parameters.rays(1000, 10000)
+        self.stapi.parameters.rays(1000, 100000)
         self.stapi.runner.setup(self.runner_type)
         self.stapi.runner.run()
         self.stapi.runner.report()
@@ -1040,7 +1040,7 @@ class ResultsOptixTests(STAPIv2TestCase, Results):
         super().setUp()
         self.runner_type = dot_h.st_runner_type_t.OPTIX
         self.stapi.data.json.load(locate('sample.json'))
-        self.stapi.parameters.rays(1000, 10000)
+        self.stapi.parameters.rays(1000, 100000)
         self.stapi.runner.setup(self.runner_type)
         self.stapi.runner.run()
         self.stapi.runner.report()
@@ -1060,7 +1060,7 @@ class GroupResultsNativeTests(STAPIv2TestCase, GroupResults):
         super().setUp()
         self.runner_type = dot_h.st_runner_type_t.NATIVE
         self.stapi.data.json.load(locate('sample.json'))
-        self.stapi.parameters.rays(1000, 10000)
+        self.stapi.parameters.rays(1000, 100000)
         self.stapi.runner.setup(self.runner_type)
         self.stapi.runner.run()
         self.stapi.runner.report(1)
@@ -1072,7 +1072,7 @@ class GroupResultsEmbreeTests(STAPIv2TestCase, GroupResults):
         super().setUp()
         self.runner_type = dot_h.st_runner_type_t.EMBREE
         self.stapi.data.json.load(locate('sample.json'))
-        self.stapi.parameters.rays(1000, 10000)
+        self.stapi.parameters.rays(1000, 100000)
         self.stapi.runner.setup(self.runner_type)
         self.stapi.runner.run()
         self.stapi.runner.report(1)
@@ -1084,7 +1084,7 @@ class GroupResultsOptixTests(STAPIv2TestCase, GroupResults):
         super().setUp()
         self.runner_type = dot_h.st_runner_type_t.OPTIX
         self.stapi.data.json.load(locate('sample.json'))
-        self.stapi.parameters.rays(1000, 10000)
+        self.stapi.parameters.rays(1000, 100000)
         self.stapi.runner.setup(self.runner_type)
         self.stapi.runner.run()
         self.stapi.runner.report(1)
@@ -1156,12 +1156,12 @@ class BatchTests(STAPIv2TestCase):
         self.assertDictEqual(rt_params, self.sim_params.ctype.value)
 
     def test_call_st_sim_rays(self):
-        self.stapi.batch.parameters.rays(10, 1000)
+        self.stapi.batch.parameters.rays(10, 10000)
 
         self.stapi.batch()
         rt_params = self.stapi.parameters.get()
         self.assertEqual(rt_params['number_of_rays'], 10)
-        self.assertEqual(rt_params['max_number_of_rays'], 1000)
+        self.assertEqual(rt_params['max_number_of_rays'], 10000)
 
     def test_call_st_sim_power_tower(self):
         self.stapi.batch.parameters.power_tower(True)
@@ -1478,20 +1478,20 @@ class BatchTests(STAPIv2TestCase):
     # functions for SolTrace runner management
     def test_call_st_sim_setup(self):
         self.stapi.data.json.load(locate('sample.json'))
-        self.stapi.parameters.rays(1000, 10000)
+        self.stapi.parameters.rays(1000, 100000)
         self.stapi.batch.runner.setup(dot_h.st_runner_type_t.NATIVE)
         self.stapi.batch()
 
     def test_call_st_sim_run_v2(self):
         self.stapi.data.json.load(locate('sample.json'))
-        self.stapi.parameters.rays(1000, 10000)
+        self.stapi.parameters.rays(1000, 100000)
         self.stapi.runner.setup(dot_h.st_runner_type_t.NATIVE)
         self.stapi.batch.runner.run()
         self.stapi.batch()
 
     def test_call_st_sim_report(self):
         self.stapi.data.json.load(locate('sample.json'))
-        self.stapi.parameters.rays(1000, 10000)
+        self.stapi.parameters.rays(1000, 100000)
         self.stapi.runner.setup(dot_h.st_runner_type_t.NATIVE)
         self.stapi.runner.run()
         self.stapi.batch.runner.report()
@@ -1500,7 +1500,7 @@ class BatchTests(STAPIv2TestCase):
     # functions for SolTrace results management
     def set_up_run_report(self):
         self.stapi.data.json.load(locate('sample.json'))
-        self.stapi.parameters.rays(1000, 10000)
+        self.stapi.parameters.rays(1000, 100000)
         self.stapi.runner.setup(dot_h.st_runner_type_t.NATIVE)
         self.stapi.runner.run()
         self.stapi.runner.report()

@@ -19,7 +19,7 @@ STAPI_V2 st_return_t st_add_sun(st_context_v2_t pcxt,
 								double 		 	*angle,
 								double 		 	*intensity) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_add_sun", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
 
@@ -99,7 +99,7 @@ STAPI_V2 st_return_t st_get_sun(st_context_v2_t pcxt,
 								double 		 	**intensity,
 								st_uint_t 		npoints) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_get_sun", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
 
@@ -159,7 +159,7 @@ STAPI_V2 st_return_t st_sun_shape(st_context_v2_t pcxt,
 							      char            shape, 
 							      double          sigma_halfwidth_csr) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_sun_shape", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
 
@@ -219,7 +219,7 @@ STAPI_V2 st_return_t st_sun_xyz(st_context_v2_t pcxt,
 								double          y,
 								double          z) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_sun_xyz", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
     
@@ -237,7 +237,7 @@ STAPI_V2 st_return_t st_sun_position(st_context_v2_t pcxt,
 									 double          *y,
 									 double          *z) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_sun_position", [&]() -> st_return_t {
     /* TODO: make st_sun_position_v2 that take a 
 	computes the sun vector xyz given arguments
 	lat : [deg] latitude 
@@ -271,7 +271,7 @@ STAPI_V2 st_return_t st_sun_userdata(st_context_v2_t pcxt,
 									 double 		 *angle,
 									 double 		 *intensity) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_sun_userdata", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
 
@@ -312,7 +312,7 @@ STAPI_V2 st_return_t st_get_sun_az_zen(st_context_v2_t   pcxt,
 									   double 			 *azimuth,
 									   double 			 *zenith) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_get_sun_az_zen", [&]() -> st_return_t {
     spcm method;
     st_return_code code = int_to_calc_method(&calc, &method);
     if (code != st_return_code::SUCCESS) return code;
@@ -334,7 +334,7 @@ STAPI_V2 st_return_t st_get_sun_az_el(st_context_v2_t   pcxt,
 									  double 			*azimuth,
 									  double 			*elevation) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_get_sun_az_el", [&]() -> st_return_t {
     spcm method;
     st_return_code code = int_to_calc_method(&calc, &method);
     if (code != st_return_code::SUCCESS) return code;
@@ -357,7 +357,7 @@ STAPI_V2 st_return_t st_get_sun_vector(st_context_v2_t   pcxt,
 									   double 			 *sun_y,
 									   double 			 *sun_z) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_get_sun_vector", [&]() -> st_return_t {
     spcm method;
     st_return_code code = int_to_calc_method(&calc, &method);
     if (code != st_return_code::SUCCESS) return code;

@@ -8,7 +8,7 @@
 // functions for SolTrace runner management
 STAPI_V2 st_return_t st_get_installed_runners(uint8_t *installed) noexcept
 {
-return st_guard::guarded(nullptr, [&]() -> st_return_t {
+return st_guard::guarded(nullptr, "st_get_installed_runners", [&]() -> st_return_t {
     *installed = 1 << st_runner_type_t::NATIVE;
 #ifdef STAPI_V2_EMBREE_SUPPORT
     *installed += 1 << st_runner_type_t::EMBREE;
@@ -23,7 +23,7 @@ return st_guard::guarded(nullptr, [&]() -> st_return_t {
 STAPI_V2 st_return_t st_is_runner_installed(st_runner_type_t type,
                                             bool             *installed) noexcept
 {
-return st_guard::guarded(nullptr, [&]() -> st_return_t {
+return st_guard::guarded(nullptr, "st_is_runner_installed", [&]() -> st_return_t {
     uint8_t runners;
     st_get_installed_runners(&runners);
     *installed = runners & (1 << type);
@@ -37,7 +37,7 @@ STAPI_V2 st_return_t st_sim_setup(st_context_v2_t  pcxt,
 								  st_uint_t 	   *seeds,
 								  size_t		   num_seeds) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_sim_setup", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
 
@@ -157,15 +157,16 @@ return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
 
 STAPI_V2 st_return_t st_sim_run_v2(st_context_v2_t pcxt) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_sim_run_v2", [&]() -> st_return_t {
     CONTEXT(pcxt);
     RUNNER(cxt);
 
     if (!runner->is_ready_to_run()) return st_return_code::RUNNER_NOT_READY_TO_RUN;
 
     RunnerStatus sts = runner->run_simulation();
-
+    
     if (sts == RunnerStatus::CANCEL) return st_return_code::CANCEL;
+    else if (sts == RunnerStatus::MAXRAYS) return st_return_code::WARNING_MAX_RAYS;
     else if (sts != RunnerStatus::SUCCESS) return st_return_code::FAILURE;
     return st_return_code::SUCCESS;
 });
@@ -173,7 +174,7 @@ return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
 
 STAPI_V2 st_return_t st_sim_report(st_context_v2_t pcxt, int level) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_sim_report", [&]() -> st_return_t {
     if (level < RunnerStatistics::RAY_RECORDS ||
         level >= RunnerStatistics::STATISTICS_COUNT)
         return st_return_code::INVALID_ARGUMENTS;

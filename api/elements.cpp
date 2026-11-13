@@ -7,7 +7,7 @@
 
 STAPI_V2 st_return_t st_num_elements(st_context_v2_t pcxt, uint_fast64_t *num_elements) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_num_elements", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
 
@@ -126,7 +126,7 @@ STAPI_V2 st_return_t st_add_element(st_context_v2_t pcxt,
 									args_geometry   *geom,
 									uint_fast64_t   *element_id) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_add_element", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
 
@@ -174,7 +174,7 @@ STAPI_V2 st_return_t st_get_element(st_context_v2_t pcxt,
 									int_fast64_t    *opt_id,
 									args_geometry   *geom) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_get_element", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
     
@@ -320,9 +320,25 @@ return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
 });
 }
 
+STAPI_V2 st_return_t st_get_element_area(st_context_v2_t pcxt,
+                                         uint_fast64_t idx,
+                                         double *area) noexcept
+{
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_get_element_area", [&]() -> st_return_t {
+    CONTEXT(pcxt);
+    DATA(cxt);
+
+    element_ptr el = data->get_element(idx);
+    if (!el) return st_return_code::WARNING_NOT_FOUND;
+
+    *area = el->get_aperture()->aperture_area();
+    return st_return_code::SUCCESS;
+});
+}
+
 STAPI_V2 st_return_t st_delete_element(st_context_v2_t pcxt, st_uint_t idx) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_delete_element", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
 
@@ -335,7 +351,7 @@ return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
 
 STAPI_V2 st_return_t st_clear_elements(st_context_v2_t pcxt) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_clear_elements", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
 
@@ -352,7 +368,7 @@ STAPI_V2 st_return_t st_element_enabled(st_context_v2_t pcxt,
 										st_uint_t 		idx,
 										bool 			enabled_flag) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_element_enabled", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
     
@@ -370,7 +386,7 @@ STAPI_V2 st_return_t st_element_virtual(st_context_v2_t pcxt,
 										st_uint_t 		idx,
 										bool 			virtual_flag) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_element_virtual", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
     
@@ -390,7 +406,7 @@ STAPI_V2 st_return_t st_element_xyz(st_context_v2_t pcxt,
 									double 	  		y,
 									double 	  		z) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_element_xyz", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
 
@@ -408,7 +424,7 @@ STAPI_V2 st_return_t st_element_aim(st_context_v2_t pcxt,
 									double 	  		ay,
 									double 	  		az) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_element_aim", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
     
@@ -424,7 +440,7 @@ STAPI_V2 st_return_t st_element_zrot(st_context_v2_t pcxt,
 									 st_uint_t 		 idx,
 									 double 		 zrot) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_element_zrot", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
 
@@ -441,7 +457,7 @@ STAPI_V2 st_return_t st_element_aperture(st_context_v2_t pcxt,
                                          char      	     ap,
                                          double    	     params[8]) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_element_aperture", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
 
@@ -474,7 +490,7 @@ STAPI_V2 st_return_t st_element_surface(st_context_v2_t pcxt,
                                         char      	    surf,
                                         double    	    params[8]) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_element_surface", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
     
@@ -506,7 +522,7 @@ STAPI_V2 st_return_t st_element_geometry(st_context_v2_t pcxt,
                                          st_uint_t 	     idx,
                                          args_geometry	 *geom) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_element_geometry", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
     
@@ -526,11 +542,30 @@ return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
 });
 }
 
+STAPI_V2 st_return_t st_get_aperture_area(st_context_v2_t pcxt,
+                                          args_geometry   *geom,
+                                          double          *area) noexcept
+{
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_get_aperture_area", [&]() -> st_return_t {
+    CONTEXT(pcxt);
+    DATA(cxt);
+
+    aperture_ptr ap;
+    surface_ptr surf;
+    st_return_t code = create_geometry(cxt, geom, ap, surf);
+
+    if (code > st_return_code::SUCCESS) return code;
+
+    *area = ap->aperture_area();
+    return st_return_code::SUCCESS;
+});
+}
+
 STAPI_V2 st_return_t st_element_optic(st_context_v2_t pcxt,
 									  st_uint_t 	  idx,
 									  int_fast64_t 	  opt_id) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_element_optic", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
     
@@ -550,7 +585,7 @@ STAPI_V2 st_return_t st_element_group(st_context_v2_t pcxt,
 									  st_uint_t 	  idx,
 									  int32_t   	  group) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_element_group", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
     

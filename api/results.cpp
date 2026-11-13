@@ -17,7 +17,7 @@ uint_fast64_t number_of_interactions(SimulationResult *result)
 
 STAPI_V2 st_return_t st_num_intersections(st_context_v2_t pcxt, uint_fast64_t *num_intersections) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_num_intersections",[&]() -> st_return_t {
     CONTEXT(pcxt);
     RESULT(cxt);
     
@@ -34,7 +34,7 @@ STAPI_V2 st_return_t st_locations(st_context_v2_t pcxt,
 								  double 		  *loc_y,
 								  double 		  *loc_z) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_locations",[&]() -> st_return_t {
     /* *loc_x, *loc_y, *loc_z must be allocated by 
        caller using st_num_intersections */
     CONTEXT(pcxt);
@@ -67,7 +67,7 @@ STAPI_V2 st_return_t st_cosines(st_context_v2_t pcxt,
 							 	double 		    *cos_y,
 							 	double 		    *cos_z) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_cosines",[&]() -> st_return_t {
     /* *cos_x, *cos_y, *cos_z must be allocated by 
        caller using st_num_intersections */
     CONTEXT(pcxt);
@@ -97,7 +97,7 @@ return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
 
 STAPI_V2 st_return_t st_elementmap(st_context_v2_t pcxt, uint_fast64_t *element_map) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_elementmap",[&]() -> st_return_t {
     /* *element_map must be allocated by caller using st_num_intersections */
     CONTEXT(pcxt);
     RESULT(cxt);
@@ -122,7 +122,7 @@ return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
 
 STAPI_V2 st_return_t st_stagemap(st_context_v2_t pcxt, uint_fast64_t *stage_map) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_stagemap",[&]() -> st_return_t {
     /* *stage_map must be allocated by caller using st_num_intersections */
     CONTEXT(pcxt);
     RESULT(cxt);
@@ -141,7 +141,7 @@ return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
 
 STAPI_V2 st_return_t st_raynumbers(st_context_v2_t pcxt, uint_fast64_t *ray_numbers) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_raynumbers",[&]() -> st_return_t {
     /* *ray_numbers must be allocated by caller using st_num_intersections */
     CONTEXT(pcxt);
     RESULT(cxt);
@@ -170,7 +170,7 @@ STAPI_V2 st_return_t st_sun_stats(st_context_v2_t pcxt,
 								  double 		  *area,
 								  uint_fast64_t	  *nsunrays) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_sun_stats",[&]() -> st_return_t {
     // TODO: compute power per ray
     CONTEXT(pcxt);
     RESULT(cxt);
@@ -194,7 +194,7 @@ return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
 
 STAPI_V2 st_return_t st_get_results_data(st_context_v2_t pcxt, args_results_data *data) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_get_results_data",[&]() -> st_return_t {
     /* all arrays in data must be allocated by caller using st_num_intersections */
     CONTEXT(pcxt);
     RESULT(cxt);
@@ -234,7 +234,7 @@ return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
 
 STAPI_V2 st_return_t st_num_groups(st_context_v2_t pcxt, size_t *num_groups) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_num_groups",[&]() -> st_return_t {
     CONTEXT(pcxt);
     RESULT(cxt);
     
@@ -248,7 +248,7 @@ return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
 
 STAPI_V2 st_return_t st_get_grouped_results_data(st_context_v2_t pcxt, args_group_result *data) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_get_grouped_results_data",[&]() -> st_return_t {
     // data must be preallocated by caller
     CONTEXT(pcxt);
     RESULT(cxt);
@@ -259,11 +259,15 @@ return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
     std::vector<GroupResult> groups = result->get_grouped_results();
     for (size_t i = 0; i < groups.size(); ++i)
     {
-        data[i].absorb_count   = groups[i].absorb_count;
-        data[i].reflect_count  = groups[i].reflect_count;
-        data[i].transmit_count = groups[i].transmit_count;
-        data[i].virtual_count  = groups[i].virtual_count;
-        data[i].group_id       = groups[i].group_id;
+        data[i].group_id              = groups[i].group_id;
+        data[i].absorb_count          = groups[i].absorb_count;
+        data[i].reflect_count         = groups[i].reflect_count;
+        data[i].transmit_count        = groups[i].transmit_count;
+        data[i].virtual_count         = groups[i].virtual_count;
+        data[i].absorb_sun_previous   = groups[i].absorb_sun_previous;
+        data[i].reflect_sun_previous  = groups[i].reflect_sun_previous;
+        data[i].transmit_sun_previous = groups[i].transmit_sun_previous;
+        data[i].virtual_sun_previous  = groups[i].virtual_sun_previous;
 
         // same number of elements in _previous_group vectors as number of groups
         for (size_t j = 0; j < groups.size(); ++j)

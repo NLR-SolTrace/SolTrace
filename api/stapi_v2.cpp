@@ -9,7 +9,7 @@
 /* functions for SolTrace context management */
 STAPI_V2 st_return_t st_create_context(st_context_v2_t* pcxt, p_callback cb) noexcept
 {
-return st_guard::guarded(nullptr, [&]() -> st_return_t {
+return st_guard::guarded(nullptr, "st_create_context", [&]() -> st_return_t {
     st_context* cxt = new st_context();
     cxt->p_data     = new SimulationData();
     cxt->p_cb       = cb;
@@ -22,7 +22,7 @@ return st_guard::guarded(nullptr, [&]() -> st_return_t {
 
 STAPI_V2 st_return_t st_reset_context(st_context_v2_t pcxt) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_reset_context", [&]() -> st_return_t {
 	CONTEXT(pcxt);
 
     delete cxt->p_data;
@@ -42,7 +42,7 @@ return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
 
 STAPI_V2 st_return_t st_free_context(st_context_v2_t pcxt) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_free_context", [&]() -> st_return_t {
 	CONTEXT(pcxt);
 
     delete cxt->p_data;
@@ -59,7 +59,7 @@ return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
 
 STAPI_V2 st_return_t st_locate_context(st_context_v2_t pcxt, const char *path) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_locate_context", [&]() -> st_return_t {
 	CONTEXT(pcxt);
 
     fs::path p(path);

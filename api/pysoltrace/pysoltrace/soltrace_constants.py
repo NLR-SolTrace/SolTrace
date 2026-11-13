@@ -79,11 +79,9 @@ ST_RETURN_CODE_ERROR_MSG = {
 ST_RETURN_CODE_WARNING_MSG = {
     dot_h.st_return_code.WARNING_FELLBACK_FROM_EMBREE:       'Requested EmbreeRunner, but is not installed. Fellback to NativeRunner.',
     dot_h.st_return_code.WARNING_FELLBACK_FROM_OPTIX:        'Requested OptixRunner, but is not installed. Fellback to NativeRunner.',
-    # dot_h.st_return_code.WARNING_MORE_THREADS_THAN_HARDWARE: 'Requested more than or equal to the maximum number of threads detected '
-    #                                                          'on hardware, using one less than maximum.',
-    # dot_h.st_return_code.WARNING_HARDWARE_SINGLE_THREADED:   'Requested multi-threaded simulation on single threaded hardware, using one thread.',
     dot_h.st_return_code.WARNING_ARGUMENT_IGNORED_BY_RUNNER: 'Requested a number of threads for OptixRunner. The argument does not apply '
                                                              'to this runner type and was ignored.',
+    dot_h.st_return_code.WARNING_MAX_RAYS:                   'Maximum number of rays reached.',
     dot_h.st_return_code.WARNING_SUN_SHAPE_IGNORED:          'Requested invalid sun shape. Default sun created with a Gaussian '
                                                              'distribution with sigma = 4.65.',
     dot_h.st_return_code.WARNING_GROUP_IGNORED:              'Requested invalid group number. Setting element to ungrouped.',

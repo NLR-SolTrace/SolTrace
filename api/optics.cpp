@@ -7,7 +7,7 @@
 
 STAPI_V2 st_return_t st_num_optics(st_context_v2_t pcxt, uint_fast64_t *num_optics) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_num_optics", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
 
@@ -22,7 +22,7 @@ STAPI_V2 st_return_t st_add_optical_properties_set(st_context_v2_t 				pcxt,
 												   args_optical_properties_face *back, 
 												   uint_fast64_t 				*optic_id) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_add_optical_properties_set", [&]() -> st_return_t {
     auto bad_type_char = [](char type) 
     {
         return type != 'g' && type != 'p' && type != 'f' && type != 'd';
@@ -69,7 +69,7 @@ STAPI_V2 st_return_t st_get_optical_properties_set(st_context_v2_t 				pcxt,
 												   args_optical_properties_face *front, 
 												   args_optical_properties_face *back) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_get_optical_properties_set", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
 
@@ -106,7 +106,7 @@ return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
 
 STAPI_V2 st_return_t st_delete_optic(st_context_v2_t pcxt, st_uint_t idx) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_delete_optic", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
 
@@ -119,7 +119,7 @@ return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
 
 STAPI_V2 st_return_t st_clear_optics(st_context_v2_t pcxt) noexcept
 {
-return st_guard::guarded(st_utils::get_cb(pcxt), [&]() -> st_return_t {
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_clear_optics", [&]() -> st_return_t {
     CONTEXT(pcxt);
     DATA(cxt);
 
