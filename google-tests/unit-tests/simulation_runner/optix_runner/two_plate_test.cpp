@@ -194,7 +194,7 @@ TEST(TwoPlateOptix, BatchMaxRayLimit)
 	sts = runner.setup_simulation(&sd);
 	ASSERT_EQ(sts, RunnerStatus::SUCCESS);
 	sts = runner.run_simulation();
-	ASSERT_EQ(sts, RunnerStatus::SUCCESS);
+	ASSERT_EQ(sts, RunnerStatus::MAXRAYS);
 
 	// Collect results
 	SimulationResult result;
