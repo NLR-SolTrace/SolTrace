@@ -78,16 +78,6 @@ factory_arguments_for(SD::SurfaceType                  type,
     return ret;
 }
 
-double curvature_from_focal_length(double focal_length) {
-    if (focal_length == 0.0) return 0.0;
-    return 1.0 / (2.0 * focal_length);
-}
-
-double focal_length_from_curvature(double curvature) {
-    if (curvature == 0.0) return 0.0;
-    return 1.0 / (2.0 * curvature);
-}
-
 } // namespace
 
 SurfaceParameterModel::SurfaceParameterModel(QObject* parent)
@@ -182,8 +172,8 @@ void SurfaceParameterModel::set_from(SD::Surface const& surface) {
     case SD::PARABOLA: {
         auto const* ptr = dynamic_cast<SD::Parabola const*>(&surface);
         if (!ptr) break;
-        ret[0].content = curvature_from_focal_length(ptr->focal_length_x);
-        ret[1].content = curvature_from_focal_length(ptr->focal_length_y);
+        ret[0].content = ptr->vertex_curv_x;
+        ret[1].content = ptr->vertex_curv_y;
         break;
     }
     case SD::SPHERE: {
@@ -220,8 +210,8 @@ void SurfaceParameterModel::write_back(SD::Surface& surface) const {
     case SD::PARABOLA: {
         auto* ptr = dynamic_cast<SD::Parabola*>(&surface);
         if (!ptr || m_records.size() < 2) break;
-        ptr->focal_length_x = focal_length_from_curvature(m_records[0].content);
-        ptr->focal_length_y = focal_length_from_curvature(m_records[1].content);
+        ptr->vertex_curv_x = m_records[0].content;
+        ptr->vertex_curv_y = m_records[1].content;
         break;
     }
     case SD::SPHERE: {
