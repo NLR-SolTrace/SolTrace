@@ -538,8 +538,13 @@ bool read_element(FILE*                                      fp,
     {
         ap_ptr    = el->get_aperture();
         auto rect = std::dynamic_pointer_cast<Rectangle>(ap_ptr);
+        if (rect == nullptr)
+        {
+            throw std::invalid_argument(
+                "Element has cylindrical surface but not rectangular aperture.");
+        }
         auto cyl  = std::dynamic_pointer_cast<Cylinder>(surf_ptr);
-        if (rect == nullptr || cyl == nullptr)
+        if (cyl == nullptr)
         {
             throw std::invalid_argument("This should not happen!");
         }
