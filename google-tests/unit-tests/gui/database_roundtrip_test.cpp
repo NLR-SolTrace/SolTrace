@@ -353,7 +353,7 @@ void expect_snapshots_near(ElementSnapshot const& actual,
 
 std::filesystem::path power_tower_surround_path() {
     return std::filesystem::path(SOLTRACE_REPO_ROOT) /
-           "gui/assets/examples/Power-tower-surround.stinput";
+           "gui/assets/examples/legacy_stinput/Power-tower-surround.stinput"
 }
 
 void configure_tiny_deterministic_run(SD::SimulationData& data) {

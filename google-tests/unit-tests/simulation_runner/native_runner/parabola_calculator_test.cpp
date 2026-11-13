@@ -24,11 +24,6 @@ using SolTrace::NativeRunner::ParabolaCalculator;
 //    t2 = (-b + sqrt(Delta)) / (2a) -- positive root
 // From these last two, we always have t1 < t2.
 
-double focal_length(double c)
-{
-    return 0.5 / c;
-}
-
 // Constructor validation tests
 TEST(ParabolaCalculator, ConstructorNullSurfaceThrows)
 {
@@ -49,44 +44,25 @@ TEST(ParabolaCalculator, ConstructorWrongSurfaceTypeThrows)
     EXPECT_THROW({ ParabolaCalculator calc(flat, circ); }, std::invalid_argument);
 }
 
-TEST(ParabolaCalculator, ConstructorZeroFocalLengthAllowed)
+TEST(ParabolaCalculator, ConstructorFlatInOneDirectionAllowed)
 {
-    auto para = create_parabola_surface();
-    para->focal_length_x = 0.0;
-    para->focal_length_y = 0.0;
+    auto para = SolTrace::Data::make_surface<Parabola>(1.0, 0.0);
     auto circ = create_circle_aperture();
     EXPECT_NO_THROW({
         ParabolaCalculator calc(para, circ);
     });
 }
 
-TEST(ParabolaCalculator, ConstructorNegativeFocalLengthAllowed)
+TEST(ParabolaCalculator, ConstructorNegativeCurvatureAllowed)
 {
-    auto negative_focal_surface = create_parabola_surface(-1.0);
+    auto negative_surface = create_parabola_surface(-1.0);
     auto circ = create_circle_aperture();
     EXPECT_NO_THROW({
-        ParabolaCalculator calc(negative_focal_surface, circ);
+        ParabolaCalculator calc(negative_surface, circ);
     });
 }
 
-TEST(ParabolaCalculator, ConstructorNaNFocalLengthThrows)
-{
-    auto para = create_parabola_surface();
-    para->focal_length_x = std::nan("");
-    auto circ = create_circle_aperture();
-    EXPECT_THROW({ ParabolaCalculator calc(para, circ); }, std::invalid_argument);
-}
-
-TEST(ParabolaCalculator, ConstructorInfiniteFocalLengthThrows)
-{
-    auto para = create_parabola_surface();
-    para->focal_length_x = std::numeric_limits<double>::infinity();
-    para->focal_length_y = std::numeric_limits<double>::infinity();
-    auto circ = create_circle_aperture();
-    EXPECT_THROW({ ParabolaCalculator calc(para, circ); }, std::invalid_argument);
-}
-
-TEST(ParabolaCalculator, ConstructorValidFocalLength)
+TEST(ParabolaCalculator, ConstructorValidCurvature)
 {
     auto valid_surface = create_parabola_surface(1.0);
     auto circ = create_circle_aperture();
@@ -110,7 +86,7 @@ TEST(ParabolaCalculator, Case1)
     glm::dvec3 mt;
     glm::dvec3 gradf;
 
-    auto parabola = SolTrace::Data::make_surface<Parabola>(0.5, 0.25);
+    auto parabola = SolTrace::Data::make_surface<Parabola>(1.0, 2.0);
     auto circ = create_circle_aperture(10.0);
     ParabolaCalculator pcalc(parabola, circ);
     int sts = pcalc.intersect(x0, m, xt, mt, gradf, &t);
@@ -142,7 +118,7 @@ TEST(ParabolaCalculator, Case2)
     glm::dvec3 mt;
     glm::dvec3 gradf;
 
-    auto parabola = SolTrace::Data::make_surface<Parabola>(0.5, 0.25);
+    auto parabola = SolTrace::Data::make_surface<Parabola>(cx, cy);
     auto circ = create_circle_aperture(10.0);
     ParabolaCalculator pcalc(parabola, circ);
     int sts = pcalc.intersect(x0, m, xt, mt, gradf, &t);
@@ -173,7 +149,7 @@ TEST(ParabolaCalculator, Case3)
     glm::dvec3 mt;
     glm::dvec3 gradf;
 
-    auto parabola = SolTrace::Data::make_surface<Parabola>(0.5, 0.25);
+    auto parabola = SolTrace::Data::make_surface<Parabola>(1.0, 2.0);
     auto circ = create_circle_aperture(10.0);
     ParabolaCalculator pcalc(parabola, circ);
     int sts = pcalc.intersect(x0, m, xt, mt, gradf, &t);
@@ -204,8 +180,7 @@ TEST(ParabolaCalculator, Case4)
     glm::dvec3 mt;
     glm::dvec3 gradf;
 
-    auto parabola = SolTrace::Data::make_surface<Parabola>(focal_length(cx),
-                                                           focal_length(cy));
+    auto parabola = SolTrace::Data::make_surface<Parabola>(cx, cy);
     auto circ = create_circle_aperture(10.0);
     ParabolaCalculator pcalc(parabola, circ);
     int sts = pcalc.intersect(x0, m, xt, mt, gradf, &t);
@@ -241,8 +216,7 @@ TEST(ParabolaCalculator, Case5)
     glm::dvec3 mt;
     glm::dvec3 gradf;
 
-    auto parabola = SolTrace::Data::make_surface<Parabola>(focal_length(cx),
-                                                           focal_length(cy));
+    auto parabola = SolTrace::Data::make_surface<Parabola>(cx, cy);
     auto circ = create_circle_aperture(10.0);
     ParabolaCalculator pcalc(parabola, circ);
     int sts = pcalc.intersect(x0, m, xt, mt, gradf, &t);
@@ -279,8 +253,7 @@ TEST(ParabolaCalculator, Case6)
     glm::dvec3 mt;
     glm::dvec3 gradf;
 
-    auto parabola = SolTrace::Data::make_surface<Parabola>(focal_length(cx),
-                                                           focal_length(cy));
+    auto parabola = SolTrace::Data::make_surface<Parabola>(cx, cy);
     auto circ = create_circle_aperture(10.0);
     ParabolaCalculator pcalc(parabola, circ);
     int sts = pcalc.intersect(x0, m, xt, mt, gradf, &t);
@@ -299,8 +272,7 @@ TEST(ParabolaCalculator, ZAperture)
     double cy = 2.0;
     double r = 2.5;
     auto ap = SolTrace::Data::make_aperture<Circle>(2.0 * r);
-    auto parabola = SolTrace::Data::make_surface<Parabola>(focal_length(cx),
-                                                           focal_length(cy));
+    auto parabola = SolTrace::Data::make_surface<Parabola>(cx, cy);
     auto circ = create_circle_aperture(10.0);
     ParabolaCalculator pcalc(parabola, circ);
     double zap = pcalc.compute_z_aperture(ap);
@@ -308,8 +280,7 @@ TEST(ParabolaCalculator, ZAperture)
     EXPECT_NEAR(zap, zmax, TOL);
 
     // Swap x and y coefficients
-    parabola = SolTrace::Data::make_surface<Parabola>(focal_length(cy),
-                                                      focal_length(cx));
+    parabola = SolTrace::Data::make_surface<Parabola>(cy, cx);
     ParabolaCalculator pcalc_swap(parabola, circ);
     zap = pcalc.compute_z_aperture(ap);
     EXPECT_NEAR(zap, zmax, TOL);

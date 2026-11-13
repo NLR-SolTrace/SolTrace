@@ -343,9 +343,8 @@ namespace SolTrace::Data
                 {
                     flen = sqrt(panel_x * panel_x +
                                 this->receiver_height * this->receiver_height);
-                    // surf = make_surface<Parabola>(flen,
-                    //     std::numeric_limits<double>::infinity());
-                    surf = make_surface<Parabola>(flen, 0.0);
+                    surf = make_surface<Parabola>(
+                        Parabola::curvature_from_focal_length(flen), 0.0);
                 }
                 else
                 {

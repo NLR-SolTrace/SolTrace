@@ -222,8 +222,8 @@ static void run_parabolic_geometry_intersection_test(
         rotation_deg,
         [surf](double lx, double ly)
         {
-            return lx * lx / (4.0 * surf->focal_length_x) +
-                   ly * ly / (4.0 * surf->focal_length_y);
+            return 0.5 * (surf->vertex_curv_x * lx * lx +
+                          surf->vertex_curv_y * ly * ly);
         });
 }
 
@@ -336,11 +336,9 @@ TEST(OptixRunner, ParabolaRectangle)
 {
     constexpr double CX = 0.5;
     constexpr double CY = 1.0;
-    constexpr double FX = 0.5 / CX;
-    constexpr double FY = 0.5 / CY;
     const double XL = 10.0, YL = 5.0;
     const double ROT_DEG = -135.0;
-    auto surf = make_surface<Parabola>(FX, FY);
+    auto surf = make_surface<Parabola>(CX, CY);
     auto aper = make_aperture<Rectangle>(XL, YL);
 
     run_parabolic_geometry_intersection_test(surf, aper, ROT_DEG);
@@ -403,7 +401,8 @@ TEST(OptixRunner, ParabolicHexagon)
     const double FOCAL_X = 10.0;
     const double FOCAL_Y = 30.0;
     const double ROT_DEG = 30.0;
-    auto surf = make_surface<Parabola>(FOCAL_X, FOCAL_Y);
+    auto surf = make_surface<Parabola>(Parabola::curvature_from_focal_length(FOCAL_X),
+                                       Parabola::curvature_from_focal_length(FOCAL_Y));
     auto aper = make_aperture<Hexagon>(2 * S);
 
     run_parabolic_geometry_intersection_test(surf, aper, ROT_DEG);
@@ -415,7 +414,8 @@ TEST(OptixRunner, ParabolicTriangle)
     const double FOCAL_X = 10.0;
     const double FOCAL_Y = 30.0;
     const double ROT_DEG = 90.0;
-    auto surf = make_surface<Parabola>(FOCAL_X, FOCAL_Y);
+    auto surf = make_surface<Parabola>(Parabola::curvature_from_focal_length(FOCAL_X),
+                                       Parabola::curvature_from_focal_length(FOCAL_Y));
     auto aper = make_aperture<EquilateralTriangle>(d);
 
     run_parabolic_geometry_intersection_test(surf, aper, ROT_DEG);
@@ -429,7 +429,8 @@ TEST(OptixRunner, ParabolicAnnulus)
     const double FOCAL_X = 10.0;
     const double FOCAL_Y = 30.0;
     const double ROT_DEG = -15.0;
-    auto surf = make_surface<Parabola>(FOCAL_X, FOCAL_Y);
+    auto surf = make_surface<Parabola>(Parabola::curvature_from_focal_length(FOCAL_X),
+                                       Parabola::curvature_from_focal_length(FOCAL_Y));
     auto aper = make_aperture<Annulus>(R0, R1, ARC);
 
     run_parabolic_geometry_intersection_test(surf, aper, ROT_DEG);
@@ -443,7 +444,8 @@ TEST(OptixRunner, ParabolicQuadrilateral)
     const double FOCAL_X = 10.0;
     const double FOCAL_Y = 30.0;
     const double ROT_DEG = -45.0;
-    auto surf = make_surface<Parabola>(FOCAL_X, FOCAL_Y);
+    auto surf = make_surface<Parabola>(Parabola::curvature_from_focal_length(FOCAL_X),
+                                       Parabola::curvature_from_focal_length(FOCAL_Y));
     auto aper = make_aperture<IrregularQuadrilateral>(x1, y1, x2, y2, x3, y3, x4, y4);
 
     run_parabolic_geometry_intersection_test(surf, aper, ROT_DEG);
@@ -455,7 +457,8 @@ TEST(OptixRunner, ParabolicCircle)
     const double FOCAL_X = 10.0;
     const double FOCAL_Y = 30.0;
     const double ROT_DEG = -45.0;
-    auto surf = make_surface<Parabola>(FOCAL_X, FOCAL_Y);
+    auto surf = make_surface<Parabola>(Parabola::curvature_from_focal_length(FOCAL_X),
+                                       Parabola::curvature_from_focal_length(FOCAL_Y));
     auto aper = make_aperture<Circle>(2 * R);
 
     run_parabolic_geometry_intersection_test(surf, aper, ROT_DEG);

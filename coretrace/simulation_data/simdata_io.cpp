@@ -522,13 +522,29 @@ bool read_element(FILE*                                      fp,
         throw std::invalid_argument(ss.str());
     }
     surface_ptr surf_ptr = make_surface_from_type(surface_type, surface_params);
+    if (surf_ptr == nullptr)
+    { 
+        std::stringstream ss;
+        const auto surface_type_name = SurfaceTypeMap.find(surface_type);
+        ss << "Surface type not implemented: "
+           << (surface_type_name != SurfaceTypeMap.end()
+                   ? surface_type_name->second
+                   : std::to_string(static_cast<int>(surface_type)));
+        throw std::invalid_argument(ss.str());
+    }
+
     el->set_surface(surf_ptr);
     if (surface_type == SurfaceType::CYLINDER)
     {
         ap_ptr    = el->get_aperture();
         auto rect = std::dynamic_pointer_cast<Rectangle>(ap_ptr);
+        if (rect == nullptr)
+        {
+            throw std::invalid_argument(
+                "Element has cylindrical surface but not rectangular aperture.");
+        }
         auto cyl  = std::dynamic_pointer_cast<Cylinder>(surf_ptr);
-        if (rect == nullptr || cyl == nullptr)
+        if (cyl == nullptr)
         {
             throw std::invalid_argument("This should not happen!");
         }

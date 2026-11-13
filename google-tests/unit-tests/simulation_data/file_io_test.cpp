@@ -45,9 +45,9 @@ void get_default_single_element(nlohmann::ordered_json& jnode, uint64_t opt_id)
     
     nlohmann::ordered_json jpara;
     jpara["surface_type"] = SolTrace::Data::SurfaceTypeMap.at(SolTrace::Data::PARABOLA);
-    jpara["focal_length_x"] = 3;
-    jpara["focal_length_y"] = 4;
-    
+    jpara["vertex_curv_x"] = 0.5 / 3.0; // focal length 3
+    jpara["vertex_curv_y"] = 0.5 / 4.0; // focal length 4
+
     jnode["surface"] = jpara;
 }
 
@@ -764,14 +764,14 @@ TEST(io_json, surface_read)
     // PARABOLA
     json jpara;
     jpara["surface_type"] = SolTrace::Data::SurfaceTypeMap.at(SolTrace::Data::PARABOLA);
-    jpara["focal_length_x"] = 3;
-    jpara["focal_length_y"] = 4;
+    jpara["vertex_curv_x"] = 3;
+    jpara["vertex_curv_y"] = 4;
     EXPECT_NO_THROW(SolTrace::Data::make_surface_from_json(jpara));
     auto para_ptr = SolTrace::Data::make_surface_from_json(jpara);
     auto para_cast = dynamic_cast<SolTrace::Data::Parabola*>(para_ptr.get());
     ASSERT_TRUE(para_cast != nullptr);
-    EXPECT_DOUBLE_EQ(3, para_cast->focal_length_x);
-    EXPECT_DOUBLE_EQ(4, para_cast->focal_length_y);
+    EXPECT_DOUBLE_EQ(3, para_cast->vertex_curv_x);
+    EXPECT_DOUBLE_EQ(4, para_cast->vertex_curv_y);
 
     // SPHERE
     json jsphere;
@@ -867,6 +867,94 @@ TEST(io_json, upgrade_no_op_for_current_version)
               sd_loaded.get_number_of_ray_sources());
 
     // Conditional cleanup: remove only if test passed so far.
+    if (!::testing::Test::HasFailure()) {
+        std::error_code ec;
+        fs::remove(output_path, ec);
+    }
+}
+
+TEST(io_json, upgrade_parabola_focal_length_to_curvature)
+{
+    namespace fs = std::filesystem;
+    using json = nlohmann::ordered_json;
+
+    const fs::path project_root(PROJECT_DIR);
+    const fs::path output_path = project_root / "legacy_parabola.json";
+
+    // Build a current-schema file with four elements, then rewrite it
+    // into the 2026.07.15 format with focal-length parabolas.
+    SimulationData sd;
+    for (int i = 0; i < 4; ++i) {
+        auto el = make_configured_element(sd);
+        el->set_surface(SolTrace::Data::make_surface<Parabola>(1.0, 1.0));
+        sd.add_element(el);
+    }
+    ASSERT_NO_THROW(sd.export_json_file(output_path.string()));
+
+    json root;
+    {
+        std::ifstream ifs(output_path);
+        ifs >> root;
+    }
+    root["schema_version"] = "2026.07.15";
+
+    const std::string para_type =
+        SolTrace::Data::SurfaceTypeMap.at(SolTrace::Data::PARABOLA);
+    auto legacy_surface = [&](json fx, json fy) {
+        json js;
+        js["surface_type"]   = para_type;
+        js["focal_length_x"] = fx;
+        js["focal_length_y"] = fy;
+        return js;
+    };
+
+    std::vector<std::string> keys;
+    for (auto& [key, jel] : root["elements"].items()) keys.push_back(key);
+    ASSERT_EQ(keys.size(), 4u);
+    root["elements"][keys[0]]["surface"] = legacy_surface(2.0, 4.0);     // finite
+    root["elements"][keys[1]]["surface"] = legacy_surface(2.0, nullptr); // inf saved as null
+    root["elements"][keys[2]]["surface"] = legacy_surface(2.0, 0.0);     // legacy 0 = flat
+    root["elements"][keys[3]]["surface"] = legacy_surface(nullptr, 0.0); // flat both ways
+    {
+        std::ofstream ofs(output_path, std::ios::trunc);
+        ofs << root.dump(SolTrace::Data::kJsonIndentSpaces);
+    }
+
+    SimulationData sd_loaded;
+    std::string log;
+    ASSERT_NO_THROW(SolTrace::Data::load_json_file(sd_loaded, output_path.string(), &log));
+    EXPECT_NE(log.find("2026.07.15 -> 2026.11.11"), std::string::npos);
+
+    // Re-export and inspect the upgraded surfaces
+    ASSERT_NO_THROW(sd_loaded.export_json_file(output_path.string()));
+    json upgraded;
+    {
+        std::ifstream ifs(output_path);
+        ifs >> upgraded;
+    }
+    EXPECT_EQ(upgraded["schema_version"], SolTrace::Data::kSchemaVersion);
+
+    std::vector<json> surfaces;
+    for (auto& [key, jel] : upgraded["elements"].items())
+        surfaces.push_back(jel["surface"]);
+    ASSERT_EQ(surfaces.size(), 4u);
+
+    EXPECT_EQ(surfaces[0]["surface_type"], para_type);
+    EXPECT_DOUBLE_EQ(surfaces[0]["vertex_curv_x"].get<double>(), 0.25);
+    EXPECT_DOUBLE_EQ(surfaces[0]["vertex_curv_y"].get<double>(), 0.125);
+
+    EXPECT_EQ(surfaces[1]["surface_type"], para_type);
+    EXPECT_DOUBLE_EQ(surfaces[1]["vertex_curv_x"].get<double>(), 0.25);
+    EXPECT_DOUBLE_EQ(surfaces[1]["vertex_curv_y"].get<double>(), 0.0);
+
+    EXPECT_EQ(surfaces[2]["surface_type"], para_type);
+    EXPECT_DOUBLE_EQ(surfaces[2]["vertex_curv_x"].get<double>(), 0.25);
+    EXPECT_DOUBLE_EQ(surfaces[2]["vertex_curv_y"].get<double>(), 0.0);
+
+    EXPECT_EQ(surfaces[3]["surface_type"],
+              SolTrace::Data::SurfaceTypeMap.at(SolTrace::Data::FLAT));
+    EXPECT_FALSE(surfaces[3].contains("focal_length_x"));
+
     if (!::testing::Test::HasFailure()) {
         std::error_code ec;
         fs::remove(output_path, ec);

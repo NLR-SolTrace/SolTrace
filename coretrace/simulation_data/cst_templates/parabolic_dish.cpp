@@ -98,8 +98,8 @@ void ParabolicDish::create_geometry()
         mirror = make_element<SingleElement>();
         mirror->set_reference_frame_geometry(origin, aim, zrot);
         mirror->set_aperture(make_aperture<Circle>(this->aperture_diameter));
-        mirror->set_surface(make_surface<Parabola>(this->focal_length,
-                                                   this->focal_length));
+        const double curv = Parabola::curvature_from_focal_length(this->focal_length);
+        mirror->set_surface(make_surface<Parabola>(curv, curv));
         mirror->set_optical_property_set(optics_mirror);
         mirror->enable();
 
@@ -111,6 +111,7 @@ void ParabolicDish::create_geometry()
         double panel_zrot_offset = panel_angle + gap_angle;
         double r0 = std::max(0.0, this->gap_center);
         double r1;
+        const double curv = Parabola::curvature_from_focal_length(this->focal_length);
 
         for (int_fast64_t i = 0; i < this->num_panels_r; ++i)
         {
@@ -123,8 +124,7 @@ void ParabolicDish::create_geometry()
                 mirror->set_aperture(make_aperture<Annulus>(r0,
                                                             r1,
                                                             panel_angle));
-                mirror->set_surface(make_surface<Parabola>(this->focal_length,
-                                                           this->focal_length));
+                mirror->set_surface(make_surface<Parabola>(curv, curv));
                 mirror->set_optical_property_set(optics_mirror);
                 mirror->set_name("ParabolicMirror");
                 mirror->enable();

@@ -141,8 +141,8 @@ static size_t hash_surface(SD::Surface const& a) {
     case SolTrace::Data::PARABOLA: {
         auto* aa = dynamic_cast<SD::Parabola const*>(&a);
         if (!aa) break;
-        hash_combine(seed, aa->focal_length_x);
-        hash_combine(seed, aa->focal_length_y);
+        hash_combine(seed, aa->vertex_curv_x);
+        hash_combine(seed, aa->vertex_curv_y);
         break;
     }
     case SolTrace::Data::SPHERE: {

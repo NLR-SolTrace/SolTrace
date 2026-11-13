@@ -20,7 +20,7 @@ using namespace SolTrace::GUI::Support;
 
 std::filesystem::path simple_test_case_path() {
     return std::filesystem::path(SOLTRACE_REPO_ROOT) /
-           "gui/assets/examples/simple_test_case.stinput";
+           "gui/assets/examples/legacy_stinput/simple_test_case.stinput"
 }
 
 } // namespace

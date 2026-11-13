@@ -277,19 +277,14 @@ std::optional<Mesh> make_cone(SD::Cone& item, Mesh2D const& m2d) {
 }
 
 std::optional<Mesh> make_para(SD::Parabola& item, Mesh2D const& m2d) {
-    if (item.focal_length_x == 0.0 || item.focal_length_y == 0.0) {
-        qDebug() << Q_FUNC_INFO << "Focal lengths are zero";
-        return {};
-    }
-
     auto [bb_min, bb_max] = m2d.bb_2d();
 
-    auto flen = glm::dvec2(item.focal_length_x, item.focal_length_y);
+    auto curv = glm::dvec2(item.vertex_curv_x, item.vertex_curv_y);
 
     return m2d.map([&](glm::dvec2 p) {
-        auto z = glm::compAdd(0.25 * (p * p) / flen);
+        auto z = glm::compAdd(0.5 * curv * (p * p));
 
-        auto normal = glm::normalize(glm::vec3(-0.5 * p / flen, 1.0));
+        auto normal = glm::normalize(glm::vec3(-curv * p, 1.0));
 
         return Vertex {
             .position = glm::vec3(p, z),

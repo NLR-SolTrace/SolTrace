@@ -11,6 +11,7 @@
 #include <single_element.hpp>
 #include <stage_element.hpp>
 #include <sun.hpp>
+#include <surface.hpp>
 
 
 
@@ -132,6 +133,224 @@ bool upgrade_20251112_20260715(nlohmann::ordered_json& jroot,
     return true;
 }
 
+bool upgrade_20260715_20261111(nlohmann::ordered_json& jroot,
+                               std::string&            change_log) {
+    using json = nlohmann::ordered_json;
+
+    // Major change: Parabola surfaces are defined by vertex curvatures
+    // ("vertex_curv_x"/"vertex_curv_y", c = 1/(2f)) instead of focal
+    // lengths ("focal_length_x"/"focal_length_y"). Previously a flat
+    // direction was stored as an infinite focal length (serialized as
+    // null) or, by legacy GUI/template convention, as 0. Both now map
+    // to a curvature of 0. Parabolas flat in both directions become FLAT.
+
+    // Only handle the specific version this function is named for.
+    std::string schema_version = jroot.value("schema_version", "");
+    if (schema_version != "2026.07.15") {
+        return false;
+    }
+
+    const std::string parabola_type = SurfaceTypeMap.at(SurfaceType::PARABOLA);
+    const std::string flat_type     = SurfaceTypeMap.at(SurfaceType::FLAT);
+
+    try {
+        int n_converted = 0;
+        int n_to_flat   = 0;
+
+        auto focal_to_curv = [](const json& jsurface, const char* key) {
+            if (!jsurface.contains(key) || jsurface.at(key).is_null()) {
+                return 0.0; // inf serialized as null => flat
+            }
+            double f = jsurface.at(key).get<double>();
+            if (f == 0.0) {
+                // Legacy convention: the GUI (curvature 0 -> focal 0) and the
+                // trough/fresnel templates stored a flat direction as 0.
+                return 0.0;
+            }
+            return Parabola::curvature_from_focal_length(f);
+        };
+
+        std::function<void(json&)> process_element = [&](json& jelement) {
+            // "elements" may be stored as an object (keyed) or an array
+            if (jelement.contains("elements") &&
+                jelement["elements"].is_structured()) {
+                for (auto& [child_key, jchild] : jelement["elements"].items()) {
+                    process_element(jchild);
+                }
+            }
+
+            if (!jelement.contains("surface")) {
+                return;
+            }
+
+            json& jsurface = jelement["surface"];
+            if (jsurface.value("surface_type", "") != parabola_type) {
+                return;
+            }
+
+            double cx = focal_to_curv(jsurface, "focal_length_x");
+            double cy = focal_to_curv(jsurface, "focal_length_y");
+
+            json jnew = json::object();
+            if (cx == 0.0 && cy == 0.0) {
+                jnew["surface_type"] = flat_type;
+                n_to_flat++;
+            } else {
+                jnew["surface_type"]  = parabola_type;
+                jnew["vertex_curv_x"] = cx;
+                jnew["vertex_curv_y"] = cy;
+                n_converted++;
+            }
+            jsurface = jnew;
+        };
+
+        if (jroot.contains("elements") && jroot["elements"].is_structured()) {
+            for (auto& [key, jelement] : jroot["elements"].items()) {
+                process_element(jelement);
+            }
+        }
+
+        jroot["schema_version"] = "2026.11.11";
+
+        // Describe what changed, for user-facing reporting.
+        std::stringstream log;
+        log << "[2026.07.15 -> 2026.11.11] Parabola surfaces now use vertex "
+               "curvatures (\"vertex_curv_x\"/\"vertex_curv_y\", c = 1/(2f)) "
+               "instead of focal lengths. Converted " << n_converted
+            << " parabola surface(s)";
+        if (n_to_flat > 0) {
+            log << "; " << n_to_flat
+                << " parabola surface(s) flat in both directions were "
+                   "replaced with FLAT surfaces";
+        }
+        log << ".\n";
+        change_log += log.str();
+    }
+    catch (const json::exception& e) {
+        std::cerr << "upgrade_20260715_20261111 failed: " << e.what() << '\n';
+        return false;
+    }
+    catch (const std::invalid_argument& e) {
+        std::cerr << "upgrade_20260715_20261111 failed: " << e.what() << '\n';
+        return false;
+    }
+
+    return true;
+}
+
+namespace {
+
+// One tab per nesting level. Editors render this at whatever width the reader
+// prefers, but it costs 1 byte per level instead of kJsonIndentSpaces.
+const std::string kIndentUnit = "\t";
+
+// Maximum rendered length of an object whose members are all scalars before
+// it is expanded onto multiple lines.
+const int kInlineObjectCharLimit = 100;
+
+bool is_scalar(const nlohmann::ordered_json& j) {
+    return !j.is_object() && !j.is_array();
+}
+
+// True if every child is a scalar, so the container may be emitted on one line.
+bool is_leaf_container(const nlohmann::ordered_json& j) {
+    for (const auto& child : j) {
+        if (!is_scalar(child)) return false;
+    }
+    return true;
+}
+
+void write_indent(std::ostream& os, int depth) {
+    for (int i = 0; i < depth; i++) os << kIndentUnit;
+}
+
+// Pretty-prints json with leaf arrays and short leaf objects collapsed onto a
+// single line. Output remains valid, human readable json and all values are
+// emitted exactly as nlohmann::dump() would write them.
+void write_compact_json(std::ostream&                 os,
+                        const nlohmann::ordered_json& j,
+                        int                           depth) {
+    if (is_scalar(j)) {
+        os << j.dump();
+        return;
+    }
+
+    const bool is_array = j.is_array();
+    const char open     = is_array ? '[' : '{';
+    const char close    = is_array ? ']' : '}';
+
+    if (j.empty()) {
+        os << open << close;
+        return;
+    }
+
+    if (is_leaf_container(j)) {
+        if (is_array) {
+            // Leaf arrays are always inlined, but avoid materializing a full
+            // in-memory dump string for very large arrays.
+            os << '[';
+            for (size_t i = 0; i < j.size(); ++i) {
+                if (i > 0) os << ',';
+                os << j[i].dump();
+            }
+            os << ']';
+            return;
+        }
+
+        // Leaf objects are inlined only if they are short enough. Avoid
+        // constructing a full in-memory dump string just to measure length.
+        size_t rendered_len = 2; // '{' + '}'
+        size_t index        = 0;
+        bool   fits_inline  = true;
+
+        for (auto it = j.begin(); it != j.end(); ++it, ++index) {
+            const std::string key_dump   = nlohmann::ordered_json(it.key()).dump();
+            const std::string value_dump = it.value().dump();
+
+            // key + ": " + value
+            rendered_len += key_dump.size() + 2 + value_dump.size();
+            // comma between members
+            if (index + 1 < j.size()) rendered_len += 1;
+
+            if (rendered_len > static_cast<size_t>(kInlineObjectCharLimit)) {
+                fits_inline = false;
+                break;
+            }
+        }
+
+        if (fits_inline) {
+            os << '{';
+            index = 0;
+            for (auto it = j.begin(); it != j.end(); ++it, ++index) {
+                if (index > 0) os << ',';
+                os << nlohmann::ordered_json(it.key()).dump() << ": "
+                   << it.value().dump();
+            }
+            os << '}';
+            return;
+        }
+    }
+
+    os << open << '\n';
+
+    size_t index = 0;
+    for (auto it = j.begin(); it != j.end(); ++it, ++index) {
+        write_indent(os, depth + 1);
+        if (!is_array)
+            os << nlohmann::ordered_json(it.key()).dump() << ": ";
+
+        write_compact_json(os, it.value(), depth + 1);
+
+        if (index + 1 < j.size()) os << ',';
+        os << '\n';
+    }
+
+    write_indent(os, depth);
+    os << close;
+}
+
+}  // namespace
+
 // Public
 
 void write_json_file(SimulationData& sd, std::string filename) {
@@ -221,7 +440,8 @@ void write_json_file(SimulationData& sd, std::string filename) {
     // Write to disk
     std::ofstream ofs(filename, std::ios::out | std::ios::trunc);
     if (!ofs.is_open()) throw std::runtime_error("Failure writing json");
-    ofs << root.dump(kJsonIndentSpaces) << '\n';
+    write_compact_json(ofs, root, 0);
+    ofs << '\n';
 
     return;
 }
@@ -250,6 +470,14 @@ void load_json_file(SimulationData& sd, std::string filename, std::string* upgra
             throw std::runtime_error(
                 "Failed to upgrade JSON file schema from 2025.11.12 to 2026.07.15");
         }
+        schema_version = root.at("schema_version").get<std::string>();
+    }
+    if (schema_version == "2026.07.15") {
+        if (!upgrade_20260715_20261111(root, local_upgrade_log)) {
+            throw std::runtime_error(
+                "Failed to upgrade JSON file schema from 2026.07.15 to 2026.11.11");
+        }
+        schema_version = root.at("schema_version").get<std::string>();
     }
 
     if (upgrade_log != nullptr && !local_upgrade_log.empty()) {

@@ -140,8 +140,8 @@ static bool operator==(SD::Flat const&, SD::Flat const&) {
     return true;
 }
 static bool operator==(SD::Parabola const& a, SD::Parabola const& b) {
-    return std::tie(a.focal_length_x, a.focal_length_y) ==
-           std::tie(b.focal_length_x, b.focal_length_y);
+    return std::tie(a.vertex_curv_x, a.vertex_curv_y) ==
+           std::tie(b.vertex_curv_x, b.vertex_curv_y);
 }
 static bool operator==(SD::Sphere const& a, SD::Sphere const& b) {
     return a.vertex_curv == b.vertex_curv;
