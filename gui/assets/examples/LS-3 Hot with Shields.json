@@ -1,5 +1,5 @@
 {
-	"schema_version": "2026.07.15",
+	"schema_version": "2026.11.11",
 	"number_of_elements": 370,
 	"simulation_parameters": {
 		"include_sun_shape_errors": false,
@@ -191,8 +191,14 @@
 					"aim": [0.0,-48.6015,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"1": {
@@ -205,8 +211,8 @@
 					"aim": [0.0,-48.6015,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"2": {
@@ -219,8 +225,8 @@
 					"aim": [0.0,-48.6015,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"3": {
@@ -233,8 +239,14 @@
 					"aim": [0.0,-48.6015,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"4": {
@@ -247,8 +259,14 @@
 					"aim": [0.0,-46.8915,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"5": {
@@ -261,8 +279,8 @@
 					"aim": [0.0,-46.8915,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"6": {
@@ -275,8 +293,8 @@
 					"aim": [0.0,-46.8915,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"7": {
@@ -289,8 +307,14 @@
 					"aim": [0.0,-46.8915,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"8": {
@@ -303,8 +327,14 @@
 					"aim": [0.0,-45.1815,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"9": {
@@ -317,8 +347,8 @@
 					"aim": [0.0,-45.1815,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"10": {
@@ -331,8 +361,8 @@
 					"aim": [0.0,-45.1815,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"11": {
@@ -345,8 +375,14 @@
 					"aim": [0.0,-45.1815,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"12": {
@@ -359,8 +395,14 @@
 					"aim": [0.0,-43.4715,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"13": {
@@ -373,8 +415,8 @@
 					"aim": [0.0,-43.4715,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"14": {
@@ -387,8 +429,8 @@
 					"aim": [0.0,-43.4715,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"15": {
@@ -401,8 +443,14 @@
 					"aim": [0.0,-43.4715,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"16": {
@@ -415,8 +463,14 @@
 					"aim": [0.0,-41.7615,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"17": {
@@ -429,8 +483,8 @@
 					"aim": [0.0,-41.7615,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"18": {
@@ -443,8 +497,8 @@
 					"aim": [0.0,-41.7615,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"19": {
@@ -457,8 +511,14 @@
 					"aim": [0.0,-41.7615,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"20": {
@@ -471,8 +531,14 @@
 					"aim": [0.0,-40.0515,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"21": {
@@ -485,8 +551,8 @@
 					"aim": [0.0,-40.0515,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"22": {
@@ -499,8 +565,8 @@
 					"aim": [0.0,-40.0515,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"23": {
@@ -513,8 +579,14 @@
 					"aim": [0.0,-40.0515,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"24": {
@@ -527,8 +599,14 @@
 					"aim": [0.0,-38.3415,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"25": {
@@ -541,8 +619,8 @@
 					"aim": [0.0,-38.3415,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"26": {
@@ -555,8 +633,8 @@
 					"aim": [0.0,-38.3415,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"27": {
@@ -569,8 +647,14 @@
 					"aim": [0.0,-38.3415,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"28": {
@@ -583,8 +667,14 @@
 					"aim": [0.0,-36.3265,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"29": {
@@ -597,8 +687,8 @@
 					"aim": [0.0,-36.3265,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"30": {
@@ -611,8 +701,8 @@
 					"aim": [0.0,-36.3265,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"31": {
@@ -625,8 +715,14 @@
 					"aim": [0.0,-36.3265,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"32": {
@@ -639,8 +735,14 @@
 					"aim": [0.0,-34.6165,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"33": {
@@ -653,8 +755,8 @@
 					"aim": [0.0,-34.6165,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"34": {
@@ -667,8 +769,8 @@
 					"aim": [0.0,-34.6165,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"35": {
@@ -681,8 +783,14 @@
 					"aim": [0.0,-34.6165,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"36": {
@@ -695,8 +803,14 @@
 					"aim": [0.0,-32.9065,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"37": {
@@ -709,8 +823,8 @@
 					"aim": [0.0,-32.9065,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"38": {
@@ -723,8 +837,8 @@
 					"aim": [0.0,-32.9065,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"39": {
@@ -737,8 +851,14 @@
 					"aim": [0.0,-32.9065,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"40": {
@@ -751,8 +871,14 @@
 					"aim": [0.0,-31.1965,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"41": {
@@ -765,8 +891,8 @@
 					"aim": [0.0,-31.1965,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"42": {
@@ -779,8 +905,8 @@
 					"aim": [0.0,-31.1965,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"43": {
@@ -793,8 +919,14 @@
 					"aim": [0.0,-31.1965,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"44": {
@@ -807,8 +939,14 @@
 					"aim": [0.0,-29.4865,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"45": {
@@ -821,8 +959,8 @@
 					"aim": [0.0,-29.4865,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"46": {
@@ -835,8 +973,8 @@
 					"aim": [0.0,-29.4865,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"47": {
@@ -849,8 +987,14 @@
 					"aim": [0.0,-29.4865,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"48": {
@@ -863,8 +1007,14 @@
 					"aim": [0.0,-27.7765,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"49": {
@@ -877,8 +1027,8 @@
 					"aim": [0.0,-27.7765,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"50": {
@@ -891,8 +1041,8 @@
 					"aim": [0.0,-27.7765,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"51": {
@@ -905,8 +1055,14 @@
 					"aim": [0.0,-27.7765,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"52": {
@@ -919,8 +1075,14 @@
 					"aim": [0.0,-26.0665,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"53": {
@@ -933,8 +1095,8 @@
 					"aim": [0.0,-26.0665,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"54": {
@@ -947,8 +1109,8 @@
 					"aim": [0.0,-26.0665,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"55": {
@@ -961,8 +1123,14 @@
 					"aim": [0.0,-26.0665,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"56": {
@@ -975,8 +1143,14 @@
 					"aim": [0.0,-24.0515,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"57": {
@@ -989,8 +1163,8 @@
 					"aim": [0.0,-24.0515,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"58": {
@@ -1003,8 +1177,8 @@
 					"aim": [0.0,-24.0515,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"59": {
@@ -1017,8 +1191,14 @@
 					"aim": [0.0,-24.0515,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"60": {
@@ -1031,8 +1211,14 @@
 					"aim": [0.0,-22.3415,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"61": {
@@ -1045,8 +1231,8 @@
 					"aim": [0.0,-22.3415,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"62": {
@@ -1059,8 +1245,8 @@
 					"aim": [0.0,-22.3415,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"63": {
@@ -1073,8 +1259,14 @@
 					"aim": [0.0,-22.3415,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"64": {
@@ -1087,8 +1279,14 @@
 					"aim": [0.0,-20.6315,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"65": {
@@ -1101,8 +1299,8 @@
 					"aim": [0.0,-20.6315,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"66": {
@@ -1115,8 +1313,8 @@
 					"aim": [0.0,-20.6315,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"67": {
@@ -1129,8 +1327,14 @@
 					"aim": [0.0,-20.6315,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"68": {
@@ -1143,8 +1347,14 @@
 					"aim": [0.0,-18.9215,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"69": {
@@ -1157,8 +1367,8 @@
 					"aim": [0.0,-18.9215,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"70": {
@@ -1171,8 +1381,8 @@
 					"aim": [0.0,-18.9215,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"71": {
@@ -1185,8 +1395,14 @@
 					"aim": [0.0,-18.9215,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"72": {
@@ -1199,8 +1415,14 @@
 					"aim": [0.0,-17.2115,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"73": {
@@ -1213,8 +1435,8 @@
 					"aim": [0.0,-17.2115,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"74": {
@@ -1227,8 +1449,8 @@
 					"aim": [0.0,-17.2115,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"75": {
@@ -1241,8 +1463,14 @@
 					"aim": [0.0,-17.2115,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"76": {
@@ -1255,8 +1483,14 @@
 					"aim": [0.0,-15.5015,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"77": {
@@ -1269,8 +1503,8 @@
 					"aim": [0.0,-15.5015,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"78": {
@@ -1283,8 +1517,8 @@
 					"aim": [0.0,-15.5015,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"79": {
@@ -1297,8 +1531,14 @@
 					"aim": [0.0,-15.5015,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"80": {
@@ -1311,8 +1551,14 @@
 					"aim": [0.0,-13.7915,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"81": {
@@ -1325,8 +1571,8 @@
 					"aim": [0.0,-13.7915,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"82": {
@@ -1339,8 +1585,8 @@
 					"aim": [0.0,-13.7915,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"83": {
@@ -1353,8 +1599,14 @@
 					"aim": [0.0,-13.7915,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"84": {
@@ -1367,8 +1619,14 @@
 					"aim": [0.0,-11.7765,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"85": {
@@ -1381,8 +1639,8 @@
 					"aim": [0.0,-11.7765,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"86": {
@@ -1395,8 +1653,8 @@
 					"aim": [0.0,-11.7765,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"87": {
@@ -1409,8 +1667,14 @@
 					"aim": [0.0,-11.7765,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"88": {
@@ -1423,8 +1687,14 @@
 					"aim": [0.0,-10.0665,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"89": {
@@ -1437,8 +1707,8 @@
 					"aim": [0.0,-10.0665,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"90": {
@@ -1451,8 +1721,8 @@
 					"aim": [0.0,-10.0665,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"91": {
@@ -1465,8 +1735,14 @@
 					"aim": [0.0,-10.0665,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"92": {
@@ -1479,8 +1755,14 @@
 					"aim": [0.0,-8.3565,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"93": {
@@ -1493,8 +1775,8 @@
 					"aim": [0.0,-8.3565,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"94": {
@@ -1507,8 +1789,8 @@
 					"aim": [0.0,-8.3565,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"95": {
@@ -1521,8 +1803,14 @@
 					"aim": [0.0,-8.3565,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"96": {
@@ -1535,8 +1823,14 @@
 					"aim": [0.0,-6.6465,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"97": {
@@ -1549,8 +1843,8 @@
 					"aim": [0.0,-6.6465,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"98": {
@@ -1563,8 +1857,8 @@
 					"aim": [0.0,-6.6465,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"99": {
@@ -1577,8 +1871,14 @@
 					"aim": [0.0,-6.6465,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"100": {
@@ -1591,8 +1891,14 @@
 					"aim": [0.0,-4.9365,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"101": {
@@ -1605,8 +1911,8 @@
 					"aim": [0.0,-4.9365,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"102": {
@@ -1619,8 +1925,8 @@
 					"aim": [0.0,-4.9365,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"103": {
@@ -1633,8 +1939,14 @@
 					"aim": [0.0,-4.9365,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"104": {
@@ -1647,8 +1959,14 @@
 					"aim": [0.0,-3.2265,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"105": {
@@ -1661,8 +1979,8 @@
 					"aim": [0.0,-3.2265,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"106": {
@@ -1675,8 +1993,8 @@
 					"aim": [0.0,-3.2265,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"107": {
@@ -1689,8 +2007,14 @@
 					"aim": [0.0,-3.2265,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"108": {
@@ -1703,8 +2027,14 @@
 					"aim": [0.0,-1.5165,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"109": {
@@ -1717,8 +2047,8 @@
 					"aim": [0.0,-1.5165,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"110": {
@@ -1731,8 +2061,8 @@
 					"aim": [0.0,-1.5165,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"111": {
@@ -1745,8 +2075,14 @@
 					"aim": [0.0,-1.5165,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"112": {
@@ -1759,8 +2095,14 @@
 					"aim": [0.0,1.5165,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"113": {
@@ -1773,8 +2115,8 @@
 					"aim": [0.0,1.5165,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"114": {
@@ -1787,8 +2129,8 @@
 					"aim": [0.0,1.5165,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"115": {
@@ -1801,8 +2143,14 @@
 					"aim": [0.0,1.5165,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"116": {
@@ -1815,8 +2163,14 @@
 					"aim": [0.0,3.2265,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"117": {
@@ -1829,8 +2183,8 @@
 					"aim": [0.0,3.2265,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"118": {
@@ -1843,8 +2197,8 @@
 					"aim": [0.0,3.2265,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"119": {
@@ -1857,8 +2211,14 @@
 					"aim": [0.0,3.2265,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"120": {
@@ -1871,8 +2231,14 @@
 					"aim": [0.0,4.9365,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"121": {
@@ -1885,8 +2251,8 @@
 					"aim": [0.0,4.9365,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"122": {
@@ -1899,8 +2265,8 @@
 					"aim": [0.0,4.9365,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"123": {
@@ -1913,8 +2279,14 @@
 					"aim": [0.0,4.9365,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"124": {
@@ -1927,8 +2299,14 @@
 					"aim": [0.0,6.6465,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"125": {
@@ -1941,8 +2319,8 @@
 					"aim": [0.0,6.6465,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"126": {
@@ -1955,8 +2333,8 @@
 					"aim": [0.0,6.6465,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"127": {
@@ -1969,8 +2347,14 @@
 					"aim": [0.0,6.6465,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"128": {
@@ -1983,8 +2367,14 @@
 					"aim": [0.0,8.3565,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"129": {
@@ -1997,8 +2387,8 @@
 					"aim": [0.0,8.3565,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"130": {
@@ -2011,8 +2401,8 @@
 					"aim": [0.0,8.3565,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"131": {
@@ -2025,8 +2415,14 @@
 					"aim": [0.0,8.3565,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"132": {
@@ -2039,8 +2435,14 @@
 					"aim": [0.0,10.0665,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"133": {
@@ -2053,8 +2455,8 @@
 					"aim": [0.0,10.0665,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"134": {
@@ -2067,8 +2469,8 @@
 					"aim": [0.0,10.0665,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"135": {
@@ -2081,8 +2483,14 @@
 					"aim": [0.0,10.0665,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"136": {
@@ -2095,8 +2503,14 @@
 					"aim": [0.0,11.7765,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"137": {
@@ -2109,8 +2523,8 @@
 					"aim": [0.0,11.7765,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"138": {
@@ -2123,8 +2537,8 @@
 					"aim": [0.0,11.7765,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"139": {
@@ -2137,8 +2551,14 @@
 					"aim": [0.0,11.7765,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"140": {
@@ -2151,8 +2571,14 @@
 					"aim": [0.0,13.7915,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"141": {
@@ -2165,8 +2591,8 @@
 					"aim": [0.0,13.7915,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"142": {
@@ -2179,8 +2605,8 @@
 					"aim": [0.0,13.7915,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"143": {
@@ -2193,8 +2619,14 @@
 					"aim": [0.0,13.7915,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"144": {
@@ -2207,8 +2639,14 @@
 					"aim": [0.0,15.5015,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"145": {
@@ -2221,8 +2659,8 @@
 					"aim": [0.0,15.5015,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"146": {
@@ -2235,8 +2673,8 @@
 					"aim": [0.0,15.5015,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"147": {
@@ -2249,8 +2687,14 @@
 					"aim": [0.0,15.5015,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"148": {
@@ -2263,8 +2707,14 @@
 					"aim": [0.0,17.2115,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"149": {
@@ -2277,8 +2727,8 @@
 					"aim": [0.0,17.2115,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"150": {
@@ -2291,8 +2741,8 @@
 					"aim": [0.0,17.2115,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"151": {
@@ -2305,8 +2755,14 @@
 					"aim": [0.0,17.2115,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"152": {
@@ -2319,8 +2775,14 @@
 					"aim": [0.0,18.9215,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"153": {
@@ -2333,8 +2795,8 @@
 					"aim": [0.0,18.9215,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"154": {
@@ -2347,8 +2809,8 @@
 					"aim": [0.0,18.9215,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"155": {
@@ -2361,8 +2823,14 @@
 					"aim": [0.0,18.9215,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"156": {
@@ -2375,8 +2843,14 @@
 					"aim": [0.0,20.6315,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"157": {
@@ -2389,8 +2863,8 @@
 					"aim": [0.0,20.6315,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"158": {
@@ -2403,8 +2877,8 @@
 					"aim": [0.0,20.6315,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"159": {
@@ -2417,8 +2891,14 @@
 					"aim": [0.0,20.6315,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"160": {
@@ -2431,8 +2911,14 @@
 					"aim": [0.0,22.3415,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"161": {
@@ -2445,8 +2931,8 @@
 					"aim": [0.0,22.3415,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"162": {
@@ -2459,8 +2945,8 @@
 					"aim": [0.0,22.3415,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"163": {
@@ -2473,8 +2959,14 @@
 					"aim": [0.0,22.3415,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"164": {
@@ -2487,8 +2979,14 @@
 					"aim": [0.0,24.0515,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"165": {
@@ -2501,8 +2999,8 @@
 					"aim": [0.0,24.0515,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"166": {
@@ -2515,8 +3013,8 @@
 					"aim": [0.0,24.0515,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"167": {
@@ -2529,8 +3027,14 @@
 					"aim": [0.0,24.0515,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"168": {
@@ -2543,8 +3047,14 @@
 					"aim": [0.0,26.0665,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"169": {
@@ -2557,8 +3067,8 @@
 					"aim": [0.0,26.0665,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"170": {
@@ -2571,8 +3081,8 @@
 					"aim": [0.0,26.0665,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"171": {
@@ -2585,8 +3095,14 @@
 					"aim": [0.0,26.0665,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"172": {
@@ -2599,8 +3115,14 @@
 					"aim": [0.0,27.7765,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"173": {
@@ -2613,8 +3135,8 @@
 					"aim": [0.0,27.7765,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"174": {
@@ -2627,8 +3149,8 @@
 					"aim": [0.0,27.7765,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"175": {
@@ -2641,8 +3163,14 @@
 					"aim": [0.0,27.7765,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"176": {
@@ -2655,8 +3183,14 @@
 					"aim": [0.0,29.4865,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"177": {
@@ -2669,8 +3203,8 @@
 					"aim": [0.0,29.4865,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"178": {
@@ -2683,8 +3217,8 @@
 					"aim": [0.0,29.4865,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"179": {
@@ -2697,8 +3231,14 @@
 					"aim": [0.0,29.4865,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"180": {
@@ -2711,8 +3251,14 @@
 					"aim": [0.0,31.1965,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"181": {
@@ -2725,8 +3271,8 @@
 					"aim": [0.0,31.1965,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"182": {
@@ -2739,8 +3285,8 @@
 					"aim": [0.0,31.1965,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"183": {
@@ -2753,8 +3299,14 @@
 					"aim": [0.0,31.1965,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"184": {
@@ -2767,8 +3319,14 @@
 					"aim": [0.0,32.9065,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"185": {
@@ -2781,8 +3339,8 @@
 					"aim": [0.0,32.9065,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"186": {
@@ -2795,8 +3353,8 @@
 					"aim": [0.0,32.9065,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"187": {
@@ -2809,8 +3367,14 @@
 					"aim": [0.0,32.9065,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"188": {
@@ -2823,8 +3387,14 @@
 					"aim": [0.0,34.6165,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"189": {
@@ -2837,8 +3407,8 @@
 					"aim": [0.0,34.6165,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"190": {
@@ -2851,8 +3421,8 @@
 					"aim": [0.0,34.6165,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"191": {
@@ -2865,8 +3435,14 @@
 					"aim": [0.0,34.6165,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"192": {
@@ -2879,8 +3455,14 @@
 					"aim": [0.0,36.3265,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"193": {
@@ -2893,8 +3475,8 @@
 					"aim": [0.0,36.3265,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"194": {
@@ -2907,8 +3489,8 @@
 					"aim": [0.0,36.3265,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"195": {
@@ -2921,8 +3503,14 @@
 					"aim": [0.0,36.3265,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"196": {
@@ -2935,8 +3523,14 @@
 					"aim": [0.0,38.3415,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"197": {
@@ -2949,8 +3543,8 @@
 					"aim": [0.0,38.3415,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"198": {
@@ -2963,8 +3557,8 @@
 					"aim": [0.0,38.3415,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"199": {
@@ -2977,8 +3571,14 @@
 					"aim": [0.0,38.3415,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"200": {
@@ -2991,8 +3591,14 @@
 					"aim": [0.0,40.0515,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"201": {
@@ -3005,8 +3611,8 @@
 					"aim": [0.0,40.0515,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"202": {
@@ -3019,8 +3625,8 @@
 					"aim": [0.0,40.0515,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"203": {
@@ -3033,8 +3639,14 @@
 					"aim": [0.0,40.0515,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"204": {
@@ -3047,8 +3659,14 @@
 					"aim": [0.0,41.7615,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"205": {
@@ -3061,8 +3679,8 @@
 					"aim": [0.0,41.7615,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"206": {
@@ -3075,8 +3693,8 @@
 					"aim": [0.0,41.7615,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"207": {
@@ -3089,8 +3707,14 @@
 					"aim": [0.0,41.7615,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"208": {
@@ -3103,8 +3727,14 @@
 					"aim": [0.0,43.4715,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"209": {
@@ -3117,8 +3747,8 @@
 					"aim": [0.0,43.4715,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"210": {
@@ -3131,8 +3761,8 @@
 					"aim": [0.0,43.4715,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"211": {
@@ -3145,8 +3775,14 @@
 					"aim": [0.0,43.4715,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"212": {
@@ -3159,8 +3795,14 @@
 					"aim": [0.0,45.1815,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"213": {
@@ -3173,8 +3815,8 @@
 					"aim": [0.0,45.1815,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"214": {
@@ -3187,8 +3829,8 @@
 					"aim": [0.0,45.1815,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"215": {
@@ -3201,8 +3843,14 @@
 					"aim": [0.0,45.1815,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"216": {
@@ -3215,8 +3863,14 @@
 					"aim": [0.0,46.8915,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"217": {
@@ -3229,8 +3883,8 @@
 					"aim": [0.0,46.8915,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"218": {
@@ -3243,8 +3897,8 @@
 					"aim": [0.0,46.8915,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"219": {
@@ -3257,8 +3911,14 @@
 					"aim": [0.0,46.8915,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"220": {
@@ -3271,8 +3931,14 @@
 					"aim": [0.0,48.6015,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"221": {
@@ -3285,8 +3951,8 @@
 					"aim": [0.0,48.6015,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"222": {
@@ -3299,8 +3965,8 @@
 					"aim": [0.0,48.6015,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.58,"y_length":1.7,"x_coord":-0.79,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.58,"y_length": 1.7,"x_coord": -0.79,"y_coord": -0.85},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"223": {
@@ -3313,8 +3979,14 @@
 					"aim": [0.0,48.6015,1.0],
 					"zrot": 180.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.2485,"y_length":1.7,"x_coord":-0.62425,"y_coord":-0.85},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":1.709998016402301,"focal_length_y":null},
+					"aperture": {
+						"aperture_type": "RECTANGLE",
+						"x_length": 1.2485,
+						"y_length": 1.7,
+						"x_coord": -0.62425,
+						"y_coord": -0.85
+					},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.292398,"vertex_curv_y": 0.0},
 					"is_single": true
 				},
 				"224": {
@@ -3334,7 +4006,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"225": {
@@ -3354,7 +4026,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"226": {
@@ -3374,7 +4046,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"227": {
@@ -3394,7 +4066,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"228": {
@@ -3414,7 +4086,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"229": {
@@ -3434,7 +4106,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"230": {
@@ -3454,7 +4126,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"231": {
@@ -3474,7 +4146,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"232": {
@@ -3494,7 +4166,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"233": {
@@ -3514,7 +4186,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"234": {
@@ -3534,7 +4206,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"235": {
@@ -3554,7 +4226,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"236": {
@@ -3574,7 +4246,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"237": {
@@ -3594,7 +4266,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"238": {
@@ -3614,7 +4286,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"239": {
@@ -3634,7 +4306,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"240": {
@@ -3654,7 +4326,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"241": {
@@ -3674,7 +4346,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"242": {
@@ -3694,7 +4366,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"243": {
@@ -3714,7 +4386,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"244": {
@@ -3734,7 +4406,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"245": {
@@ -3754,7 +4426,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"246": {
@@ -3774,7 +4446,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"247": {
@@ -3794,7 +4466,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"248": {
@@ -3814,7 +4486,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"249": {
@@ -3834,7 +4506,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"250": {
@@ -3854,7 +4526,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"251": {
@@ -3874,7 +4546,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"252": {
@@ -3894,7 +4566,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"253": {
@@ -3914,7 +4586,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"254": {
@@ -3934,7 +4606,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"255": {
@@ -3954,7 +4626,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"256": {
@@ -3974,7 +4646,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"257": {
@@ -3994,7 +4666,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"258": {
@@ -4014,7 +4686,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"259": {
@@ -4034,7 +4706,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"260": {
@@ -4054,7 +4726,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"261": {
@@ -4074,7 +4746,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"262": {
@@ -4094,7 +4766,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"263": {
@@ -4114,7 +4786,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"264": {
@@ -4134,7 +4806,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"265": {
@@ -4154,7 +4826,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"266": {
@@ -4174,7 +4846,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"267": {
@@ -4194,7 +4866,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"268": {
@@ -4214,7 +4886,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"269": {
@@ -4234,7 +4906,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"270": {
@@ -4254,7 +4926,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"271": {
@@ -4274,7 +4946,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -0.0438
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"272": {
@@ -4294,7 +4966,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"273": {
@@ -4314,7 +4986,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"274": {
@@ -4334,7 +5006,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"275": {
@@ -4354,7 +5026,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"276": {
@@ -4374,7 +5046,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"277": {
@@ -4394,7 +5066,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"278": {
@@ -4414,7 +5086,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"279": {
@@ -4434,7 +5106,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"280": {
@@ -4454,7 +5126,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"281": {
@@ -4474,7 +5146,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"282": {
@@ -4494,7 +5166,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"283": {
@@ -4514,7 +5186,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"284": {
@@ -4534,7 +5206,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"285": {
@@ -4554,7 +5226,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"286": {
@@ -4574,7 +5246,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"287": {
@@ -4594,7 +5266,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"288": {
@@ -4614,7 +5286,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"289": {
@@ -4634,7 +5306,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"290": {
@@ -4654,7 +5326,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"291": {
@@ -4674,7 +5346,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"292": {
@@ -4694,7 +5366,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"293": {
@@ -4714,7 +5386,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"294": {
@@ -4734,7 +5406,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"295": {
@@ -4754,7 +5426,7 @@
 						"x_coord": -0.05750001437500359,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05750001437500359},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05750001437500359},
 					"is_single": true
 				},
 				"296": {
@@ -4774,7 +5446,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"297": {
@@ -4794,7 +5466,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"298": {
@@ -4814,7 +5486,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"299": {
@@ -4834,7 +5506,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"300": {
@@ -4854,7 +5526,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"301": {
@@ -4874,7 +5546,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"302": {
@@ -4894,7 +5566,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"303": {
@@ -4914,7 +5586,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"304": {
@@ -4934,7 +5606,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"305": {
@@ -4954,7 +5626,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"306": {
@@ -4974,7 +5646,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"307": {
@@ -4994,7 +5666,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"308": {
@@ -5014,7 +5686,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"309": {
@@ -5034,7 +5706,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"310": {
@@ -5054,7 +5726,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"311": {
@@ -5074,7 +5746,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"312": {
@@ -5094,7 +5766,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"313": {
@@ -5114,7 +5786,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"314": {
@@ -5134,7 +5806,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"315": {
@@ -5154,7 +5826,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"316": {
@@ -5174,7 +5846,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"317": {
@@ -5194,7 +5866,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"318": {
@@ -5214,7 +5886,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"319": {
@@ -5234,7 +5906,7 @@
 						"x_coord": -0.0545000708500921,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.0545000708500921},
+					"surface": {"surface_type": "CYLINDER","radius": 0.0545000708500921},
 					"is_single": true
 				},
 				"320": {
@@ -5254,7 +5926,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"321": {
@@ -5274,7 +5946,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"322": {
@@ -5294,7 +5966,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"323": {
@@ -5314,7 +5986,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"324": {
@@ -5334,7 +6006,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"325": {
@@ -5354,7 +6026,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"326": {
@@ -5374,7 +6046,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"327": {
@@ -5394,7 +6066,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"328": {
@@ -5414,7 +6086,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"329": {
@@ -5434,7 +6106,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"330": {
@@ -5454,7 +6126,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"331": {
@@ -5474,7 +6146,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"332": {
@@ -5494,7 +6166,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"333": {
@@ -5514,7 +6186,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"334": {
@@ -5534,7 +6206,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"335": {
@@ -5554,7 +6226,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"336": {
@@ -5574,7 +6246,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"337": {
@@ -5594,7 +6266,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"338": {
@@ -5614,7 +6286,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"339": {
@@ -5634,7 +6306,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"340": {
@@ -5654,7 +6326,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"341": {
@@ -5674,7 +6346,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"342": {
@@ -5694,7 +6366,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"343": {
@@ -5714,7 +6386,7 @@
 						"x_coord": -0.035000035000035,
 						"y_coord": -1.95825
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.035000035000035},
+					"surface": {"surface_type": "CYLINDER","radius": 0.035000035000035},
 					"is_single": true
 				},
 				"344": {
@@ -5734,7 +6406,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.05715
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"345": {
@@ -5754,7 +6426,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.1143
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"346": {
@@ -5774,7 +6446,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.1143
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"347": {
@@ -5794,7 +6466,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.1143
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"348": {
@@ -5814,7 +6486,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.1143
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"349": {
@@ -5834,7 +6506,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.1143
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"350": {
@@ -5854,7 +6526,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.1143
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"351": {
@@ -5874,7 +6546,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.1143
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"352": {
@@ -5894,7 +6566,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.1143
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"353": {
@@ -5914,7 +6586,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.1143
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"354": {
@@ -5934,7 +6606,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.1143
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"355": {
@@ -5954,7 +6626,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.1143
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"356": {
@@ -5974,7 +6646,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.05715
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"357": {
@@ -5994,7 +6666,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.05715
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"358": {
@@ -6014,7 +6686,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.1143
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"359": {
@@ -6034,7 +6706,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.1143
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"360": {
@@ -6054,7 +6726,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.1143
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"361": {
@@ -6074,7 +6746,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.1143
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"362": {
@@ -6094,7 +6766,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.1143
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"363": {
@@ -6114,7 +6786,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.1143
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"364": {
@@ -6134,7 +6806,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.1143
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"365": {
@@ -6154,7 +6826,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.1143
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"366": {
@@ -6174,7 +6846,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.1143
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"367": {
@@ -6194,7 +6866,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.1143
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"368": {
@@ -6214,7 +6886,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.1143
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				},
 				"369": {
@@ -6234,7 +6906,7 @@
 						"x_coord": -0.05999988000024,
 						"y_coord": -0.05715
 					},
-					"surface": {"surface_type":"CYLINDER","radius":0.05999988000024},
+					"surface": {"surface_type": "CYLINDER","radius": 0.05999988000024},
 					"is_single": true
 				}
 			}

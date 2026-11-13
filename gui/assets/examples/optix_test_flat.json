@@ -1,6 +1,6 @@
 {
-	"schema_version": "2026.07.15",
-	"number_of_elements": 2,
+	"schema_version": "2026.11.11",
+	"number_of_elements": 1,
 	"simulation_parameters": {
 		"include_sun_shape_errors": false,
 		"include_optical_errors": false,
@@ -59,7 +59,7 @@
 			"is_stage": true,
 			"is_single": false,
 			"is_composite": true,
-			"number_of_elements": 2,
+			"number_of_elements": 1,
 			"active": true,
 			"virtual_flag": false,
 			"my_id": 1,
@@ -75,26 +75,12 @@
 					"my_id": 2,
 					"stage": 0,
 					"my_name": "0",
-					"origin": [0.0,0.0,15.0],
-					"aim": [0.0,0.0,-1.0],
-					"zrot": 0.0,
-					"opt_id": 0,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":20.0},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.09},
-					"is_single": true
-				},
-				"1": {
-					"active": true,
-					"virtual_flag": false,
-					"my_id": 3,
-					"stage": 0,
-					"my_name": "1",
 					"origin": [0.0,0.0,-1.0],
 					"aim": [0.0,0.0,0.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":31.0,"y_length":31.0,"x_coord":-15.5,"y_coord":-15.5},
-					"surface": {"surface_type":"PARABOLA","focal_length_x":16.666666666666668,"focal_length_y":16.666666666666668},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 31.0,"y_length": 31.0,"x_coord": -15.5,"y_coord": -15.5},
+					"surface": {"surface_type": "FLAT"},
 					"is_single": true
 				}
 			}

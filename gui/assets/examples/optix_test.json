@@ -1,5 +1,5 @@
 {
-	"schema_version": "2026.07.15",
+	"schema_version": "2026.11.11",
 	"number_of_elements": 1,
 	"simulation_parameters": {
 		"include_sun_shape_errors": false,
@@ -79,8 +79,8 @@
 					"aim": [0.0,0.0,0.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":31.0,"y_length":31.0,"x_coord":-15.5,"y_coord":-15.5},
-					"surface": {"surface_type":"FLAT"},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 31.0,"y_length": 31.0,"x_coord": -15.5,"y_coord": -15.5},
+					"surface": {"surface_type": "PARABOLA","vertex_curv_x": 0.03,"vertex_curv_y": 0.03},
 					"is_single": true
 				}
 			}

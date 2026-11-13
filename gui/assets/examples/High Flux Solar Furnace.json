@@ -1,5 +1,5 @@
 {
-	"schema_version": "2026.07.15",
+	"schema_version": "2026.11.11",
 	"number_of_elements": 27,
 	"simulation_parameters": {
 		"include_sun_shape_errors": false,
@@ -107,8 +107,8 @@
 					"aim": [0.0,0.0,1.0],
 					"zrot": 0.0,
 					"opt_id": 0,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":6.2,"y_length":6.83,"x_coord":-3.1,"y_coord":-3.415},
-					"surface": {"surface_type":"FLAT"},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 6.2,"y_length": 6.83,"x_coord": -3.1,"y_coord": -3.415},
+					"surface": {"surface_type": "FLAT"},
 					"is_single": true
 				}
 			}
@@ -137,8 +137,8 @@
 					"aim": [1.83577,0.157399,9.71938],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.06892},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.06892},
 					"is_single": true
 				},
 				"1": {
@@ -151,8 +151,8 @@
 					"aim": [1.89885,-0.11253,9.76175],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.06889},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.06889},
 					"is_single": true
 				},
 				"2": {
@@ -165,8 +165,8 @@
 					"aim": [1.93805,-0.355782,9.7845],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.06823},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.06823},
 					"is_single": true
 				},
 				"3": {
@@ -179,8 +179,8 @@
 					"aim": [1.95002,-0.584572,9.78488],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.06811},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.06811},
 					"is_single": true
 				},
 				"4": {
@@ -193,8 +193,8 @@
 					"aim": [1.93356,-0.813122,9.76201],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.068},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.068},
 					"is_single": true
 				},
 				"5": {
@@ -207,8 +207,8 @@
 					"aim": [2.12162,-0.011079,9.69952],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.06859},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.06859},
 					"is_single": true
 				},
 				"6": {
@@ -221,8 +221,8 @@
 					"aim": [2.1694,-0.257396,9.7377],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.06811},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.06811},
 					"is_single": true
 				},
 				"7": {
@@ -235,8 +235,8 @@
 					"aim": [2.19352,-0.481112,9.75228],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.06835},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.06835},
 					"is_single": true
 				},
 				"8": {
@@ -249,8 +249,8 @@
 					"aim": [2.19165,-0.696651,9.74098],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.06806},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.06806},
 					"is_single": true
 				},
 				"9": {
@@ -263,8 +263,8 @@
 					"aim": [2.1638,-0.919691,9.70397],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.06833},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.06833},
 					"is_single": true
 				},
 				"10": {
@@ -277,8 +277,8 @@
 					"aim": [2.31639,0.100116,9.61559],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.06859},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.06859},
 					"is_single": true
 				},
 				"11": {
@@ -291,8 +291,8 @@
 					"aim": [2.36754,-0.156593,9.66973],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.06823},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.06823},
 					"is_single": true
 				},
 				"12": {
@@ -305,8 +305,8 @@
 					"aim": [0.239967,-0.038296,0.970025],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.06811},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.06811},
 					"is_single": true
 				},
 				"13": {
@@ -319,8 +319,8 @@
 					"aim": [2.40976,-0.592645,9.70336],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.06811},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.06811},
 					"is_single": true
 				},
 				"14": {
@@ -333,8 +333,8 @@
 					"aim": [2.39667,-0.801881,9.67774],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.06794},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.06794},
 					"is_single": true
 				},
 				"15": {
@@ -347,8 +347,8 @@
 					"aim": [2.54302,-0.045038,9.57575],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.06823},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.06823},
 					"is_single": true
 				},
 				"16": {
@@ -361,8 +361,8 @@
 					"aim": [2.57783,-0.28196,9.62257],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.06803},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.06803},
 					"is_single": true
 				},
 				"17": {
@@ -375,8 +375,8 @@
 					"aim": [2.59558,-0.494036,9.64186],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.06823},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.06823},
 					"is_single": true
 				},
 				"18": {
@@ -389,8 +389,8 @@
 					"aim": [2.59443,-0.696985,9.63065],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.06779},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.06779},
 					"is_single": true
 				},
 				"19": {
@@ -403,8 +403,8 @@
 					"aim": [2.57435,-0.908035,9.58908],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.06833},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.06833},
 					"is_single": true
 				},
 				"20": {
@@ -417,8 +417,8 @@
 					"aim": [2.70897,0.085004,9.45325],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.06811},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.06811},
 					"is_single": true
 				},
 				"21": {
@@ -431,8 +431,8 @@
 					"aim": [2.74079,-0.169573,9.51507],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.06811},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.06811},
 					"is_single": true
 				},
 				"22": {
@@ -445,8 +445,8 @@
 					"aim": [2.76087,-0.392383,9.55075],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.068},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.068},
 					"is_single": true
 				},
 				"23": {
@@ -459,8 +459,8 @@
 					"aim": [2.76726,-0.597612,9.55579],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.06776},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.06776},
 					"is_single": true
 				},
 				"24": {
@@ -473,8 +473,8 @@
 					"aim": [2.75921,-0.80226,9.52858],
 					"zrot": 0.0,
 					"opt_id": 1,
-					"aperture": {"aperture_type":"HEXAGON","circumscribe_diameter":0.8799},
-					"surface": {"surface_type":"SPHERE","vertex_curv":0.0677},
+					"aperture": {"aperture_type": "HEXAGON","circumscribe_diameter": 0.8799},
+					"surface": {"surface_type": "SPHERE","vertex_curv": 0.0677},
 					"is_single": true
 				}
 			}
@@ -503,8 +503,8 @@
 					"aim": [0.0,0.0,1.0],
 					"zrot": 0.0,
 					"opt_id": -3,
-					"aperture": {"aperture_type":"RECTANGLE","x_length":1.0,"y_length":1.0,"x_coord":-0.5,"y_coord":-0.5},
-					"surface": {"surface_type":"FLAT"},
+					"aperture": {"aperture_type": "RECTANGLE","x_length": 1.0,"y_length": 1.0,"x_coord": -0.5,"y_coord": -0.5},
+					"surface": {"surface_type": "FLAT"},
 					"is_single": true
 				}
 			}
