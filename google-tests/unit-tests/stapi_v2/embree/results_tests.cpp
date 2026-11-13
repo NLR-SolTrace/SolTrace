@@ -3,7 +3,7 @@
 #include "across_builds.hpp"
 
 
-TEST(results_tests, results_write_csv)
+TEST(ResultsTests, ResultsWriteCSV)
 {
     SETUP_TEST_CXT();
 
@@ -15,7 +15,7 @@ TEST(results_tests, results_write_csv)
     CLEANUP_TEST_CXT();
 }
 
-TEST(results_tests, results_write_group_json)
+TEST(ResultsTests, ResultsWriteGroupJSON)
 {
     SETUP_TEST_CXT();
 
@@ -27,7 +27,7 @@ TEST(results_tests, results_write_group_json)
     CLEANUP_TEST_CXT();
 }
 
-TEST(results_tests, results_locations)
+TEST(ResultsTests, ResultsLocations)
 {
     SETUP_TEST_CXT();
 
@@ -39,7 +39,7 @@ TEST(results_tests, results_locations)
     CLEANUP_TEST_CXT();
 }
 
-TEST(results_tests, results_cosines)
+TEST(ResultsTests, ResultsCosines)
 {
     SETUP_TEST_CXT();
 
@@ -51,7 +51,7 @@ TEST(results_tests, results_cosines)
     CLEANUP_TEST_CXT();
 }
 
-TEST(results_tests, results_elementmap)
+TEST(ResultsTests, ResultsElementMap)
 {
     SETUP_TEST_CXT();
 
@@ -63,7 +63,7 @@ TEST(results_tests, results_elementmap)
     CLEANUP_TEST_CXT();
 }
 
-TEST(results_tests, results_stagemap)
+TEST(ResultsTests, ResultsStageMap)
 {
     SETUP_TEST_CXT();
 
@@ -75,7 +75,7 @@ TEST(results_tests, results_stagemap)
     CLEANUP_TEST_CXT();
 }
 
-TEST(results_tests, results_raynumbers)
+TEST(ResultsTests, ResultsRayNumbers)
 {
     SETUP_TEST_CXT();
 
@@ -87,7 +87,7 @@ TEST(results_tests, results_raynumbers)
     CLEANUP_TEST_CXT();
 }
 
-TEST(results_tests, results_sun_stats)
+TEST(ResultsTests, ResultsSunStats)
 {
     SETUP_TEST_CXT();
 
@@ -99,7 +99,7 @@ TEST(results_tests, results_sun_stats)
     CLEANUP_TEST_CXT();
 }
 
-TEST(results_tests, results_get_results_data)
+TEST(ResultsTests, ResultsGetResultsData)
 {
     SETUP_TEST_CXT();
 
@@ -111,7 +111,7 @@ TEST(results_tests, results_get_results_data)
     CLEANUP_TEST_CXT();
 }
 
-TEST(results_tests, results_get_grouped_results_data)
+TEST(ResultsTests, ResultsGetGroupedResultsData)
 {
     SETUP_TEST_CXT();
 

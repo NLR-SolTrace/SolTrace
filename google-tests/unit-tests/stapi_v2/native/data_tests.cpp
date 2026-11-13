@@ -2,7 +2,7 @@
 
 #include "across_builds.hpp"
 
-TEST(data_tests, data_set_simulation_params)
+TEST(DataTests, DataSetSimulationParams)
 {
     SETUP_TEST_CXT();
 
@@ -12,7 +12,7 @@ TEST(data_tests, data_set_simulation_params)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_params)
+TEST(DataTests, DataParams)
 {
     SETUP_TEST_CXT();
 
@@ -22,7 +22,7 @@ TEST(data_tests, data_params)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_rays)
+TEST(DataTests, DataRays)
 {
     SETUP_TEST_CXT();
 
@@ -32,7 +32,7 @@ TEST(data_tests, data_rays)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_power_tower)
+TEST(DataTests, DataPowerTower)
 {
     SETUP_TEST_CXT();
 
@@ -42,7 +42,7 @@ TEST(data_tests, data_power_tower)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_errors)
+TEST(DataTests, DataErrors)
 {
     SETUP_TEST_CXT();
 
@@ -52,7 +52,7 @@ TEST(data_tests, data_errors)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_location)
+TEST(DataTests, DataLocation)
 {
     SETUP_TEST_CXT();
 
@@ -62,7 +62,7 @@ TEST(data_tests, data_location)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_tolerance)
+TEST(DataTests, DataTolerance)
 {
     SETUP_TEST_CXT();
 
@@ -72,7 +72,7 @@ TEST(data_tests, data_tolerance)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_get_simulation_params)
+TEST(DataTests, DataGetSimulationParams)
 {
     SETUP_TEST_CXT();
 
@@ -82,7 +82,7 @@ TEST(data_tests, data_get_simulation_params)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_add_optics)
+TEST(DataTests, DataAddOptics)
 {
     SETUP_TEST_CXT();
 
@@ -92,7 +92,7 @@ TEST(data_tests, data_add_optics)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_get_optic)
+TEST(DataTests, DataGetOptic)
 {
     SETUP_TEST_CXT();
 
@@ -102,7 +102,7 @@ TEST(data_tests, data_get_optic)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_remove_optics)
+TEST(DataTests, DataRemoveOptics)
 {
     SETUP_TEST_CXT();
 
@@ -112,7 +112,7 @@ TEST(data_tests, data_remove_optics)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_add_elements)
+TEST(DataTests, DataAddElements)
 {
     SETUP_TEST_CXT();
 
@@ -123,7 +123,7 @@ TEST(data_tests, data_add_elements)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_get_element)
+TEST(DataTests, DataGetElement)
 {
     SETUP_TEST_CXT();
 
@@ -133,7 +133,7 @@ TEST(data_tests, data_get_element)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_remove_elements)
+TEST(DataTests, DataRemoveElements)
 {
     SETUP_TEST_CXT();
 
@@ -143,7 +143,7 @@ TEST(data_tests, data_remove_elements)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_toggle_element)
+TEST(DataTests, DataToggleElement)
 {
     SETUP_TEST_CXT();
 
@@ -153,7 +153,7 @@ TEST(data_tests, data_toggle_element)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_element_xyz)
+TEST(DataTests, DataElementXYZ)
 {
     SETUP_TEST_CXT();
 
@@ -163,7 +163,7 @@ TEST(data_tests, data_element_xyz)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_element_aim)
+TEST(DataTests, DataElementAim)
 {
     SETUP_TEST_CXT();
 
@@ -173,7 +173,7 @@ TEST(data_tests, data_element_aim)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_element_zrot)
+TEST(DataTests, DataElementZrot)
 {
     SETUP_TEST_CXT();
 
@@ -183,7 +183,7 @@ TEST(data_tests, data_element_zrot)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_element_aperture)
+TEST(DataTests, DataElementAperture)
 {
     SETUP_TEST_CXT();
 
@@ -193,7 +193,7 @@ TEST(data_tests, data_element_aperture)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_element_surface)
+TEST(DataTests, DataElementSurface)
 {
     SETUP_TEST_CXT();
 
@@ -203,7 +203,7 @@ TEST(data_tests, data_element_surface)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_element_geometry)
+TEST(DataTests, DataElementGeometry)
 {
     SETUP_TEST_CXT();
 
@@ -213,7 +213,7 @@ TEST(data_tests, data_element_geometry)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_element_optic)
+TEST(DataTests, DataElementOptic)
 {
     SETUP_TEST_CXT();
 
@@ -223,7 +223,7 @@ TEST(data_tests, data_element_optic)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_element_group)
+TEST(DataTests, DataElementGroup)
 {
     SETUP_TEST_CXT();
 
@@ -233,7 +233,7 @@ TEST(data_tests, data_element_group)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_add_sun)
+TEST(DataTests, DataAddSun)
 {
     SETUP_TEST_CXT();
 
@@ -244,7 +244,7 @@ TEST(data_tests, data_add_sun)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_get_sun)
+TEST(DataTests, DataGetSun)
 {
     SETUP_TEST_CXT();
 
@@ -255,7 +255,7 @@ TEST(data_tests, data_get_sun)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_sun_shape)
+TEST(DataTests, DataSunShape)
 {
     SETUP_TEST_CXT();
 
@@ -265,7 +265,7 @@ TEST(data_tests, data_sun_shape)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_sun_xyz)
+TEST(DataTests, DataSunXYZ)
 {
     SETUP_TEST_CXT();
 
@@ -275,7 +275,7 @@ TEST(data_tests, data_sun_xyz)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_sun_userdata)
+TEST(DataTests, DataSunUserdata)
 {
     SETUP_TEST_CXT();
 
@@ -285,7 +285,7 @@ TEST(data_tests, data_sun_userdata)
     CLEANUP_TEST_CXT();
 }
 
-TEST(data_tests, data_sun_calculator)
+TEST(DataTests, DataSunCalculator)
 {
     SETUP_TEST_CXT();
 

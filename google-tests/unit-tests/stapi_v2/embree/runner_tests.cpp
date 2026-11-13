@@ -2,7 +2,7 @@
 
 #include "across_builds.hpp"
 
-TEST(runner_tests, runners_installed)
+TEST(RunnerTests, RunnersInstalled)
 {
     SETUP_TEST_CXT();
 
@@ -14,7 +14,7 @@ TEST(runner_tests, runners_installed)
     CLEANUP_TEST_CXT();
 }
 
-TEST(runner_tests, runners_is_installed)
+TEST(RunnerTests, RunnersIsInstalled)
 {
     SETUP_TEST_CXT();
 
@@ -34,7 +34,7 @@ TEST(runner_tests, runners_is_installed)
     CLEANUP_TEST_CXT();
 }
 
-TEST(runner_tests, runner_setup_native)
+TEST(RunnerTests, RunnersSetupNative)
 {
     SETUP_TEST_CXT();
 
@@ -47,7 +47,7 @@ TEST(runner_tests, runner_setup_native)
     CLEANUP_TEST_CXT();
 }
 
-TEST(runner_tests, runner_setup_embree)
+TEST(RunnerTests, RunnersSetupEmbree)
 {
     SETUP_TEST_CXT();
 
@@ -60,7 +60,7 @@ TEST(runner_tests, runner_setup_embree)
     CLEANUP_TEST_CXT();
 }
 
-TEST(runner_tests, runner_setup_optix)
+TEST(RunnerTests, RunnersSetupOptix)
 {
     SETUP_TEST_CXT();
 
@@ -73,7 +73,7 @@ TEST(runner_tests, runner_setup_optix)
     CLEANUP_TEST_CXT();
 }
 
-TEST(runner_tests, runner_setup_mismatch)
+TEST(RunnerTests, RunnersSetupMismatch)
 {
     SETUP_TEST_CXT();
 
@@ -90,7 +90,7 @@ TEST(runner_tests, runner_setup_mismatch)
     CLEANUP_TEST_CXT();
 }
 
-TEST(runner_tests, runner_run_native)
+TEST(RunnerTests, RunnersRunNative)
 {
     SETUP_TEST_CXT();
 
@@ -101,7 +101,7 @@ TEST(runner_tests, runner_run_native)
     CLEANUP_TEST_CXT();
 }
 
-TEST(runner_tests, runner_run_embree)
+TEST(RunnerTests, RunnersRunEmbree)
 {
     SETUP_TEST_CXT();
 
@@ -112,7 +112,7 @@ TEST(runner_tests, runner_run_embree)
     CLEANUP_TEST_CXT();
 }
 
-TEST(runner_tests, runner_not_found)
+TEST(RunnerTests, RunnersNotFound)
 {
     SETUP_TEST_CXT();
 
@@ -122,7 +122,7 @@ TEST(runner_tests, runner_not_found)
     CLEANUP_TEST_CXT();
 }
 
-TEST(runner_tests, runner_report)
+TEST(RunnerTests, RunnersReport)
 {
     SETUP_TEST_CXT();
 

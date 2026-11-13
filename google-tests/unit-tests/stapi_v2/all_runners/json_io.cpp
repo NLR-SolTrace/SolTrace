@@ -2,7 +2,7 @@
 
 #include "across_builds.hpp"
 
-TEST(json_io, read_input_json)
+TEST(JSONIO, ReadInputJSON)
 {
     SETUP_TEST_CXT();
 
@@ -11,7 +11,7 @@ TEST(json_io, read_input_json)
     CLEANUP_TEST_CXT();
 }
 
-TEST(json_io, read_input_json_file)
+TEST(JSONIO, ReadInputJSONFile)
 {
     SETUP_TEST_CXT();
 
