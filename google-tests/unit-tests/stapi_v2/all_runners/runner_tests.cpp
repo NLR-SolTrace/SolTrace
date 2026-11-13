@@ -34,12 +34,58 @@ TEST(runner_tests, runners_is_installed)
     CLEANUP_TEST_CXT();
 }
 
-TEST(runner_tests, runner_setup)
+TEST(runner_tests, runner_setup_native)
 {
     SETUP_TEST_CXT();
 
-    code = call_stapi_v2_sim_setup(pcxt);
-    EXPECT_EQ(code, st_return_code::RUNNER_NUMBER_THREADS_SEEDS_MISMATCH_FAILURE);
+    LOAD_TEST_JSON();
+    
+    EXPECT_EQ(
+        st_sim_setup(pcxt, st_runner_type_t::NATIVE),
+        st_return_code::SUCCESS);
+
+    CLEANUP_TEST_CXT();
+}
+
+TEST(runner_tests, runner_setup_embree)
+{
+    SETUP_TEST_CXT();
+
+    LOAD_TEST_JSON();
+    
+    EXPECT_EQ(
+        st_sim_setup(pcxt, st_runner_type_t::EMBREE),
+        st_return_code::SUCCESS);
+
+    CLEANUP_TEST_CXT();
+}
+
+TEST(runner_tests, runner_setup_optix)
+{
+    SETUP_TEST_CXT();
+
+    LOAD_TEST_JSON();
+    
+    EXPECT_EQ(
+        st_sim_setup(pcxt, st_runner_type_t::OPTIX),
+        st_return_code::SUCCESS);
+
+    CLEANUP_TEST_CXT();
+}
+
+TEST(runner_tests, runner_setup_mismatch)
+{
+    SETUP_TEST_CXT();
+
+    LOAD_TEST_JSON();
+
+    unsigned int *seeds_test = new unsigned int[2] { 608, 303, };
+
+    EXPECT_EQ(
+        st_sim_setup(pcxt, st_runner_type_t::NATIVE, 3, seeds_test, 2),
+        st_return_code::RUNNER_NUMBER_THREADS_SEEDS_MISMATCH_FAILURE);
+
+    delete[] seeds_test;
 
     CLEANUP_TEST_CXT();
 }
@@ -50,8 +96,9 @@ TEST(runner_tests, runner_setup_ignore_warning)
 
     LOAD_TEST_JSON();
 
-    code = st_sim_setup(pcxt, st_runner_type_t::OPTIX, 1);
-    EXPECT_EQ(code, st_return_code::WARNING_ARGUMENT_IGNORED_BY_RUNNER);
+    EXPECT_EQ(
+        st_sim_setup(pcxt, st_runner_type_t::OPTIX, 1),
+        st_return_code::WARNING_ARGUMENT_IGNORED_BY_RUNNER);
 
     CLEANUP_TEST_CXT();
 }
@@ -62,9 +109,8 @@ TEST(runner_tests, runner_run_native)
 
     LOAD_TEST_JSON();
 
-    code = call_stapi_v2_sim_run_v2(pcxt, st_runner_type_t::NATIVE);
-    EXPECT_EQ(code, st_return_code::SUCCESS);
-
+    call_stapi_v2_sim_run_v2(pcxt, st_runner_type_t::NATIVE);
+    
     CLEANUP_TEST_CXT();
 }
 
@@ -74,9 +120,8 @@ TEST(runner_tests, runner_run_embree)
 
     LOAD_TEST_JSON();
 
-    code = call_stapi_v2_sim_run_v2(pcxt, st_runner_type_t::EMBREE);
-    EXPECT_EQ(code, st_return_code::SUCCESS);
-
+    call_stapi_v2_sim_run_v2(pcxt, st_runner_type_t::EMBREE);
+    
     CLEANUP_TEST_CXT();
 }
 
@@ -86,9 +131,8 @@ TEST(runner_tests, runner_run_optix)
 
     LOAD_TEST_JSON();
 
-    code = call_stapi_v2_sim_run_v2(pcxt, st_runner_type_t::OPTIX);
-    EXPECT_EQ(code, st_return_code::SUCCESS);
-
+    call_stapi_v2_sim_run_v2(pcxt, st_runner_type_t::OPTIX);
+    
     CLEANUP_TEST_CXT();
 }
 
@@ -96,8 +140,8 @@ TEST(runner_tests, runner_not_found)
 {
     SETUP_TEST_CXT();
 
-    code = st_sim_run_v2(pcxt);
-    EXPECT_EQ(code, st_return_code::RUNNER_NOT_FOUND);
+    EXPECT_EQ(st_sim_run_v2(pcxt),
+              st_return_code::RUNNER_NOT_FOUND);
 
     CLEANUP_TEST_CXT();
 }
@@ -108,63 +152,9 @@ TEST(runner_tests, runner_report)
 
     LOAD_TEST_JSON();
 
-    code = call_stapi_v2_sim_report(pcxt, st_runner_type_t::NATIVE);
-    EXPECT_EQ(code, st_return_code::RUNNER_NOT_READY_TO_REPORT
-                    + 2 * st_return_code::INVALID_ARGUMENTS);
-
-    code = call_stapi_v2_sim_report(pcxt, st_runner_type_t::EMBREE);
-    EXPECT_EQ(code, st_return_code::RUNNER_NOT_READY_TO_REPORT
-                    + 2 * st_return_code::INVALID_ARGUMENTS);
-    
-    code = call_stapi_v2_sim_report(pcxt, st_runner_type_t::OPTIX);
-    EXPECT_EQ(code, st_return_code::RUNNER_NOT_READY_TO_REPORT
-                    + 2 * st_return_code::INVALID_ARGUMENTS);
-
+    call_stapi_v2_sim_report(pcxt, st_runner_type_t::NATIVE);
+    call_stapi_v2_sim_report(pcxt, st_runner_type_t::EMBREE);
+    call_stapi_v2_sim_report(pcxt, st_runner_type_t::OPTIX);
 
     CLEANUP_TEST_CXT();
 }
-
-// TEST(runner_tests, runner_report_native)
-// {
-//     SETUP_TEST_CXT();
-
-//     LOAD_TEST_JSON();
-
-//     code = call_stapi_v2_sim_run_v2(pcxt, st_runner_type_t::NATIVE);
-//     EXPECT_EQ(code, st_return_code::SUCCESS);
-    
-//     code = st_sim_report(pcxt, 0);
-//     EXPECT_EQ(code, st_return_code::SUCCESS);
-
-//     CLEANUP_TEST_CXT();
-// }
-
-// TEST(runner_tests, runner_report_embree)
-// {
-//     SETUP_TEST_CXT();
-
-//     LOAD_TEST_JSON();
-
-//     code = call_stapi_v2_sim_run_v2(pcxt, st_runner_type_t::EMBREE);
-//     EXPECT_EQ(code, st_return_code::SUCCESS);
-    
-//     code = st_sim_report(pcxt, 0);
-//     EXPECT_EQ(code, st_return_code::SUCCESS);
-
-//     CLEANUP_TEST_CXT();
-// }
-
-// TEST(runner_tests, runner_report_optix)
-// {
-//     SETUP_TEST_CXT();
-
-//     LOAD_TEST_JSON();
-
-//     code = call_stapi_v2_sim_run_v2(pcxt, st_runner_type_t::OPTIX);
-//     EXPECT_EQ(code, st_return_code::SUCCESS);
-    
-//     code = st_sim_report(pcxt, 0);
-//     EXPECT_EQ(code, st_return_code::SUCCESS);
-
-//     CLEANUP_TEST_CXT();
-// }

@@ -9,10 +9,8 @@ TEST(results_tests, results_write_csv)
 
     LOAD_TEST_JSON();
 
-    code = call_stapi_v2_write_results_csv(pcxt, st_runner_type_t::NATIVE, "temp_char.csv");
-    EXPECT_EQ(code, st_return_code::SUCCESS);
-    code = call_stapi_v2_write_results_csv(pcxt, st_runner_type_t::EMBREE, "temp_char.csv");
-    EXPECT_EQ(code, st_return_code::SUCCESS);
+    call_stapi_v2_write_results_csv(pcxt, st_runner_type_t::NATIVE, "temp_char.csv");
+    call_stapi_v2_write_results_csv(pcxt, st_runner_type_t::EMBREE, "temp_char.csv");
     
     CLEANUP_TEST_CXT();
 }
@@ -23,11 +21,9 @@ TEST(results_tests, results_write_group_json)
 
     LOAD_TEST_JSON();
 
-    code = call_stapi_v2_write_group_results_json(pcxt, st_runner_type_t::NATIVE, "temp_char.csv");
-    EXPECT_EQ(code, st_return_code::SUCCESS);
-    code = call_stapi_v2_write_group_results_json(pcxt, st_runner_type_t::EMBREE, "temp_char.csv");
-    EXPECT_EQ(code, st_return_code::SUCCESS);
-
+    call_stapi_v2_write_group_results_json(pcxt, st_runner_type_t::NATIVE, "temp_char.csv");
+    call_stapi_v2_write_group_results_json(pcxt, st_runner_type_t::EMBREE, "temp_char.csv");
+    
     CLEANUP_TEST_CXT();
 }
 
@@ -37,10 +33,8 @@ TEST(results_tests, results_locations)
 
     LOAD_TEST_JSON();
 
-    code = call_stapi_v2_locations(pcxt, st_runner_type_t::NATIVE);
-    EXPECT_EQ(code, st_return_code::SUCCESS);
-    code = call_stapi_v2_locations(pcxt, st_runner_type_t::EMBREE);
-    EXPECT_EQ(code, st_return_code::SUCCESS);
+    call_stapi_v2_locations(pcxt, st_runner_type_t::NATIVE);
+    call_stapi_v2_locations(pcxt, st_runner_type_t::EMBREE);
     
     CLEANUP_TEST_CXT();
 }
@@ -51,10 +45,8 @@ TEST(results_tests, results_cosines)
 
     LOAD_TEST_JSON();
 
-    code = call_stapi_v2_cosines(pcxt, st_runner_type_t::NATIVE);
-    EXPECT_EQ(code, st_return_code::SUCCESS);
-    code = call_stapi_v2_cosines(pcxt, st_runner_type_t::EMBREE);
-    EXPECT_EQ(code, st_return_code::SUCCESS);
+    call_stapi_v2_cosines(pcxt, st_runner_type_t::NATIVE);
+    call_stapi_v2_cosines(pcxt, st_runner_type_t::EMBREE);
     
     CLEANUP_TEST_CXT();
 }
@@ -65,10 +57,8 @@ TEST(results_tests, results_elementmap)
 
     LOAD_TEST_JSON();
 
-    code = call_stapi_v2_elementmap(pcxt, st_runner_type_t::NATIVE);
-    EXPECT_EQ(code, st_return_code::SUCCESS);
-    code = call_stapi_v2_elementmap(pcxt, st_runner_type_t::EMBREE);
-    EXPECT_EQ(code, st_return_code::SUCCESS);
+    call_stapi_v2_elementmap(pcxt, st_runner_type_t::NATIVE);
+    call_stapi_v2_elementmap(pcxt, st_runner_type_t::EMBREE);
     
     CLEANUP_TEST_CXT();
 }
@@ -79,10 +69,8 @@ TEST(results_tests, results_stagemap)
 
     LOAD_TEST_JSON();
 
-    code = call_stapi_v2_stagemap(pcxt, st_runner_type_t::NATIVE);
-    EXPECT_EQ(code, st_return_code::SUCCESS);
-    code = call_stapi_v2_stagemap(pcxt, st_runner_type_t::EMBREE);
-    EXPECT_EQ(code, st_return_code::SUCCESS);
+    call_stapi_v2_stagemap(pcxt, st_runner_type_t::NATIVE);
+    call_stapi_v2_stagemap(pcxt, st_runner_type_t::EMBREE);
     
     CLEANUP_TEST_CXT();
 }
@@ -93,10 +81,8 @@ TEST(results_tests, results_raynumbers)
 
     LOAD_TEST_JSON();
 
-    code = call_stapi_v2_raynumbers(pcxt, st_runner_type_t::NATIVE);
-    EXPECT_EQ(code, st_return_code::SUCCESS);
-    code = call_stapi_v2_raynumbers(pcxt, st_runner_type_t::EMBREE);
-    EXPECT_EQ(code, st_return_code::SUCCESS);
+    call_stapi_v2_raynumbers(pcxt, st_runner_type_t::NATIVE);
+    call_stapi_v2_raynumbers(pcxt, st_runner_type_t::EMBREE);
     
     CLEANUP_TEST_CXT();
 }
@@ -107,10 +93,8 @@ TEST(results_tests, results_sun_stats)
 
     LOAD_TEST_JSON();
 
-    code = call_stapi_v2_sun_stats(pcxt, st_runner_type_t::NATIVE);
-    EXPECT_EQ(code, st_return_code::SUCCESS);
-    code = call_stapi_v2_sun_stats(pcxt, st_runner_type_t::EMBREE);
-    EXPECT_EQ(code, st_return_code::SUCCESS);
+    call_stapi_v2_sun_stats(pcxt, st_runner_type_t::NATIVE);
+    call_stapi_v2_sun_stats(pcxt, st_runner_type_t::EMBREE);
     
     CLEANUP_TEST_CXT();
 }
@@ -121,10 +105,8 @@ TEST(results_tests, results_get_results_data)
 
     LOAD_TEST_JSON();
 
-    code = call_stapi_v2_get_results_data(pcxt, st_runner_type_t::NATIVE);
-    EXPECT_EQ(code, st_return_code::SUCCESS);
-    code = call_stapi_v2_get_results_data(pcxt, st_runner_type_t::EMBREE);
-    EXPECT_EQ(code, st_return_code::SUCCESS);
+    call_stapi_v2_get_results_data(pcxt, st_runner_type_t::NATIVE);
+    call_stapi_v2_get_results_data(pcxt, st_runner_type_t::EMBREE);
     
     CLEANUP_TEST_CXT();
 }
@@ -135,10 +117,8 @@ TEST(results_tests, results_get_grouped_results_data)
 
     LOAD_TEST_JSON();
 
-    code = call_stapi_v2_get_grouped_results_data(pcxt, st_runner_type_t::NATIVE);
-    EXPECT_EQ(code, st_return_code::SUCCESS);
-    code = call_stapi_v2_get_grouped_results_data(pcxt, st_runner_type_t::EMBREE);
-    EXPECT_EQ(code, st_return_code::SUCCESS);
+    call_stapi_v2_get_grouped_results_data(pcxt, st_runner_type_t::NATIVE);
+    call_stapi_v2_get_grouped_results_data(pcxt, st_runner_type_t::EMBREE);
     
     CLEANUP_TEST_CXT();
 }

@@ -4,6 +4,7 @@ i.e. shouldn't need google-test.h in here.
 intended to be called from tests inside different api build tests, those manage the context that these functions use.
 */
 
+#include <gtest/gtest.h>
 #include <fstream>
 #include <vector>
 #include <thread>
@@ -77,21 +78,25 @@ st_return_t check_optical_side(optical_set_ptr  set,
 ////////////////////////////////
 
 // functions for simulation data management thru json strings
-st_return_t call_stapi_v2_read_input_json(st_context_v2_t pcxt)
+void call_stapi_v2_read_input_json(st_context_v2_t pcxt)
 {
     json root = load_json();
     // add calls to other overloads
-    return st_read_input_json(pcxt, root.dump().c_str());
+    ASSERT_EQ(
+        st_read_input_json(pcxt, root.dump().c_str()), 
+        st_return_code::SUCCESS);
 }
 
-st_return_t call_stapi_v2_read_input_json_file(st_context_v2_t pcxt)
+void call_stapi_v2_read_input_json_file(st_context_v2_t pcxt)
 {
     namespace fs = std::filesystem;
 
     // Build paths
     const fs::path project_root(PROJECT_DIR);
     const fs::path sample_path = project_root / "sample_ver_20251112.json";
-    return st_read_input_json_file(pcxt, sample_path.string().c_str());
+    ASSERT_EQ(
+        st_read_input_json_file(pcxt, sample_path.string().c_str()),
+        st_return_code::SUCCESS);
 }
 
 // functions for simulation data management directly
@@ -113,6 +118,7 @@ st_return_t call_stapi_v2_set_simulation_parameters(st_context_v2_t pcxt)
     code += check(params.include_optical_errors,   _params.include_optical_errors);
     code += check(params.as_power_tower,           _params.as_power_tower);
 
+    // ASSERT_EQ(code, (st_return_t)st_return_code::SUCCESS) << "Simulation parameters not set correctly";
     return code;
 }
 
@@ -1277,26 +1283,7 @@ st_return_t call_stapi_v2_solar_calculator(st_context_v2_t pcxt)
 //////////////////////////////////
 
 // functions for SolTrace runner management
-st_return_t call_stapi_v2_sim_setup(st_context_v2_t pcxt)
-{
-    // this fails on first execution after build if optix is built
-    // when debugging first execution, it passes 
-    json root = load_json();
-
-    st_return_t code = st_read_input_json(pcxt, root.dump().c_str());
-
-    if (code != st_return_code::SUCCESS) return code;
-
-    code =  st_sim_setup(pcxt, st_runner_type_t::NATIVE);
-    unsigned int *seeds_test = new unsigned int[2] { 608, 303, };
-    code += st_sim_setup(pcxt, st_runner_type_t::NATIVE, 3, seeds_test, 2);
-    code += st_sim_setup(pcxt, st_runner_type_t::EMBREE);
-    code += st_sim_setup(pcxt, st_runner_type_t::OPTIX);
-
-    return code;
-}
-
-st_return_t call_stapi_v2_sim_run_v2(st_context_v2_t pcxt, st_runner_type_t runner_type)
+void call_stapi_v2_sim_run_v2(st_context_v2_t pcxt, st_runner_type_t runner_type)
 {
     if (runner_type != st_runner_type_t::OPTIX)
     {
@@ -1304,10 +1291,13 @@ st_return_t call_stapi_v2_sim_run_v2(st_context_v2_t pcxt, st_runner_type_t runn
         cxt->p_data->set_number_of_rays(1000);
     }
 
-    return st_sim_setup(pcxt, runner_type) + st_sim_run_v2(pcxt);
+    ASSERT_EQ(st_sim_setup(pcxt, runner_type),
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_sim_run_v2(pcxt),
+              st_return_code::SUCCESS);
 }
 
-st_return_t call_stapi_v2_sim_report(st_context_v2_t pcxt, st_runner_type_t runner_type)
+void call_stapi_v2_sim_report(st_context_v2_t pcxt, st_runner_type_t runner_type)
 {
     if (runner_type != st_runner_type_t::OPTIX)
     {
@@ -1315,27 +1305,53 @@ st_return_t call_stapi_v2_sim_report(st_context_v2_t pcxt, st_runner_type_t runn
         cxt->p_data->set_number_of_rays(1000);
     }
 
-    st_return_t code = st_sim_setup(pcxt, runner_type);
-    // expect += st_return_code::RUNNER_NOT_READY_TO_REPORT
-    code += st_sim_report(pcxt, RunnerStatistics::RAY_RECORDS);
+    ASSERT_EQ(st_sim_setup(pcxt, runner_type),
+              st_return_code::SUCCESS);
+    // hasn't run yet, expect st_return_code::RUNNER_NOT_READY_TO_REPORT
+    ASSERT_EQ(st_sim_report(pcxt, RunnerStatistics::RAY_RECORDS),
+              st_return_code::RUNNER_NOT_READY_TO_REPORT);
 
-    code += st_sim_run_v2(pcxt);
+    ASSERT_EQ(st_sim_run_v2(pcxt),
+              st_return_code::SUCCESS);
 
-    // expect += 2 * st_return_code::INVALID_ARGUMENTS
-    code += st_sim_report(pcxt, RunnerStatistics::RAY_RECORDS - 1);
-    code += st_sim_report(pcxt, RunnerStatistics::STATISTICS_COUNT);
+    // bad arguments, expect st_return_code::INVALID_ARGUMENTS
+    ASSERT_EQ(st_sim_report(pcxt, RunnerStatistics::RAY_RECORDS - 1),
+              st_return_code::INVALID_ARGUMENTS);
+    ASSERT_EQ(st_sim_report(pcxt, RunnerStatistics::STATISTICS_COUNT),
+              st_return_code::INVALID_ARGUMENTS);
 
-    // expect += st_return_code::SUCCESS
-    code += st_sim_report(pcxt, RunnerStatistics::GROUPED_COUNTS);
-
-    return code;
+    ASSERT_EQ(st_sim_report(pcxt, RunnerStatistics::GROUPED_COUNTS),
+              st_return_code::SUCCESS);
 }
 
 ///////////////////////////////////
 // Simlulation Results Functions //
 ///////////////////////////////////
 
-st_return_t call_stapi_v2_write_results_csv(st_context_v2_t  pcxt, 
+void call_stapi_v2_write_results_csv(st_context_v2_t  pcxt, 
+                                     st_runner_type_t runner_type, 
+                                     const char       *filename)
+{
+    if (runner_type != st_runner_type_t::OPTIX)
+    {
+        st_context* cxt = reinterpret_cast<st_context*>(pcxt);
+        cxt->p_data->set_number_of_rays(1000);
+    }
+
+    ASSERT_EQ(st_sim_setup(pcxt, runner_type),
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_sim_run_v2(pcxt),
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_sim_report(pcxt, 0),
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_write_results_csv(pcxt, filename),
+              st_return_code::SUCCESS);
+
+    std::error_code ec;
+    std::filesystem::remove(filename, ec);
+}
+
+void call_stapi_v2_write_group_results_json(st_context_v2_t  pcxt, 
                                             st_runner_type_t runner_type, 
                                             const char       *filename)
 {
@@ -1345,63 +1361,49 @@ st_return_t call_stapi_v2_write_results_csv(st_context_v2_t  pcxt,
         cxt->p_data->set_number_of_rays(1000);
     }
 
-    st_return_t code = st_sim_setup(pcxt, runner_type); 
-    code += st_sim_run_v2(pcxt);
-    code += st_sim_report(pcxt, 0);
-    code += st_write_results_csv(pcxt, filename);
+    ASSERT_EQ(st_sim_setup(pcxt, runner_type),
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_sim_run_v2(pcxt),
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_sim_report(pcxt, 1),
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_write_group_results_json(pcxt, filename),
+              st_return_code::SUCCESS);
 
     std::error_code ec;
     std::filesystem::remove(filename, ec);
-
-    return code;
-}
-
-st_return_t call_stapi_v2_write_group_results_json(st_context_v2_t  pcxt, 
-                                                   st_runner_type_t runner_type, 
-                                                   const char       *filename)
-{
-    if (runner_type != st_runner_type_t::OPTIX)
-    {
-        st_context* cxt = reinterpret_cast<st_context*>(pcxt);
-        cxt->p_data->set_number_of_rays(1000);
-    }
-
-    st_return_t code = st_sim_setup(pcxt, runner_type); 
-    code += st_sim_run_v2(pcxt);
-    code += st_sim_report(pcxt, 1);
-    code += st_write_group_results_json(pcxt, filename);
-
-    std::error_code ec;
-    std::filesystem::remove(filename, ec);
-
-    return code;
 }
 
 // functions to get results directly
 
-st_return_t call_stapi_v2_locations(st_context_v2_t  pcxt,
-                                    st_runner_type_t runner_type)
+void call_stapi_v2_locations(st_context_v2_t  pcxt,
+                             st_runner_type_t runner_type)
 {
     st_context* cxt = reinterpret_cast<st_context*>(pcxt);
     cxt->p_data->set_number_of_rays(1000);
 
-    st_return_t code = st_sim_setup(pcxt, runner_type); 
-    code += st_sim_run_v2(pcxt);
-    code += st_sim_report(pcxt, 0);
-    
+    ASSERT_EQ(st_sim_setup(pcxt, runner_type), 
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_sim_run_v2(pcxt), 
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_sim_report(pcxt, 0), 
+              st_return_code::SUCCESS);
+
     uint_fast64_t num;
     
-    code += st_num_intersections(pcxt, &num);
+    ASSERT_EQ(st_num_intersections(pcxt, &num),
+              st_return_code::SUCCESS);
 
     double *loc_x = new double[num];
     double *loc_y = new double[num];
     double *loc_z = new double[num];
 
-    code += st_locations(pcxt, loc_x, loc_y, loc_z);
+    ASSERT_EQ(st_locations(pcxt, loc_x, loc_y, loc_z),
+              st_return_code::SUCCESS);
 
-    code += check_not(loc_x, nullptr);
-    code += check_not(loc_y, nullptr);
-    code += check_not(loc_z, nullptr);
+    ASSERT_NE(loc_x, nullptr);
+    ASSERT_NE(loc_y, nullptr);
+    ASSERT_NE(loc_z, nullptr);
 
     uint_fast64_t n = 0;
     glm::dvec3 loc;
@@ -1411,39 +1413,42 @@ st_return_t call_stapi_v2_locations(st_context_v2_t  pcxt,
         for (auto jt = rec->get_interaction_record_iterator(); !rec->is_at_end(jt); ++jt)
         {
             loc = (*jt)->location;
-            code += check(loc_x[n], loc[0]);
-            code += check(loc_y[n], loc[1]);
-            code += check(loc_z[n], loc[2]);
+            ASSERT_EQ(loc_x[n], loc[0]);
+            ASSERT_EQ(loc_y[n], loc[1]);
+            ASSERT_EQ(loc_z[n], loc[2]);
             ++n;
         }
     }
-
-    return code;
 }
 
-st_return_t call_stapi_v2_cosines(st_context_v2_t  pcxt,
-                                  st_runner_type_t runner_type)
+void call_stapi_v2_cosines(st_context_v2_t  pcxt,
+                           st_runner_type_t runner_type)
 {
     st_context* cxt = reinterpret_cast<st_context*>(pcxt);
     cxt->p_data->set_number_of_rays(1000);
 
-    st_return_t code = st_sim_setup(pcxt, runner_type); 
-    code += st_sim_run_v2(pcxt);
-    code += st_sim_report(pcxt, 0);
-    
+    ASSERT_EQ(st_sim_setup(pcxt, runner_type),
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_sim_run_v2(pcxt),
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_sim_report(pcxt, 0),
+              st_return_code::SUCCESS);
+
     uint_fast64_t num;
     
-    code += st_num_intersections(pcxt, &num);
+    ASSERT_EQ(st_num_intersections(pcxt, &num),
+              st_return_code::SUCCESS);
 
     double *cos_x = new double[num];
     double *cos_y = new double[num];
     double *cos_z = new double[num];
 
-    code += st_cosines(pcxt, cos_x, cos_y, cos_z);
+    ASSERT_EQ(st_cosines(pcxt, cos_x, cos_y, cos_z),
+              st_return_code::SUCCESS);
 
-    code += check_not(cos_x, nullptr);
-    code += check_not(cos_y, nullptr);
-    code += check_not(cos_z, nullptr);
+    ASSERT_NE(cos_x, nullptr);
+    ASSERT_NE(cos_y, nullptr);
+    ASSERT_NE(cos_z, nullptr);
 
     uint_fast64_t n = 0;
     glm::dvec3 cosine;
@@ -1453,35 +1458,38 @@ st_return_t call_stapi_v2_cosines(st_context_v2_t  pcxt,
         for (auto jt = rec->get_interaction_record_iterator(); !rec->is_at_end(jt); ++jt)
         {
             cosine = (*jt)->direction;
-            code += check(cos_x[n], cosine[0]);
-            code += check(cos_y[n], cosine[1]);
-            code += check(cos_z[n], cosine[2]);
+            ASSERT_EQ(cos_x[n], cosine[0]);
+            ASSERT_EQ(cos_y[n], cosine[1]);
+            ASSERT_EQ(cos_z[n], cosine[2]);
             ++n;
         }
     }
-
-    return code;
 }
 
-st_return_t call_stapi_v2_elementmap(st_context_v2_t  pcxt,
-                                     st_runner_type_t runner_type)
+void call_stapi_v2_elementmap(st_context_v2_t  pcxt,
+                              st_runner_type_t runner_type)
 {
     st_context* cxt = reinterpret_cast<st_context*>(pcxt);
     cxt->p_data->set_number_of_rays(1000);
 
-    st_return_t code = st_sim_setup(pcxt, runner_type); 
-    code += st_sim_run_v2(pcxt);
-    code += st_sim_report(pcxt, 0);
-    
+    ASSERT_EQ(st_sim_setup(pcxt, runner_type),
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_sim_run_v2(pcxt),
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_sim_report(pcxt, 0),
+              st_return_code::SUCCESS);
+
     uint_fast64_t num;
     
-    code += st_num_intersections(pcxt, &num);
+    ASSERT_EQ(st_num_intersections(pcxt, &num),
+              st_return_code::SUCCESS);
 
     uint_fast64_t *els = new uint_fast64_t[num];
 
-    code += st_elementmap(pcxt, els);
+    ASSERT_EQ(st_elementmap(pcxt, els),
+              st_return_code::SUCCESS);
 
-    code += check_not(els, nullptr);
+    ASSERT_NE(els, nullptr);
 
     uint_fast64_t n = 0;
     for (auto it = cxt->p_results->get_ray_record_iterator(); !cxt->p_results->is_at_end(it); ++it)
@@ -1489,59 +1497,65 @@ st_return_t call_stapi_v2_elementmap(st_context_v2_t  pcxt,
         ray_record_ptr rec = *it;
         for (auto jt = rec->get_interaction_record_iterator(); !rec->is_at_end(jt); ++jt)
         {
-            code += check(els[n], (*jt)->element);
+            ASSERT_EQ(els[n], (*jt)->element);
             ++n;
         }
     }
-
-    return code;
 }
 
-st_return_t call_stapi_v2_stagemap(st_context_v2_t  pcxt,
-                                   st_runner_type_t runner_type)
+void call_stapi_v2_stagemap(st_context_v2_t  pcxt,
+                            st_runner_type_t runner_type)
 {
     st_context* cxt = reinterpret_cast<st_context*>(pcxt);
     cxt->p_data->set_number_of_rays(1000);
 
-    st_return_t code = st_sim_setup(pcxt, runner_type); 
-    code += st_sim_run_v2(pcxt);
-    code += st_sim_report(pcxt, 0);
-    
+    ASSERT_EQ(st_sim_setup(pcxt, runner_type),
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_sim_run_v2(pcxt),
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_sim_report(pcxt, 0),
+              st_return_code::SUCCESS);
+
     uint_fast64_t num;
     
-    code += st_num_intersections(pcxt, &num);
+    ASSERT_EQ(st_num_intersections(pcxt, &num),
+              st_return_code::SUCCESS);
 
     uint_fast64_t *stages = new uint_fast64_t[num];
 
-    code += st_stagemap(pcxt, stages);
+    ASSERT_EQ(st_stagemap(pcxt, stages),
+              st_return_code::SUCCESS);
 
-    code += check_not(stages, nullptr);
+    ASSERT_NE(stages, nullptr);
 
     for (uint_fast64_t n = 0; n < num; ++n)
-        code += check(stages[n], 0);
-    
-    return code;
+        ASSERT_EQ(stages[n], 0);
 }
 
-st_return_t call_stapi_v2_raynumbers(st_context_v2_t  pcxt,
-                                     st_runner_type_t runner_type)
+void call_stapi_v2_raynumbers(st_context_v2_t  pcxt,
+                              st_runner_type_t runner_type)
 {
     st_context* cxt = reinterpret_cast<st_context*>(pcxt);
     cxt->p_data->set_number_of_rays(1000);
 
-    st_return_t code = st_sim_setup(pcxt, runner_type); 
-    code += st_sim_run_v2(pcxt);
-    code += st_sim_report(pcxt, 0);
-    
+    ASSERT_EQ(st_sim_setup(pcxt, runner_type),
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_sim_run_v2(pcxt),
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_sim_report(pcxt, 0),
+              st_return_code::SUCCESS);
+
     uint_fast64_t num;
     
-    code += st_num_intersections(pcxt, &num);
+    ASSERT_EQ(st_num_intersections(pcxt, &num),
+              st_return_code::SUCCESS);
 
     uint_fast64_t *raynumbers = new uint_fast64_t[num];
 
-    code += st_raynumbers(pcxt, raynumbers);
+    ASSERT_EQ(st_raynumbers(pcxt, raynumbers),
+              st_return_code::SUCCESS);
 
-    code += check_not(raynumbers, nullptr);
+    ASSERT_NE(raynumbers, nullptr);
 
     uint_fast64_t n = 0;
     for (auto it = cxt->p_results->get_ray_record_iterator(); !cxt->p_results->is_at_end(it); ++it)
@@ -1549,34 +1563,36 @@ st_return_t call_stapi_v2_raynumbers(st_context_v2_t  pcxt,
         ray_record_ptr rec = *it;
         for (auto jt = rec->get_interaction_record_iterator(); !rec->is_at_end(jt); ++jt)
         {
-            code += check(raynumbers[n], rec->id);
+            ASSERT_EQ(raynumbers[n], rec->id);
             ++n;
         }
     }
-
-    return code;
 }
 
-st_return_t call_stapi_v2_sun_stats(st_context_v2_t  pcxt,
-                                    st_runner_type_t runner_type)
+void call_stapi_v2_sun_stats(st_context_v2_t  pcxt,
+                             st_runner_type_t runner_type)
 {
     st_context* cxt = reinterpret_cast<st_context*>(pcxt);
     cxt->p_data->set_number_of_rays(1000);
 
-    st_return_t code = st_sim_setup(pcxt, runner_type); 
-    code += st_sim_run_v2(pcxt);
-    code += st_sim_report(pcxt, 0);
+    ASSERT_EQ(st_sim_setup(pcxt, runner_type),
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_sim_run_v2(pcxt),
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_sim_report(pcxt, 0),
+              st_return_code::SUCCESS);
 
     double        height;
     double        width;
     double        area;
     uint_fast64_t nrunrays;
 
-    code += st_sun_stats(pcxt,
-                         &width,
-                         &height,
-                         &area,
-                         &nrunrays);
+    ASSERT_EQ(st_sun_stats(pcxt,
+                           &width,
+                           &height,
+                           &area,
+                           &nrunrays),
+              st_return_code::SUCCESS);
 
     SimulationResult* results =
         reinterpret_cast<SimulationResult*>(cxt->p_results);
@@ -1585,33 +1601,35 @@ st_return_t call_stapi_v2_sun_stats(st_context_v2_t  pcxt,
     _area = results->get_sun_A_box(); 
     if (runner_type == st_runner_type_t::OPTIX)
     {
-        code += check(area, _area);
+        ASSERT_EQ(area, _area);
     }
     else
     {
-        code += check(width, _width);
-        code += check(height, _height);
+        ASSERT_EQ(width, _width);
+        ASSERT_EQ(height, _height);
     }
     uint_fast64_t num = results->get_sun_ray_count();
 
-    code += check(nrunrays, num);
-
-    return code;
+    ASSERT_EQ(nrunrays, num);
 }
 
-st_return_t call_stapi_v2_get_results_data(st_context_v2_t  pcxt,
-                                           st_runner_type_t runner_type)
+void call_stapi_v2_get_results_data(st_context_v2_t  pcxt,
+                                    st_runner_type_t runner_type)
 {
     st_context* cxt = reinterpret_cast<st_context*>(pcxt);
     cxt->p_data->set_number_of_rays(1000);
 
-    st_return_t code = st_sim_setup(pcxt, runner_type); 
-    code += st_sim_run_v2(pcxt);
-    code += st_sim_report(pcxt, 0);
-    
+    ASSERT_EQ(st_sim_setup(pcxt, runner_type),
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_sim_run_v2(pcxt),
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_sim_report(pcxt, 0),
+              st_return_code::SUCCESS);
+
     uint_fast64_t num;
     
-    code += st_num_intersections(pcxt, &num);
+    ASSERT_EQ(st_num_intersections(pcxt, &num),
+              st_return_code::SUCCESS);
 
     args_results_data data;
     data.loc_x = new double[num];
@@ -1624,17 +1642,18 @@ st_return_t call_stapi_v2_get_results_data(st_context_v2_t  pcxt,
     data.stage_map   = new uint_fast64_t[num];
     data.ray_numbers = new uint_fast64_t[num];
 
-    code += st_get_results_data(pcxt, &data);
+    ASSERT_EQ(st_get_results_data(pcxt, &data),
+              st_return_code::SUCCESS);
 
-    code += check_not(data.loc_x, nullptr);
-    code += check_not(data.loc_y, nullptr);
-    code += check_not(data.loc_z, nullptr);
-    code += check_not(data.cos_x, nullptr);
-    code += check_not(data.cos_y, nullptr);
-    code += check_not(data.cos_z, nullptr);
-    code += check_not(data.element_map, nullptr);
-    code += check_not(data.stage_map, nullptr);
-    code += check_not(data.ray_numbers, nullptr);
+    ASSERT_NE(data.loc_x, nullptr);
+    ASSERT_NE(data.loc_y, nullptr);
+    ASSERT_NE(data.loc_z, nullptr);
+    ASSERT_NE(data.cos_x, nullptr);
+    ASSERT_NE(data.cos_y, nullptr);
+    ASSERT_NE(data.cos_z, nullptr);
+    ASSERT_NE(data.element_map, nullptr);
+    ASSERT_NE(data.stage_map, nullptr);
+    ASSERT_NE(data.ray_numbers, nullptr);
 
     uint_fast64_t n = 0;
     glm::dvec3 loc;
@@ -1647,26 +1666,24 @@ st_return_t call_stapi_v2_get_results_data(st_context_v2_t  pcxt,
             loc = (*jt)->location;
             cosine = (*jt)->direction;
             
-            code += check(data.loc_x[n], loc[0]);
-            code += check(data.loc_y[n], loc[1]);
-            code += check(data.loc_z[n], loc[2]);
-            code += check(data.cos_x[n], cosine[0]);
-            code += check(data.cos_y[n], cosine[1]);
-            code += check(data.cos_z[n], cosine[2]);
-            code += check(data.element_map[n], (*jt)->element);
-            code += check(data.stage_map[n], 0);
-            code += check(data.ray_numbers[n], rec->id);
+            ASSERT_EQ(data.loc_x[n], loc[0]);
+            ASSERT_EQ(data.loc_y[n], loc[1]);
+            ASSERT_EQ(data.loc_z[n], loc[2]);
+            ASSERT_EQ(data.cos_x[n], cosine[0]);
+            ASSERT_EQ(data.cos_y[n], cosine[1]);
+            ASSERT_EQ(data.cos_z[n], cosine[2]);
+            ASSERT_EQ(data.element_map[n], (*jt)->element);
+            ASSERT_EQ(data.stage_map[n], 0);
+            ASSERT_EQ(data.ray_numbers[n], rec->id);
             ++n;
         }
     }
-
-    return code;
 }
 
 // functions to get grouped results directly
 
-st_return_t call_stapi_v2_get_grouped_results_data(st_context_v2_t  pcxt,
-                                                   st_runner_type_t runner_type)
+void call_stapi_v2_get_grouped_results_data(st_context_v2_t  pcxt,
+                                            st_runner_type_t runner_type)
 {
     st_context* cxt = reinterpret_cast<st_context*>(pcxt);
 
@@ -1675,12 +1692,16 @@ st_return_t call_stapi_v2_get_grouped_results_data(st_context_v2_t  pcxt,
         cxt->p_data->set_number_of_rays(1000);
     }
 
-    st_return_t code = st_sim_setup(pcxt, runner_type); 
-    code += st_sim_run_v2(pcxt);
-    code += st_sim_report(pcxt, 1);
+    ASSERT_EQ(st_sim_setup(pcxt, runner_type),
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_sim_run_v2(pcxt),
+              st_return_code::SUCCESS);
+    ASSERT_EQ(st_sim_report(pcxt, 1),
+              st_return_code::SUCCESS);
 
     size_t num_groups;
-    st_num_groups(pcxt, &num_groups);
+    ASSERT_EQ(st_num_groups(pcxt, &num_groups),
+              st_return_code::SUCCESS);
     args_group_result *dummy_data = new args_group_result[num_groups];
 
     for (size_t i = 0; i < num_groups; ++i)
@@ -1692,24 +1713,25 @@ st_return_t call_stapi_v2_get_grouped_results_data(st_context_v2_t  pcxt,
         dummy_data[i].virtual_previous_group  = new uint_fast64_t[num_groups];
     }
     
-    code += st_get_grouped_results_data(pcxt, dummy_data);
+    ASSERT_EQ(st_get_grouped_results_data(pcxt, dummy_data),
+              st_return_code::SUCCESS);
 
     std::vector<GroupResult> groups = cxt->p_results->get_grouped_results();
 
     for (size_t i = 0; i < num_groups; ++i)
     {
-        code += check(dummy_data[i].absorb_count,   groups[i].absorb_count);
-        code += check(dummy_data[i].reflect_count,  groups[i].reflect_count);
-        code += check(dummy_data[i].transmit_count, groups[i].transmit_count);
-        code += check(dummy_data[i].virtual_count,  groups[i].virtual_count);
-        code += check(dummy_data[i].group_id,       groups[i].group_id);
+        ASSERT_EQ(dummy_data[i].absorb_count,   groups[i].absorb_count);
+        ASSERT_EQ(dummy_data[i].reflect_count,  groups[i].reflect_count);
+        ASSERT_EQ(dummy_data[i].transmit_count, groups[i].transmit_count);
+        ASSERT_EQ(dummy_data[i].virtual_count,  groups[i].virtual_count);
+        ASSERT_EQ(dummy_data[i].group_id,       groups[i].group_id);
 
         for (size_t j = 0; j < num_groups; ++j)
         {
-            code += check(dummy_data[i].absorb_previous_group[j],   groups[i].absorb_previous_group[j]);
-            code += check(dummy_data[i].reflect_previous_group[j],  groups[i].reflect_previous_group[j]);
-            code += check(dummy_data[i].transmit_previous_group[j], groups[i].transmit_previous_group[j]);
-            code += check(dummy_data[i].virtual_previous_group[j],  groups[i].virtual_previous_group[j]);
+            ASSERT_EQ(dummy_data[i].absorb_previous_group[j],   groups[i].absorb_previous_group[j]);
+            ASSERT_EQ(dummy_data[i].reflect_previous_group[j],  groups[i].reflect_previous_group[j]);
+            ASSERT_EQ(dummy_data[i].transmit_previous_group[j], groups[i].transmit_previous_group[j]);
+            ASSERT_EQ(dummy_data[i].virtual_previous_group[j],  groups[i].virtual_previous_group[j]);
         }
     }
 
@@ -1722,6 +1744,4 @@ st_return_t call_stapi_v2_get_grouped_results_data(st_context_v2_t  pcxt,
         delete[] dummy_data[i].virtual_previous_group;
     }
     delete[] dummy_data;
-
-    return code;
 }
