@@ -28,11 +28,20 @@ add_executable(stapi_v2_native ${STAPI_V2_NATIVE_SRC})
 
 set(STAPI_V2_NATIVE_DLL_SRC
 	../../../../api/stapi_v2.cpp
+	../../../../api/elements.cpp
+	../../../../api/io.cpp
+	../../../../api/optics.cpp
+    ../../../../api/parameters.cpp
+	../../../../api/results.cpp
+	../../../../api/runner.cpp
+	../../../../api/sun.cpp
 )
 
 # Add header files for IDE visibility
 set(STAPI_V2_NATIVE_HEADERS
     ../../../../api/stapi_v2.h
+    ../../../../api/exception_guard.hpp
+    ../../../../api/utils.hpp
     ../../../../coretrace/simulation_runner/simulation_runner.hpp
 )
 

@@ -137,10 +137,10 @@ other items
 
 #include <filesystem>
 
-#include "../coretrace/simulation_runner/simulation_runner.hpp"
-#include "../coretrace/simulation_runner/native_runner/native_runner.hpp"
 #include "../coretrace/simulation_data/simulation_data_export.hpp"
 #include "../coretrace/simulation_results/simulation_result_export.hpp"
+#include "../coretrace/simulation_runner/native_runner/native_runner.hpp"
+#include "../coretrace/simulation_runner/simulation_runner.hpp"
 
 #ifdef STAPI_V2_EMBREE_SUPPORT
 #include "../coretrace/simulation_runner/embree_runner/embree_runner.hpp"
@@ -149,6 +149,23 @@ other items
 #ifdef STAPI_V2_OPTIX_SUPPORT
 #include "../coretrace/simulation_runner/optix_runner/optix_runner.hpp"
 #endif
+
+/* macros for fetching pointers */
+#define CONTEXT(p)                                                       \
+    st_context *cxt = reinterpret_cast<st_context*>(p);                  \
+    if (!cxt || cxt == nullptr) return st_return_code::CONTEXT_NOT_FOUND;
+
+#define DATA(cxt)                                                       \
+    SimulationData *data = cxt->p_data;                                 \
+    if (!data || data == nullptr) return st_return_code::DATA_NOT_FOUND;
+
+#define RUNNER(cxt)                                                           \
+    SimulationRunner *runner = cxt->p_runner;                                 \
+    if (!runner || runner == nullptr) return st_return_code::RUNNER_NOT_FOUND;
+
+#define RESULT(cxt)                                                           \
+    SimulationResult *result = cxt->p_results;                                \
+    if (!result || result == nullptr) return st_return_code::RESULT_NOT_FOUND;
 
 #ifdef __cplusplus
 extern "C" {
@@ -203,6 +220,8 @@ typedef enum st_return_code : st_return_t {
 	RESULT_NOT_REPORTED,
 	EXCEPTION,
 	UKNOWN_BATCH_API_CALL_FAILURE,
+	BAD_ALLOCATION,
+	UKNOWN_CPP_EXCEPTION,
 
 	WARNING_FELLBACK_FROM_EMBREE,
 	WARNING_FELLBACK_FROM_OPTIX,
@@ -244,10 +263,10 @@ typedef void* st_context_v2_t;
 ////////////////////////////////
 
 // functions for SolTrace context management
-STAPI_V2 st_return_t st_create_context(st_context_v2_t* pcxt, p_callback cb = nullptr);
-STAPI_V2 st_return_t st_reset_context(st_context_v2_t pcxt);
-STAPI_V2 st_return_t st_free_context(st_context_v2_t pcxt);
-STAPI_V2 st_return_t st_locate_context(st_context_v2_t pcxt, const char *path);
+STAPI_V2 st_return_t st_create_context(st_context_v2_t* pcxt, p_callback cb = nullptr) noexcept;
+STAPI_V2 st_return_t st_reset_context(st_context_v2_t pcxt) noexcept;
+STAPI_V2 st_return_t st_free_context(st_context_v2_t pcxt) noexcept;
+STAPI_V2 st_return_t st_locate_context(st_context_v2_t pcxt, const char *path) noexcept;
 
 ////////////////////////////////
 // Simlulation Data Functions //
@@ -255,8 +274,8 @@ STAPI_V2 st_return_t st_locate_context(st_context_v2_t pcxt, const char *path);
 
 // functions for SolTrace data management
 // functions for simulation data management thru json strings
-STAPI_V2 st_return_t st_read_input_json(st_context_v2_t pcxt, const char *json);
-STAPI_V2 st_return_t st_read_input_json_file(st_context_v2_t pcxt, const char *filename);
+STAPI_V2 st_return_t st_read_input_json(st_context_v2_t pcxt, const char *json) noexcept;
+STAPI_V2 st_return_t st_read_input_json_file(st_context_v2_t pcxt, const char *filename) noexcept;
 
 // functions for simulation data management directly
 typedef struct args_simulation_parameters {
@@ -269,27 +288,27 @@ typedef struct args_simulation_parameters {
 	bool 		  include_optical_errors;
 	bool 		  as_power_tower;
 } args_simulation_parameters;
-STAPI_V2 st_return_t st_set_simulation_parameters(st_context_v2_t pcxt, args_simulation_parameters *params);
+STAPI_V2 st_return_t st_set_simulation_parameters(st_context_v2_t pcxt, args_simulation_parameters *params) noexcept;
 STAPI_V2 st_return_t st_sim_params(st_context_v2_t pcxt,
 								   uint_fast64_t   raycount,
 								   uint_fast64_t   maxcount,
-								   bool			   include_dynamic_group);
+								   bool			   include_dynamic_group) noexcept;
 STAPI_V2 st_return_t st_sim_rays(st_context_v2_t pcxt,
 								 uint_fast64_t   raycount,
-								 uint_fast64_t   maxcount);
+								 uint_fast64_t   maxcount) noexcept;
 STAPI_V2 st_return_t st_sim_power_tower(st_context_v2_t pcxt,
-								        bool 		    is_power_tower);
+								        bool 		    is_power_tower) noexcept;
 STAPI_V2 st_return_t st_sim_errors(st_context_v2_t pcxt,
 								   bool			   include_sun_shape,
-								   bool			   include_optics);
+								   bool			   include_optics) noexcept;
 STAPI_V2 st_return_t st_sim_location(st_context_v2_t pcxt,
 								     double		     latitude,
-								     double		     longitude);
-STAPI_V2 st_return_t st_sim_tolerance(st_context_v2_t pcxt, double tolerance);
-STAPI_V2 st_return_t st_get_simulation_parameters(st_context_v2_t pcxt, args_simulation_parameters *params);
+								     double		     longitude) noexcept;
+STAPI_V2 st_return_t st_sim_tolerance(st_context_v2_t pcxt, double tolerance) noexcept;
+STAPI_V2 st_return_t st_get_simulation_parameters(st_context_v2_t pcxt, args_simulation_parameters *params) noexcept;
 
 // functions to add/remove/set optical properties
-STAPI_V2 st_return_t st_num_optics(st_context_v2_t pcxt, uint_fast64_t *num_optics);
+STAPI_V2 st_return_t st_num_optics(st_context_v2_t pcxt, uint_fast64_t *num_optics) noexcept;
 typedef struct args_optical_properties_face {
 	double transmissivity;
 	double reflectivity;
@@ -307,17 +326,17 @@ STAPI_V2 st_return_t st_add_optical_properties_set(st_context_v2_t 				pcxt,
 												   args_optical_properties_set 	*opt_set,
 												   args_optical_properties_face *front, 
 												   args_optical_properties_face *back, 
-												   uint_fast64_t 				*optic_id);
+												   uint_fast64_t 				*optic_id) noexcept;
 STAPI_V2 st_return_t st_get_optical_properties_set(st_context_v2_t 				pcxt, 
 												   uint_fast64_t 				optic_id,
 												   args_optical_properties_set 	*opt_set,
 												   args_optical_properties_face *front, 
-												   args_optical_properties_face *back);
-STAPI_V2 st_return_t st_delete_optic(st_context_v2_t pcxt, st_uint_t idx);
-STAPI_V2 st_return_t st_clear_optics(st_context_v2_t pcxt);
+												   args_optical_properties_face *back) noexcept;
+STAPI_V2 st_return_t st_delete_optic(st_context_v2_t pcxt, st_uint_t idx) noexcept;
+STAPI_V2 st_return_t st_clear_optics(st_context_v2_t pcxt) noexcept;
 
 // functions to add/remove elements
-STAPI_V2 st_return_t st_num_elements(st_context_v2_t pcxt, uint_fast64_t *num_elements);
+STAPI_V2 st_return_t st_num_elements(st_context_v2_t pcxt, uint_fast64_t *num_elements) noexcept;
 typedef struct args_element {
 	double  x;
 	double  y;
@@ -340,57 +359,51 @@ STAPI_V2 st_return_t st_add_element(st_context_v2_t pcxt,
 									args_element    *args,
 									int_fast64_t    opt_id,
 									args_geometry	*geom,
-									uint_fast64_t   *element_id);
+									uint_fast64_t   *element_id) noexcept;
 STAPI_V2 st_return_t st_get_element(st_context_v2_t pcxt,
 									uint_fast64_t   element_id,
 									args_element    *args,
 									int_fast64_t    *opt_id,
-									args_geometry	*geom);
-STAPI_V2 st_return_t st_get_element_area(st_context_v2_t pcxt,
-                                         uint_fast64_t idx,
-                                         double *area);
-STAPI_V2 st_return_t st_delete_element(st_context_v2_t pcxt, st_uint_t idx);
-STAPI_V2 st_return_t st_clear_elements(st_context_v2_t pcxt);
+									args_geometry	*geom) noexcept;
+STAPI_V2 st_return_t st_delete_element(st_context_v2_t pcxt, st_uint_t idx) noexcept;
+STAPI_V2 st_return_t st_clear_elements(st_context_v2_t pcxt) noexcept;
 // functions to modify elements
 STAPI_V2 st_return_t st_element_enabled(st_context_v2_t pcxt,
 										st_uint_t 		idx,
-										bool 			enabled_flag);
+										bool 			enabled_flag) noexcept;
 STAPI_V2 st_return_t st_element_virtual(st_context_v2_t pcxt,
 										st_uint_t 		idx,
-										bool 			virtual_flag);
+										bool 			virtual_flag) noexcept;
 STAPI_V2 st_return_t st_element_xyz(st_context_v2_t pcxt, 
 									st_uint_t 		idx,
 									double 	  		x,
 									double 	  		y,
-									double 	  		z);
+									double 	  		z) noexcept;
 STAPI_V2 st_return_t st_element_aim(st_context_v2_t pcxt, 
 									st_uint_t 		idx,
 									double 	  		ax,
 									double 	  		ay,
-									double 	  		az);
+									double 	  		az) noexcept;
 STAPI_V2 st_return_t st_element_zrot(st_context_v2_t pcxt,
 									 st_uint_t 		 idx,
-									 double 		 zrot);
+									 double 		 zrot) noexcept;
 STAPI_V2 st_return_t st_element_aperture(st_context_v2_t pcxt,
                                          st_uint_t 	     idx,
                                          char      	     ap,
-                                         double    	     params[8]);
+                                         double    	     params[8]) noexcept;
 STAPI_V2 st_return_t st_element_surface(st_context_v2_t pcxt,
                                         st_uint_t 	    idx,
                                         char      	    surf,
-                                        double    	    params[8]);
+                                        double    	    params[8]) noexcept;
 STAPI_V2 st_return_t st_element_geometry(st_context_v2_t pcxt,
                                          st_uint_t 	     idx,
-                                         args_geometry	 *geom);
-STAPI_V2 st_return_t st_get_aperture_area(st_context_v2_t pcxt,
-                                          args_geometry   *geom,
-                                          double          *area);
+                                         args_geometry	 *geom) noexcept;
 STAPI_V2 st_return_t st_element_optic(st_context_v2_t pcxt,
 									  st_uint_t 	  idx,
-									  int_fast64_t 	  opt_id);
+									  int_fast64_t 	  opt_id) noexcept;
 STAPI_V2 st_return_t st_element_group(st_context_v2_t pcxt,
 									  st_uint_t 	  idx,
-									  int32_t   	  group);
+									  int32_t   	  group) noexcept;
 
 // sun functions
 typedef struct args_sun {
@@ -404,30 +417,30 @@ typedef struct args_sun {
 STAPI_V2 st_return_t st_add_sun(st_context_v2_t pcxt,
 								args_sun 		*args,
 								double 		 	*angle,
-								double 		 	*intensity);
+								double 		 	*intensity) noexcept;
 STAPI_V2 st_return_t st_get_sun(st_context_v2_t pcxt,
 								args_sun 		*args,
 								double 		 	**angle,
 								double 		 	**intensity,
-								st_uint_t 		npoints = 0);
+								st_uint_t 		npoints = 0) noexcept;
 STAPI_V2 st_return_t st_sun_shape(st_context_v2_t pcxt,
 								  char   		  shape, 
-								  double 		  sigma_halfwidth_csr);
+								  double 		  sigma_halfwidth_csr) noexcept;
 STAPI_V2 st_return_t st_sun_xyz(st_context_v2_t pcxt,
 								double 			x,
 								double 			y,
-								double 			z);
+								double 			z) noexcept;
 STAPI_V2 st_return_t st_sun_position(st_context_v2_t pcxt,
 									 double  		 lat,
 									 double  		 day,
 									 double  		 hour,
 									 double			 *x,
 									 double			 *y,
-									 double			 *z);
+									 double			 *z) noexcept;
 STAPI_V2 st_return_t st_sun_userdata(st_context_v2_t pcxt,
 									 st_uint_t 		 npoints,
 									 double 		 *angle,
-									 double 		 *intensity);
+									 double 		 *intensity) noexcept;
 typedef struct args_sun_location {
 	double latitude;
 	double longitude;
@@ -447,23 +460,23 @@ STAPI_V2 st_return_t st_get_sun_az_zen(st_context_v2_t   pcxt,
 									   args_sun_location *loc,
 									   args_sun_datetime *dt,
 									   double 			 *azimuth,
-									   double 			 *zenith);
+									   double 			 *zenith) noexcept;
 STAPI_V2 st_return_t st_get_sun_az_el(st_context_v2_t   pcxt,
 									  int				calc,
 									  args_sun_location *loc,
 									  args_sun_datetime *dt,
 									  double 			*azimuth,
-									  double 			*elevation);
+									  double 			*elevation) noexcept;
 STAPI_V2 st_return_t st_get_sun_vector(st_context_v2_t   pcxt,
 									   int				 calc,
 									   args_sun_location *loc,
 									   args_sun_datetime *dt,
 									   double 			 *sun_x,
 									   double 			 *sun_y,
-									   double 			 *sun_z);
+									   double 			 *sun_z) noexcept;
 
 // functions for writing input files for SolTrace
-STAPI_V2 st_return_t st_export_json_file(st_context_v2_t pcxt, const char *filename);
+STAPI_V2 st_return_t st_export_json_file(st_context_v2_t pcxt, const char *filename) noexcept;
 
 //////////////////////////////////
 // Simlulation Runner Functions //
@@ -471,16 +484,16 @@ STAPI_V2 st_return_t st_export_json_file(st_context_v2_t pcxt, const char *filen
 
 // functions for SolTrace runner management
 // NOTE: following two functions are static ie don't require pcxt
-STAPI_V2 st_return_t st_get_installed_runners(uint8_t *installed);
+STAPI_V2 st_return_t st_get_installed_runners(uint8_t *installed) noexcept;
 STAPI_V2 st_return_t st_is_runner_installed(st_runner_type_t type,
-                                            bool             *installed);
+                                            bool             *installed) noexcept;
 STAPI_V2 st_return_t st_sim_setup(st_context_v2_t  pcxt, 
 								  st_runner_type_t runner_type, 
 								  uint_fast64_t    num_threads = DEFAULT_NUM_THREADS,
 								  st_uint_t 	   *seeds = nullptr,
-								  size_t		   num_seeds = 0);
-STAPI_V2 st_return_t st_sim_run_v2(st_context_v2_t pcxt);
-STAPI_V2 st_return_t st_sim_report(st_context_v2_t pcxt, int level);
+								  size_t		   num_seeds = 0) noexcept;
+STAPI_V2 st_return_t st_sim_run_v2(st_context_v2_t pcxt) noexcept;
+STAPI_V2 st_return_t st_sim_report(st_context_v2_t pcxt, int level) noexcept;
 
 ///////////////////////////////////
 // Simlulation Results Functions //
@@ -490,30 +503,30 @@ STAPI_V2 st_return_t st_sim_report(st_context_v2_t pcxt, int level);
 // TODO: add st_write_results_json once element_groups pr is merged
 STAPI_V2 st_return_t st_write_results_csv(st_context_v2_t pcxt, 
 										  const char 	  *filename, 
-										  int 			  precision = 12);
+										  int 			  precision = 12) noexcept;
 STAPI_V2 st_return_t st_write_group_results_json(st_context_v2_t pcxt, 
 										         const char 	 *filename, 
 										         int 			 precision = 12,
-                                                 int             indent = 4);
+                                                 int             indent = 4) noexcept;
 
 // functions to get results directly
-STAPI_V2 st_return_t st_num_intersections(st_context_v2_t pcxt, uint_fast64_t *num_intersections);
+STAPI_V2 st_return_t st_num_intersections(st_context_v2_t pcxt, uint_fast64_t *num_intersections) noexcept;
 STAPI_V2 st_return_t st_locations(st_context_v2_t pcxt,
 									 double 		 *loc_x,
 									 double 		 *loc_y,
-									 double 		 *loc_z);
+									 double 		 *loc_z) noexcept;
 STAPI_V2 st_return_t st_cosines(st_context_v2_t pcxt,
 							 	   double 		   *cos_x,
 							 	   double 		   *cos_y,
-							 	   double 		   *cos_z);
-STAPI_V2 st_return_t st_elementmap(st_context_v2_t pcxt, uint_fast64_t *element_map);
-STAPI_V2 st_return_t st_stagemap(st_context_v2_t pcxt, uint_fast64_t *stage_map);
-STAPI_V2 st_return_t st_raynumbers(st_context_v2_t pcxt, uint_fast64_t *ray_numbers);
+							 	   double 		   *cos_z) noexcept;
+STAPI_V2 st_return_t st_elementmap(st_context_v2_t pcxt, uint_fast64_t *element_map) noexcept;
+STAPI_V2 st_return_t st_stagemap(st_context_v2_t pcxt, uint_fast64_t *stage_map) noexcept;
+STAPI_V2 st_return_t st_raynumbers(st_context_v2_t pcxt, uint_fast64_t *ray_numbers) noexcept;
 STAPI_V2 st_return_t st_sun_stats(st_context_v2_t pcxt,
 								  double 		  *width,
 								  double 		  *height,
 								  double 		  *area,
-								  uint_fast64_t	  *nsunrays);
+								  uint_fast64_t	  *nsunrays) noexcept;
 typedef struct args_results_data {
 	double 		  *loc_x;
 	double 		  *loc_y;
@@ -525,10 +538,10 @@ typedef struct args_results_data {
 	uint_fast64_t *stage_map;
 	uint_fast64_t *ray_numbers;
 } args_results_data;
-STAPI_V2 st_return_t st_get_results_data(st_context_v2_t pcxt, args_results_data *data);
+STAPI_V2 st_return_t st_get_results_data(st_context_v2_t pcxt, args_results_data *data) noexcept;
 
 // functions to get grouped results directly
-STAPI_V2 st_return_t st_num_groups(st_context_v2_t pcxt, size_t *num_groups);
+STAPI_V2 st_return_t st_num_groups(st_context_v2_t pcxt, size_t *num_groups) noexcept;
 typedef struct args_group_result {
 	uint_fast64_t *absorb_previous_group;
 	uint_fast64_t *reflect_previous_group;
@@ -538,7 +551,7 @@ typedef struct args_group_result {
 	uint_fast64_t absorb_sun_previous, reflect_sun_previous, transmit_sun_previous, virtual_sun_previous;
 	int32_t group_id;
 } args_group_result;
-STAPI_V2 st_return_t st_get_grouped_results_data(st_context_v2_t pcxt, args_group_result *data);
+STAPI_V2 st_return_t st_get_grouped_results_data(st_context_v2_t pcxt, args_group_result *data) noexcept;
 
 /*
 create simualtion information -> st_context_v2_t st_create_context_v2();

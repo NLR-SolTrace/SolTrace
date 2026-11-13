@@ -30,11 +30,20 @@ include_directories(
 
 set(STAPI_SRC
 	stapi_v2.cpp
+	elements.cpp
+	io.cpp
+	optics.cpp
+	parameters.cpp
+	results.cpp
+	runner.cpp
+	sun.cpp
 )
 
 # Add header files for IDE visibility
 set(STAPI_HEADERS
     stapi_v2.h
+    exception_guard.hpp
+    utils.hpp
     ../coretrace/simulation_runner/simulation_runner.hpp
 )
 
