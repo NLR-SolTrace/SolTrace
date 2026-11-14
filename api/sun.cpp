@@ -49,12 +49,13 @@ return st_guard::guarded(st_utils::get_cb(pcxt), "st_add_sun", [&]() -> st_retur
             using default to add warning */
             case 'g':
             case 'G':
-                // sun_shape = SunShape::GAUSSIAN;
                 break;
             case 'p':
             case 'P':
+            {
                 sun_shape = SunShape::PILLBOX;
                 break;
+            }
             /* currently no set_limbdarkend_distribution
             function is implemented, so ignore and 
             emit warning
@@ -66,14 +67,10 @@ return st_guard::guarded(st_utils::get_cb(pcxt), "st_add_sun", [&]() -> st_retur
             }                                           */
             case 'b':
             case 'B':
+            {
                 sun_shape = SunShape::BUIE_CSR;
                 break;
-            /* user defined sun shape goes thru same 
-            Sun::set_shape, emit warning because not 
-            enough information from this signiture, 
-            maybe add defaults?                      
-            case 'u':
-            case 'U':                             */
+            }
         default:
             // warning code default to gaussian, default sigma = 4.65
             sun_shape = SunShape::GAUSSIAN;
@@ -172,12 +169,13 @@ return st_guard::guarded(st_utils::get_cb(pcxt), "st_sun_shape", [&]() -> st_ret
            using default to add warning */
         case 'g':
         case 'G':
-            // sun_shape = SunShape::GAUSSIAN;
             break;
         case 'p':
         case 'P':
+        {
             sun_shape = SunShape::PILLBOX;
             break;
+        }
         /* currently no set_limbdarkend_distribution
            function is implemented, so ignore and 
            emit warning
@@ -189,14 +187,10 @@ return st_guard::guarded(st_utils::get_cb(pcxt), "st_sun_shape", [&]() -> st_ret
         }                                           */
         case 'b':
         case 'B':
+        {
             sun_shape = SunShape::BUIE_CSR;
             break;
-        /* user defined sun shape goes thru same 
-           Sun::set_shape, emit warning because not 
-           enough information from this signiture, 
-           maybe add defaults?                      
-           case 'u':
-           case 'U':                             */
+        }
     default:
         // warning code default to gaussian, default sigma = 4.65
         sun_shape = SunShape::GAUSSIAN;

@@ -87,41 +87,41 @@ void call_stapi_v2_read_input_json(st_context_v2_t pcxt);
 void call_stapi_v2_read_input_json_file(st_context_v2_t pcxt);
 
 // functions for simulation data management directly
-st_return_t call_stapi_v2_set_simulation_parameters(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_sim_params(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_sim_rays(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_sim_power_tower(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_sim_errors(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_sim_location(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_sim_tolerance(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_get_simulation_parameters(st_context_v2_t pcxt);
+void call_stapi_v2_set_simulation_parameters(st_context_v2_t pcxt);
+void call_stapi_v2_sim_params(st_context_v2_t pcxt);
+void call_stapi_v2_sim_rays(st_context_v2_t pcxt);
+void call_stapi_v2_sim_power_tower(st_context_v2_t pcxt);
+void call_stapi_v2_sim_errors(st_context_v2_t pcxt);
+void call_stapi_v2_sim_location(st_context_v2_t pcxt);
+void call_stapi_v2_sim_tolerance(st_context_v2_t pcxt);
+void call_stapi_v2_get_simulation_parameters(st_context_v2_t pcxt);
 
 // function for optical properties
-st_return_t call_stapi_v2_add_optics(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_get_optic(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_remove_optics(st_context_v2_t pcxt);
+void call_stapi_v2_add_optics(st_context_v2_t pcxt);
+void call_stapi_v2_get_optic(st_context_v2_t pcxt);
+void call_stapi_v2_remove_optics(st_context_v2_t pcxt);
 
 // functions for elements
-st_return_t call_stapi_v2_add_elements(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_get_element(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_remove_elements(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_toggle_element(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_element_xyz(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_element_aim(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_element_zrot(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_element_aperture(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_element_surface(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_element_geometry(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_element_optic(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_element_group(st_context_v2_t pcxt);
+void call_stapi_v2_add_elements(st_context_v2_t pcxt);
+void call_stapi_v2_get_element(st_context_v2_t pcxt);
+void call_stapi_v2_remove_elements(st_context_v2_t pcxt);
+void call_stapi_v2_toggle_element(st_context_v2_t pcxt);
+void call_stapi_v2_element_xyz(st_context_v2_t pcxt);
+void call_stapi_v2_element_aim(st_context_v2_t pcxt);
+void call_stapi_v2_element_zrot(st_context_v2_t pcxt);
+void call_stapi_v2_element_aperture(st_context_v2_t pcxt);
+void call_stapi_v2_element_surface(st_context_v2_t pcxt);
+void call_stapi_v2_element_geometry(st_context_v2_t pcxt);
+void call_stapi_v2_element_optic(st_context_v2_t pcxt);
+void call_stapi_v2_element_group(st_context_v2_t pcxt);
 
 // sun functions
-st_return_t call_stapi_v2_add_sun(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_get_sun(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_sun_shape(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_sun_xyz(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_sun_userdata(st_context_v2_t pcxt);
-st_return_t call_stapi_v2_solar_calculator(st_context_v2_t pcxt);
+void call_stapi_v2_add_sun(st_context_v2_t pcxt);
+void call_stapi_v2_get_sun(st_context_v2_t pcxt);
+void call_stapi_v2_sun_shape(st_context_v2_t pcxt);
+void call_stapi_v2_sun_xyz(st_context_v2_t pcxt);
+void call_stapi_v2_sun_userdata(st_context_v2_t pcxt);
+void call_stapi_v2_solar_calculator(st_context_v2_t pcxt);
 
 //////////////////////////////////
 // Simlulation Runner Functions //
