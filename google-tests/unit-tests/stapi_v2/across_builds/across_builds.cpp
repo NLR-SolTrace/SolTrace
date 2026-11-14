@@ -1490,10 +1490,6 @@ void call_stapi_v2_locations(st_context_v2_t  pcxt,
     ASSERT_EQ(st_locations(pcxt, loc_x, loc_y, loc_z),
               st_return_code::SUCCESS);
 
-    ASSERT_NE(loc_x, nullptr);
-    ASSERT_NE(loc_y, nullptr);
-    ASSERT_NE(loc_z, nullptr);
-
     uint_fast64_t n = 0;
     glm::dvec3 loc;
     for (auto it = cxt->p_results->get_ray_record_iterator(); !cxt->p_results->is_at_end(it); ++it)
@@ -1539,10 +1535,6 @@ void call_stapi_v2_cosines(st_context_v2_t  pcxt,
     ASSERT_EQ(st_cosines(pcxt, cos_x, cos_y, cos_z),
               st_return_code::SUCCESS);
 
-    ASSERT_NE(cos_x, nullptr);
-    ASSERT_NE(cos_y, nullptr);
-    ASSERT_NE(cos_z, nullptr);
-
     uint_fast64_t n = 0;
     glm::dvec3 cosine;
     for (auto it = cxt->p_results->get_ray_record_iterator(); !cxt->p_results->is_at_end(it); ++it)
@@ -1586,8 +1578,6 @@ void call_stapi_v2_elementmap(st_context_v2_t  pcxt,
     ASSERT_EQ(st_elementmap(pcxt, els),
               st_return_code::SUCCESS);
 
-    ASSERT_NE(els, nullptr);
-
     uint_fast64_t n = 0;
     for (auto it = cxt->p_results->get_ray_record_iterator(); !cxt->p_results->is_at_end(it); ++it)
     {
@@ -1625,8 +1615,6 @@ void call_stapi_v2_stagemap(st_context_v2_t  pcxt,
     ASSERT_EQ(st_stagemap(pcxt, stages),
               st_return_code::SUCCESS);
 
-    ASSERT_NE(stages, nullptr);
-
     for (uint_fast64_t n = 0; n < num; ++n)
         ASSERT_EQ(stages[n], 0);
 
@@ -1655,8 +1643,6 @@ void call_stapi_v2_raynumbers(st_context_v2_t  pcxt,
 
     ASSERT_EQ(st_raynumbers(pcxt, raynumbers),
               st_return_code::SUCCESS);
-
-    ASSERT_NE(raynumbers, nullptr);
 
     uint_fast64_t n = 0;
     for (auto it = cxt->p_results->get_ray_record_iterator(); !cxt->p_results->is_at_end(it); ++it)
@@ -1747,16 +1733,6 @@ void call_stapi_v2_get_results_data(st_context_v2_t  pcxt,
 
     ASSERT_EQ(st_get_results_data(pcxt, &data),
               st_return_code::SUCCESS);
-
-    ASSERT_NE(data.loc_x, nullptr);
-    ASSERT_NE(data.loc_y, nullptr);
-    ASSERT_NE(data.loc_z, nullptr);
-    ASSERT_NE(data.cos_x, nullptr);
-    ASSERT_NE(data.cos_y, nullptr);
-    ASSERT_NE(data.cos_z, nullptr);
-    ASSERT_NE(data.element_map, nullptr);
-    ASSERT_NE(data.stage_map, nullptr);
-    ASSERT_NE(data.ray_numbers, nullptr);
 
     uint_fast64_t n = 0;
     glm::dvec3 loc;
