@@ -21,6 +21,25 @@ project(stapi_v2)
 #     endif()
 # endfunction()
 
+# TODO: something like this to run generation scripts 
+# # Example using Python (or replace with bash/sh/etc.)
+# find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
+# set(GENERATED_FILE "${CMAKE_CURRENT_BINARY_DIR}/generated.cpp")
+# set(SCRIPT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py")
+
+# add_custom_command(
+#     OUTPUT ${GENERATED_FILE}
+#     COMMAND ${Python3_EXECUTABLE} ${SCRIPT_FILE} --output ${GENERATED_FILE}
+#     DEPENDS ${SCRIPT_FILE} # Re-runs if the script itself is modified
+#     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+#     COMMENT "Generating ${GENERATED_FILE}..."
+#     VERBATIM
+# )
+
+# # Attach the generated file to your target so CMake triggers the command
+# add_executable(my_app main.cpp ${GENERATED_FILE})
+
 include_directories(
     .
     ../coretrace/simulation_data
