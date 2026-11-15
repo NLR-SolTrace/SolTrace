@@ -55,8 +55,6 @@ call_stapi_v2_get_results_data             [x]      [x]      [x]    [x]
 
 #include "../../../../api/stapi_v2.h"
 
-using json = nlohmann::ordered_json;
-
 #define SETUP_TEST_CXT()                         \
     st_context_v2_t pcxt;                        \
     st_return_t code = st_create_context(&pcxt); \
@@ -67,16 +65,16 @@ using json = nlohmann::ordered_json;
     code = st_free_context(pcxt);            \
     EXPECT_EQ(code, st_return_code::SUCCESS);
 
-#define LOAD_TEST_JSON()                                  \
-    json root = load_json();                              \
-    code = st_read_input_json(pcxt, root.dump().c_str()); \
+#define LOAD_TEST_JSON()                           \
+    std::string root = load_json();                \
+    code = st_read_input_json(pcxt, root.c_str()); \
     EXPECT_EQ(code, st_return_code::SUCCESS);
 
 ///////////////////////
 // Utility Functions //
 ///////////////////////
 
-json load_json();
+std::string load_json();
 
 ////////////////////////////////
 // Simlulation Data Functions //

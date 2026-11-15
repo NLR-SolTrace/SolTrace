@@ -137,18 +137,18 @@ other items
 
 #include <filesystem>
 
-#include "../coretrace/simulation_data/simulation_data_export.hpp"
-#include "../coretrace/simulation_results/simulation_result_export.hpp"
-#include "../coretrace/simulation_runner/native_runner/native_runner.hpp"
-#include "../coretrace/simulation_runner/simulation_runner.hpp"
+// #include "../coretrace/simulation_data/simulation_data_export.hpp"
+// #include "../coretrace/simulation_results/simulation_result_export.hpp"
+// #include "../coretrace/simulation_runner/native_runner/native_runner.hpp"
+// #include "../coretrace/simulation_runner/simulation_runner.hpp"
 
-#ifdef STAPI_V2_EMBREE_SUPPORT
-#include "../coretrace/simulation_runner/embree_runner/embree_runner.hpp"
-#endif
+// #ifdef STAPI_V2_EMBREE_SUPPORT
+// #include "../coretrace/simulation_runner/embree_runner/embree_runner.hpp"
+// #endif
 
-#ifdef STAPI_V2_OPTIX_SUPPORT
-#include "../coretrace/simulation_runner/optix_runner/optix_runner.hpp"
-#endif
+// #ifdef STAPI_V2_OPTIX_SUPPORT
+// #include "../coretrace/simulation_runner/optix_runner/optix_runner.hpp"
+// #endif
 
 /* macros for fetching pointers */
 #define CONTEXT(p)                                                       \
@@ -185,13 +185,13 @@ extern "C" {
 
 namespace fs = std::filesystem;
 
-using SolTrace::Runner::SimulationRunner;
-using SolTrace::Runner::RunnerStatus;
-using SolTrace::Runner::RunnerStatistics;
-using SolTrace::NativeRunner::NativeRunner;
-using SolTrace::Data::Aperture;
-using SolTrace::Data::single_element_ptr;
-using spcm = SolTrace::Data::SolarPositionCalculationMethod;
+// using SolTrace::Runner::SimulationRunner;
+// using SolTrace::Runner::RunnerStatus;
+// using SolTrace::Runner::RunnerStatistics;
+// using SolTrace::NativeRunner::NativeRunner;
+// using SolTrace::Data::Aperture;
+// using SolTrace::Data::single_element_ptr;
+// using spcm = SolTrace::Data::SolarPositionCalculationMethod;
 
 typedef uint32_t st_uint_t;
 
@@ -245,17 +245,35 @@ typedef enum st_runner_type_t : st_uint_t {
 	RUNNER_COUNT         /* sentinel (not a valid runner) */
 } st_runner_type_t;
 
+// TODO: need better solution than this
+// spcm -> Solar Position Calculator Method
+enum st_spcm {
+    LEGACY,
+    DUFFIE,
+    SOLPOS,
+    SPA_ORIGINAL,
+    SPA,
+    CALCULATOR_COUNT /* sentinel */
+};
+
+enum st_runner_statistics {
+	RAY_RECORDS,     // current default behavior is level = 0, and it reports all ray records
+	GROUPED_COUNTS,  // only available if the runner has been set up with groups
+	ALL,             // same constraint as above
+	STATISTICS_COUNT // sentinel
+};
+
 typedef int (*p_callback)(const char* loc, const char* msg);
 
-typedef struct st_context {
-	SimulationData*   p_data	   = nullptr;
-	st_runner_type_t  runner_type  = st_runner_type_t::RUNNER_COUNT;
-	SimulationRunner* p_runner	   = nullptr;
-	RunnerStatistics  report_level = RunnerStatistics::STATISTICS_COUNT;
-	SimulationResult* p_results	   = nullptr;
-	p_callback		  p_cb	   	   = nullptr;
-	fs::path		  location;
-} st_context;
+// typedef struct st_context {
+// 	SimulationData*   p_data	   = nullptr;
+// 	st_runner_type_t  runner_type  = st_runner_type_t::RUNNER_COUNT;
+// 	SimulationRunner* p_runner	   = nullptr;
+// 	RunnerStatistics  report_level = RunnerStatistics::STATISTICS_COUNT;
+// 	SimulationResult* p_results	   = nullptr;
+// 	p_callback		  p_cb	   	   = nullptr;
+// 	fs::path		  location;
+// } st_context;
 
 typedef void* st_context_v2_t;
 

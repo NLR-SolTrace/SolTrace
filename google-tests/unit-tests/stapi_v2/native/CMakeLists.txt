@@ -81,27 +81,15 @@ endif()
 ######################################
 
 target_link_libraries(stapi_v2_native PRIVATE
-    simdata
-    simresult
-    native_runner
     stapi_v2_native_dll
-    testtools
     GTest::gtest_main
 )
 
 add_custom_command(TARGET stapi_v2_native POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    $<TARGET_FILE:stapi_v2_native_dll>            # The source DLL from the 'stapi_v2' target
-    $<TARGET_FILE_DIR:stapi_v2_native> # The destination folder
+            $<TARGET_RUNTIME_DLLS:stapi_v2_native> $<TARGET_FILE_DIR:stapi_v2_native>
+    COMMAND_EXPAND_LISTS
 )
-
-if(MSVC AND NOT CMAKE_BUILD_TYPE STREQUAL "Release")
-    add_custom_command(TARGET stapi_v2_native POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_PDB_FILE:stapi_v2_native_dll>             # The source pdb from the 'stapi_v2' target
-        $<TARGET_FILE_DIR:stapi_v2_native> # The destination folder
-    )
-endif()
 
 if (ENABLE_COVERAGE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_link_options(stapi_v2_native PRIVATE --coverage)

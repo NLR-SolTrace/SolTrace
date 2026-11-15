@@ -6,8 +6,10 @@ intended to be called from tests inside different api build tests, those manage 
 
 #include <gtest/gtest.h>
 #include <fstream>
-#include <vector>
+#include <sstream>
+#include <string>
 #include <thread>
+#include <vector>
 
 #include "across_builds.hpp"
 
@@ -15,7 +17,7 @@ intended to be called from tests inside different api build tests, those manage 
 // Utility Functions //
 ///////////////////////
 
-json load_json()
+std::string load_json()
 {
     namespace fs = std::filesystem;
 
@@ -27,9 +29,10 @@ json load_json()
     if (!ifs.is_open()) throw std::runtime_error("Failure opening json");
 
     // Load json from file stream
-    json root;
-    ifs >> root;
-    return root;
+    std::ostringstream buffer;
+    buffer << ifs.rdbuf();
+    std::string content = buffer.str();
+    return content;
 }
 
 void ASSERT_OPTICAL_SIDE_EQ(args_optical_properties_face expected, args_optical_properties_face actual)
@@ -48,10 +51,10 @@ void ASSERT_OPTICAL_SIDE_EQ(args_optical_properties_face expected, args_optical_
 // functions for simulation data management thru json strings
 void call_stapi_v2_read_input_json(st_context_v2_t pcxt)
 {
-    json root = load_json();
+    std::string root = load_json();
     // add calls to other overloads
     ASSERT_EQ(
-        st_read_input_json(pcxt, root.dump().c_str()), 
+        st_read_input_json(pcxt, root.c_str()), 
         st_return_code::SUCCESS);
 }
 
@@ -1275,7 +1278,7 @@ typedef struct expected_solar_values {
 } expected_solar_values;
 
 void test_calculator_method(st_context_v2_t pcxt,
-                            SolTrace::Data::SolarPositionCalculationMethod calc,
+                            st_spcm calc,
                             expected_solar_values *expected)
 {
     args_sun_location loc = { 40.0, -105.0, -7.0 };
@@ -1317,31 +1320,31 @@ void call_stapi_v2_solar_calculator(st_context_v2_t pcxt)
     // Expected values - confirmed with https://gml.noaa.gov/grad/solcalc/azel.html
     expected_solar_values expected_SPA = {178.61128380, 73.439035265, 0.006908, -0.2849516, 0.9585169};
     test_calculator_method(pcxt,
-                           SolTrace::Data::SolarPositionCalculationMethod::SPA,
+                           st_spcm::SPA,
                            &expected_SPA);
     
     // method: SPA_ORIGINAL
     expected_solar_values expected_SPA_ORIGINAL = {178.614529, 73.443097, 0.006890135, -0.284884148, 0.95853719};
     test_calculator_method(pcxt,
-                           SolTrace::Data::SolarPositionCalculationMethod::SPA_ORIGINAL,
+                           st_spcm::SPA_ORIGINAL,
                            &expected_SPA_ORIGINAL);
    
     // method: SOLPOS
     expected_solar_values expected_SOLPOS = {178.6119537, 73.430931, 0.006907870, -0.28508729, 0.95847666};
     test_calculator_method(pcxt,
-                           SolTrace::Data::SolarPositionCalculationMethod::SOLPOS,
+                           st_spcm::SOLPOS,
                            &expected_SOLPOS);
    
     // method: LEGACY
     expected_solar_values expected_LEGACY = {179.9991897, 73.435378, 4.031894e-06, -0.28509658, 0.958498794};
     test_calculator_method(pcxt,
-                           SolTrace::Data::SolarPositionCalculationMethod::LEGACY,
+                           st_spcm::LEGACY,
                            &expected_LEGACY);
    
     // method: DUFFIE
     expected_solar_values expected_DUFFIE = {179.110386, 73.43996784, 0.00442455, -0.284985454, 0.958521629};
     test_calculator_method(pcxt,
-                           SolTrace::Data::SolarPositionCalculationMethod::DUFFIE,
+                           st_spcm::DUFFIE,
                            &expected_DUFFIE);
    
     // test bad calc input, expect st_return_code::INVALID_ARGUMENTS
@@ -1352,18 +1355,18 @@ void call_stapi_v2_solar_calculator(st_context_v2_t pcxt)
 
     ASSERT_EQ(
         st_get_sun_az_el(pcxt,
-                         SolTrace::Data::SolarPositionCalculationMethod::CALCULATOR_COUNT,
+                         st_spcm::CALCULATOR_COUNT,
                          &loc, &dt, &azimuth, &elevation),
         st_return_code::INVALID_ARGUMENTS);
     ASSERT_EQ(
         st_get_sun_az_zen(pcxt,
-                         SolTrace::Data::SolarPositionCalculationMethod::CALCULATOR_COUNT,
-                         &loc, &dt, &azimuth, &zenith),
+                          st_spcm::CALCULATOR_COUNT,
+                          &loc, &dt, &azimuth, &zenith),
         st_return_code::INVALID_ARGUMENTS);
     ASSERT_EQ(
         st_get_sun_vector(pcxt,
-                         SolTrace::Data::SolarPositionCalculationMethod::CALCULATOR_COUNT,
-                         &loc, &dt, &sun_x, &sun_y, &sun_z),
+                          st_spcm::CALCULATOR_COUNT,
+                          &loc, &dt, &sun_x, &sun_y, &sun_z),
         st_return_code::INVALID_ARGUMENTS);
 }
 
@@ -1391,19 +1394,19 @@ void call_stapi_v2_sim_report(st_context_v2_t pcxt, st_runner_type_t runner_type
     ASSERT_EQ(st_sim_setup(pcxt, runner_type),
               st_return_code::SUCCESS);
     // hasn't run yet, expect st_return_code::RUNNER_NOT_READY_TO_REPORT
-    ASSERT_EQ(st_sim_report(pcxt, RunnerStatistics::RAY_RECORDS),
+    ASSERT_EQ(st_sim_report(pcxt, st_runner_statistics::RAY_RECORDS),
               st_return_code::RUNNER_NOT_READY_TO_REPORT);
 
     ASSERT_EQ(st_sim_run_v2(pcxt),
               st_return_code::SUCCESS);
 
     // bad arguments, expect st_return_code::INVALID_ARGUMENTS
-    ASSERT_EQ(st_sim_report(pcxt, RunnerStatistics::RAY_RECORDS - 1),
+    ASSERT_EQ(st_sim_report(pcxt, st_runner_statistics::RAY_RECORDS - 1),
               st_return_code::INVALID_ARGUMENTS);
-    ASSERT_EQ(st_sim_report(pcxt, RunnerStatistics::STATISTICS_COUNT),
+    ASSERT_EQ(st_sim_report(pcxt, st_runner_statistics::STATISTICS_COUNT),
               st_return_code::INVALID_ARGUMENTS);
 
-    ASSERT_EQ(st_sim_report(pcxt, RunnerStatistics::GROUPED_COUNTS),
+    ASSERT_EQ(st_sim_report(pcxt, st_runner_statistics::GROUPED_COUNTS),
               st_return_code::SUCCESS);
 }
 
