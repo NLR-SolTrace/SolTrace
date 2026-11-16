@@ -73,7 +73,7 @@ void call_stapi_v2_read_input_json_file(st_context_v2_t pcxt)
 // functions for simulation data management directly
 void call_stapi_v2_set_simulation_parameters(st_context_v2_t pcxt)
 {
-    args_simulation_parameters _params = { 1, 100, .1, 35.962278, -106.5122622, true, true, false };
+    args_simulation_parameters _params = { 1, 100, 608, .1, 35.962278, -106.5122622, true, true, false };
 
     ASSERT_EQ(
         st_set_simulation_parameters(pcxt, &_params),
@@ -86,6 +86,7 @@ void call_stapi_v2_set_simulation_parameters(st_context_v2_t pcxt)
 
     ASSERT_EQ(rt_params.number_of_rays,           _params.number_of_rays);
     ASSERT_EQ(rt_params.max_number_of_rays,       _params.max_number_of_rays);
+    ASSERT_EQ(rt_params.seed,                     _params.seed);
     ASSERT_EQ(rt_params.tolerance,                _params.tolerance);
     ASSERT_EQ(rt_params.latitude,                 _params.latitude);
     ASSERT_EQ(rt_params.longitude,                _params.longitude);
@@ -182,6 +183,20 @@ void call_stapi_v2_sim_tolerance(st_context_v2_t pcxt)
         st_return_code::SUCCESS);
     
     ASSERT_EQ(rt_params.tolerance, .1);
+}
+
+void call_stapi_v2_sim_seed(st_context_v2_t pcxt)
+{
+    ASSERT_EQ(
+        st_sim_seed(pcxt, 12345),
+        st_return_code::SUCCESS);
+    
+    args_simulation_parameters rt_params;
+    ASSERT_EQ(
+        st_get_simulation_parameters(pcxt, &rt_params),
+        st_return_code::SUCCESS);
+    
+    ASSERT_EQ(rt_params.seed, 12345);
 }
 
 void call_stapi_v2_get_simulation_parameters(st_context_v2_t pcxt)

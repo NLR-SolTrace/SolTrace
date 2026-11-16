@@ -92,6 +92,7 @@ void call_stapi_v2_sim_power_tower(st_context_v2_t pcxt);
 void call_stapi_v2_sim_errors(st_context_v2_t pcxt);
 void call_stapi_v2_sim_location(st_context_v2_t pcxt);
 void call_stapi_v2_sim_tolerance(st_context_v2_t pcxt);
+void call_stapi_v2_sim_seed(st_context_v2_t pcxt);
 void call_stapi_v2_get_simulation_parameters(st_context_v2_t pcxt);
 
 // function for optical properties

@@ -300,6 +300,7 @@ STAPI_V2 st_return_t st_read_input_json_file(st_context_v2_t pcxt, const char *f
 typedef struct args_simulation_parameters {
 	uint_fast64_t number_of_rays;
 	uint_fast64_t max_number_of_rays;
+	uint_fast64_t seed;
 	double 		  tolerance;
 	double 		  latitude;
 	double 		  longitude;
@@ -324,6 +325,7 @@ STAPI_V2 st_return_t st_sim_location(st_context_v2_t pcxt,
 								     double		     latitude,
 								     double		     longitude) noexcept;
 STAPI_V2 st_return_t st_sim_tolerance(st_context_v2_t pcxt, double tolerance) noexcept;
+STAPI_V2 st_return_t st_sim_seed(st_context_v2_t pcxt, double seed) noexcept;
 STAPI_V2 st_return_t st_get_simulation_parameters(st_context_v2_t pcxt, args_simulation_parameters *params) noexcept;
 
 // functions to add/remove/set optical properties

@@ -65,6 +65,15 @@ TEST(DataTests, DataTolerance)
     CLEANUP_TEST_CXT();
 }
 
+TEST(DataTests, DataSeed)
+{
+    SETUP_TEST_CXT();
+
+    call_stapi_v2_sim_seed(pcxt);
+    
+    CLEANUP_TEST_CXT();
+}
+
 TEST(DataTests, DataGetSimulationParams)
 {
     SETUP_TEST_CXT();

@@ -14,6 +14,8 @@ return st_guard::guarded(st_utils::get_cb(pcxt), "st_set_simulation_parameters",
     data->set_number_of_rays(params->number_of_rays);
     data->set_max_rays_traced(params->max_number_of_rays);
 
+    data->set_seed(params->seed);
+
     data->set_tolerance(params->tolerance);
     
     data->set_latitude(params->latitude);
@@ -110,6 +112,18 @@ return st_guard::guarded(st_utils::get_cb(pcxt), "st_sim_tolerance", [&]() -> st
 });
 }
 
+STAPI_V2 st_return_t st_sim_seed(st_context_v2_t pcxt, double seed) noexcept
+{
+return st_guard::guarded(st_utils::get_cb(pcxt), "st_sim_seed", [&]() -> st_return_t {
+    CONTEXT(pcxt);
+    DATA(cxt);
+
+    data->set_seed(seed);
+
+    return st_return_code::SUCCESS;
+});
+}
+
 STAPI_V2 st_return_t st_get_simulation_parameters(st_context_v2_t pcxt, args_simulation_parameters *params) noexcept
 {
 return st_guard::guarded(st_utils::get_cb(pcxt), "st_get_simulation_parameters", [&]() -> st_return_t {
@@ -118,6 +132,8 @@ return st_guard::guarded(st_utils::get_cb(pcxt), "st_get_simulation_parameters",
 
     params->number_of_rays = data->get_number_of_rays();
     params->max_number_of_rays = data->get_max_number_rays_traced();
+
+    params->seed = data->get_seed();
 
     params->tolerance = data->get_tolerance();
     
