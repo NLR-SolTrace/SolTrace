@@ -25,6 +25,29 @@ SimulationData::~SimulationData()
     return;
 }
 
+void SimulationData::make_element_ready(element_ptr el)
+{
+    // TODO: dirty flags in following functions to only compute user set
+    //       fields and coordinate rotations if changed from insertion
+    
+    // Check that all fields required from the user have been specified
+    el->enforce_user_fields_set();
+    // Make sure coordinate stuff has been computed
+    el->compute_coordinate_rotations();
+
+    if (el->is_composite())
+    {
+        composite_element_ptr cptr =
+            std::dynamic_pointer_cast<CompositeElement>(el);
+        element_ptr sub_el;
+        for (auto cit = cptr->get_iterator(); !cptr->is_at_end(cit); ++cit)
+        {
+            sub_el = cit->second;
+            SimulationData::make_element_ready(sub_el);
+        }
+    }
+}
+
 void SimulationData::enforce_elements_ready()
 {
     if (this->get_number_of_elements() <= 0)
@@ -36,22 +59,24 @@ void SimulationData::enforce_elements_ready()
     for (auto it = this->get_iterator(); !this->is_at_end(it); ++it)
     {
         el = it->second;
-        // Check that all fields required from the user have been specified
-        el->enforce_user_fields_set();
-        // Make sure coordinate stuff has been computed
-        el->compute_coordinate_rotations();
-        if (el->is_composite())
-        {
-            composite_element_ptr cptr =
-                std::dynamic_pointer_cast<CompositeElement>(el);
-            element_ptr sub_el;
-            for (auto cit = cptr->get_iterator(); !cptr->is_at_end(cit); ++cit)
-            {
-                sub_el = cit->second;
-                sub_el->enforce_user_fields_set();
-                sub_el->compute_coordinate_rotations();
-            }
-        }
+        SimulationData::make_element_ready(it->second);
+
+        // // Check that all fields required from the user have been specified
+        // el->enforce_user_fields_set();
+        // // Make sure coordinate stuff has been computed
+        // el->compute_coordinate_rotations();
+        // if (el->is_composite())
+        // {
+        //     composite_element_ptr cptr =
+        //         std::dynamic_pointer_cast<CompositeElement>(el);
+        //     element_ptr sub_el;
+        //     for (auto cit = cptr->get_iterator(); !cptr->is_at_end(cit); ++cit)
+        //     {
+        //         sub_el = cit->second;
+        //         sub_el->enforce_user_fields_set();
+        //         sub_el->compute_coordinate_rotations();
+        //     }
+        // }
     }
 }
 

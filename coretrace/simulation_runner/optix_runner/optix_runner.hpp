@@ -18,9 +18,9 @@ public:
 
     virtual SolTrace::Runner::RunnerStatus initialize() override;
     virtual SolTrace::Runner::RunnerStatus
-    setup_simulation(const SolTrace::Data::SimulationData* data) override;
+    setup_simulation(SolTrace::Data::SimulationData* data) override;
     virtual SolTrace::Runner::RunnerStatus
-    update_simulation(const SolTrace::Data::SimulationData* data) override;
+    update_simulation(SolTrace::Data::SimulationData* data) override;
     virtual SolTrace::Runner::RunnerStatus run_simulation() override;
     virtual SolTrace::Runner::RunnerStatus
     status_simulation(double* progress = nullptr) override;

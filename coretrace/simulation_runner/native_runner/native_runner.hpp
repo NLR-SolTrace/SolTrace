@@ -34,8 +34,8 @@ namespace SolTrace::NativeRunner
         NativeRunner &operator=(NativeRunner &&) = delete;
 
         virtual RunnerStatus initialize() override;
-        virtual RunnerStatus setup_simulation(const SolTrace::Data::SimulationData *data) override;
-        virtual RunnerStatus update_simulation(const SolTrace::Data::SimulationData *data) override;
+        virtual RunnerStatus setup_simulation(SolTrace::Data::SimulationData *data) override;
+        virtual RunnerStatus update_simulation(SolTrace::Data::SimulationData *data) override;
         virtual RunnerStatus run_simulation() override;
         virtual RunnerStatus status_simulation(double *progress = nullptr) override;
         virtual RunnerStatus cancel_simulation() override;

@@ -83,11 +83,13 @@ RunnerStatus OptixRunner::initialize()
     return RunnerStatus::SUCCESS;
 }
 
-RunnerStatus OptixRunner::setup_simulation(const SimulationData* data)
+RunnerStatus OptixRunner::setup_simulation(SimulationData* data)
 {
 
     // Reset
     this->m_sys.reset();
+
+    data->enforce_elements_ready();
 
     RunnerStatus sts;
 
@@ -478,7 +480,7 @@ RunnerStatus OptixRunner::setup_elements(const SimulationData* data)
     return RunnerStatus::SUCCESS;
 }
 
-RunnerStatus OptixRunner::update_simulation(const SimulationData* data)
+RunnerStatus OptixRunner::update_simulation(SimulationData* data)
 {
     return this->setup_simulation(data);
     // TODO: Implement this in a less lazy manner...

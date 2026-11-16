@@ -50,12 +50,14 @@ namespace SolTrace::NativeRunner
         return RunnerStatus::SUCCESS;
     }
 
-    RunnerStatus NativeRunner::setup_simulation(const SimulationData *data)
+    RunnerStatus NativeRunner::setup_simulation(SimulationData *data)
     {
 
         RunnerStatus sts;
 
         this->tsys.ClearAll();
+
+        data->enforce_elements_ready();
 
         sts = this->setup_parameters(data);
 
@@ -65,7 +67,8 @@ namespace SolTrace::NativeRunner
         if (sts == RunnerStatus::SUCCESS)
             sts = this->setup_elements(data);
         
-        if (sts == RunnerStatus::SUCCESS) this->set_ready_to_run(true);
+        if (sts == RunnerStatus::SUCCESS)
+            this->set_ready_to_run(true);
 
         return sts;
     }
@@ -301,7 +304,7 @@ namespace SolTrace::NativeRunner
         return sts;
     }
 
-    RunnerStatus NativeRunner::update_simulation(const SimulationData *data)
+    RunnerStatus NativeRunner::update_simulation(SimulationData *data)
     {
         // TODO: Do a more efficient implementation of this?
         this->tsys.ClearAll();

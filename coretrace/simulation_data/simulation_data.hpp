@@ -435,6 +435,8 @@ private:
     const OpticalPropertySet* get_optical_property_set(optics_id id) const;
     OpticalPropertySet* get_optical_property_set(optics_id id);
 
+    void SimulationData::make_element_ready(element_ptr el);
+
     void insert_element_into_group(element_ptr el, int32_t group);
     void remove_element_from_group(element_ptr el);
 };

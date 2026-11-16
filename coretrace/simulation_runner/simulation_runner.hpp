@@ -68,9 +68,9 @@ namespace SolTrace::Runner
         SimulationRunner &operator=(SimulationRunner &&) = delete;
 
         virtual RunnerStatus initialize() = 0;
-        virtual RunnerStatus setup_simulation(const SolTrace::Data::SimulationData *data) = 0;
+        virtual RunnerStatus setup_simulation(SolTrace::Data::SimulationData *data) = 0;
         // TODO: Determine what can be "updated", that is changed
-        virtual RunnerStatus update_simulation(const SolTrace::Data::SimulationData *data) = 0;
+        virtual RunnerStatus update_simulation(SolTrace::Data::SimulationData *data) = 0;
         virtual RunnerStatus run_simulation() = 0;
         virtual RunnerStatus status_simulation(double *progress = nullptr) = 0;
         virtual RunnerStatus cancel_simulation() = 0;
