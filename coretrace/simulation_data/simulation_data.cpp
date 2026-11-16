@@ -60,23 +60,6 @@ void SimulationData::enforce_elements_ready()
     {
         el = it->second;
         SimulationData::make_element_ready(it->second);
-
-        // // Check that all fields required from the user have been specified
-        // el->enforce_user_fields_set();
-        // // Make sure coordinate stuff has been computed
-        // el->compute_coordinate_rotations();
-        // if (el->is_composite())
-        // {
-        //     composite_element_ptr cptr =
-        //         std::dynamic_pointer_cast<CompositeElement>(el);
-        //     element_ptr sub_el;
-        //     for (auto cit = cptr->get_iterator(); !cptr->is_at_end(cit); ++cit)
-        //     {
-        //         sub_el = cit->second;
-        //         sub_el->enforce_user_fields_set();
-        //         sub_el->compute_coordinate_rotations();
-        //     }
-        // }
     }
 }
 
