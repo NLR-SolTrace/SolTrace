@@ -146,3 +146,21 @@ TEST(RunnerTests, RunnersReport)
     
     CLEANUP_TEST_CXT();
 }
+
+TEST(RunnerTests, RunMoveRunNative)
+{
+    SETUP_TEST_CXT();
+
+    test_move_element(pcxt, st_runner_type_t::NATIVE);
+    
+    CLEANUP_TEST_CXT();
+}
+
+TEST(RunnerTests, RunMoveRunOptix)
+{
+    SETUP_TEST_CXT();
+
+    test_move_element(pcxt, st_runner_type_t::OPTIX);
+    
+    CLEANUP_TEST_CXT();
+}

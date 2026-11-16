@@ -130,6 +130,8 @@ void call_stapi_v2_sim_run_v2(st_context_v2_t  pcxt,
                               st_runner_type_t runner_type);
 void call_stapi_v2_sim_report(st_context_v2_t  pcxt, 
                               st_runner_type_t runner_type);
+void test_move_element(st_context_v2_t pcxt,
+                       st_runner_type_t runner_type);
 
 ///////////////////////////////////
 // Simlulation Results Functions //

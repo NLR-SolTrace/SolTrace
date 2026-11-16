@@ -201,7 +201,7 @@ void call_stapi_v2_sim_seed(st_context_v2_t pcxt)
 
 void call_stapi_v2_get_simulation_parameters(st_context_v2_t pcxt)
 {
-    args_simulation_parameters _params = { 1, 100, .1, 35.962278, -106.5122622, true, true, false };
+    args_simulation_parameters _params = { 1, 100, 608, .1, 35.962278, -106.5122622, true, true, false };
 
     ASSERT_EQ(
         st_set_simulation_parameters(pcxt, &_params),
@@ -214,6 +214,7 @@ void call_stapi_v2_get_simulation_parameters(st_context_v2_t pcxt)
     
     ASSERT_EQ(rt_params.number_of_rays,           _params.number_of_rays);
     ASSERT_EQ(rt_params.max_number_of_rays,       _params.max_number_of_rays);
+    ASSERT_EQ(rt_params.seed,                     _params.seed);
     ASSERT_EQ(rt_params.tolerance,                _params.tolerance);
     ASSERT_EQ(rt_params.latitude,                 _params.latitude);
     ASSERT_EQ(rt_params.longitude,                _params.longitude);
@@ -1423,6 +1424,124 @@ void call_stapi_v2_sim_report(st_context_v2_t pcxt, st_runner_type_t runner_type
 
     ASSERT_EQ(st_sim_report(pcxt, st_runner_statistics::GROUPED_COUNTS),
               st_return_code::SUCCESS);
+}
+
+void test_move_element(st_context_v2_t pcxt, st_runner_type_t runner_type)
+{
+    // set up parameters
+    st_sim_rays(pcxt, 1000, 10000);
+    st_sim_seed(pcxt, 608);
+    st_sim_errors(pcxt, false, false);
+    
+    // set up sun
+    args_sun sun_args = { 0, 0, 0, 1000, 4.65, 'p' };
+    st_add_sun(pcxt, &sun_args, nullptr, nullptr);
+    
+    // set up absorber
+    uint_fast64_t abs_opt_id;
+    args_optical_properties_set abs_set = { "absorber", 1.1, 1.1, 2 };
+    args_optical_properties_face abs_f = { 0, 0, 0, 0, 'g' };
+    args_optical_properties_face abs_b = { 0, 0, 0, 0, 'g' };
+
+    st_add_optical_properties_set(pcxt, &abs_set, &abs_f, &abs_b, &abs_opt_id);
+
+    uint_fast64_t abs_el_id;
+    args_element absorber_el = { 0, 0, 0, 0, 0, -100, 0, true, false };
+    args_geometry absorber_geom = { { 2, 2 }, { 1 }, 'r', 't' };
+
+    st_add_element(pcxt, &absorber_el, abs_opt_id, &absorber_geom, &abs_el_id);
+
+    // set up reflector
+    uint_fast64_t refl_opt_id;
+    args_optical_properties_set refl_set = { "reflector", 1.1, 1.1, 2 };
+    args_optical_properties_face refl_f = { 0, 1, 0, 0, 'g' };
+    args_optical_properties_face refl_b = { 0, 1, 0, 0, 'g' };
+
+    st_add_optical_properties_set(pcxt, &refl_set, &refl_f, &refl_b, &refl_opt_id);
+
+    uint_fast64_t refl_el_id;
+    args_element reflector_el = { 10, 0, 0, 0, 0, 10, 0, true, false };
+    args_geometry reflector_geom = { { 2, 2 }, {}, 'r', 'f' };
+
+    st_add_element(pcxt, &reflector_el, refl_opt_id, &reflector_geom, &refl_el_id);
+
+    st_sim_setup(pcxt, runner_type);
+    st_sim_run_v2(pcxt);
+    st_sim_report(pcxt, st_runner_statistics::RAY_RECORDS);
+
+    uint_fast64_t num_int;
+    st_num_intersections(pcxt, &num_int);
+
+    ASSERT_GT(num_int, 0);
+
+    double *loc_x      = new double[num_int];
+    double *loc_y      = new double[num_int];
+    double *loc_z      = new double[num_int];
+    uint_fast64_t *els = new uint_fast64_t[num_int];
+
+    st_locations(pcxt, loc_x, loc_y, loc_z);
+    st_elementmap(pcxt, els);
+
+    uint_fast32_t hit_abs = 0;
+    uint_fast32_t hit_refl = 0;
+
+    for (int i = 1; i < num_int; ++i)
+    {
+        if (els[i] == refl_el_id)
+            ++hit_refl;
+        if ((els[i-1] == refl_el_id) && (els[i] == abs_el_id))
+        {
+            ++hit_abs;
+            ASSERT_GE(loc_x[i], 0);
+        }
+    }
+    ASSERT_GT(hit_refl, 0);
+    ASSERT_GT(hit_abs, 0);
+
+    delete[] loc_x;
+    delete[] loc_y;
+    delete[] loc_z;
+    delete[] els;
+
+    // move reflector and rerun
+    st_element_xyz(pcxt, refl_el_id, -10, 0, 0);
+
+    st_sim_setup(pcxt, runner_type);
+    st_sim_run_v2(pcxt);
+    st_sim_report(pcxt, st_runner_statistics::RAY_RECORDS);
+
+    st_num_intersections(pcxt, &num_int);
+
+    ASSERT_GT(num_int, 0);
+
+    loc_x = new double[num_int];
+    loc_y = new double[num_int];
+    loc_z = new double[num_int];
+    els   = new uint_fast64_t[num_int];
+
+    st_locations(pcxt, loc_x, loc_y, loc_z);
+    st_elementmap(pcxt, els);
+
+    hit_abs = 0;
+    hit_refl = 0;
+
+    for (int i = 1; i < num_int; ++i)
+    {
+        if (els[i] == refl_el_id)
+            ++hit_refl;
+        if ((els[i-1] == refl_el_id) && (els[i] == abs_el_id))
+        {
+            ++hit_abs;
+            ASSERT_LE(loc_x[i], 0);
+        }
+    }
+    ASSERT_GT(hit_refl, 0);
+    ASSERT_GT(hit_abs, 0);
+
+    delete[] loc_x;
+    delete[] loc_y;
+    delete[] loc_z;
+    delete[] els;
 }
 
 ///////////////////////////////////
