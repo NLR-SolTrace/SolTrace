@@ -33,8 +33,8 @@ void IndirectTableModel::add_properties(QVector<IProperty> lps) {
 QVariant IndirectTableModel::headerData(int             section,
                                         Qt::Orientation orientation,
                                         int             role) const {
-    if (orientation != Qt::Orientation::Horizontal) return {};
-    if (role != Qt::DisplayRole) return {};
+    if (orientation != Qt::Orientation::Horizontal) return { };
+    if (role != Qt::DisplayRole) return { };
 
     return m_header.value(section);
 }
@@ -50,8 +50,8 @@ int IndirectTableModel::columnCount(const QModelIndex& parent) const {
 }
 
 QVariant IndirectTableModel::data(const QModelIndex& index, int role) const {
-    if (!index.isValid()) return {};
-    if (index.row() >= _record_count()) return {};
+    if (!index.isValid()) return { };
+    if (index.row() >= _record_count()) return { };
 
     auto resolved_index = index.row();
 
@@ -62,12 +62,12 @@ QVariant IndirectTableModel::data(const QModelIndex& index, int role) const {
     if (role >= Qt::UserRole) {
         auto local_role = role - Qt::UserRole;
 
-        if (local_role >= m_header.size() or local_role < 0) return {};
+        if (local_role >= m_header.size() or local_role < 0) return { };
 
         return m_properties.value(local_role).getter(resolved_index);
     }
 
-    return {};
+    return { };
 }
 
 bool IndirectTableModel::setData(const QModelIndex& index,

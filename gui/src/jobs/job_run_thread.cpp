@@ -6,11 +6,11 @@
 #include "support/math_utility.h"
 
 #ifdef SOLTRACE_HAS_EMBREE_RUNNER
-#include "embree_runner/embree_runner.hpp"
+#    include "embree_runner/embree_runner.hpp"
 #endif
 
 #ifdef SOLTRACE_HAS_OPTIX_RUNNER
-#include "optix_runner/optix_runner.hpp"
+#    include "optix_runner/optix_runner.hpp"
 #endif
 
 #include <QtConcurrentRun>
