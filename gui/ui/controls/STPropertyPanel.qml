@@ -6,6 +6,8 @@ import SolTrace
 Rectangle {
     id: root
     property string title
+    property string documentationKey: ""
+    property bool documentationExpanded: false
 
     property bool collapsible: true
     property bool checkable: false
@@ -63,7 +65,11 @@ Rectangle {
             RowLayout {
                 id: header_row
 
-                anchors.fill: parent
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.right: documentation_button.visible
+                               ? documentation_button.left : parent.right
                 anchors.margins: 6
 
                 Label {
@@ -95,8 +101,33 @@ Rectangle {
 
             }
 
+            STClickableLabel {
+                id: documentation_button
+                anchors.right: parent.right
+                anchors.rightMargin: 6
+                anchors.verticalCenter: parent.verticalCenter
+                visible: root.documentationKey.length > 0
+                text: root.documentationExpanded && !root.collapsed
+                      ? qsTr("Hide help") : qsTr("Help")
+                color: Material.accentColor
+                font.underline: containsMouse
+
+                onClicked: {
+                    if (root.collapsed) {
+                        root.collapsed = false
+                        root.documentationExpanded = true
+                    } else {
+                        root.documentationExpanded =
+                                !root.documentationExpanded
+                    }
+                }
+            }
+
             MouseArea {
-                anchors.fill: parent
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.right: header_row.right
                 onClicked: root.collapsed = !root.collapsed
             }
         }
@@ -107,6 +138,22 @@ Rectangle {
             color: Material.dividerColor
 
             visible: !root.collapsed && root.title.length > 0
+        }
+
+        DocumentationContent {
+            key: root.documentationKey
+            visible: !root.collapsed && root.documentationExpanded
+                     && root.documentationKey.length > 0
+            Layout.fillWidth: true
+            Layout.margins: 6
+        }
+
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 1
+            color: Material.dividerColor
+            visible: !root.collapsed && root.documentationExpanded
+                     && root.documentationKey.length > 0
         }
 
         GridLayout {

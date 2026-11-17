@@ -21,6 +21,10 @@ Node {
                     App.view.sim.geometry_subdivision_scale)
         AppData.simulation.world_geometry_model.set_default_color(
                     App.view.sim.geometry_color)
+        AppData.flux.flux_map_world_model.set_surface_thickness(
+                    App.view.sim.geometry_thickness)
+        AppData.flux.flux_map_world_model.set_subdivision_scale(
+                    App.view.sim.geometry_subdivision_scale)
     }
 
     Component.onCompleted: applyPerformanceSettings()
@@ -32,7 +36,20 @@ Node {
     }
 
     Repeater3D {
-        visible: flux_repeater.count === 0 || AppData.flux.show_other_geometry
+        visible: {
+            if (App.view.workflow_phase !== ViewModule.Analyze)
+                return true
+
+            switch (App.view.analyze_section) {
+            case 1:
+                return AppData.intersections.show_geometry
+            case 2:
+                return flux_repeater.count === 0
+                        || AppData.flux.show_other_geometry
+            default:
+                return true
+            }
+        }
         model: AppData.simulation.world_geometry_model
 
         delegate: Model {
@@ -82,7 +99,7 @@ Node {
 
         Texture {
             id: b_to_w_texture
-            source: "qrc:/assets/images/b_to_r_wide.png"
+            source: AppData.color_maps.source_for(App.view.ray_color_map)
         }
 
         materials : [
@@ -105,6 +122,9 @@ Node {
         model: AppData.flux.flux_map_world_model
 
         delegate: Model {
+            objectName: "flux_map_geometry"
+
+            required property var flux_entity
             required property var flux_position
             required property var flux_rotation
             required property var flux_geometry
@@ -112,14 +132,11 @@ Node {
             required property string flux_image_path
 
             geometry: flux_geometry
+            pickable: true
             //source: "#Cube"
 
             position: flux_position
             rotation: flux_rotation
-
-            Component.onCompleted: {
-                AppData.flux.current_image = flux_image_path
-            }
 
             materials: [
                 PrincipledMaterial {

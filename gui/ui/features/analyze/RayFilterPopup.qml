@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Controls.Material
-import QtQuick.Effects
 import QtQuick.Layouts
 
 import SolTrace
@@ -45,6 +44,18 @@ STPopup {
         return filter
     }
 
+    function set_all(checked) {
+        updating = true
+        for (let i = 0; i < ray_type_repeater.count; ++i) {
+            const item = ray_type_repeater.itemAt(i)
+            if (item) {
+                item.checked = checked
+            }
+        }
+        updating = false
+        modified(current_filter())
+    }
+
     property var ray_type_model: [
         { label: "Create", ray_type: "create" },
         { label: "Absorb", ray_type: "absorb" },
@@ -54,8 +65,14 @@ STPopup {
         { label: "Exit", ray_type: "exit" },
     ]
 
-    GridLayout {
-        columns: 2
+    ColumnLayout {
+        spacing: 6
+
+        Label {
+            Layout.fillWidth: true
+            text: "Interaction Types"
+            font.bold: true
+        }
 
         ColumnLayout {
             Repeater {
@@ -71,6 +88,30 @@ STPopup {
                         }
                     }
                 }
+            }
+        }
+
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 1
+            color: Material.dividerColor
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+
+            Item { Layout.fillWidth: true }
+
+            STIconButton {
+                label: "None"
+                toolTip: "Hide all interaction types"
+                onClicked: root.set_all(false)
+            }
+
+            STIconButton {
+                label: "All"
+                toolTip: "Show all interaction types"
+                onClicked: root.set_all(true)
             }
         }
     }

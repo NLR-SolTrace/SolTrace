@@ -5,7 +5,7 @@ import QtQuick.Layouts
 
 import SolTrace
 
-ScrollView {
+STScrollView {
     id: root
 
     Layout.fillWidth: true
@@ -24,7 +24,7 @@ ScrollView {
         STPropertyPanel {
             Layout.fillWidth: true
 
-            title: "Documentation"
+            title: "Recording"
             collapsed: false
 
             ColumnLayout {
@@ -34,14 +34,14 @@ ScrollView {
 
                 Label {
                     Layout.fillWidth: true
-                    text: "Inline documentation shows short explanations next to controls throughout the app. It can be useful when learning SolTrace or when you want quick reminders about less familiar options."
+                    text: "Recording mode hides prerelease warnings from the interface. It does not change simulation behavior."
                     wrapMode: Label.WrapAtWordBoundaryOrAnywhere
                 }
 
                 STSwitch {
-                    text: "Show Inline Documentation"
-                    checked: App.view.inline_docs
-                    onToggled: App.view.inline_docs = checked
+                    text: "Recording mode"
+                    checked: AppData.recording_mode
+                    onToggled: AppData.recording_mode = checked
                 }
             }
         }

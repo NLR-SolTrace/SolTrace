@@ -36,6 +36,8 @@ public:
                   std::vector<int32_t>&       element_id_vec);
 
     double get_sun_plane_area() const { return m_sys.get_sun_plane_area(); }
+    void get_sun_plane_dimensions(double& width, double& height) const
+    { m_sys.get_sun_plane_dimensions(width, height); }
 
     uint_fast64_t get_N_sun_rays() const { return m_sys.get_N_sun_rays(); }
     inline uint_fast64_t get_number_rays_launched() const override

@@ -37,9 +37,11 @@ STMenu {
             model: file_controller.recent_files
 
             delegate: MenuItem {
+                required property string url
+
                 implicitWidth: 220
-                text: file_controller.file_name(modelData)
-                onTriggered: file_controller.load_recent(modelData)
+                text: file_controller.file_name(url)
+                onTriggered: file_controller.load_recent(url)
             }
 
             onObjectAdded: (index, object) => recents_menu.insertItem(index, object)

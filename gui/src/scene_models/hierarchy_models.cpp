@@ -2,160 +2,184 @@
 
 #include "data_io/database_notification.h"
 
-#include <algorithm>
-#include <unordered_set>
+#include <QTimer>
 
 namespace SolTrace::GUI::Data {
 
-void BreadcrumbModel::recompute() {
-    m_path.clear();
+namespace {
+constexpr int name_role         = ROLE_FOR_MEMBER(EntityNamePair, name);
+constexpr int entity_role       = ROLE_FOR_MEMBER(EntityNamePair, entity);
+constexpr int has_children_role = ROLE_FOR_MEMBER(EntityNamePair, has_children);
+} // namespace
 
-    if (!m_host) return;
+quintptr ElementTreeModel::encode(Entity entity) {
+    return static_cast<quintptr>(entt::to_integral(entity.value)) + 1;
+}
 
-    if (!m_host->valid(m_node)) return;
+Entity ElementTreeModel::decode(QModelIndex const& index) {
+    if (!index.isValid() || index.internalId() == 0) return { };
 
-    std::unordered_set<entt::entity> seen;
+    using EntityValue = std::underlying_type_t<entt::entity>;
+    return Entity(static_cast<entt::entity>(
+        static_cast<EntityValue>(index.internalId() - 1)));
+}
 
-    entt::entity looking_at = m_node;
+int ElementTreeModel::row_of(Entity entity) const {
+    if (!m_host || !m_host->valid(entity)) return -1;
 
-    while (true) {
+    auto const parent_entity = Entity(m_host->parent_of(entity));
+    if (!parent_entity.is_valid()) return m_roots.indexOf(entity);
 
-        if (!m_host->valid(looking_at)) { break; }
-
-        if (seen.contains(looking_at)) {
-            // cycles??
-            break;
+    auto const siblings = m_host->children_of(parent_entity);
+    for (qsizetype row = 0; row < std::ssize(siblings); ++row) {
+        if (siblings[static_cast<size_t>(row)] == entity) {
+            return static_cast<int>(row);
         }
-
-        seen.insert(looking_at);
-
-        m_path.push_back(looking_at);
-
-        looking_at = m_host->parent_of(looking_at);
     }
-
-    std::reverse(m_path.begin(), m_path.end());
-
-    QVector<EntityNamePair> ret;
-
-    for (auto e : std::as_const(m_path)) {
-        ret << EntityNamePair { m_host->name_of(e), e };
-    }
-
-    this->store_reset(ret);
+    return -1;
 }
 
-BreadcrumbModel::BreadcrumbModel(QObject* parent) : StructModelAdapter(parent) {
-    connect(this,
-            &BreadcrumbModel::node_changed,
+QModelIndex ElementTreeModel::index(int                row,
+                                    int                column,
+                                    QModelIndex const& parent_index) const {
+    if (!m_host || row < 0 || column != 0) return { };
+
+    Entity entity;
+    if (!parent_index.isValid()) {
+        if (row >= m_roots.size()) return { };
+        entity = m_roots[row];
+    } else {
+        auto const parent_entity = decode(parent_index);
+        if (!m_host->valid(parent_entity)) return { };
+
+        auto const children = m_host->children_of(parent_entity);
+        if (row >= std::ssize(children)) return { };
+        entity = children[static_cast<size_t>(row)];
+    }
+
+    if (!m_host->valid(entity)) return { };
+    return createIndex(row, column, encode(entity));
+}
+
+QModelIndex ElementTreeModel::parent(QModelIndex const& child) const {
+    if (!m_host || !child.isValid()) return { };
+
+    auto const entity = decode(child);
+    if (!m_host->valid(entity)) return { };
+
+    auto const parent_entity = Entity(m_host->parent_of(entity));
+    if (!parent_entity.is_valid()) return { };
+
+    auto const row = row_of(parent_entity);
+    if (row < 0) return { };
+    return createIndex(row, 0, encode(parent_entity));
+}
+
+int ElementTreeModel::rowCount(QModelIndex const& parent_index) const {
+    if (!m_host || parent_index.column() > 0) return 0;
+    if (!parent_index.isValid()) return m_roots.size();
+
+    auto const parent_entity = decode(parent_index);
+    if (!m_host->valid(parent_entity)) return 0;
+    return static_cast<int>(m_host->children_of(parent_entity).size());
+}
+
+int ElementTreeModel::columnCount(QModelIndex const&) const {
+    return 1;
+}
+
+QVariant ElementTreeModel::data(QModelIndex const& model_index,
+                                int                role) const {
+    if (!m_host || !model_index.isValid()) return { };
+
+    auto const entity = decode(model_index);
+    if (!m_host->valid(entity)) return { };
+
+    if (role == Qt::DisplayRole || role == name_role) {
+        return m_host->name_of(entity);
+    }
+    if (role == entity_role) return QVariant::fromValue(entity);
+    if (role == has_children_role) {
+        return !m_host->children_of(entity).empty();
+    }
+    return { };
+}
+
+QHash<int, QByteArray> ElementTreeModel::roleNames() const {
+    auto roles = Support::get_name_map<EntityNamePair>();
+    roles.insert(Qt::DisplayRole, QByteArrayLiteral("display"));
+    return roles;
+}
+
+void ElementTreeModel::schedule_rebuild() {
+    if (m_rebuild_scheduled) return;
+    m_rebuild_scheduled = true;
+    QTimer::singleShot(0, this, &ElementTreeModel::rebuild);
+}
+
+void ElementTreeModel::rebuild() {
+    m_rebuild_scheduled = false;
+
+    beginResetModel();
+    m_roots.clear();
+    if (m_host) {
+        auto view = m_host->as_registry().view<ElementComponent>(
+            entt::exclude<ChildOfComponent>);
+        m_roots.reserve(static_cast<qsizetype>(view.size_hint()));
+        for (auto [entity] : view.each())
+            m_roots.push_back(Entity(entity));
+    }
+    endResetModel();
+}
+
+void ElementTreeModel::identity_changed(entt::entity raw_entity) {
+    auto const model_index = index_for_entity(Entity(raw_entity));
+    if (!model_index.isValid()) return;
+    emit dataChanged(model_index, model_index, { Qt::DisplayRole, name_role });
+}
+
+ElementTreeModel::ElementTreeModel(QObject* parent)
+    : QAbstractItemModel(parent) { }
+
+void ElementTreeModel::reset(Database* database) {
+    if (m_host) {
+        disconnect(m_host->identity.self(), nullptr, this, nullptr);
+        disconnect(m_host->parent.self(), nullptr, this, nullptr);
+        disconnect(m_host->children.self(), nullptr, this, nullptr);
+        disconnect(m_host->element_tag.self(), nullptr, this, nullptr);
+    }
+
+    m_host = database;
+    rebuild();
+    if (!database) return;
+
+    connect(database->identity.self(),
+            &ComponentAPIBase::changed,
             this,
-            &BreadcrumbModel::recompute);
-}
+            &ElementTreeModel::identity_changed);
 
-void BreadcrumbModel::reset(Database* database) {
-    if (m_host) {
-        QObject::disconnect(m_host->identity.self(), nullptr, this, nullptr);
-        QObject::disconnect(m_host->parent.self(), nullptr, this, nullptr);
-    }
-
-    m_host = database;
-    m_node = { };
-    recompute();
-
-    if (database) {
-        connect(database->identity.self(),
+    auto connect_structure = [this](ComponentAPIBase* api) {
+        connect(api,
                 &ComponentAPIBase::changed,
                 this,
-                [this](entt::entity e) {
-                    if (m_path.contains(Entity(e))) { this->recompute(); }
-                });
-
-        connect(database->parent.self(),
-                &ComponentAPIBase::changed,
-                this,
-                [this](entt::entity e) {
-                    if (m_path.contains(Entity(e))) { this->recompute(); }
-                });
-    }
-}
-
-QVector<EntityNamePair> ChildModel::rebuild_lists() {
-    QVector<EntityNamePair> new_recs;
-    m_reverse.clear();
-
-    if (!m_host) return { };
-
-    if (!m_host->valid(m_node)) return { };
-
-    auto children = m_host->children_of(m_node);
-
-    // Copy here, can revise later
-    new_recs.reserve(children.size());
-
-    for (auto x : children) {
-        new_recs << EntityNamePair::record_for_entity(*m_host, x);
-    }
-
-    for (size_t i = 0; i < new_recs.size(); i++) {
-        m_reverse[new_recs[i].entity] = i;
-    }
-
-    return new_recs;
-}
-
-void ChildModel::recompute() {
-    auto r = rebuild_lists();
-
-    this->store_reset(r);
-}
-
-void ChildModel::record_changed(SolTrace::GUI::Data::Entity e) {
-    if (!m_host) return;
-
-    if (auto iter = m_reverse.find(e); iter != m_reverse.end()) {
-        this->store_push_update(iter->second,
-                                EntityNamePair::record_for_entity(*m_host, e));
-    }
-}
-
-ChildModel::ChildModel(QObject* parent) : StructModelAdapter(parent) {
-    connect(this, &ChildModel::node_changed, this, &ChildModel::recompute);
-}
-
-void ChildModel::reset(Database* database) {
-    if (m_host) {
-        QObject::disconnect(m_host->children.self(), nullptr, this, nullptr);
-        QObject::disconnect(m_host->identity.self(), nullptr, this, nullptr);
-    }
-
-    m_host = database;
-    m_node = { };
-    recompute();
-
-    if (database) {
-        connect(database->children.self(),
-                &ComponentAPIBase::changed,
-                this,
-                [this](entt::entity e) {
-                    if ((entt::entity)node() == e) recompute();
-                    else
-                        record_changed(SolTrace::GUI::Data::Entity(e));
-                });
-
-        connect(database->children.self(),
+                &ElementTreeModel::schedule_rebuild);
+        connect(api,
                 &ComponentAPIBase::removed,
                 this,
-                [this](entt::entity e) {
-                    if ((entt::entity)node() == e) recompute();
-                    else
-                        record_changed(SolTrace::GUI::Data::Entity(e));
-                });
+                &ElementTreeModel::schedule_rebuild);
+    };
+    connect_structure(database->parent.self());
+    connect_structure(database->children.self());
+    connect_structure(database->element_tag.self());
+}
 
-        connect(database->identity.self(),
-                &ComponentAPIBase::changed,
-                this,
-                &ChildModel::record_changed);
-    }
+QModelIndex ElementTreeModel::index_for_entity(Entity entity) const {
+    if (!m_host || !m_host->valid(entity)) return { };
+    if (!m_host->as_registry().all_of<ElementComponent>(entity)) return { };
+
+    auto const row = row_of(entity);
+    if (row < 0) return { };
+    return createIndex(row, 0, encode(entity));
 }
 
 } // namespace SolTrace::GUI::Data

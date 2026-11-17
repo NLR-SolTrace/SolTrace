@@ -1,7 +1,9 @@
 ---
-title: "Trace"
+title: "Simulation Runners"
 ---
 
-Trace runs the ray simulation for the current scene. The ray count controls statistical resolution, while the seed controls repeatability.
+Choose the runner used to trace the current scene. The Legacy Runner is the broadly compatible CPU implementation. The Embree Runner uses Intel Embree to accelerate tracing on the CPU and is generally the preferred CPU option. The NVIDIA GPU Runner uses OptiX to accelerate tracing on a compatible NVIDIA GPU.
 
-Use fewer rays for quick setup checks and increase the count when the geometry and materials are ready for analysis.
+The available choices depend on how SolTrace was built. In particular, the NVIDIA GPU Runner appears only in builds that include OptiX support and requires a compatible NVIDIA GPU and driver.
+
+Regardless of runner, use fewer rays for quick setup checks and increase the count when the geometry and materials are ready for analysis. More rays generally improve statistical resolution but require more time and produce more result data.

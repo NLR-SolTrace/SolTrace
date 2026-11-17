@@ -9,20 +9,16 @@
 #include <QObject>
 #include <QUrl>
 
-#include <unordered_map>
-
 namespace SolTrace::GUI::App {
 
 /// QML-facing export controller for simulation results and derived flux maps.
 ///
-/// Exports operate on the currently selected SimulationResult. Flux maps are
-/// cached as they are generated so export_current() can include optional map
-/// images without recomputing them.
+/// Exports operate on the currently selected SimulationResult, including its
+/// authoritative result-owned flux-map collection.
 class ExportModule : public QObject {
     Q_OBJECT
 
-    SolTrace::GUI::Data::SimulationResultPtr                                   m_results;
-    std::unordered_map<SolTrace::GUI::Data::Entity, SolTrace::GUI::Analysis::BakedFluxMapPtr> m_flux_maps;
+    SolTrace::GUI::Data::SimulationResultPtr m_results;
 
     Q_WRITABLE_PROPERTY(QUrl, export_directory, { });
     Q_WRITABLE_PROPERTY(bool, export_flux_map_images, true);
@@ -47,9 +43,11 @@ public slots:
     /// Set the simulation result that subsequent export operations use.
     void set_results(SolTrace::GUI::Data::SimulationResultPtr);
 
-    /// Store a generated flux map so it can be included in exports.
-    void
-    cache_flux_map(SolTrace::GUI::Data::Entity, SolTrace::GUI::Analysis::BakedFluxMapPtr, SolTrace::GUI::Data::Database const*);
+    /// Refresh derived export counts after the current result store changes.
+    void flux_map_ready(SolTrace::GUI::Data::Entity,
+                        SolTrace::GUI::Analysis::BakedFluxMapPtr,
+                        SolTrace::GUI::Data::Database const*,
+                        QString image_key);
 
     /// Export the current result according to the configured export options.
     void export_current();
