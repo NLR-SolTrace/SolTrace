@@ -100,42 +100,15 @@ ApertureType char_to_aperture(const char aperture_char)
 {
     switch (aperture_char)
     {
-    case ('c'):
-    {
-        return ApertureType::CIRCLE;
-    }
-    case ('h'):
-    {
-        return ApertureType::HEXAGON;
-    }
-    case ('t'):
-    {
-        return ApertureType::EQUILATERAL_TRIANGLE;
-    }
-    case ('r'):
-    {
-        return ApertureType::RECTANGLE;
-    }
-    case ('a'):
-    {
-        return ApertureType::ANNULUS;
-    }
-    case ('l'):
-    {
-        return ApertureType::SINGLE_AXIS_CURVATURE_SECTION;
-    }
-    case ('i'):
-    {
-        return ApertureType::IRREGULAR_TRIANGLE;
-    }
-    case ('q'):
-    {
-        return ApertureType::IRREGULAR_QUADRILATERAL;
-    }
-    default:
-    {
-        return ApertureType::APERTURE_UNKNOWN;
-    }
+    case ('c'): return ApertureType::CIRCLE;
+    case ('h'): return ApertureType::HEXAGON;
+    case ('t'): return ApertureType::EQUILATERAL_TRIANGLE;
+    case ('r'): return ApertureType::RECTANGLE;
+    case ('a'): return ApertureType::ANNULUS;
+    case ('l'): return ApertureType::SINGLE_AXIS_CURVATURE_SECTION;
+    case ('i'): return ApertureType::IRREGULAR_TRIANGLE;
+    case ('q'): return ApertureType::IRREGULAR_QUADRILATERAL;
+    default: return ApertureType::APERTURE_UNKNOWN;
     }
 }
 
@@ -518,7 +491,7 @@ bool read_element(FILE*                                      fp,
     if (surface_type == SurfaceType::SURFACE_UNKNOWN)
     {
         std::stringstream ss;
-        ss << "Unknown surface type " << surface_type;
+        ss << "Unknown surface char " << SurfaceIndex;
         throw std::invalid_argument(ss.str());
     }
     surface_ptr surf_ptr = make_surface_from_type(surface_type, surface_params);
