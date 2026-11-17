@@ -129,6 +129,3 @@ if __name__ == '__main__':
         print('\n', match.group('name'))
         print(match.group('underlying'))
         print(match.group('body'))
-#         underlying
-# body
-# name
