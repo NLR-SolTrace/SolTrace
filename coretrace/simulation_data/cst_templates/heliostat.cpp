@@ -166,8 +166,15 @@ namespace SolTrace::Data
                 }
                 else
                 {
-                    surf = make_surface<Parabola>(this->focal_length_x,
-                                                  this->focal_length_y);
+                    // Template design rule: a focal length <= 0 is flat in
+                    // that direction (curvature 0).
+                    auto to_curv = [](double f)
+                    {
+                        return f <= 0.0 ? 0.0
+                                        : Parabola::curvature_from_focal_length(f);
+                    };
+                    surf = make_surface<Parabola>(to_curv(this->focal_length_x),
+                                                  to_curv(this->focal_length_y));
                 }
                 elem->set_surface(surf);
 

@@ -247,11 +247,8 @@ RunnerStatus OptixRunner::setup_elements(const SimulationData* data)
                 auto el_surface =
                     std::dynamic_pointer_cast<Parabola>(el->get_surface());
                 assert(el_surface != nullptr);
-                double fx = el_surface->focal_length_x;
-                double fy = el_surface->focal_length_y;
-
-                double cx = 1. / (2. * fx);
-                double cy = 1. / (2. * fy);
+                double cx = el_surface->vertex_curv_x;
+                double cy = el_surface->vertex_curv_y;
 
                 auto optix_surface =
                     std::make_shared<OptixCSP::SurfaceParabolic>();

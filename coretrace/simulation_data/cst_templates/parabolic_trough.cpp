@@ -117,7 +117,8 @@ void ParabolicTrough::create_geometry()
                                           xstart,
                                           ystart);
             panel->set_aperture(ap);
-            surf = make_surface<Parabola>(this->focal_length, 0.0);
+            surf = make_surface<Parabola>(
+                Parabola::curvature_from_focal_length(this->focal_length), 0.0);
             panel->set_surface(surf);
             panel->set_optical_property_set(this->optics_mirror);
             panel->enable();
