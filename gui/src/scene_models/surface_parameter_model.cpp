@@ -40,21 +40,7 @@ QVector<SurfaceParameter> make_parameters_for(SD::SurfaceType type) {
     case SD::PARABOLA:
         ret = {
             { .name = "Vertex curvature X", .content = 1.0 },
-            {
-                .name    = "Focal length X",
-                .content = 0.5,
-                .min     = -std::numeric_limits<double>::infinity(),
-                .max     = std::numeric_limits<double>::infinity(),
-                .type    = FocalLengthSurfaceParameter,
-            },
             { .name = "Vertex curvature Y", .content = 1.0 },
-            {
-                .name    = "Focal length Y",
-                .content = 0.5,
-                .min     = -std::numeric_limits<double>::infinity(),
-                .max     = std::numeric_limits<double>::infinity(),
-                .type    = FocalLengthSurfaceParameter,
-            },
         };
         break;
     case SD::SPHERE:
@@ -80,14 +66,10 @@ factory_arguments_for(SD::SurfaceType                  type,
     case SD::CONE:
     case SD::CYLINDER:
     case SD::SPHERE:
+    case SD::PARABOLA:
         ret.reserve(records.size());
         for (auto const& record : records) {
             ret.push_back(record.content);
-        }
-        break;
-    case SD::PARABOLA:
-        if (records.size() >= 4) {
-            ret = { records[0].content, records[2].content };
         }
         break;
     case SD::FLAT:
@@ -115,56 +97,12 @@ SurfaceParameterModel::SurfaceParameterModel(QObject* parent)
     connect(this,
             &SurfaceParameterModel::dataChanged,
             this,
-            [this](QModelIndex const& top_left) {
-                if (m_syncing_parameters) return;
-                if (surface_kind() != static_cast<qint32>(SD::PARABOLA)) return;
-                if (m_records.size() < 4) return;
-
-                auto const row = top_left.row();
-
-                int    paired_row = -1;
-                double paired_value;
-
-                switch (row) {
-                case 0:
-                    paired_row = 1;
-                    paired_value =
-                        focal_length_from_curvature(m_records[0].content);
-                    break;
-                case 1:
-                    paired_row = 0;
-                    paired_value =
-                        curvature_from_focal_length(m_records[1].content);
-                    break;
-                case 2:
-                    paired_row = 3;
-                    paired_value =
-                        focal_length_from_curvature(m_records[2].content);
-                    break;
-                case 3:
-                    paired_row = 2;
-                    paired_value =
-                        curvature_from_focal_length(m_records[3].content);
-                    break;
-                default: return;
-                }
-
-                m_syncing_parameters = true;
-                setData(index(paired_row, 0),
-                        paired_value,
-                        ROLE_FOR_MEMBER(SurfaceParameter, content));
-                m_syncing_parameters = false;
-            });
-
-    connect(this, &SurfaceParameterModel::dataChanged, this, [this] {
-        if (!m_syncing_parameters) emit updated();
-    });
+            &SurfaceParameterModel::updated);
 
     connect(this,
             &SurfaceParameterModel::dataChanged,
             this,
             [this](auto const&, auto const&, auto const&) {
-                if (m_syncing_parameters) return;
                 if (!database()) return;
 
                 database()->geometry_parameters.try_patch(

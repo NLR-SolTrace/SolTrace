@@ -52,7 +52,6 @@ class SurfaceParameterModel
 
     entt::entity m_current_group         = entt::null;
     bool         m_syncing_from_database = false;
-    bool         m_syncing_parameters    = false;
 
     void set_new_database_connections(Database* ptr) override;
 
