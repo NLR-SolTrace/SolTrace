@@ -374,8 +374,8 @@ class ConstantsTests(STAPIv2TestCase):
                 check_return_code(i)
 
     def test_args_simulation_parameters(self):
-        params = _STS.simulation_parameters(35.962278, -106.5122622, 1, 100, .1, True, True, False)
-        c_params = dot_h.args_simulation_parameters(1, 100, .1, 35.962278, -106.5122622, True, True, False)
+        params = _STS.simulation_parameters(35.962278, -106.5122622, 608, 1, 100, .1, True, True, False)
+        c_params = dot_h.args_simulation_parameters(1, 100, 608, .1, 35.962278, -106.5122622, True, True, False)
         self.assertStructEqual(params.ctype, c_params)
 
     def test_args_optical_properties_face(self):
@@ -441,7 +441,7 @@ class ConstantsTests(STAPIv2TestCase):
 class ParametersTests(STAPIv2TestCase):
     def setUp(self):
         super().setUp()
-        self.params = _STS.simulation_parameters(35.962278, -106.5122622, 1, 100, .1, True, True, False)
+        self.params = _STS.simulation_parameters(35.962278, -106.5122622, 608, 1, 100, .1, True, True, False)
 
     def test_set_parameters(self):
         self.stapi.parameters.set(self.params)
@@ -1093,7 +1093,7 @@ class BatchTests(STAPIv2TestCase):
     def setUp(self):
         super().setUp()
         # set up dummy values
-        self.sim_params = _STS.simulation_parameters(35.962278, -106.5122622, 1, 100, .1, True, True, False)
+        self.sim_params = _STS.simulation_parameters(35.962278, -106.5122622, 608, 1, 100, .1, True, True, False)
 
         self.args_sun_buie = _STS.sun(2, 2, 2, .5, b'b') # 0, 
         self.args_sun_user = _STS.sun(608, 303, 1000, 5, b' ', 3)

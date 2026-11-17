@@ -26,6 +26,7 @@ class base_args:
 class simulation_parameters(base_args):
     latitude:                 float
     longitude:                float
+    seed:                     int   = 123
     number_of_rays:           int   = 1_000_000
     max_number_of_rays:       int   = 100_000_000
     tolerance:                float = .01
@@ -37,6 +38,7 @@ class simulation_parameters(base_args):
     def ctype(self):
         return dot_h.args_simulation_parameters(self.number_of_rays,
                                                 self.max_number_of_rays,
+                                                self.seed,
                                                 self.tolerance,
                                                 self.latitude,
                                                 self.longitude,
