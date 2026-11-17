@@ -85,11 +85,13 @@ target_link_libraries(stapi_v2_native PRIVATE
     GTest::gtest_main
 )
 
-add_custom_command(TARGET stapi_v2_native POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_RUNTIME_DLLS:stapi_v2_native> $<TARGET_FILE_DIR:stapi_v2_native>
-    COMMAND_EXPAND_LISTS
-)
+if(MSVC)
+    add_custom_command(TARGET stapi_v2_native POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_RUNTIME_DLLS:stapi_v2_native> $<TARGET_FILE_DIR:stapi_v2_native>
+        COMMAND_EXPAND_LISTS
+    )
+endif()
 
 if (ENABLE_COVERAGE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_link_options(stapi_v2_native PRIVATE --coverage)
