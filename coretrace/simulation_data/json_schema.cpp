@@ -129,6 +129,10 @@ bool upgrade_20251112_20260715(nlohmann::ordered_json& jroot,
         std::cerr << "upgrade_20251112_20260715 failed: " << e.what() << '\n';
         return false;
     }
+    catch (const std::exception& e) {
+        std::cerr << "upgrade_20251112_20260715 failed: " << e.what() << '\n';
+        return false;
+    }
 
     return true;
 }
@@ -231,6 +235,10 @@ bool upgrade_20260715_20261111(nlohmann::ordered_json& jroot,
         return false;
     }
     catch (const std::invalid_argument& e) {
+        std::cerr << "upgrade_20260715_20261111 failed: " << e.what() << '\n';
+        return false;
+    }
+    catch (const std::exception& e) {
         std::cerr << "upgrade_20260715_20261111 failed: " << e.what() << '\n';
         return false;
     }

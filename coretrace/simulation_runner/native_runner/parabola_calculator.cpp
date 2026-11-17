@@ -33,7 +33,18 @@ namespace SolTrace::NativeRunner
             throw std::invalid_argument("ParabolaCalculator: Aperture pointer cannot be null");
         }
 
-        // Curvatures are validated by Parabola (finite, not both zero)
+        // Parabola validates on construction, but its fields are public and
+        // may be modified afterward, so re-check here.
+        if (!std::isfinite(para->vertex_curv_x) || !std::isfinite(para->vertex_curv_y))
+        {
+            throw std::invalid_argument("ParabolaCalculator: Vertex curvatures must be finite");
+        }
+
+        if (para->vertex_curv_x == 0.0 && para->vertex_curv_y == 0.0)
+        {
+            throw std::invalid_argument("ParabolaCalculator: Both vertex curvatures cannot be zero");
+        }
+
         this->cx = para->vertex_curv_x;
         this->cy = para->vertex_curv_y;
 
