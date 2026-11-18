@@ -6,6 +6,7 @@
 #include <sstream>
 #include <map>
 #include <functional>
+#include <set>
 
 #include <json_helpers.hpp>
 #include <single_element.hpp>
@@ -132,6 +133,40 @@ bool upgrade_20251112_20260715(nlohmann::ordered_json& jroot,
     return true;
 }
 
+// Adds the element IDs saved in `jelements` and everything nested in it to
+// `ids`. Throws std::invalid_argument for an ID that is not valid or that
+// appears twice.
+static void collect_saved_element_ids(const nlohmann::ordered_json& jelements,
+                                      std::set<element_id>&         ids)
+{
+    for (auto& [key, jelement] : jelements.items()) {
+        const auto id = json_get_saved_element_id(jelement);
+        if (id.has_value() && !ids.insert(*id).second) {
+            std::stringstream ss;
+            ss << "Element ID " << *id << " appears more than once in the file";
+            throw std::invalid_argument(ss.str());
+        }
+        if (jelement.contains("elements")) {
+            collect_saved_element_ids(jelement.at("elements"), ids);
+        }
+    }
+}
+
+// Creates an element of type `T` from its JSON node, with its saved ID if it
+// has one and a new ID if it does not.
+template <class T>
+static PendingElement<T>
+create_from_json(SimulationData&                    sd,
+                 const nlohmann::ordered_json&      jelement,
+                 const OpticalPropertySetResolver&  resolve_optics)
+{
+    const auto id = json_get_saved_element_id(jelement);
+    if (id.has_value()) {
+        return sd.create_element_with_id<T>(*id, jelement, resolve_optics);
+    }
+    return sd.create_element<T>(jelement, resolve_optics);
+}
+
 // Public
 
 void write_json_file(SimulationData& sd, std::string filename) {
@@ -204,8 +239,9 @@ void write_json_file(SimulationData& sd, std::string filename) {
             json jelement;
             auto element = it->second;
 
-            if (element->is_single() && (element->is_top_level() == false)) {
-                // Skip single elements that are within other stages/composites
+            if (!element->is_top_level()) {
+                // Skip elements that are inside a stage or composite. They are
+                // written, once, inside their parent.
                 continue;
             }
 
@@ -327,21 +363,33 @@ void load_json_file(SimulationData& sd, std::string filename, std::string* upgra
         auto ptr = sd.my_optical_property_sets.get_item(id);
         return OpticalPropertySetReference { id, ptr };
     };
+
+    // Check every saved element ID before creating anything, then move the ID
+    // allocator past the highest one. An element without a saved ID is given
+    // the next ID, which is then above every saved ID, so it cannot collide
+    // with one that has not been created yet.
+    std::set<element_id> saved_ids;
+    collect_saved_element_ids(jelements, saved_ids);
+    if (!saved_ids.empty()) {
+        sd.model_state->ids.skip_past(*saved_ids.rbegin());
+    }
+
     for (auto& [key, jelement] : jelements.items()) {
         // Check if stage
         // Note a stage is also a composite, so check stage first
         if (jelement.contains("is_stage") && jelement.at("is_stage") == true) {
-            sd.create_element<StageElement>(jelement, resolve_optics).commit();
+            create_from_json<StageElement>(sd, jelement, resolve_optics)
+                .commit();
         }
         // Composite
         else if (jelement.contains("is_composite") &&
                  jelement.at("is_composite") == true) {
-            sd.create_element<CompositeElement>(jelement, resolve_optics)
+            create_from_json<CompositeElement>(sd, jelement, resolve_optics)
                 .commit();
         }
         // Single Element
         else {
-            sd.create_element<SingleElement>(jelement, resolve_optics)
+            create_from_json<SingleElement>(sd, jelement, resolve_optics)
                 .commit();
         }
     }

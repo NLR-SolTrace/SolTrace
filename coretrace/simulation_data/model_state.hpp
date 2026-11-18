@@ -33,6 +33,12 @@ public:
     // Throws std::invalid_argument if `id` is below 1 or already in use.
     void reserve(element_id id);
 
+    // Makes `next()` return an ID above `id`, without using `id` itself. A
+    // loader calls it with the highest saved ID before it creates anything,
+    // so that IDs issued for elements without a saved ID cannot collide with a
+    // saved ID that is created later.
+    void skip_past(element_id id);
+
     // Forgets every ID. Used only when the model is cleared.
     void reset();
 

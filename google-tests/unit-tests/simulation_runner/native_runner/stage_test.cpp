@@ -291,7 +291,7 @@ TEST(StageTest, OffComparison)
         
 }
 
-TEST(StageTest, DuplicateStageNumbersThrows)
+TEST(StageTest, DuplicateStageNumbersAreRejected)
 {
     SimulationData sd;
     auto sun = make_ray_source<Sun>();
@@ -328,12 +328,47 @@ TEST(StageTest, DuplicateStageNumbersThrows)
     attach_child(st0b, elB);
 
     register_stage(sd, st0a);
-    register_stage(sd, st0b);
 
+    // The second stage with the same number is rejected, and nothing of it is
+    // registered
+    EXPECT_THROW(register_stage(sd, st0b), std::invalid_argument);
+    EXPECT_EQ(sd.get_element(st0b->get_id()), nullptr);
+    EXPECT_EQ(sd.get_element(elB->get_id()), nullptr);
+    EXPECT_EQ(sd.get_number_of_elements(), 1);
+
+    // After the number is changed, it can be registered
+    st0b->set_stage(1);
+    EXPECT_NO_THROW(register_stage(sd, st0b));
+    EXPECT_EQ(sd.get_number_of_elements(), 2);
+
+    // The runner still checks, because a registered stage's number can be
+    // changed
+    st0b->set_stage(0);
     NativeRunner runner;
     RunnerStatus sts = runner.initialize();
     ASSERT_EQ(sts, RunnerStatus::SUCCESS);
     EXPECT_THROW(runner.setup_simulation(&sd), std::runtime_error);
+}
+
+// A disabled stage still owns its number
+TEST(StageTest, DisabledStageNumberCannotBeReused)
+{
+    SimulationData sd;
+    SolTrace::Data::OpticalPropertySet optics(SolTrace::Data::InteractionType::REFLECTION, "disabled_stage_optics");
+    optics.set_ideal_reflection(SolTrace::Data::OpticalSide::Both);
+    optics.set_errors(SolTrace::Data::OpticalSide::Both, SolTrace::Data::DistributionType::NONE, 0.0, 0.0);
+    auto optics_ref = sd.add_optical_property_set(optics);
+
+    auto st0a = new_stage(sd, 0);
+    auto st0b = new_stage(sd, 0);
+    auto elA  = make_single(sd, make_aperture<Rectangle>(1, 1), make_surface<Flat>(), optics_ref);
+    auto elB  = make_single(sd, make_aperture<Rectangle>(1, 1), make_surface<Flat>(), optics_ref);
+    attach_child(st0a, elA);
+    attach_child(st0b, elB);
+
+    st0a->disable();
+    EXPECT_NO_THROW(register_stage(sd, st0a));
+    EXPECT_THROW(register_stage(sd, st0b), std::invalid_argument);
 }
 
 TEST(StageTest, ElementBeforeStageThrowsWhenStagesEnabled)

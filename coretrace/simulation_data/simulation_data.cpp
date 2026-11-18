@@ -134,6 +134,24 @@ element_id SimulationData::register_element(const element_ptr &el)
         throw std::invalid_argument(
             "The element or one of its subelements is already registered");
     }
+    if (el->is_stage())
+    {
+        // Scan the registry and keep no index, because a registered stage's
+        // number can still be changed with set_stage
+        for (auto iter = this->my_elements.get_const_iterator();
+             !this->my_elements.is_at_end(iter);
+             ++iter)
+        {
+            if (iter->second->is_stage() &&
+                iter->second->get_stage() == el->get_stage())
+            {
+                std::stringstream ss;
+                ss << "Stage number " << el->get_stage()
+                   << " is already used by stage " << iter->first;
+                throw std::invalid_argument(ss.str());
+            }
+        }
+    }
 
     // Nothing is registered if either of these throws
     // Check that all fields required from the user have been specified

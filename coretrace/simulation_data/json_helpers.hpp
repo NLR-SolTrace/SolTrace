@@ -13,14 +13,39 @@
 #ifndef JSONHELPERS_H
 #define JSONHELPERS_H
 
+#include <optional>
+#include <stdexcept>
 #include <string>
 
 #include <nlohmann/json.hpp>
 #include <glm/vec3.hpp>
 
+#include "element_id.hpp"
+
 namespace SolTrace::Data {
 
     const int kJsonIndentSpaces = 4;
+
+    /// @brief Read the element ID saved in an element's JSON node.
+    /// @return The ID, or nullopt if `my_id` is missing or null, which means
+    ///         the element gets a new ID.
+    /// @throws std::invalid_argument if `my_id` is not an integer of 1 or more.
+    inline std::optional<element_id>
+    json_get_saved_element_id(const nlohmann::ordered_json& jnode)
+    {
+        auto it = jnode.find("my_id");
+        if (it == jnode.end() || it->is_null())
+        {
+            return std::nullopt;
+        }
+        if (!it->is_number_integer() || it->get<element_id>() < 1)
+        {
+            throw std::invalid_argument(
+                "Element my_id must be an integer of 1 or more, got " +
+                it->dump());
+        }
+        return it->get<element_id>();
+    }
 
     inline double json_get_double(const nlohmann::ordered_json& jnode, std::string key)
     {

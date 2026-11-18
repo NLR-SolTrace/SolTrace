@@ -169,19 +169,25 @@ TEST(Element, CompositeElementAccessors)
     const surface_ptr sp = cmp->get_surface();
     EXPECT_EQ(sp, nullptr);
 
-    // Add/remove/change elements
+    // Add/remove/change elements. Children are keyed by their element IDs.
     const int NUM_ELEMENTS = 4;
+    element_id first_id = -1;
     for (int i = 0; i < NUM_ELEMENTS; ++i)
     {
         auto elem = make_configured_element(sd);
-        attach_child(cmp, elem);
+        auto key = attach_child(cmp, elem);
+        EXPECT_EQ(key, elem->get_id());
+        if (i == 0)
+        {
+            first_id = key;
+        }
         // EXPECT_EQ(elem->get_stage(), STAGE);
     }
     EXPECT_EQ(cmp->get_number_of_elements(), NUM_ELEMENTS);
 
-    cmp->remove_element(0);
+    cmp->remove_element(first_id);
     EXPECT_EQ(cmp->get_number_of_elements(), NUM_ELEMENTS - 1);
-    EXPECT_EQ(cmp->get_element(0), nullptr);
+    EXPECT_EQ(cmp->get_element(first_id), nullptr);
     auto elem = make_configured_element(sd);
     auto id = attach_child(cmp, elem);
     EXPECT_EQ(cmp->get_element(id).get(), elem.get());

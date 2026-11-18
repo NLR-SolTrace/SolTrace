@@ -15,6 +15,7 @@
 #define SOLTRACE_COMPOSITE_ELEMENT_H
 
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
@@ -154,32 +155,22 @@ namespace SolTrace::Data
         template <class T, class... Args>
         std::shared_ptr<T> create_child(Args &&...args)
         {
-            static_assert(std::is_base_of_v<Element, T>,
-                          "a child must be an Element");
+            return this->template create_child_in<T>(
+                this->is_stage(), std::nullopt, std::forward<Args>(args)...);
+        }
 
-            if (this->model_context.is_registered(this->my_id))
-            {
-                throw std::invalid_argument(
-                    "CompositeElement: cannot add a child to a registered "
-                    "composite");
-            }
-            if (!same_model(this->model_token, this->model_context.token()))
-            {
-                throw std::invalid_argument(
-                    "CompositeElement: the model no longer exists or was "
-                    "cleared");
-            }
-
-            auto pending = this->model_context.template create<T>(
-                std::forward<Args>(args)...);
-            std::shared_ptr<T> child = pending.release();
-            if (!Element::is_success(this->attach_child(child)))
-            {
-                throw std::invalid_argument(
-                    "CompositeElement: a stage cannot be a child, and a "
-                    "composite can be a child only of a stage");
-            }
-            return child;
+        /**
+         * @brief Like `create_child`, for an element whose ID was saved
+         *        elsewhere (a file, a database). For importers.
+         * @param id ID to give the child
+         * @throws std::invalid_argument for the reasons `create_child` does,
+         *         and if `id` is below 1 or already in use
+         */
+        template <class T, class... Args>
+        std::shared_ptr<T> create_child_with_id(element_id id, Args &&...args)
+        {
+            return this->template create_child_in<T>(
+                this->is_stage(), id, std::forward<Args>(args)...);
         }
 
         /**
@@ -217,7 +208,8 @@ namespace SolTrace::Data
                 return ELEMENT_INVALID_SETUP;
             }
 
-            const element_id id = this->attach_child(child.element_);
+            const element_id id =
+                this->attach_child(child.element_, this->is_stage());
             if (Element::is_success(id))
             {
                 child.release();
@@ -278,9 +270,49 @@ namespace SolTrace::Data
         virtual void write_json(nlohmann::ordered_json& jnode) const override;
 
     private:
-        // Adds `el` to this composite. Returns ELEMENT_INVALID_SETUP if the
-        // nesting rule is broken, otherwise the ID of `el`.
-        element_id attach_child(element_ptr el);
+        // Used by `create_child` and by the JSON constructor, which runs
+        // before the object knows it is a stage, so it passes the answer.
+        template <class T, class... Args>
+        std::shared_ptr<T> create_child_in(bool parent_is_stage,
+                                           std::optional<element_id> id,
+                                           Args &&...args)
+        {
+            static_assert(std::is_base_of_v<Element, T>,
+                          "a child must be an Element");
+
+            if (this->model_context.is_registered(this->my_id))
+            {
+                throw std::invalid_argument(
+                    "CompositeElement: cannot add a child to a registered "
+                    "composite");
+            }
+            if (!same_model(this->model_token, this->model_context.token()))
+            {
+                throw std::invalid_argument(
+                    "CompositeElement: the model no longer exists or was "
+                    "cleared");
+            }
+
+            auto pending =
+                id.has_value()
+                    ? this->model_context.template create_with_id<T>(
+                          *id, std::forward<Args>(args)...)
+                    : this->model_context.template create<T>(
+                          std::forward<Args>(args)...);
+            std::shared_ptr<T> child = pending.release();
+            if (!Element::is_success(this->attach_child(child, parent_is_stage)))
+            {
+                throw std::invalid_argument(
+                    "CompositeElement: a stage cannot be a child, and a "
+                    "composite can be a child only of a stage");
+            }
+            return child;
+        }
+
+        // Adds `el` to this composite under its element ID. Returns
+        // ELEMENT_INVALID_SETUP if the nesting rule is broken, otherwise the
+        // ID of `el`.
+        element_id attach_child(element_ptr el, bool parent_is_stage);
         ElementContainer my_elements;
     };
 

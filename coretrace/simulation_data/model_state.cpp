@@ -39,6 +39,14 @@ void ElementIdAllocator::reserve(element_id id)
     }
 }
 
+void ElementIdAllocator::skip_past(element_id id)
+{
+    if (id > this->highest_)
+    {
+        this->highest_ = id;
+    }
+}
+
 void ElementIdAllocator::reset()
 {
     this->used_.clear();

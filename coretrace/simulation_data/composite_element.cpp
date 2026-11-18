@@ -3,6 +3,7 @@
 
 #include <sstream>
 
+#include "json_helpers.hpp"
 #include "single_element.hpp"
 #include "virtual_element.hpp"
 
@@ -25,25 +26,35 @@ namespace SolTrace::Data
 
         // Common parameters are set in ElementBase constructor before here
 
+        // This object is not yet a StageElement, so is_stage() is false here.
+        const bool in_stage = jnode.contains("is_stage") &&
+                              jnode.at("is_stage").get<bool>();
+
         json jelements = jnode.at("elements");
         for (auto &[jkey, jelement] : jelements.items())
         {
+            // Each child keeps the ID saved in the file, or gets a new one
+            const auto saved_id = json_get_saved_element_id(jelement);
+
             bool is_single = jelement.at("is_single");
             if (is_single)
             {
                 if (jelement.at("virtual_flag") == true)
                 {
-                    this->create_child<VirtualElement>(jelement, resolve_optics);
+                    this->create_child_in<VirtualElement>(
+                        in_stage, saved_id, jelement, resolve_optics);
                 }
                 else
                 {
-                    this->create_child<SingleElement>(jelement, resolve_optics);
+                    this->create_child_in<SingleElement>(
+                        in_stage, saved_id, jelement, resolve_optics);
                 }
             }
-            // Composites inside a composite are skipped, as they always have
-            // been: this object is not yet a StageElement, so the nesting rule
-            // rejected them. The writer also writes every composite at the top
-            // level, which is where they are loaded.
+            else
+            {
+                this->create_child_in<CompositeElement>(
+                    in_stage, saved_id, jelement, resolve_optics);
+            }
         }
         return;
     }
@@ -124,19 +135,19 @@ namespace SolTrace::Data
         return n;
     }
 
-    element_id CompositeElement::attach_child(element_ptr el)
+    element_id CompositeElement::attach_child(element_ptr el,
+                                              bool parent_is_stage)
     {
         // Cannot nest a StageElement in another CompositeElement, and a
         // CompositeElement can be added only to a StageElement
-        if (el->is_stage() || (el->is_composite() && !this->is_stage()))
+        if (el->is_stage() || (el->is_composite() && !parent_is_stage))
         {
             return ELEMENT_INVALID_SETUP;
         }
 
-        element_id key = this->my_elements.add_item(el);
-        if (!is_success(key))
+        if (!this->my_elements.insert_item(el->get_id(), el))
         {
-            return ELEMENT_ERROR;
+            return ELEMENT_ALREADY_REGISTERED;
         }
 
         el->set_reference_element(this);

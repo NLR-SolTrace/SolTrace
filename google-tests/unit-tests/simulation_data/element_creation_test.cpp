@@ -1,8 +1,10 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <stdexcept>
+#include <vector>
 
 #include <nlohmann/json.hpp>
 
@@ -246,4 +248,257 @@ TEST(ElementCreation, RemoveElementMaintainsTheGroupIndex)
 
     EXPECT_EQ(sd.remove_element(id), 1);
     EXPECT_TRUE(sd.get_groups()[2].empty());
+}
+
+namespace {
+
+// A model with a stage that holds a composite (two children) and one more
+// single element. An element is created and dropped before `direct`, so the
+// saved IDs have a gap.
+struct SavedModel
+{
+    SimulationData sd;
+    element_id stage_id  = 0;
+    element_id comp_id   = 0;
+    element_id child1_id = 0;
+    element_id child2_id = 0;
+    element_id direct_id = 0;
+
+    SavedModel()
+    {
+        auto optics = add_optics(sd);
+
+        auto stage = sd.create_element<StageElement>(0);
+        auto comp  = stage->create_child<CompositeElement>();
+        auto c1    = comp->create_child<SingleElement>();
+        auto c2    = comp->create_child<SingleElement>();
+        configure(*c1, optics);
+        configure(*c2, optics);
+
+        auto gap = stage->create_child<SingleElement>();
+        configure(*gap, optics);
+        auto direct = stage->create_child<SingleElement>();
+        configure(*direct, optics);
+
+        // Leave the gap's ID unused, so the saved IDs are not contiguous
+        stage->remove_element(gap->get_id());
+
+        stage_id  = stage.commit();
+        comp_id   = comp->get_id();
+        child1_id = c1->get_id();
+        child2_id = c2->get_id();
+        direct_id = direct->get_id();
+    }
+};
+
+std::filesystem::path temp_json(const char *name)
+{
+    return std::filesystem::temp_directory_path() / name;
+}
+
+nlohmann::ordered_json read_json(const std::filesystem::path &path)
+{
+    nlohmann::ordered_json root;
+    std::ifstream in(path);
+    in >> root;
+    return root;
+}
+
+void write_json(const std::filesystem::path &path,
+                const nlohmann::ordered_json &root)
+{
+    std::ofstream out(path);
+    out << root.dump(4);
+}
+
+std::vector<element_id> registered_ids(SimulationData &sd)
+{
+    std::vector<element_id> ids;
+    for (auto it = sd.get_iterator(); !sd.is_at_end(it); ++it)
+    {
+        ids.push_back(it->first);
+    }
+    return ids;
+}
+
+} // namespace
+
+TEST(ElementIdsJson, IdsSurviveWriteReadWrite)
+{
+    SavedModel model;
+    const auto first  = temp_json("soltrace_ids_first.json");
+    const auto second = temp_json("soltrace_ids_second.json");
+
+    model.sd.export_json_file(first.string());
+
+    SimulationData loaded;
+    loaded.import_json_file(first.string());
+
+    // Same IDs, including the gap
+    EXPECT_EQ(registered_ids(loaded), registered_ids(model.sd));
+    EXPECT_NE(loaded.get_element(model.direct_id), nullptr);
+    EXPECT_EQ(loaded.get_element(model.direct_id - 1), nullptr);
+
+    // Writing again gives the same file
+    loaded.export_json_file(second.string());
+    EXPECT_EQ(read_json(first), read_json(second));
+
+    std::filesystem::remove(first);
+    std::filesystem::remove(second);
+}
+
+TEST(ElementIdsJson, IdsIssuedAfterReloadDoNotCollide)
+{
+    SavedModel model;
+    const auto path = temp_json("soltrace_ids_after_reload.json");
+    model.sd.export_json_file(path.string());
+
+    SimulationData loaded;
+    loaded.import_json_file(path.string());
+    std::filesystem::remove(path);
+
+    element_id highest = 0;
+    for (const element_id id : registered_ids(loaded))
+    {
+        highest = std::max(highest, id);
+    }
+
+    auto fresh = loaded.create_element<SingleElement>();
+    EXPECT_GT(fresh.id(), highest);
+}
+
+TEST(ElementIdsJson, CompositeInsideStageIsWrittenOnceAndLoads)
+{
+    SavedModel model;
+    const auto path = temp_json("soltrace_ids_nested.json");
+    model.sd.export_json_file(path.string());
+
+    // The composite appears once, inside the stage, and not at the top level
+    const auto root = read_json(path);
+    int composites_at_top = 0;
+    for (auto &[key, jelement] : root.at("elements").items())
+    {
+        if (jelement.at("is_single") == false && !jelement.contains("is_stage"))
+        {
+            ++composites_at_top;
+        }
+    }
+    EXPECT_EQ(composites_at_top, 0);
+
+    SimulationData loaded;
+    loaded.import_json_file(path.string());
+    std::filesystem::remove(path);
+
+    EXPECT_EQ(loaded.get_number_of_elements(), 3);
+    auto comp = std::dynamic_pointer_cast<CompositeElement>(
+        loaded.get_element(model.comp_id));
+    ASSERT_NE(comp, nullptr);
+    EXPECT_EQ(comp->get_number_of_elements(), 2);
+    EXPECT_NE(comp->get_element(model.child1_id), nullptr);
+    EXPECT_NE(comp->get_element(model.child2_id), nullptr);
+}
+
+TEST(ElementIdsJson, ChildrenAreKeyedAndOrderedByElementId)
+{
+    SimulationData sd;
+    auto optics = add_optics(sd);
+
+    auto stage = sd.create_element<StageElement>(0);
+    auto comp  = stage->create_child<CompositeElement>();
+    auto a     = comp->create_child<SingleElement>();
+    auto b     = comp->create_child<SingleElement>();
+    configure(*a, optics);
+    configure(*b, optics);
+
+    std::vector<element_id> keys;
+    for (auto it = comp->get_const_iterator(); !comp->is_at_end(it); ++it)
+    {
+        EXPECT_EQ(it->first, it->second->get_id());
+        keys.push_back(it->first);
+    }
+    EXPECT_EQ(keys, (std::vector<element_id>{ a->get_id(), b->get_id() }));
+}
+
+TEST(ElementIdsJson, MissingIdsAreAllocatedAboveTheSavedOnes)
+{
+    SavedModel model;
+    const auto path = temp_json("soltrace_ids_missing.json");
+    model.sd.export_json_file(path.string());
+
+    // Remove the saved ID of the single element that is directly in the stage
+    auto root = read_json(path);
+    for (auto &[key, jstage] : root["elements"].items())
+    {
+        for (auto &[ckey, jchild] : jstage["elements"].items())
+        {
+            if (jchild.at("is_single") == true)
+            {
+                jchild.erase("my_id");
+            }
+        }
+    }
+    write_json(path, root);
+
+    SimulationData loaded;
+    loaded.import_json_file(path.string());
+    std::filesystem::remove(path);
+
+    // The stage, composite, and its children keep their IDs. The one without a
+    // saved ID gets a new one above all the saved IDs.
+    EXPECT_EQ(loaded.get_number_of_elements(), 3);
+    EXPECT_NE(loaded.get_element(model.child1_id), nullptr);
+    EXPECT_NE(loaded.get_element(model.child2_id), nullptr);
+    EXPECT_EQ(loaded.get_element(model.direct_id), nullptr);
+
+    int single_with_new_id = 0;
+    for (const element_id id : registered_ids(loaded))
+    {
+        if (id > model.child2_id && loaded.get_element(id)->is_single())
+        {
+            ++single_with_new_id;
+            EXPECT_GT(id, model.stage_id);
+        }
+    }
+    EXPECT_EQ(single_with_new_id, 1);
+}
+
+TEST(ElementIdsJson, BadSavedIdsAreErrors)
+{
+    SavedModel model;
+    const auto path = temp_json("soltrace_ids_bad.json");
+    model.sd.export_json_file(path.string());
+    const auto original = read_json(path);
+
+    auto set_direct_id = [&](const nlohmann::ordered_json &value) {
+        auto root = original;
+        for (auto &[key, jstage] : root["elements"].items())
+        {
+            for (auto &[ckey, jchild] : jstage["elements"].items())
+            {
+                if (jchild.at("my_id") == model.direct_id)
+                {
+                    jchild["my_id"] = value;
+                }
+            }
+        }
+        write_json(path, root);
+    };
+
+    SimulationData loaded;
+
+    // Duplicate of another element's saved ID
+    set_direct_id(model.child1_id);
+    EXPECT_THROW(loaded.import_json_file(path.string()), std::invalid_argument);
+
+    // Below 1, and not an integer
+    set_direct_id(0);
+    EXPECT_THROW(loaded.import_json_file(path.string()), std::invalid_argument);
+    set_direct_id(-2);
+    EXPECT_THROW(loaded.import_json_file(path.string()), std::invalid_argument);
+    set_direct_id("seven");
+    EXPECT_THROW(loaded.import_json_file(path.string()), std::invalid_argument);
+    set_direct_id(2.5);
+    EXPECT_THROW(loaded.import_json_file(path.string()), std::invalid_argument);
+
+    std::filesystem::remove(path);
 }
