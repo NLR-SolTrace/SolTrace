@@ -1,7 +1,7 @@
 #pragma once
 
-#include <QtQuick3D/qquick3dinstancing.h>
 #include <QVariantMap>
+#include <QtQuick3D/qquick3dinstancing.h>
 
 #include "data/database.h"
 #include "editing/geometryeditor.h"

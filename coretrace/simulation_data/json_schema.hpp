@@ -9,7 +9,7 @@
 
 namespace SolTrace::Data {
 
-const std::string kSchemaVersion = "2026.07.15";
+const std::string kSchemaVersion = "2026.11.11";
 
 void write_json_file(SimulationData& sd, std::string filename);
 

@@ -52,13 +52,15 @@ The release pipeline therefore has two explicit phases:
 
 The Windows ZIP still packages the complete `dist` tree. This keeps a portable,
 developer-friendly artifact while each MSI contains the consumer runtime. The
-standard Embree and Embree+OptiX installers use distinct stable UpgradeCodes,
+standard Embree and NVIDIA GPU installers use distinct stable UpgradeCodes,
 install directories, and Start menu folders. They therefore upgrade
-independently and can be installed side-by-side.
+independently and can be installed side-by-side. The NVIDIA GPU package uses
+NVIDIA OptiX internally; OptiX remains the name used by build configuration and
+developer tooling.
 
-Official OptiX artifacts explicitly target CUDA compute capability 7.5 as their
-minimum. The build does not inspect the CI host GPU; it emits Turing native code
-plus forward-compatible virtual PTX for newer NVIDIA GPUs.
+Official NVIDIA GPU artifacts explicitly target CUDA compute capability 7.5 as
+their minimum. The build does not inspect the CI host GPU; it emits Turing
+native code plus forward-compatible virtual PTX for newer NVIDIA GPUs.
 
 The MSI command expects a validated Windows `dist` tree, CMake 3.30 or newer,
 and WiX 4 with its matching UI extension. CI pins and installs those tools. The

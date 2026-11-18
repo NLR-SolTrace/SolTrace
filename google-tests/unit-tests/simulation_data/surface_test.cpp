@@ -82,8 +82,8 @@ TEST(Surface, MakeSurfaceFromType)
         
         auto parabola = std::dynamic_pointer_cast<SolTrace::Data::Parabola>(surface);
         ASSERT_NE(parabola, nullptr);
-        EXPECT_DOUBLE_EQ(parabola->focal_length_x, 0.33333333333333331);
-        EXPECT_DOUBLE_EQ(parabola->focal_length_y, 0.25);
+        EXPECT_DOUBLE_EQ(parabola->vertex_curv_x, 1.5);
+        EXPECT_DOUBLE_EQ(parabola->vertex_curv_y, 2.0);
     }
 
     // Test PARABOLA creation with insufficient arguments
@@ -157,8 +157,8 @@ TEST(Surface, MakeSurfaceFromType)
         ASSERT_NE(parabola, nullptr);
         EXPECT_EQ(parabola->get_type(), SolTrace::Data::PARABOLA);
         auto para_cast = std::dynamic_pointer_cast<SolTrace::Data::Parabola>(parabola);
-        EXPECT_DOUBLE_EQ(para_cast->focal_length_x, 0.1);
-        EXPECT_DOUBLE_EQ(para_cast->focal_length_y, 0.066666666666666666);
+        EXPECT_DOUBLE_EQ(para_cast->vertex_curv_x, 5.0);
+        EXPECT_DOUBLE_EQ(para_cast->vertex_curv_y, 7.5);
         
         // SPHERE only uses first argument
         auto sphere = SolTrace::Data::make_surface_from_type(SolTrace::Data::SPHERE, multi_args);
@@ -287,13 +287,11 @@ TEST(Parabola, BoundingBox)
     const double TOL = 1e-12;
     const double xbox[2] = {-1.0, 2.0};
     const double ybox[2] = {0.0, 1.0};
-    const double FX = 1.0;
-    const double FY = 2.0;
-    const double CX = 0.5 / FX;
-    const double CY = 0.5 / FY;
+    const double CX = 0.5;
+    const double CY = 0.25;
     double z0, z1;
 
-    auto para = make_surface<Parabola>(FX, FY);
+    auto para = make_surface<Parabola>(CX, CY);
 
     para->bounding_box(xbox, ybox, z0, z1);
     EXPECT_NEAR(z0, 0.0, TOL);
@@ -305,6 +303,82 @@ TEST(Parabola, BoundingBox)
     para->bounding_box(xbox2, ybox2, z0, z1);
     EXPECT_NEAR(z0, 0.5 * (CX * 1.0 + CY * 0.25), TOL);
     EXPECT_NEAR(z1, 0.5 * (CX * 16.0 + CY * 1.0), TOL);
+}
+
+TEST(Parabola, BoundingBoxNegativeCurvature)
+{
+    const double TOL = 1e-12;
+    const double xbox[2] = {-1.0, 2.0};
+    const double ybox[2] = {0.0, 1.0};
+    double z0, z1;
+
+    auto para = make_surface<Parabola>(-0.5, -0.25);
+
+    para->bounding_box(xbox, ybox, z0, z1);
+    EXPECT_NEAR(z0, -1.125, TOL);
+    EXPECT_NEAR(z1, 0.0, TOL);
+}
+
+TEST(Parabola, BoundingBoxMixedSignCurvature)
+{
+    const double TOL = 1e-12;
+    const double xbox[2] = {-1.0, 2.0};
+    const double ybox[2] = {-2.0, 1.0};
+    double z0, z1;
+
+    // Saddle: z = 0.5 * (0.5 x^2 - 0.25 y^2)
+    auto para = make_surface<Parabola>(0.5, -0.25);
+
+    para->bounding_box(xbox, ybox, z0, z1);
+    EXPECT_NEAR(z0, -0.5, TOL);
+    EXPECT_NEAR(z1, 1.0, TOL);
+}
+
+TEST(Parabola, ZValue)
+{
+    const double TOL = 1e-12;
+
+    // f = 1 => c = 0.5; z = x^2 / (4 f)
+    auto para = make_surface<Parabola>(0.5, 0.5);
+    EXPECT_NEAR(para->z(2.0, 0.0), 1.0, TOL);
+    EXPECT_NEAR(para->z(0.0, 2.0), 1.0, TOL);
+    EXPECT_NEAR(para->z(2.0, 2.0), 2.0, TOL);
+
+    // Flat in y
+    auto trough = make_surface<Parabola>(0.5, 0.0);
+    EXPECT_NEAR(trough->z(2.0, 5.0), 1.0, TOL);
+}
+
+TEST(Parabola, CurvatureFromFocalLength)
+{
+    const double NAN_VAL = std::numeric_limits<double>::quiet_NaN();
+    const double INF_VAL = std::numeric_limits<double>::infinity();
+
+    EXPECT_DOUBLE_EQ(Parabola::curvature_from_focal_length(1.0), 0.5);
+    EXPECT_DOUBLE_EQ(Parabola::curvature_from_focal_length(-2.0), -0.25);
+    EXPECT_DOUBLE_EQ(Parabola::curvature_from_focal_length(INF_VAL), 0.0);
+    EXPECT_DOUBLE_EQ(Parabola::curvature_from_focal_length(-INF_VAL), 0.0);
+
+    EXPECT_THROW(Parabola::curvature_from_focal_length(0.0), std::invalid_argument);
+    EXPECT_THROW(Parabola::curvature_from_focal_length(NAN_VAL), std::invalid_argument);
+}
+
+TEST(Parabola, JsonRoundTripFlatInY)
+{
+    auto para = make_surface<Parabola>(0.25, 0.0);
+
+    nlohmann::ordered_json jnode;
+    para->write_json(jnode);
+    EXPECT_EQ(jnode.at("vertex_curv_x").get<double>(), 0.25);
+    EXPECT_EQ(jnode.at("vertex_curv_y").get<double>(), 0.0);
+
+    // Dump and parse to mimic file I/O
+    auto jparsed = nlohmann::ordered_json::parse(jnode.dump());
+    auto read_ptr = SolTrace::Data::make_surface_from_json(jparsed);
+    auto read = std::dynamic_pointer_cast<Parabola>(read_ptr);
+    ASSERT_NE(read, nullptr);
+    EXPECT_DOUBLE_EQ(read->vertex_curv_x, 0.25);
+    EXPECT_DOUBLE_EQ(read->vertex_curv_y, 0.0);
 }
 
 TEST(Sphere, MakeCopy)
@@ -387,18 +461,17 @@ TEST(Parabola, Validate)
     const double INF_VAL = std::numeric_limits<double>::infinity();
 
     EXPECT_NO_THROW(make_surface<Parabola>(1.0, 2.0));
-    EXPECT_NO_THROW(make_surface<Parabola>(-1.0, -2.0));  // negative focal lengths are valid
+    EXPECT_NO_THROW(make_surface<Parabola>(-1.0, -2.0));  // negative curvatures are valid
     EXPECT_NO_THROW(make_surface<Parabola>(0.0, 1.0));    // zero in one direction means flat
     EXPECT_NO_THROW(make_surface<Parabola>(1.0, 0.0));    // zero in one direction means flat
-    EXPECT_NO_THROW(make_surface<Parabola>(INF_VAL, 1.0));   // single inf means flat in that direction
-    EXPECT_NO_THROW(make_surface<Parabola>(1.0, INF_VAL));
-    EXPECT_NO_THROW(make_surface<Parabola>(-INF_VAL, 1.0));
-    EXPECT_NO_THROW(make_surface<Parabola>(1.0, -INF_VAL));
 
-    EXPECT_THROW(make_surface<Parabola>(NAN_VAL, 1.0),        std::invalid_argument);
-    EXPECT_THROW(make_surface<Parabola>(1.0, NAN_VAL),        std::invalid_argument);
-    EXPECT_THROW(make_surface<Parabola>(INF_VAL, INF_VAL),   std::invalid_argument);
-    EXPECT_THROW(make_surface<Parabola>(-INF_VAL, -INF_VAL), std::invalid_argument);
+    EXPECT_THROW(make_surface<Parabola>(0.0, 0.0),           std::invalid_argument);  // use Flat
+    EXPECT_THROW(make_surface<Parabola>(NAN_VAL, 1.0),       std::invalid_argument);
+    EXPECT_THROW(make_surface<Parabola>(1.0, NAN_VAL),       std::invalid_argument);
+    EXPECT_THROW(make_surface<Parabola>(INF_VAL, 1.0),       std::invalid_argument);
+    EXPECT_THROW(make_surface<Parabola>(1.0, INF_VAL),       std::invalid_argument);
+    EXPECT_THROW(make_surface<Parabola>(-INF_VAL, 1.0),      std::invalid_argument);
+    EXPECT_THROW(make_surface<Parabola>(1.0, -INF_VAL),      std::invalid_argument);
 }
 
 TEST(Sphere, Validate)

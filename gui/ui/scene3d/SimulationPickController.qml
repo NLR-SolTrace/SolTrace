@@ -116,21 +116,33 @@ QtObject {
     function selectFluxElementFromResultView(mx, my) {
         const result = view.pick(mx, my)
         var object = result.objectHit
-        if (!object || !object.instancing) {
+        if (!object) {
             tracePick("flux element pick miss")
             returnToCameraModeIfOneShot()
             return
         }
 
-        const index = result.instanceIndex
-        if (index < 0) {
-            tracePick("flux element pick failed: invalid instanceIndex=" + index)
+        var elementEntity
+        if (object.objectName === "flux_map_geometry") {
+            elementEntity = object.flux_entity
+            tracePick("flux map pick -> " + entityString(elementEntity))
+        } else if (object.instancing) {
+            const index = result.instanceIndex
+            if (index < 0) {
+                tracePick("flux element pick failed: invalid instanceIndex=" + index)
+                returnToCameraModeIfOneShot()
+                return
+            }
+
+            elementEntity = object.instancing.at(index)
+            tracePick("flux scene geometry pick -> "
+                      + entityString(elementEntity))
+        } else {
+            tracePick("flux element pick hit unsupported object=" + object)
             returnToCameraModeIfOneShot()
             return
         }
 
-        var elementEntity = object.instancing.at(index)
-        tracePick("flux element pick -> " + entityString(elementEntity))
         AppData.flux.select_entity(elementEntity)
         App.view.workflow_phase = ViewModule.Analyze
         App.view.left_panel.visible = true
@@ -140,21 +152,35 @@ QtObject {
     function selectRayFilterElementFromResultView(mx, my) {
         const result = view.pick(mx, my)
         var object = result.objectHit
-        if (!object || !object.instancing) {
+        if (!object) {
             tracePick("ray filter element pick miss")
             returnToCameraModeIfOneShot()
             return
         }
 
-        const index = result.instanceIndex
-        if (index < 0) {
-            tracePick("ray filter element pick failed: invalid instanceIndex=" + index)
+        var elementEntity
+        if (object.objectName === "flux_map_geometry") {
+            elementEntity = object.flux_entity
+            tracePick("ray filter flux map pick -> "
+                      + entityString(elementEntity))
+        } else if (object.instancing) {
+            const index = result.instanceIndex
+            if (index < 0) {
+                tracePick("ray filter element pick failed: invalid instanceIndex="
+                          + index)
+                returnToCameraModeIfOneShot()
+                return
+            }
+
+            elementEntity = object.instancing.at(index)
+            tracePick("ray filter scene geometry pick -> "
+                      + entityString(elementEntity))
+        } else {
+            tracePick("ray filter element pick hit unsupported object=" + object)
             returnToCameraModeIfOneShot()
             return
         }
 
-        var elementEntity = object.instancing.at(index)
-        tracePick("ray filter element pick -> " + entityString(elementEntity))
         AppData.intersections.ray_geometry.select_entity_filter(elementEntity)
         App.view.workflow_phase = ViewModule.Analyze
         App.view.left_panel.visible = true

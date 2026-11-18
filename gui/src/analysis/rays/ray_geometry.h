@@ -3,10 +3,13 @@
 
 #include "jobs/job_run_common.h"
 #include "support/qt_helpers.h"
+#include "support/triangle_bvh.h"
 
 #include <QQmlEngine>
 #include <QVariantMap>
 #include <QtQuick3D/qquick3dgeometry.h>
+
+#include <memory>
 
 
 namespace SolTrace::GUI::Analysis {
@@ -17,7 +20,8 @@ struct EventTypeContainer {
 
     EventTypeContainer() = default;
 
-    EventTypeContainer(std::initializer_list<SolTrace::GUI::Data::RayEventType>);
+    EventTypeContainer(
+        std::initializer_list<SolTrace::GUI::Data::RayEventType>);
     EventTypeContainer(QStringList);
 
     QStringList to_list() const;
@@ -31,6 +35,9 @@ struct UIRayRecord {
     /// If it hit an entity, which one?
     qint64 entity = -1;
 
+    /// User-facing name of the entity, when available.
+    QString entity_name;
+
     /// What is the interaction type?
     QString interaction_type;
 
@@ -40,6 +47,7 @@ struct UIRayRecord {
     RECORD_META(SolTrace::GUI::Analysis::UIRayRecord,
                 SM_EXPOSE_RO(has_entity),
                 SM_EXPOSE_RO(entity),
+                SM_EXPOSE_RO(entity_name),
                 SM_EXPOSE_RO(interaction_type),
                 SM_EXPOSE_RO(location), );
 };
@@ -66,15 +74,18 @@ class RayGeometry : public QQuick3DGeometry {
     QVector3D m_content_bounds_max;
 
 public:
-    enum class TextureMode { SolidColor, Length, Segment };
+    enum class TextureMode { SolidColor, Length, Segment, Element };
     Q_ENUM(TextureMode)
 
     enum class IntersectionMode { Point, Line };
     Q_ENUM(IntersectionMode)
 
+    enum class SurfaceSide { Either, Front, Back };
+    Q_ENUM(SurfaceSide)
+
 private:
     /// Which events to include in our geometry?
-    Q_WRITABLE_PROPERTY(QStringList, event_include, {});
+    Q_WRITABLE_PROPERTY(QStringList, event_include, { });
 
     /// How many rays to show?
     Q_WRITABLE_PROPERTY(float, show_percent, 100);
@@ -97,15 +108,23 @@ private:
     /// Only show rays that interacted with this entity.
     Q_WRITABLE_PROPERTY(SolTrace::GUI::Data::Entity, entity_filter, { });
 
+    /// Only show interactions arriving at the selected side of the entity.
+    Q_WRITABLE_PROPERTY(SurfaceSide, surface_side_filter, SurfaceSide::Either);
+
     /// Display name for the selected entity filter.
     Q_READONLY_PROPERTY(QString, entity_filter_name);
 
     /// Rays that exit a sphere of this size are clipped
     Q_WRITABLE_PROPERTY(double, max_ray_distance, 5000);
 
+    std::optional<SolTrace::GUI::Data::Mesh>             m_entity_filter_mesh;
+    std::unique_ptr<SolTrace::GUI::Support::TriangleBvh> m_entity_filter_bvh;
+
 private slots:
     void inclusion_list_update();
     void entity_filter_update();
+
+    void update_entity_filter_mesh();
 
     void selected_ray_change_update_table();
 

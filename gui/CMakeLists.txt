@@ -268,10 +268,20 @@ qt_add_translations(SolTrace
 # Add examples folder
 if(APPLE)
     # Copies into .app/Contents/Resources/examples
-    file(GLOB EXAMPLE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/assets/examples/*")
+    set(EXAMPLES_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/assets/examples")
+    file(GLOB_RECURSE EXAMPLE_FILES "${EXAMPLES_ROOT}/*")
     list(FILTER EXAMPLE_FILES EXCLUDE REGEX "/\\.DS_Store$")
-    set_source_files_properties(${EXAMPLE_FILES} PROPERTIES
-        MACOSX_PACKAGE_LOCATION "Resources/examples")
+    foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
+        file(RELATIVE_PATH EXAMPLE_REL "${EXAMPLES_ROOT}" "${EXAMPLE_FILE}")
+        get_filename_component(EXAMPLE_REL_DIR "${EXAMPLE_REL}" DIRECTORY)
+        if(EXAMPLE_REL_DIR)
+            set(EXAMPLE_DEST "Resources/examples/${EXAMPLE_REL_DIR}")
+        else()
+            set(EXAMPLE_DEST "Resources/examples")
+        endif()
+        set_source_files_properties("${EXAMPLE_FILE}" PROPERTIES
+            MACOSX_PACKAGE_LOCATION "${EXAMPLE_DEST}")
+    endforeach()
     target_sources(SolTrace PRIVATE ${EXAMPLE_FILES})
 else()
     # Copies alongside the binary

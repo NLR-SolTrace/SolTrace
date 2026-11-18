@@ -43,7 +43,7 @@ glm::dquat dir_roll_to_quat(glm::dvec3 const& directionWorld,
     dir /= len;
 
     const glm::dvec3 localForward(0, 0, 1);
-    auto            qAlign = align_unit_vector(localForward, dir);
+    auto             qAlign = align_unit_vector(localForward, dir);
 
     auto qRoll = glm::angleAxis(zRollRadians, dir);
 
@@ -78,9 +78,8 @@ void quat_to_dir_roll(glm::dquat const& qIn,
     // RRefToLoc[1][0] = -cos(beta) * sin(gamma)
     // RRefToLoc[1][1] =  cos(beta) * cos(gamma)
     // GLM indexes matrices as m[column][row].
-    outZRollRadians =
-        wrap_pi(std::atan2(-reference_to_local[1][0],
-                           reference_to_local[1][1]));
+    outZRollRadians = wrap_pi(
+        std::atan2(-reference_to_local[1][0], reference_to_local[1][1]));
 }
 
 
