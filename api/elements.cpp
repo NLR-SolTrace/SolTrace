@@ -297,8 +297,8 @@ return st_guard::guarded(st_utils::get_cb(pcxt), "st_get_element", [&]() -> st_r
         case SurfaceType::PARABOLA:
         {
             auto temp = std::dynamic_pointer_cast<Parabola>(surf_ptr);
-            geom->s_params[0] = temp->focal_length_x;
-            geom->s_params[1] = temp->focal_length_y;
+            geom->s_params[0] = temp->vertex_curv_x;
+            geom->s_params[1] = temp->vertex_curv_y;
             break;
         }
         case SurfaceType::SPHERE:

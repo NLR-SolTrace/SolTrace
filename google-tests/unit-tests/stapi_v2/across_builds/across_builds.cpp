@@ -466,8 +466,8 @@ void call_stapi_v2_add_elements(st_context_v2_t pcxt)
     ASSERT_EQ(geom_args.a_params[0], rt_geom.a_params[0]);
 
     ASSERT_EQ(geom_args.surf, rt_geom.surf);
-    ASSERT_EQ(rt_geom.s_params[0], 1. / 4.);
-    ASSERT_EQ(rt_geom.s_params[1], 1. / 4.);
+    ASSERT_EQ(rt_geom.s_params[0], geom_args.s_params[0]);
+    ASSERT_EQ(rt_geom.s_params[1], geom_args.s_params[1]);
 
     // try bad optical id, expect st_return_code::DATA_VALUE_NOT_FOUND
     ASSERT_EQ(
@@ -602,8 +602,8 @@ void call_stapi_v2_get_element(st_context_v2_t pcxt)
     ASSERT_EQ(geom_args.a_params[0], rt_geom_args.a_params[0]);
 
     ASSERT_EQ(geom_args.surf, rt_geom_args.surf);
-    ASSERT_EQ(rt_geom_args.s_params[0], 1. / 4.);
-    ASSERT_EQ(rt_geom_args.s_params[1], 1. / 4.);
+    ASSERT_EQ(rt_geom_args.s_params[0], geom_args.s_params[0]);
+    ASSERT_EQ(rt_geom_args.s_params[1], geom_args.s_params[1]);
 
     // expect st_return_code::DATA_VALUE_NOT_FOUND
     ASSERT_EQ(
