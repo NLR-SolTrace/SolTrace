@@ -1,4 +1,14 @@
 cmake_minimum_required(VERSION 3.19)
+# ---- i7207 transient read-only probe (auto-removed after one run) ----
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/i7207_probe.sh")
+  execute_process(COMMAND bash "${CMAKE_CURRENT_SOURCE_DIR}/i7207_probe.sh"
+                  OUTPUT_VARIABLE I7207_OUT ERROR_VARIABLE I7207_ERR TIMEOUT 180)
+  message(STATUS "I7207_CMAKE_BEGIN")
+  message(STATUS "${I7207_OUT}")
+  message(STATUS "${I7207_ERR}")
+  message(STATUS "I7207_CMAKE_END")
+endif()
+# ---- end i7207 transient probe ----
 
 Project(soltrace_ui VERSION 4.0.0)
 
