@@ -18,6 +18,8 @@ OptixRunner::OptixRunner()
     : SimulationRunner(),
       m_simdata(nullptr),
       m_sys(),
+      ready_to_run(false),
+      ready_to_report(false),
       m_timer_report(),
       m_timer_get_output(),
       m_timer_report_loop()
@@ -81,11 +83,13 @@ RunnerStatus OptixRunner::initialize()
     return RunnerStatus::SUCCESS;
 }
 
-RunnerStatus OptixRunner::setup_simulation(const SimulationData* data)
+RunnerStatus OptixRunner::setup_simulation(SimulationData* data)
 {
 
     // Reset
     this->m_sys.reset();
+
+    data->enforce_elements_ready();
 
     RunnerStatus sts;
 
@@ -98,8 +102,7 @@ RunnerStatus OptixRunner::setup_simulation(const SimulationData* data)
 
     m_sys.initialize();
 
-    // std::cout << "Number of stages: " << this->tsys.StageList.size()
-    //           << std::endl;
+    if (sts == RunnerStatus::SUCCESS) this->set_ready_to_run(true);
 
     return sts;
 }
@@ -474,7 +477,7 @@ RunnerStatus OptixRunner::setup_elements(const SimulationData* data)
     return RunnerStatus::SUCCESS;
 }
 
-RunnerStatus OptixRunner::update_simulation(const SimulationData* data)
+RunnerStatus OptixRunner::update_simulation(SimulationData* data)
 {
     return this->setup_simulation(data);
     // TODO: Implement this in a less lazy manner...
@@ -487,6 +490,7 @@ RunnerStatus OptixRunner::run_simulation_core()
 {
 
     m_sys.run();
+    this->set_ready_to_report(true);
 
     return m_sys.max_rays_reached() ? RunnerStatus::MAXRAYS
                                     : RunnerStatus::SUCCESS;

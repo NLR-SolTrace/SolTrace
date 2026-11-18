@@ -32,7 +32,7 @@ namespace SolTrace::EmbreeRunner
         return;
     }
 
-    RunnerStatus EmbreeRunner::setup_simulation(const SimulationData *data)
+    RunnerStatus EmbreeRunner::setup_simulation(SimulationData *data)
     {
 
         RunnerStatus sts = NativeRunner::setup_simulation(data);
@@ -46,7 +46,7 @@ namespace SolTrace::EmbreeRunner
         return sts;
     }
 
-    RunnerStatus EmbreeRunner::update_simulation(const SimulationData *data)
+    RunnerStatus EmbreeRunner::update_simulation(SimulationData *data)
     {
         // TODO: Do a more efficient implementation of this?
         this->clean_embree();
@@ -69,6 +69,8 @@ namespace SolTrace::EmbreeRunner
             this->tsys.sim_errors_sunshape,
             this->tsys.sim_errors_optical,
             this->embree_scene);
+
+        if (sts == RunnerStatus::SUCCESS) this->set_ready_to_report(true);
 
         return sts;
     }

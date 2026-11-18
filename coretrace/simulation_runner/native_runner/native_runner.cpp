@@ -27,8 +27,10 @@ namespace SolTrace::NativeRunner
 {
 
     NativeRunner::NativeRunner() : SimulationRunner(),
-                                   as_power_tower(false),
-                                   number_of_threads(1)
+                                   as_power_tower(-1),
+                                   number_of_threads(1),
+                                   ready_to_run(false),
+                                   ready_to_report(false)
     {
         this->my_logger = make_trace_logger();
         this->my_manager = make_thread_manager(this->my_logger);
@@ -48,12 +50,14 @@ namespace SolTrace::NativeRunner
         return RunnerStatus::SUCCESS;
     }
 
-    RunnerStatus NativeRunner::setup_simulation(const SimulationData *data)
+    RunnerStatus NativeRunner::setup_simulation(SimulationData *data)
     {
 
         RunnerStatus sts;
 
         this->tsys.ClearAll();
+
+        data->enforce_elements_ready();
 
         sts = this->setup_parameters(data);
 
@@ -62,6 +66,9 @@ namespace SolTrace::NativeRunner
 
         if (sts == RunnerStatus::SUCCESS)
             sts = this->setup_elements(data);
+        
+        if (sts == RunnerStatus::SUCCESS)
+            this->set_ready_to_run(true);
 
         return sts;
     }
@@ -75,6 +82,8 @@ namespace SolTrace::NativeRunner
         this->tsys.sim_raycount = sim_params.number_of_rays;
         this->tsys.sim_raymax = sim_params.max_number_of_rays;
         this->tsys.seed = sim_params.seed;
+        if (this->as_power_tower == -1)
+            this->as_power_tower = (int8_t)sim_params.as_power_tower;
         return RunnerStatus::SUCCESS;
     }
 
@@ -215,7 +224,7 @@ namespace SolTrace::NativeRunner
                             "Element does not match current stage");
                     }
 
-                    const auto optics = el->get_optical_property_set();
+                    optical_set_ptr optics = el->get_optical_property_set();
                     if (optics == nullptr)
                         throw std::runtime_error("Element has invalid optical property set.");
                     telement_ptr elem = make_telement(iter->second,
@@ -252,7 +261,7 @@ namespace SolTrace::NativeRunner
                 element_ptr el = iter->second;
                 if (el->is_enabled() && el->is_single())
                 {
-                    const auto optics = el->get_optical_property_set();
+                    optical_set_ptr optics = el->get_optical_property_set();
                     if (optics == nullptr)
                         throw std::runtime_error("Element has invalid optical property set.");
                     telement_ptr tel = make_telement(el,
@@ -295,7 +304,7 @@ namespace SolTrace::NativeRunner
         return sts;
     }
 
-    RunnerStatus NativeRunner::update_simulation(const SimulationData *data)
+    RunnerStatus NativeRunner::update_simulation(SimulationData *data)
     {
         // TODO: Do a more efficient implementation of this?
         this->tsys.ClearAll();
@@ -317,7 +326,9 @@ namespace SolTrace::NativeRunner
             this->tsys.sim_raymax,
             this->tsys.sim_errors_sunshape,
             this->tsys.sim_errors_optical,
-            this->as_power_tower);
+            (bool)this->as_power_tower);
+        
+        if (sts == RunnerStatus::SUCCESS) this->set_ready_to_report(true);
 
         return sts;
     }
