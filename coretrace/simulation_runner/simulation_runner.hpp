@@ -13,6 +13,7 @@ namespace SolTrace::Runner
     {
         CANCEL,
         ERROR,
+        MAXRAYS,
         RUNNING,
         SUCCESS,
         TIMEOUT,
@@ -22,6 +23,7 @@ namespace SolTrace::Runner
     const std::map<RunnerStatus, std::string> STATUS_TO_STR{
         {RunnerStatus::CANCEL, "CANCEL"},
         {RunnerStatus::ERROR, "ERROR"},
+        {RunnerStatus::MAXRAYS, "MAXRAYS"},
         {RunnerStatus::RUNNING, "RUNNING"},
         {RunnerStatus::SUCCESS, "SUCCESS"},
         {RunnerStatus::TIMEOUT, "TIMEOUT"},

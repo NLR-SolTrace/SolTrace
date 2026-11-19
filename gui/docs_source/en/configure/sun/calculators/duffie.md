@@ -1,0 +1,7 @@
+---
+title: "Duffie & Beckman Sun Position"
+---
+
+The Duffie & Beckman method calculates the apparent location of the sun using Earth-Sun geometric relationships based on date, time, latitude, and longitude. Its advantages include computational efficiency, straightforward implementation, and sufficient accuracy (approximately ±3°) for most engineering and annual-performance simulations. Its limitations include reduced astronomical precision compared with modern ephemeris-based models, limited treatment of atmospheric refraction and Earth-orbit perturbations, and potential inaccuracies near sunrise and sunset or when sub-arcminute tracking accuracy is required.
+
+Reference: J. A. Duffie and W. A. Beckman, *Solar Engineering of Thermal Processes*, 4th ed., John Wiley & Sons, 2013. [doi:10.1002/9781118671603](https://doi.org/10.1002/9781118671603).

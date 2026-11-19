@@ -36,8 +36,9 @@ void NameModel::update_name(QString name) {
     }
 }
 
-EntityNamePair EntityNamePair::record_for_entity(Database&  db,
-                                                 SolTrace::GUI::Data::Entity entity) {
+EntityNamePair
+EntityNamePair::record_for_entity(Database&                   db,
+                                  SolTrace::GUI::Data::Entity entity) {
     return EntityNamePair {
         .name         = db.name_of(entity),
         .entity       = entity,

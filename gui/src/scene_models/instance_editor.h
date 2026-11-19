@@ -174,6 +174,9 @@ public:
     /// Display name for parent().
     QString parent_name() const;
 
+    /// Whether an entity can be assigned as the selected entity's parent.
+    Q_INVOKABLE bool can_set_parent(Entity candidate) const;
+
     /// Tags assigned to the selected entity.
     QVector<Entity> tags() const;
 

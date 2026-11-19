@@ -45,7 +45,8 @@ GlobalTransformComponent::compute_for(entt::registry const& reg,
             current = child_of->parent;
 
             if (auto* global = reg.try_get<GlobalTransformComponent>(current)) {
-                out.position = global->position + global->rotation * out.position;
+                out.position =
+                    global->position + global->rotation * out.position;
                 out.rotation = global->rotation * out.rotation;
                 break;
             }
@@ -140,8 +141,8 @@ static bool operator==(SD::Flat const&, SD::Flat const&) {
     return true;
 }
 static bool operator==(SD::Parabola const& a, SD::Parabola const& b) {
-    return std::tie(a.focal_length_x, a.focal_length_y) ==
-           std::tie(b.focal_length_x, b.focal_length_y);
+    return std::tie(a.vertex_curv_x, a.vertex_curv_y) ==
+           std::tie(b.vertex_curv_x, b.vertex_curv_y);
 }
 static bool operator==(SD::Sphere const& a, SD::Sphere const& b) {
     return a.vertex_curv == b.vertex_curv;
@@ -180,14 +181,13 @@ static bool is_equal(SD::surface_ptr const& a, SD::surface_ptr const& b) {
     return is_equal(*a, *b);
 }
 
-bool MaterialComponent::operator==(SolTrace::GUI::Data::MaterialComponent const& b) const {
+bool MaterialComponent::operator==(
+    SolTrace::GUI::Data::MaterialComponent const& b) const {
     return optics == b.optics;
 }
 
 RaySourceResource RaySourceResource::clone() const {
-    if (!source) {
-        return { .source = {}, .type = type };
-    }
+    if (!source) { return { .source = { }, .type = type }; }
 
     if (auto sun = std::dynamic_pointer_cast<SD::Sun>(source)) {
         std::vector<double> user_angle;
@@ -218,9 +218,7 @@ DatabaseNameResource DatabaseNameResource::clone() const {
 GeometryComponent GeometryComponent::clone() const {
     GeometryComponent copy;
 
-    if (aperture) {
-        copy.aperture = aperture->make_copy();
-    }
+    if (aperture) { copy.aperture = aperture->make_copy(); }
 
     if (surface) {
         nlohmann::ordered_json node;
@@ -231,7 +229,8 @@ GeometryComponent GeometryComponent::clone() const {
     return copy;
 }
 
-bool GeometryComponent::operator==(SolTrace::GUI::Data::GeometryComponent const& b) const {
+bool GeometryComponent::operator==(
+    SolTrace::GUI::Data::GeometryComponent const& b) const {
     return is_equal(aperture, b.aperture) and is_equal(surface, b.surface);
 }
 

@@ -48,6 +48,11 @@ namespace SolTrace::NativeRunner
                     {
                         ; // Intentional no-op
                     }
+                    else if (thread_status == ThreadStatus::MAXRAYS)
+                    {
+                        if (sts == ThreadStatus::SUCCESS)
+                            sts = ThreadStatus::MAXRAYS;
+                    }
                     else if (thread_status == ThreadStatus::ERROR)
                     {
                         // Something went wrong -- shut everything down

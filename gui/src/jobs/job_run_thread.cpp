@@ -6,11 +6,11 @@
 #include "support/math_utility.h"
 
 #ifdef SOLTRACE_HAS_EMBREE_RUNNER
-#include "embree_runner/embree_runner.hpp"
+#    include "embree_runner/embree_runner.hpp"
 #endif
 
 #ifdef SOLTRACE_HAS_OPTIX_RUNNER
-#include "optix_runner/optix_runner.hpp"
+#    include "optix_runner/optix_runner.hpp"
 #endif
 
 #include <QtConcurrentRun>
@@ -230,6 +230,9 @@ void execute_thread_runner(QPromise<SimResult>&      promise,
             promise.setProgressValueAndText(100, "Simulation timed out");
             promise.emplaceResult(QStringLiteral("The simulation timed out."));
             return;
+        case SolTrace::Runner::RunnerStatus::MAXRAYS:
+            qWarning() << Q_FUNC_INFO << "Max ray count reached; results are partial.";
+            break;
         default:
             promise.setProgressValueAndText(100, "Simulation failed");
             promise.emplaceResult(

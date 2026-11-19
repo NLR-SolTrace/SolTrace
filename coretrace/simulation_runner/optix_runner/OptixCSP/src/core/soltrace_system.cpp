@@ -20,6 +20,7 @@
 #include "utils/math_util.h"
 
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <iomanip>
 #include <limits>
@@ -338,6 +339,7 @@ void SolTraceSystem::run()
     m_n_hit_rays = 0;
     m_n_sun_rays = 0;
     m_n_depth_exceeded_rays = 0;
+    m_max_rays_reached = false;
     uint_fast64_t N_ray_hit = 0;
     uint_fast64_t N_ray_gen = 0;
 
@@ -409,6 +411,9 @@ void SolTraceSystem::run()
         N_ray_gen += width;
         m_n_sun_rays = N_ray_gen;
     }
+
+    // Loop exited without collecting enough hits => generation cap was the limiter
+    m_max_rays_reached = (m_n_hit_rays < m_number_of_rays);
 
     // Trim excess rays: remove ray groups from the tail until m_n_hit_rays == m_number_of_rays.
     // Each group starts at the last HIT_CREATE record in m_hit_records.
@@ -574,6 +579,7 @@ void SolTraceSystem::reset()
     m_n_hit_rays = 0;
     m_n_sun_rays = 0;
     m_n_depth_exceeded_rays = 0;
+    m_max_rays_reached = false;
 
     m_sun = nullptr;
     m_number_of_rays = 0;
@@ -868,6 +874,20 @@ double SolTraceSystem::get_sun_plane_area() const
         a.z * b.x - a.x * b.z,
         a.x * b.y - a.y * b.x);
     return static_cast<double>(sqrtf(cross.x * cross.x + cross.y * cross.y + cross.z * cross.z));
+}
+
+void SolTraceSystem::get_sun_plane_dimensions(double &width, double &height) const
+{
+    const LaunchParams &lp = data_manager->launch_params_H;
+    const double width_x = static_cast<double>(lp.sun_v1.x) - lp.sun_v0.x;
+    const double width_y = static_cast<double>(lp.sun_v1.y) - lp.sun_v0.y;
+    const double width_z = static_cast<double>(lp.sun_v1.z) - lp.sun_v0.z;
+    const double height_x = static_cast<double>(lp.sun_v2.x) - lp.sun_v1.x;
+    const double height_y = static_cast<double>(lp.sun_v2.y) - lp.sun_v1.y;
+    const double height_z = static_cast<double>(lp.sun_v2.z) - lp.sun_v1.z;
+
+    width = std::sqrt(width_x * width_x + width_y * width_y + width_z * width_z);
+    height = std::sqrt(height_x * height_x + height_y * height_y + height_z * height_z);
 }
 
 uint_fast64_t SolTraceSystem::automatic_batch_size() const

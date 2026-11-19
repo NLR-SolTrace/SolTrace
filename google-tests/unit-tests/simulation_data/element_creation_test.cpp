@@ -8,6 +8,8 @@
 
 #include <nlohmann/json.hpp>
 
+#include <json_schema.hpp>
+
 #include "common.hpp"
 
 using SolTrace::Data::ELEMENT_ALREADY_REGISTERED;
@@ -345,6 +347,55 @@ TEST(ElementIdsJson, IdsSurviveWriteReadWrite)
 
     std::filesystem::remove(first);
     std::filesystem::remove(second);
+}
+
+TEST(ElementIdsJson, LegacyParabolaUpgradePreservesNestedIds)
+{
+    SavedModel model;
+    const auto path = temp_json("soltrace_ids_legacy_parabola.json");
+    model.sd.export_json_file(path.string());
+
+    auto root = read_json(path);
+    root["schema_version"] = "2026.07.15";
+    ASSERT_EQ(root["elements"].size(), 1u);
+    auto &stage = root["elements"].begin().value();
+    auto &comp = stage.at("elements").at(std::to_string(model.comp_id));
+    auto &child = comp.at("elements").at(std::to_string(model.child1_id));
+    const auto parabola_type =
+        SolTrace::Data::SurfaceTypeMap.at(SolTrace::Data::SurfaceType::PARABOLA);
+    child["surface"] = {
+        {"surface_type", parabola_type},
+        {"focal_length_x", 2.0},
+        {"focal_length_y", 4.0}
+    };
+    write_json(path, root);
+
+    SimulationData loaded;
+    ASSERT_NO_THROW(loaded.import_json_file(path.string()));
+    EXPECT_EQ(registered_ids(loaded), registered_ids(model.sd));
+
+    auto loaded_child = std::dynamic_pointer_cast<SingleElement>(
+        loaded.get_element(model.child1_id));
+    ASSERT_NE(loaded_child, nullptr);
+    auto parabola = std::dynamic_pointer_cast<Parabola>(
+        loaded_child->get_surface());
+    ASSERT_NE(parabola, nullptr);
+    EXPECT_DOUBLE_EQ(parabola->vertex_curv_x, 0.25);
+    EXPECT_DOUBLE_EQ(parabola->vertex_curv_y, 0.125);
+
+    loaded.export_json_file(path.string());
+    const auto upgraded = read_json(path);
+    EXPECT_EQ(upgraded.at("schema_version"), SolTrace::Data::kSchemaVersion);
+    const auto &upgraded_stage = upgraded.at("elements").begin().value();
+    const auto &upgraded_comp =
+        upgraded_stage.at("elements").at(std::to_string(model.comp_id));
+    const auto &upgraded_child =
+        upgraded_comp.at("elements").at(std::to_string(model.child1_id));
+    const auto &surface = upgraded_child.at("surface");
+    EXPECT_EQ(upgraded_child.at("my_id"), model.child1_id);
+    EXPECT_DOUBLE_EQ(surface.at("vertex_curv_x").get<double>(), 0.25);
+    EXPECT_DOUBLE_EQ(surface.at("vertex_curv_y").get<double>(), 0.125);
+    std::filesystem::remove(path);
 }
 
 TEST(ElementIdsJson, IdsIssuedAfterReloadDoNotCollide)

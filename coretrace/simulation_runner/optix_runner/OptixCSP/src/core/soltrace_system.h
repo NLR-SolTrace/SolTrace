@@ -50,6 +50,10 @@ namespace OptixCSP
         /// Execute the ray tracing simulation
         void run();
 
+        /// True if the last run() stopped because max_number_of_rays was
+        /// reached before the requested number of hit rays was collected.
+        bool max_rays_reached() const { return m_max_rays_reached; }
+
         /// Update launch params
         void update();
 
@@ -123,6 +127,12 @@ namespace OptixCSP
         /// </summary>
         double get_sun_plane_area() const;
 
+        /// <summary>
+        /// Return the lengths of the two adjacent edges of the sun plane in
+        /// world units.
+        /// </summary>
+        void get_sun_plane_dimensions(double &width, double &height) const;
+
         uint_fast64_t get_N_sun_rays() const { return m_n_sun_rays; }
 
         /// Returns the number of run() iterations executed during the last run() call.
@@ -191,6 +201,9 @@ namespace OptixCSP
 
         // Total rays generated (launched from the sun plane) across all run() iterations.
         uint_fast64_t m_n_sun_rays = 0;
+
+        // True if the last run() was limited by m_max_number_of_rays.
+        bool m_max_rays_reached = false;
 
         // Current allocated device launch buffer sizes.
         size_t m_hit_buffer_size_allocated = 0;

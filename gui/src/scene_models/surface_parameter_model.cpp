@@ -1,8 +1,12 @@
 #include "scene_models/surface_parameter_model.h"
+#include "editing/apertureeditor.h"
+#include "support/enummodel.h"
 
 #include <magic_enum/magic_enum.hpp>
 
 #include <QtMath>
+
+#include <algorithm>
 
 namespace SolTrace::GUI::Data {
 
@@ -61,8 +65,8 @@ factory_arguments_for(SD::SurfaceType                  type,
     switch (type) {
     case SD::CONE:
     case SD::CYLINDER:
-    case SD::PARABOLA:
     case SD::SPHERE:
+    case SD::PARABOLA:
         ret.reserve(records.size());
         for (auto const& record : records) {
             ret.push_back(record.content);
@@ -78,22 +82,17 @@ factory_arguments_for(SD::SurfaceType                  type,
     return ret;
 }
 
-double curvature_from_focal_length(double focal_length) {
-    if (focal_length == 0.0) return 0.0;
-    return 1.0 / (2.0 * focal_length);
-}
-
-double focal_length_from_curvature(double curvature) {
-    if (curvature == 0.0) return 0.0;
-    return 1.0 / (2.0 * curvature);
-}
-
 } // namespace
 
 SurfaceParameterModel::SurfaceParameterModel(QObject* parent)
     : StructTableModel(parent),
-      m_surface_type_model(new QStringListModel(this)) {
-    build_options<SD::SurfaceType>(*m_surface_type_model);
+      m_surface_type_model(
+          new Support::EnumModel<SD::SurfaceType,
+                                 SD::SurfaceType::CONE,
+                                 SD::SurfaceType::HYPER,
+                                 SD::SurfaceType::GENERAL_SPENCER_MURTY,
+                                 SD::SurfaceType::TORUS,
+                                 SD::SurfaceType::SURFACE_UNKNOWN>(this)) {
 
     connect(this,
             &SurfaceParameterModel::dataChanged,
@@ -154,7 +153,7 @@ void SurfaceParameterModel::parameters_changed(entt::entity e) {
     }
 
     m_syncing_from_database = true;
-    set_surface_kind(QString(magic_enum::enum_name(new_surf).data()));
+    set_surface_kind(static_cast<qint32>(new_surf));
     m_syncing_from_database = false;
 }
 
@@ -182,8 +181,8 @@ void SurfaceParameterModel::set_from(SD::Surface const& surface) {
     case SD::PARABOLA: {
         auto const* ptr = dynamic_cast<SD::Parabola const*>(&surface);
         if (!ptr) break;
-        ret[0].content = curvature_from_focal_length(ptr->focal_length_x);
-        ret[1].content = curvature_from_focal_length(ptr->focal_length_y);
+        ret[0].content = ptr->vertex_curv_x;
+        ret[1].content = ptr->vertex_curv_y;
         break;
     }
     case SD::SPHERE: {
@@ -220,8 +219,8 @@ void SurfaceParameterModel::write_back(SD::Surface& surface) const {
     case SD::PARABOLA: {
         auto* ptr = dynamic_cast<SD::Parabola*>(&surface);
         if (!ptr || m_records.size() < 2) break;
-        ptr->focal_length_x = focal_length_from_curvature(m_records[0].content);
-        ptr->focal_length_y = focal_length_from_curvature(m_records[1].content);
+        ptr->vertex_curv_x = m_records[0].content;
+        ptr->vertex_curv_y = m_records[1].content;
         break;
     }
     case SD::SPHERE: {
@@ -251,19 +250,44 @@ void SurfaceParameterModel::make_new_surface(SD::SurfaceType type) {
     }
 
     database()->geometry_parameters.try_patch(
-        m_current_group,
-        [&](GeometryComponent& params) { params.surface = replacement; });
+        m_current_group, [&](GeometryComponent& params) {
+            params.surface = replacement;
+
+            auto valid_apertures =
+                ApertureParameterModel::valid_apertures_for_surf(type);
+            auto aperture_is_valid =
+                params.aperture &&
+                std::find(valid_apertures.begin(),
+                          valid_apertures.end(),
+                          params.aperture->my_type) != valid_apertures.end();
+
+            if (!aperture_is_valid) {
+                params.aperture = SD::Aperture::make_aperture_from_type(
+                    SD::ApertureType::RECTANGLE, { 1.0, 1.0 });
+            }
+
+            if (type == SD::SurfaceType::CYLINDER) {
+                auto* cylinder =
+                    dynamic_cast<SD::Cylinder*>(params.surface.get());
+                auto* rectangle =
+                    dynamic_cast<SD::Rectangle*>(params.aperture.get());
+                if (cylinder && rectangle) {
+                    rectangle->set_x_coord(-cylinder->radius);
+                    rectangle->set_x_length(2.0 * cylinder->radius);
+                }
+            }
+        });
 }
 
 void SurfaceParameterModel::surf_changed() {
     if (m_syncing_from_database) return;
 
-    auto str = surface_kind().toStdString();
+    auto new_surf = static_cast<SD::SurfaceType>(surface_kind());
+    if (!magic_enum::enum_contains(new_surf)) {
+        new_surf = SD::SurfaceType::SURFACE_UNKNOWN;
+    }
 
-    auto new_surf = magic_enum::enum_cast<SD::SurfaceType>(str).value_or(
-        SD::SurfaceType::SURFACE_UNKNOWN);
-
-    set_surface_kind(QString(magic_enum::enum_name(new_surf).data()));
+    set_surface_kind(static_cast<qint32>(new_surf));
     make_new_surface(new_surf);
 }
 

@@ -22,6 +22,7 @@ class SunShape : public QObject {
     void sample_pillbox();
     void sample_buie();
     void sample_limb_darkened();
+    void ensure_custom_distribution();
     void update_x_axis();
 
     void update_current_distribution();
@@ -39,7 +40,7 @@ public:
     Q_WRITABLE_PROPERTY(Shape, shape, Shape::Gaussian)
 
     // Gaussian
-    Q_WRITABLE_PROPERTY(double, sigma, 4.65)
+    Q_WRITABLE_PROPERTY(double, sigma, 2.73)
 
     // Pillbox
     Q_WRITABLE_PROPERTY(double, half_width, 4.65)

@@ -188,7 +188,7 @@ class SparseGrid3D {
 public:
     template <class U>
     struct Brick {
-        std::array<U, 16 * 16 * 16> values = {};
+        std::array<U, 16 * 16 * 16> values = { };
 
         T& operator()(glm::ivec3 p) {
             auto at = p.x + 16 * (p.y + 16 * p.z);
@@ -214,8 +214,8 @@ public:
 
     void update_active_bounds() {
         if (m_data.size() == 0) {
-            m_active_min = glm::ivec3 {};
-            m_active_max = glm::ivec3 {};
+            m_active_min = glm::ivec3 { };
+            m_active_max = glm::ivec3 { };
             return;
         }
 
@@ -333,8 +333,8 @@ private:
     QHash<glm::ivec3, Brick<T>> m_data;
 
     // for perf reasons, we do not update these online
-    glm::ivec3 m_active_min = {};
-    glm::ivec3 m_active_max = {};
+    glm::ivec3 m_active_min = { };
+    glm::ivec3 m_active_max = { };
 
     glm::vec3 m_translate = glm::vec3(0.0f);
     glm::vec3 m_scale     = glm::vec3(1.0f);

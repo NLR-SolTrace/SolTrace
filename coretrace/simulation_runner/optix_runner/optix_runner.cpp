@@ -247,11 +247,8 @@ RunnerStatus OptixRunner::setup_elements(const SimulationData* data)
                 auto el_surface =
                     std::dynamic_pointer_cast<Parabola>(el->get_surface());
                 assert(el_surface != nullptr);
-                double fx = el_surface->focal_length_x;
-                double fy = el_surface->focal_length_y;
-
-                double cx = 1. / (2. * fx);
-                double cy = 1. / (2. * fy);
+                double cx = el_surface->vertex_curv_x;
+                double cy = el_surface->vertex_curv_y;
 
                 auto optix_surface =
                     std::make_shared<OptixCSP::SurfaceParabolic>();
@@ -491,7 +488,8 @@ RunnerStatus OptixRunner::run_simulation_core()
 
     m_sys.run();
 
-    return RunnerStatus::SUCCESS;
+    return m_sys.max_rays_reached() ? RunnerStatus::MAXRAYS
+                                    : RunnerStatus::SUCCESS;
 }
 
 RunnerStatus OptixRunner::status_simulation(double* progress)
@@ -673,7 +671,11 @@ RunnerStatus OptixRunner::report_simulation(SimulationResult* result, int level)
     }
 
     // Attach other results
-    result->set_sun_sampling_stats(this->get_sun_plane_area(),
+    double sun_width  = 0.0;
+    double sun_height = 0.0;
+    this->get_sun_plane_dimensions(sun_width, sun_height);
+    result->set_sun_sampling_stats(sun_width,
+                                   sun_height,
                                    this->get_N_sun_rays());
     result->set_exceeded_depth_count(m_sys.get_N_depth_exceeded_rays());
 

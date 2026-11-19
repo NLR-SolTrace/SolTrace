@@ -366,8 +366,8 @@ namespace SolTrace::NativeRunner
 		std::vector<tstage_ptr> StageList;
 
 		// system simulation context data
-		int sim_raycount;
-		int sim_raymax;
+		uint_fast64_t sim_raycount;
+		uint_fast64_t sim_raymax;
 		bool sim_dynamic_group; // point-focus heliostat dynamic grouping to reduce stage one computation
 		bool sim_errors_sunshape;
 		bool sim_errors_optical;
@@ -378,6 +378,7 @@ namespace SolTrace::NativeRunner
 		// TRayData AllRayData;
 		TRayData RayData;
 		std::atomic<uint_fast64_t> SunRayCount;
+		std::atomic<uint_fast64_t> HitRayCount;
 	};
 
 } // namespace SolTrace::NativeRunner

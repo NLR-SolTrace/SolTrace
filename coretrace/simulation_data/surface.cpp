@@ -2,6 +2,7 @@
 #include "surface.hpp"
 #include "simdata_io.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <stdexcept>
 #include <vector>
@@ -33,11 +34,7 @@ namespace SolTrace::Data
                 retval = nullptr;
             else
             {
-                double cx = args[0];
-                double cy = args[1];
-                double fx = 1.0 / (2.0 * cx);
-                double fy = 1.0 / (2.0 * cy);
-                retval = make_surface<Parabola>(fx, fy);
+                retval = make_surface<Parabola>(args[0], args[1]);
             }
             break;
         }
@@ -183,17 +180,26 @@ namespace SolTrace::Data
     Parabola::Parabola(const nlohmann::ordered_json &jnode)
         : Surface(SurfaceType::PARABOLA)
     {
-        this->focal_length_x = jnode.at("focal_length_x");
-        this->focal_length_y = jnode.at("focal_length_y");
+        this->vertex_curv_x = jnode.at("vertex_curv_x");
+        this->vertex_curv_y = jnode.at("vertex_curv_y");
         validate();
+    }
+
+    double Parabola::curvature_from_focal_length(double focal_length)
+    {
+        if (std::isnan(focal_length) || focal_length == 0.0)
+            throw std::invalid_argument("Parabola: focal length must be non-zero and not NaN");
+        if (std::isinf(focal_length))
+            return 0.0;
+        return 0.5 / focal_length;
     }
 
     void Parabola::validate() const
     {
-        if (std::isnan(focal_length_x) || std::isnan(focal_length_y))
-            throw std::invalid_argument("Parabola: focal lengths cannot be NaN");
-        if (std::isinf(focal_length_x) && std::isinf(focal_length_y))
-            throw std::invalid_argument("Parabola: both focal lengths cannot be infinite");
+        if (!std::isfinite(vertex_curv_x) || !std::isfinite(vertex_curv_y))
+            throw std::invalid_argument("Parabola: vertex curvatures must be finite");
+        if (vertex_curv_x == 0.0 && vertex_curv_y == 0.0)
+            throw std::invalid_argument("Parabola: both vertex curvatures cannot be zero; use a Flat surface");
     }
 
     void Parabola::bounding_box(const double x_minmax[2],
@@ -201,24 +207,26 @@ namespace SolTrace::Data
                                 double &z_min,
                                 double &z_max) const
     {
-        double cx = 0.5 / this->focal_length_x;
-        double cy = 0.5 / this->focal_length_y;
-        double x_max = abs_max(x_minmax, 2);
-        double y_max = abs_max(y_minmax, 2);
-        z_max = 0.5 * (cx * x_max * x_max + cy * y_max * y_max);
-
-        if (x_minmax[0] <= 0.0 && 0.0 <= x_minmax[1] &&
-            y_minmax[0] <= 0.0 && 0.0 <= y_minmax[1])
+        // z is separable and each term is monotonic in |x| (or |y|), so the
+        // extremes occur at the interval endpoints or at 0 if contained.
+        auto term_range = [](double c, const double minmax[2], double &lo, double &hi)
         {
-            z_min = 0.0;
-        }
-        else
-        {
-            double x_min = abs_min(x_minmax, 2);
-            double y_min = abs_min(y_minmax, 2);
-            z_min = 0.5 * (cx * x_min * x_min + cy * y_min * y_min);
-        }
+            double a = 0.5 * c * minmax[0] * minmax[0];
+            double b = 0.5 * c * minmax[1] * minmax[1];
+            lo = std::min(a, b);
+            hi = std::max(a, b);
+            if (minmax[0] <= 0.0 && 0.0 <= minmax[1])
+            {
+                lo = std::min(lo, 0.0);
+                hi = std::max(hi, 0.0);
+            }
+        };
 
+        double x_lo, x_hi, y_lo, y_hi;
+        term_range(this->vertex_curv_x, x_minmax, x_lo, x_hi);
+        term_range(this->vertex_curv_y, y_minmax, y_lo, y_hi);
+        z_min = x_lo + y_lo;
+        z_max = x_hi + y_hi;
         return;
     }
 
@@ -231,8 +239,8 @@ namespace SolTrace::Data
     {
         SurfaceType type = SurfaceType::PARABOLA;
         jnode["surface_type"] = SurfaceTypeMap.at(type);
-        jnode["focal_length_x"] = this->focal_length_x;
-        jnode["focal_length_y"] = this->focal_length_y;
+        jnode["vertex_curv_x"] = this->vertex_curv_x;
+        jnode["vertex_curv_y"] = this->vertex_curv_y;
     }
 
     Sphere::Sphere(const nlohmann::ordered_json &jnode)
@@ -290,7 +298,7 @@ namespace SolTrace::Data
     double Parabola::z(double x, double y) const
     {
         // z(x,y) = (cx * x^2 + cy * y^2) / 2
-        return x * x / focal_length_x + y * y / focal_length_y;
+        return 0.5 * (vertex_curv_x * x * x + vertex_curv_y * y * y);
     }
 
     double Sphere::z(double x, double y) const

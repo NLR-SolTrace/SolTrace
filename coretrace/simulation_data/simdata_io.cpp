@@ -100,42 +100,15 @@ ApertureType char_to_aperture(const char aperture_char)
 {
     switch (aperture_char)
     {
-    case ('c'):
-    {
-        return ApertureType::CIRCLE;
-    }
-    case ('h'):
-    {
-        return ApertureType::HEXAGON;
-    }
-    case ('t'):
-    {
-        return ApertureType::EQUILATERAL_TRIANGLE;
-    }
-    case ('r'):
-    {
-        return ApertureType::RECTANGLE;
-    }
-    case ('a'):
-    {
-        return ApertureType::ANNULUS;
-    }
-    case ('l'):
-    {
-        return ApertureType::SINGLE_AXIS_CURVATURE_SECTION;
-    }
-    case ('i'):
-    {
-        return ApertureType::IRREGULAR_TRIANGLE;
-    }
-    case ('q'):
-    {
-        return ApertureType::IRREGULAR_QUADRILATERAL;
-    }
-    default:
-    {
-        return ApertureType::APERTURE_UNKNOWN;
-    }
+    case ('c'): return ApertureType::CIRCLE;
+    case ('h'): return ApertureType::HEXAGON;
+    case ('t'): return ApertureType::EQUILATERAL_TRIANGLE;
+    case ('r'): return ApertureType::RECTANGLE;
+    case ('a'): return ApertureType::ANNULUS;
+    case ('l'): return ApertureType::SINGLE_AXIS_CURVATURE_SECTION;
+    case ('i'): return ApertureType::IRREGULAR_TRIANGLE;
+    case ('q'): return ApertureType::IRREGULAR_QUADRILATERAL;
+    default: return ApertureType::APERTURE_UNKNOWN;
     }
 }
 
@@ -519,17 +492,33 @@ bool read_element(FILE*                                      fp,
     if (surface_type == SurfaceType::SURFACE_UNKNOWN)
     {
         std::stringstream ss;
-        ss << "Unknown surface type " << surface_type;
+        ss << "Unknown surface char " << SurfaceIndex;
         throw std::invalid_argument(ss.str());
     }
     surface_ptr surf_ptr = make_surface_from_type(surface_type, surface_params);
+    if (surf_ptr == nullptr)
+    { 
+        std::stringstream ss;
+        const auto surface_type_name = SurfaceTypeMap.find(surface_type);
+        ss << "Surface type not implemented: "
+           << (surface_type_name != SurfaceTypeMap.end()
+                   ? surface_type_name->second
+                   : std::to_string(static_cast<int>(surface_type)));
+        throw std::invalid_argument(ss.str());
+    }
+
     el->set_surface(surf_ptr);
     if (surface_type == SurfaceType::CYLINDER)
     {
         ap_ptr    = el->get_aperture();
         auto rect = std::dynamic_pointer_cast<Rectangle>(ap_ptr);
+        if (rect == nullptr)
+        {
+            throw std::invalid_argument(
+                "Element has cylindrical surface but not rectangular aperture.");
+        }
         auto cyl  = std::dynamic_pointer_cast<Cylinder>(surf_ptr);
-        if (rect == nullptr || cyl == nullptr)
+        if (cyl == nullptr)
         {
             throw std::invalid_argument("This should not happen!");
         }

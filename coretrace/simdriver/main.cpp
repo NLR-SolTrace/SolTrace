@@ -322,10 +322,15 @@ int main(int argc, char *argv[])
         auto t_run_start = std::chrono::steady_clock::now();
         sts = runner.run_simulation();
         auto t_run_end = std::chrono::steady_clock::now();
-        if (sts != RunnerStatus::SUCCESS)
+        if (sts != RunnerStatus::SUCCESS && sts != RunnerStatus::MAXRAYS)
         {
             std::cerr << "Error: simulation failed\n";
             return EXIT_FAILURE;
+        }
+        if (sts == RunnerStatus::MAXRAYS)
+        {
+            std::cerr << "Warning: maximum number of generated rays reached; "
+                         "results are partial\n";
         }
         std::cout << "  Completed in "
                   << std::chrono::duration<double>(t_run_end - t_run_start).count()
@@ -388,10 +393,15 @@ int main(int argc, char *argv[])
         auto t_run_start = std::chrono::steady_clock::now();
         sts = runner.run_simulation();
         auto t_run_end = std::chrono::steady_clock::now();
-        if (sts != RunnerStatus::SUCCESS)
+        if (sts != RunnerStatus::SUCCESS && sts != RunnerStatus::MAXRAYS)
         {
             std::cerr << "Error: simulation failed\n";
             return EXIT_FAILURE;
+        }
+        if (sts == RunnerStatus::MAXRAYS)
+        {
+            std::cerr << "Warning: maximum number of generated rays reached; "
+                         "results are partial\n";
         }
         std::cout << "  Completed in "
                   << std::chrono::duration<double>(t_run_end - t_run_start).count()
@@ -471,10 +481,15 @@ int main(int argc, char *argv[])
         auto t_run_start = std::chrono::steady_clock::now();
         sts = runner.run_simulation();
         auto t_run_end = std::chrono::steady_clock::now();
-        if (sts != RunnerStatus::SUCCESS)
+        if (sts != RunnerStatus::SUCCESS && sts != RunnerStatus::MAXRAYS)
         {
             std::cerr << "Error: simulation failed\n";
             return EXIT_FAILURE;
+        }
+        if (sts == RunnerStatus::MAXRAYS)
+        {
+            std::cerr << "Warning: maximum number of generated rays reached; "
+                         "results are partial\n";
         }
         std::cout << "  Completed in "
                   << std::chrono::duration<double>(t_run_end - t_run_start).count()

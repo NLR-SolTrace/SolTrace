@@ -48,10 +48,7 @@ namespace SolTrace::NativeRunner
         }
         virtual uint_fast64_t get_number_rays_traced() const override
         {
-            // TODO: This could be wrong if we hit max number of rays before getting this many hits.
-            // At the moment max number of rays is ignored though...
-            // return tsys.sim_raycount;
-            return tsys.SunRayCount > 0 ? tsys.sim_raycount : 0;
+            return tsys.HitRayCount;
         }
 
         // Runner options
