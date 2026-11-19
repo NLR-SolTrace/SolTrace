@@ -4,8 +4,12 @@
 #include <sstream>
 
 #include "aperture.hpp"
+#include "composite_element.hpp"
 #include "constants.hpp"
 #include "element.hpp"
+#include "model_context.hpp"
+#include "optical_properties.hpp"
+#include "single_element.hpp"
 #include "surface.hpp"
 #include "utilities.hpp"
 
@@ -171,10 +175,10 @@ namespace SolTrace::Data
         return;
     }
 
-    void LinearFresnel::set_optics(const OpticalPropertySetReference mirror,
-                                   const OpticalPropertySetReference absorber,
-                                   const OpticalPropertySetReference envelop_outer,
-                                   const OpticalPropertySetReference envelop_inner)
+    void LinearFresnel::set_optics(const OpticsRef mirror,
+                                   const OpticsRef absorber,
+                                   const OpticsRef envelop_outer,
+                                   const OpticsRef envelop_inner)
     {
         this->optics_mirror = mirror;
         this->optics_absorber = absorber;

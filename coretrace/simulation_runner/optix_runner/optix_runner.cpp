@@ -185,6 +185,9 @@ RunnerStatus OptixRunner::setup_elements(const SimulationData* data)
             // Skip if element is not a single (i.e. stage, composite)
             if (el->is_single() == false) continue;
 
+            // Also reports optics that expired after the commit
+            el->enforce_user_fields_set();
+
             auto optix_el = std::make_shared<OptixCSP::CspElement>();
             auto origin   = el->get_origin_global();
             auto ap       = el->get_aim_vector_global();

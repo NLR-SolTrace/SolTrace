@@ -358,4 +358,21 @@ std::ostream& operator<<(std::ostream& os, const OpticalPropertySet& op)
     return os;
 }
 
+const OpticsRef &virtual_optics()
+{
+    static const OpticsRef ref = []
+    {
+        auto optics = std::make_shared<OpticalPropertySet>(
+            InteractionType::REFRACTION, 1.0, 1.0, "VirtualProp");
+        optics->set_properties(OpticalSide::Both,
+                               DistributionType::NONE,
+                               1.0,
+                               0.0,
+                               0.0,
+                               0.0);
+        return OpticsRef::builtin(OPTICS_ID_VIRTUAL, std::move(optics));
+    }();
+    return ref;
+}
+
 } // namespace SolTrace::Data

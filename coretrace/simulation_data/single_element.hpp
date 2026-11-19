@@ -66,24 +66,18 @@ public:
 
     optics_id get_optical_property_set_id() const override
     {
-        return this->opt_id;
+        return this->optics.id();
     }
 
     std::shared_ptr<const OpticalPropertySet> get_optical_property_set() const override
     {
-        return this->optical_property_set.lock();
+        return this->optics.get();
     }
 
-    /*OpticalProperties *get_front_optical_properties() override
-    {
-        return &(this->optics_front);
-    }*/
-    void set_optical_property_set(const OpticalPropertySetReference& optics) override
-    {
-        this->opt_id = optics.id;
-        this->optical_property_set = optics.optical_property_set;
-        return;
-    }
+    // Throws std::invalid_argument if `optics` belongs to another model, or
+    // to this model before it was cleared. An unassigned reference removes
+    // the element's optics.
+    void set_optical_property_set(const OpticsRef& optics) override;
 
     /*const OpticalProperties *get_back_optical_properties() const override
     {
@@ -108,8 +102,7 @@ protected:
     aperture_ptr aperture;
     surface_ptr surface;
 
-    optics_id opt_id = OPTICS_ID_UNASSIGNED;
-    std::weak_ptr<const OpticalPropertySet> optical_property_set;
+    OpticsRef optics;
 
     // group number of element. 
     // -2 is an element that does not interact with the trace, ie stage or composite elements. 

@@ -12,8 +12,10 @@
 #define SOLTRACE_ELEMENT_CONTAINER_H
 
 #include <cstdint>
+#include <limits>
 #include <map>
 #include <memory>
+#include <stdexcept>
 
 namespace SolTrace::Data {
 
@@ -72,9 +74,14 @@ public:
      * @brief Add an item to the container
      * @param item Shared pointer to item to add
      * @return Assigned key/ID for the item (-1 if insertion failed)
+     * @throws std::overflow_error if no next key can be represented
      */
     K add_item(value_pointer item)
     {
+        if (this->next_id == std::numeric_limits<K>::max())
+        {
+            throw std::overflow_error("Container: no larger key exists");
+        }
         auto key = this->next_id;
         typename std::map<K, value_pointer>::value_type to_insert(key, item);
         auto result = this->container.insert(to_insert);
@@ -163,11 +170,29 @@ public:
         {
             if (id >= next)
             {
+                if (id == std::numeric_limits<K>::max())
+                {
+                    throw std::overflow_error("Container: no larger key exists");
+                }
                 next = id + 1;
             }
         }
 
         this->next_id = next;
+    }
+
+    // Makes `add_item` issue keys above `id` from now on. Never lowers the
+    // next key.
+    void skip_past(K id)
+    {
+        if (this->next_id <= id)
+        {
+            if (id == std::numeric_limits<K>::max())
+            {
+                throw std::overflow_error("Container: no larger key exists");
+            }
+            this->next_id = id + 1;
+        }
     }
 
 private:

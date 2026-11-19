@@ -31,7 +31,7 @@ static void install_transform(SD::element_ptr           ptr,
 }
 
 static void install_group(SD::element_ptr                 ptr,
-                          SD::OpticalPropertySetReference param,
+                          SD::OpticsRef param,
                           GeometryComponent const&        geom_param) {
     ptr->set_aperture(geom_param.aperture);
     ptr->set_surface(geom_param.surface);
@@ -130,7 +130,7 @@ Database::export_to_simdata() {
         }
     }
 
-    std::unordered_map<entt::entity, SD::OpticalPropertySetReference> prop_map;
+    std::unordered_map<entt::entity, SD::OpticsRef> prop_map;
 
     {
         auto view =

@@ -12,7 +12,6 @@ namespace SolTrace::Data {
 SimulationData::SimulationData() : number_of_elements(0),
                                    my_elements(1),
                                    my_sources(0),
-                                   my_optical_property_sets(0),
                                    model_state(std::make_shared<ModelState>())
 {
     this->bind_model_state();
@@ -25,7 +24,6 @@ SimulationData::SimulationData(SimulationData&& other)
       my_elements(std::move(other.my_elements)),
       my_sources(std::move(other.my_sources)),
       my_parameters(std::move(other.my_parameters)),
-      my_optical_property_sets(std::move(other.my_optical_property_sets)),
       model_state(std::move(other.model_state))
 {
     this->bind_model_state();
@@ -41,8 +39,6 @@ SimulationData& SimulationData::operator=(SimulationData&& other)
         this->my_elements = std::move(other.my_elements);
         this->my_sources = std::move(other.my_sources);
         this->my_parameters = std::move(other.my_parameters);
-        this->my_optical_property_sets =
-            std::move(other.my_optical_property_sets);
         // Contexts made for the model this object had before expire here
         this->model_state = std::move(other.model_state);
         this->bind_model_state();
@@ -313,52 +309,62 @@ uint_fast64_t SimulationData::remove_subelements(element_ptr el)
     return retval;
 }
 
-OpticalPropertySetReference SimulationData::add_optical_property_set(const OpticalPropertySet& opt_set)
+OpticsRef SimulationData::add_optical_property_set(const OpticalPropertySet& opt_set)
 {
-    std::shared_ptr<OpticalPropertySet> ptr = std::make_shared<OpticalPropertySet>(opt_set);
-    const optics_id id = this->my_optical_property_sets.add_item(ptr);
-    return { id, ptr };
+    return this->model_state->optics.add(opt_set);
 }
 
-OpticalPropertySetReference SimulationData::find_or_add_optical_property_set(const OpticalPropertySet& opt_set)
+OpticsRef SimulationData::find_or_add_optical_property_set(const OpticalPropertySet& opt_set)
 {
-    // Check if set already exists
-    for (auto it = this->get_optics_iterator(); !this->is_optics_at_end(it); ++it)
+    return this->model_state->optics.find_or_add(opt_set);
+}
+
+OpticsRef SimulationData::get_optical_property_set(optics_id id) const
+{
+    if (id == OPTICS_ID_VIRTUAL)
     {
-        const OpticalPropertySet& existing = *it->second;
-        if (existing == opt_set)
-        {
-            const optics_id id = it->first;
-            auto ptr = it->second;
-            return { id, ptr };
-
-        }
+        return virtual_optics();
     }
-
-    // Add if it doesn't exist
-    return add_optical_property_set(opt_set);
+    return this->model_state->optics.get(id);
 }
 
 const OpticalPropertySet* SimulationData::get_optical_property_set(const Element& el) const
 {
-    return get_optical_property_set(el.get_optical_property_set_id());
+    // Compared by address, so that the entry with the same ID in another
+    // model is not returned
+    const auto optics = el.get_optical_property_set();
+    const auto entry =
+        this->get_optical_property_set(el.get_optical_property_set_id()).get();
+    return optics != nullptr && optics == entry ? optics.get() : nullptr;
+}
+
+OpticalPropertySet* SimulationData::get_mutable_optical_property_set(optics_id id)
+{
+    return this->model_state->optics.get_mutable(id);
 }
 
 OpticalPropertySet* SimulationData::get_mutable_optical_property_set(const Element& el)
 {
-    return this->get_optical_property_set(el.get_optical_property_set_id());
+    const auto optics = el.get_optical_property_set();
+    OpticalPropertySet* entry =
+        this->get_mutable_optical_property_set(el.get_optical_property_set_id());
+    return optics != nullptr && optics.get() == entry ? entry : nullptr;
 }
 
-const OpticalPropertySet* SimulationData::get_optical_property_set(optics_id id) const
+bool SimulationData::remove_optical_property_set(optics_id id)
 {
-    auto ptr = this->my_optical_property_sets.get_item(id);
-    return ptr == nullptr ? nullptr : ptr.get();
+    return this->model_state->optics.remove(id);
 }
 
-OpticalPropertySet* SimulationData::get_optical_property_set(optics_id id)
+void SimulationData::clear_optical_property_sets()
 {
-    auto ptr = this->my_optical_property_sets.get_item(id);
-    return ptr == nullptr ? nullptr : ptr.get();
+    this->model_state->optics.clear();
+}
+
+OpticsRef SimulationData::restore_optical_property_set(optics_id id,
+                                                       const OpticalPropertySet& opt_set)
+{
+    return this->model_state->optics.restore(id, opt_set);
 }
 
 int SimulationData::update_simulation_positions()
@@ -395,9 +401,8 @@ void SimulationData::clear(bool reset_parameters)
     this->my_groups.clear();
     this->number_of_elements = 0;
 
-    this->my_optical_property_sets.reset(0);
-
-    // Everything created for the model before this point no longer belongs to it
+    // Everything created for the model before this point no longer belongs to
+    // it, and the resource registries are replaced with empty ones
     if (this->model_state != nullptr)
     {
         this->model_state->reset();

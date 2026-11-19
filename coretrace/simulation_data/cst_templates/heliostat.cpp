@@ -374,7 +374,7 @@ namespace SolTrace::Data
         return;
     }
 
-    void Heliostat::set_optics(OpticalPropertySetReference ref)
+    void Heliostat::set_optics(OpticsRef ref)
     {
         this->facet_optics = ref;
         // TODO: Need to update the subelements!

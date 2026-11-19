@@ -3,14 +3,18 @@
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
+#include <limits>
+#include <memory>
 #include <stdexcept>
+#include <string>
+#include <utility>
 #include <vector>
 
 #include <nlohmann/json.hpp>
 
 #include <json_schema.hpp>
-
-#include "common.hpp"
+#include <simulation_data_export.hpp>
+#include <surface.hpp>
 
 using SolTrace::Data::ELEMENT_ALREADY_REGISTERED;
 using SolTrace::Data::ELEMENT_INVALID_SETUP;
@@ -19,7 +23,7 @@ using SolTrace::Data::ELEMENT_WRONG_MODEL;
 
 namespace {
 
-OpticalPropertySetReference add_optics(SimulationData &sd)
+OpticsRef add_optics(SimulationData &sd)
 {
     OpticalPropertySet opt_set(InteractionType::REFLECTION, "test_optics");
     opt_set.set_ideal_reflection(OpticalSide::Both);
@@ -27,7 +31,7 @@ OpticalPropertySetReference add_optics(SimulationData &sd)
     return sd.add_optical_property_set(opt_set);
 }
 
-void configure(SingleElement &el, const OpticalPropertySetReference &optics)
+void configure(SingleElement &el, const OpticsRef &optics)
 {
     el.set_aperture(make_aperture<Rectangle>(1.0, 1.0));
     el.set_surface(make_surface<Flat>());
@@ -551,5 +555,91 @@ TEST(ElementIdsJson, BadSavedIdsAreErrors)
     set_direct_id(2.5);
     EXPECT_THROW(loaded.import_json_file(path.string()), std::invalid_argument);
 
+    std::filesystem::remove(path);
+}
+
+TEST(OpticsIdsJson, OpticsIdsSurviveWriteReadIncludingGaps)
+{
+    SimulationData sd;
+    auto first = add_optics(sd);
+    auto removed = add_optics(sd);
+    auto last = add_optics(sd);
+    ASSERT_TRUE(sd.remove_optical_property_set(removed.id()));
+
+    auto stage = sd.create_element<StageElement>(0);
+    auto a = stage->create_child<SingleElement>();
+    auto b = stage->create_child<SingleElement>();
+    auto plane = stage->create_child<VirtualPlane>(1.0, 1.0);
+    configure(*a, first);
+    configure(*b, last);
+    stage.commit();
+
+    const auto path = temp_json("soltrace_optics_ids.json");
+    sd.export_json_file(path.string());
+
+    // Built-in optics are not written to the table
+    const auto root = read_json(path);
+    EXPECT_EQ(root.at("optical_properties").size(), 2u);
+    EXPECT_FALSE(root.at("optical_properties").contains(
+        std::to_string(SolTrace::Data::OPTICS_ID_VIRTUAL)));
+
+    SimulationData loaded;
+    loaded.import_json_file(path.string());
+    std::filesystem::remove(path);
+
+    EXPECT_EQ(loaded.get_number_of_optical_property_sets(), 2u);
+    EXPECT_TRUE(loaded.get_optical_property_set(first.id()).valid());
+    EXPECT_FALSE(loaded.get_optical_property_set(removed.id()).valid());
+    EXPECT_TRUE(loaded.get_optical_property_set(last.id()).valid());
+
+    EXPECT_EQ(loaded.get_element(a->get_id())->get_optical_property_set_id(),
+              first.id());
+    EXPECT_EQ(loaded.get_element(b->get_id())->get_optical_property_set_id(),
+              last.id());
+    auto loaded_plane = loaded.get_element(plane->get_id());
+    ASSERT_NE(loaded_plane, nullptr);
+    EXPECT_TRUE(loaded_plane->is_virtual());
+    EXPECT_EQ(loaded_plane->get_optical_property_set(), virtual_optics().get());
+
+    // New entries are numbered above every saved ID
+    EXPECT_EQ(add_optics(loaded).id(), last.id() + 1);
+}
+
+TEST(OpticsIdsJson, NegativeOpticsIdsAreErrors)
+{
+    SimulationData sd;
+    add_optics(sd);
+    const auto path = temp_json("soltrace_optics_ids_bad.json");
+    sd.export_json_file(path.string());
+
+    auto root = read_json(path);
+    auto &table = root["optical_properties"];
+    table[std::to_string(SolTrace::Data::OPTICS_ID_VIRTUAL)] = table["0"];
+    write_json(path, root);
+
+    SimulationData loaded;
+    EXPECT_THROW(loaded.import_json_file(path.string()), std::runtime_error);
+    std::filesystem::remove(path);
+}
+
+TEST(OpticsIdsJson, MaximumOpticsIdIsRejectedWithoutInsertingIt)
+{
+    SimulationData sd;
+    add_optics(sd);
+    const auto path = temp_json("soltrace_optics_ids_max.json");
+    sd.export_json_file(path.string());
+
+    auto root = read_json(path);
+    auto &table = root["optical_properties"];
+    const auto max = std::numeric_limits<SolTrace::Data::resource_id>::max();
+    auto optics = table.at("0");
+    table.erase("0");
+    table[std::to_string(max)] = optics;
+    write_json(path, root);
+
+    SimulationData loaded;
+    EXPECT_THROW(loaded.import_json_file(path.string()), std::overflow_error);
+    EXPECT_EQ(loaded.get_number_of_optical_property_sets(), 0u);
+    EXPECT_EQ(add_optics(loaded).id(), 0);
     std::filesystem::remove(path);
 }

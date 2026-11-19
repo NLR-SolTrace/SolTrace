@@ -10,8 +10,10 @@
 #include "composite_element.hpp"
 #include "constants.hpp"
 #include "element.hpp"
-#include "utilities.hpp"
+#include "model_context.hpp"
+#include "single_element.hpp"
 #include "surface.hpp"
+#include "utilities.hpp"
 
 namespace SolTrace::Data {
 
@@ -295,8 +297,8 @@ void ParabolicDish::set_number_of_panels(int_fast64_t nradial,
     return;
 }
 
-void ParabolicDish::set_optics(const OpticalPropertySetReference &mirror,
-                               const OpticalPropertySetReference &absorber)
+void ParabolicDish::set_optics(const OpticsRef &mirror,
+                               const OpticsRef &absorber)
 {
     this->optics_mirror = mirror;
     this->optics_absorber = absorber;

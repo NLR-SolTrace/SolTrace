@@ -14,7 +14,7 @@
 
 using SolTrace::Runner::RunnerStatus;
 
-static OpticalPropertySetReference
+static OpticsRef
 add_plate_optics(SimulationData& sd, DistributionType distribution)
 {
     OpticalPropertySet plate_optics(InteractionType::REFLECTION,

@@ -535,7 +535,7 @@ void ElementBase::enforce_user_fields_set() const
 void ElementBase::write_common_json(nlohmann::ordered_json& jnode) const
 {
     jnode["active"] = this->active;
-    jnode["virtual_flag"] = this->virtual_flag;
+    jnode["virtual_flag"] = this->is_virtual();
     jnode["my_id"] = this->my_id;
     jnode["stage"] = this->stage;
     jnode["my_name"] = this->my_name;

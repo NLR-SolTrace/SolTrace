@@ -6,11 +6,11 @@
 #include <aperture.hpp>
 #include <surface.hpp>
 #include <constants.hpp>
+#include <json_helpers.hpp>
+#include <json_schema.hpp>
 #include <native_runner.hpp>
 #include <simulation_data_export.hpp>
 #include <simulation_result_export.hpp>
-#include <json_helpers.hpp>
-#include <json_schema.hpp>
 
 #include "common.hpp"
 
@@ -1155,12 +1155,11 @@ TEST(io_json, element_groups)
     get_default_optical_set(j_optic);
     SolTrace::Data::OpticalPropertySet opt_set(j_optic);
 
-    auto ptr = std::make_shared<OpticalPropertySet>(opt_set);
     ASSERT_NO_THROW(sd.add_optical_property_set(opt_set));
 
-    auto resolve_optics = [ptr](const optics_id id)
+    auto resolve_optics = [&sd](const optics_id id)
     {
-        return SolTrace::Data::OpticalPropertySetReference{ id, ptr };
+        return sd.get_optical_property_set(id);
     };
     
 

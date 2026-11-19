@@ -71,7 +71,7 @@ inline std::shared_ptr<SingleElement>
 make_single(SimulationData &sd,
             aperture_ptr ap,
             surface_ptr surf,
-            const OpticalPropertySetReference &optics)
+            const OpticsRef &optics)
 {
     auto el = new_element<SingleElement>(sd);
     set_element_shape(sd, el, ap, surf);

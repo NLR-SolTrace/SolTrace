@@ -50,7 +50,8 @@ using SolTrace::Data::AngularTablePoint;
 using SolTrace::Data::DistributionType;
 using SolTrace::Data::InteractionType;
 using SolTrace::Data::OpticalPropertySet;
-using SolTrace::Data::OpticalPropertySetReference;
+using SolTrace::Data::OpticsRef;
+using SolTrace::Data::virtual_optics;
 using SolTrace::Data::OpticalSide;
 
 // Ray Sources

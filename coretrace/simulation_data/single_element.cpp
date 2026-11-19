@@ -13,7 +13,6 @@ namespace SolTrace::Data {
 SingleElement::SingleElement(ElementKey key) : ElementBase(key),
                                                aperture(nullptr),
                                                surface(nullptr),
-                                               opt_id(OPTICS_ID_UNASSIGNED),
                                                group(-1)
 {
     return;
@@ -23,8 +22,7 @@ SingleElement::SingleElement(ElementKey key,
     const nlohmann::ordered_json& jnode,
     const OpticalPropertySetResolver& resolve_optics) : ElementBase(key, jnode),
                                                         aperture(nullptr),
-                                                        surface(nullptr),
-                                                        opt_id(OPTICS_ID_UNASSIGNED)
+                                                        surface(nullptr)
 {
     this->set_aperture(Aperture::make_aperture_from_json(jnode.at("aperture")));
     this->set_surface(make_surface_from_json(jnode.at("surface")));
@@ -54,6 +52,21 @@ SingleElement::~SingleElement()
     return;
 }
 
+void SingleElement::set_optical_property_set(const OpticsRef& optics)
+{
+    if (optics.is_assigned() && !optics.usable_in(this->get_model_token()))
+    {
+        std::stringstream ss;
+        ss << "Element (Name: " << this->get_name()
+           << ", UUID: " << this->get_id()
+           << "): optical property set " << optics.id()
+           << " belongs to another model, or to this model before it was "
+              "cleared.";
+        throw std::invalid_argument(ss.str());
+    }
+    this->optics = optics;
+}
+
 void SingleElement::enforce_user_fields_set() const
 {
     ElementBase::enforce_user_fields_set();
@@ -76,8 +89,10 @@ void SingleElement::enforce_user_fields_set() const
         throw std::invalid_argument(ss.str());
     }
 
-    if (this->opt_id == OPTICS_ID_UNASSIGNED ||
-        this->get_optical_property_set() == nullptr)
+    // Also catches a reference that expired after it was assigned
+    if (!this->optics.is_assigned() ||
+        !this->optics.usable_in(this->get_model_token()) ||
+        !this->optics.valid())
     {
         std::stringstream ss;
         ss << "Element (Name: " << this->get_name()
@@ -97,7 +112,7 @@ void SingleElement::write_json(nlohmann::ordered_json& jnode) const
     this->write_common_json(jnode);
     
     // Optical Properties
-    jnode["opt_id"] = this->opt_id;
+    jnode["opt_id"] = this->optics.id();
 
     // Aperture
     json japerture;

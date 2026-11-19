@@ -64,6 +64,7 @@ set(SIMDATA_HDRS
     model_state.hpp
     optical_properties.hpp
     ray_source.hpp
+    resource_registry.hpp
     simdata_io.hpp
     simulation_data.hpp
     simulation_parameters.hpp

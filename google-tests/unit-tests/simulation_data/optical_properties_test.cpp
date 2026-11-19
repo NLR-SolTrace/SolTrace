@@ -96,29 +96,118 @@ TEST(OpticalProperties, MutateOptics)
               test_element_2->get_optical_property_set());
 }
 
-TEST(OpticalProperties, NullPointer)
+TEST(OpticalProperties, RemovedOpticsExpire)
 {
     SimulationData sd;
 
-    // Make optics
-    OpticalPropertySet opt_set = OpticalPropertySet();
+    OpticalPropertySet opt_set;
     opt_set.set_ideal_reflection(OpticalSide::Both);
-    auto opt_ptr = std::make_shared<OpticalPropertySet>(opt_set);
+    auto ref = sd.add_optical_property_set(opt_set);
 
-    // Make optics reference
-    OpticalPropertySetReference ref = { 0, opt_ptr };
-
-    // Make element
     auto test_element = make_single(sd, make_aperture<Circle>(1), make_surface<Flat>(), ref);
-
-    // Add element to simulation data
     register_element(sd, test_element);
 
-    // Delete optics pointer
-    opt_ptr.reset();
+    // Allowed while the element still uses the entry
+    EXPECT_TRUE(sd.remove_optical_property_set(ref.id()));
+    EXPECT_FALSE(sd.remove_optical_property_set(ref.id()));
 
-    // Try to get pointer
+    EXPECT_FALSE(ref.valid());
     EXPECT_EQ(test_element->get_optical_property_set(), nullptr);
+    EXPECT_EQ(test_element->get_optical_property_set_id(), ref.id());
+    EXPECT_THROW(test_element->enforce_user_fields_set(), std::invalid_argument);
+
+    // An element given the expired reference later cannot be committed
+    auto late = sd.create_element<SingleElement>();
+    late->set_aperture(make_aperture<Circle>(1));
+    late->set_surface(make_surface<Flat>());
+    late->set_optical_property_set(ref);
+    EXPECT_THROW(late.commit(), std::invalid_argument);
+}
+
+TEST(OpticalProperties, RemovedOpticsExpireWhileTheValueIsStillHeld)
+{
+    SimulationData sd;
+
+    OpticalPropertySet opt_set;
+    opt_set.set_ideal_reflection(OpticalSide::Both);
+    auto ref = sd.add_optical_property_set(opt_set);
+
+    auto test_element = make_single(sd, make_aperture<Circle>(1), make_surface<Flat>(), ref);
+    register_element(sd, test_element);
+
+    const auto held = ref.get();
+    ASSERT_NE(held, nullptr);
+    ASSERT_TRUE(sd.remove_optical_property_set(ref.id()));
+
+    // The value outlives the entry, but no reference resolves to it
+    EXPECT_FALSE(ref.valid());
+    EXPECT_FALSE(sd.get_optical_property_set(ref.id()).valid());
+    EXPECT_EQ(test_element->get_optical_property_set(), nullptr);
+    EXPECT_THROW(test_element->enforce_user_fields_set(), std::invalid_argument);
+
+    // A new entry gets a new ID, and old references stay expired
+    auto replacement = sd.add_optical_property_set(opt_set);
+    EXPECT_NE(replacement.id(), ref.id());
+    EXPECT_FALSE(ref.valid());
+}
+
+TEST(OpticalProperties, ClearedOpticsKeepIdCounter)
+{
+    SimulationData sd;
+
+    OpticalPropertySet opt_set;
+    opt_set.set_ideal_reflection(OpticalSide::Both);
+
+    EXPECT_EQ(sd.add_optical_property_set(opt_set).id(), 0);
+    EXPECT_EQ(sd.add_optical_property_set(opt_set).id(), 1);
+
+    sd.clear_optical_property_sets();
+    EXPECT_EQ(sd.get_number_of_optical_property_sets(), 0);
+    EXPECT_EQ(sd.add_optical_property_set(opt_set).id(), 2);
+
+    // Clearing the whole model starts the numbering again
+    sd.clear();
+    EXPECT_EQ(sd.add_optical_property_set(opt_set).id(), 0);
+}
+
+TEST(OpticalProperties, MutableAccessIsLimitedToThisModel)
+{
+    SimulationData sd;
+    SimulationData other_sd;
+
+    OpticalPropertySet opt_set;
+    opt_set.set_ideal_reflection(OpticalSide::Both);
+    auto ref = sd.add_optical_property_set(opt_set);
+    other_sd.add_optical_property_set(opt_set);
+
+    auto test_element = make_single(sd, make_aperture<Circle>(1), make_surface<Flat>(), ref);
+
+    EXPECT_NE(sd.get_mutable_optical_property_set(*test_element), nullptr);
+    // other_sd has an entry with the same ID, but it is not the element's
+    EXPECT_EQ(other_sd.get_mutable_optical_property_set(*test_element), nullptr);
+    EXPECT_EQ(other_sd.get_optical_property_set(*test_element), nullptr);
+}
+
+TEST(OpticalProperties, VirtualElementsShareBuiltInOptics)
+{
+    SimulationData sd;
+
+    auto first = sd.create_element<VirtualElement>();
+    auto second = sd.create_element<VirtualElement>();
+
+    EXPECT_EQ(first->get_optical_property_set_id(), OPTICS_ID_VIRTUAL);
+    EXPECT_EQ(first->get_optical_property_set(), second->get_optical_property_set());
+    EXPECT_EQ(first->get_optical_property_set(), virtual_optics().get());
+
+    // Built-ins are not entries of the model and cannot be changed through it
+    EXPECT_EQ(sd.get_number_of_optical_property_sets(), 0);
+    EXPECT_EQ(sd.get_mutable_optical_property_set(*first), nullptr);
+    EXPECT_EQ(sd.get_optical_property_set(*first), virtual_optics().get().get());
+
+    // Every model accepts them
+    SimulationData other_sd;
+    auto other = other_sd.create_element<SingleElement>();
+    EXPECT_NO_THROW(other->set_optical_property_set(virtual_optics()));
 }
 
 TEST(OpticalProperties, ElementCanAccessSimulationOwnedOptics)
@@ -170,9 +259,8 @@ TEST(OpticalProperties, FindOrAddDeduplicatesEquivalentOptics)
     auto ref_1 = sd.find_or_add_optical_property_set(opt_set_1);
     auto ref_2 = sd.find_or_add_optical_property_set(opt_set_2);
 
-    EXPECT_EQ(ref_1.id, ref_2.id);
-    EXPECT_EQ(ref_1.optical_property_set.lock(),
-              ref_2.optical_property_set.lock());
+    EXPECT_EQ(ref_1.id(), ref_2.id());
+    EXPECT_EQ(ref_1.get(), ref_2.get());
 }
 
 TEST(OpticalProperties, FindOrAddKeepsDifferentOpticsSeparate)
@@ -189,29 +277,55 @@ TEST(OpticalProperties, FindOrAddKeepsDifferentOpticsSeparate)
     auto ref_1 = sd.find_or_add_optical_property_set(opt_set_1);
     auto ref_2 = sd.find_or_add_optical_property_set(opt_set_2);
 
-    EXPECT_NE(ref_1.id, ref_2.id);
-    EXPECT_NE(ref_1.optical_property_set.lock(),
-              ref_2.optical_property_set.lock());
+    EXPECT_NE(ref_1.id(), ref_2.id());
+    EXPECT_NE(ref_1.get(), ref_2.get());
 }
 
-TEST(OpticalProperties, AddElementWithExpiredOpticsThrows)
+TEST(OpticalProperties, OpticsFromAnotherModelAreRejected)
 {
     SimulationData sd;
 
+    OpticalPropertySet opt_set;
+    opt_set.set_ideal_reflection(OpticalSide::Both);
+    auto own_ref = sd.add_optical_property_set(opt_set);
+
     auto test_element = new_element<SingleElement>(sd);
     set_element_shape(sd, test_element, make_aperture<Circle>(1), make_surface<Flat>());
+    test_element->set_optical_property_set(own_ref);
 
     {
         SimulationData temporary_sd;
+        auto other_ref = temporary_sd.add_optical_property_set(opt_set);
 
-        OpticalPropertySet opt_set;
-        opt_set.set_ideal_reflection(OpticalSide::Both);
-
-        auto opt_ref = temporary_sd.add_optical_property_set(opt_set);
-        test_element->set_optical_property_set(opt_ref);
+        // Rejected even though the ID matches an entry of `sd`
+        ASSERT_EQ(other_ref.id(), own_ref.id());
+        EXPECT_THROW(test_element->set_optical_property_set(other_ref),
+                     std::invalid_argument);
     }
 
-    EXPECT_THROW(register_element(sd, test_element), std::invalid_argument);
+    // The rejected assignment left the element's optics unchanged
+    EXPECT_EQ(test_element->get_optical_property_set(), own_ref.get());
+    EXPECT_NO_THROW(register_element(sd, test_element));
+}
+
+TEST(OpticalProperties, OpticsFromBeforeClearAreRejected)
+{
+    SimulationData sd;
+
+    OpticalPropertySet opt_set;
+    opt_set.set_ideal_reflection(OpticalSide::Both);
+    auto old_ref = sd.add_optical_property_set(opt_set);
+
+    sd.clear();
+    // The new entry has the same ID as the old one
+    auto new_ref = sd.add_optical_property_set(opt_set);
+    ASSERT_EQ(new_ref.id(), old_ref.id());
+
+    auto test_element = sd.create_element<SingleElement>();
+    EXPECT_FALSE(old_ref.valid());
+    EXPECT_THROW(test_element->set_optical_property_set(old_ref),
+                 std::invalid_argument);
+    EXPECT_NO_THROW(test_element->set_optical_property_set(new_ref));
 }
 
 TEST(OpticalProperties, AngularTableInterpolatesExactAtTablePoints)

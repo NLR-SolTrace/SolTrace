@@ -25,22 +25,20 @@
 #include <nlohmann/json.hpp>
 
 #include "error_distributions.hpp"
+#include "resource_registry.hpp"
 
 namespace SolTrace::Data
 {
-using optics_id = std::int_fast64_t;
+using optics_id = resource_id;
 
-enum OPTICS_ID_TYPES
-{
-    OPTICS_ID_VIRTUAL    = -3,
-    OPTICS_ID_UNASSIGNED = -2
-};
+inline constexpr optics_id OPTICS_ID_VIRTUAL = -3;
+inline constexpr optics_id OPTICS_ID_UNASSIGNED = RESOURCE_ID_UNASSIGNED;
 
-struct OpticalPropertySet;
-struct OpticalPropertySetReference;
-using OpticalPropertySetContainer = Container<optics_id, OpticalPropertySet>;
-using OpticalPropertySetResolver =
-    std::function<OpticalPropertySetReference(const optics_id)>;
+class OpticalPropertySet;
+using OpticsRef = ResourceRef<OpticalPropertySet>;
+using OpticsRegistry = ResourceRegistry<OpticalPropertySet>;
+using OpticalPropertySetContainer = OpticsRegistry::container_type;
+using OpticalPropertySetResolver = std::function<OpticsRef(const optics_id)>;
 
 enum class InteractionType
 {
@@ -74,12 +72,6 @@ struct AngularTablePoint
 
     bool operator!=(const AngularTablePoint& other) const
     { return !(*this == other); }
-};
-
-struct OpticalPropertySetReference
-{
-    optics_id                               id = OPTICS_ID_UNASSIGNED;
-    std::weak_ptr<const OpticalPropertySet> optical_property_set;
 };
 
 class OpticalPropertySet
@@ -727,6 +719,10 @@ public:
     friend std::ostream& operator<<(std::ostream&                os,
                                     const OpticalPropertiesFace& op);
 };
+
+// The built-in optics of every virtual element, with ID OPTICS_ID_VIRTUAL.
+// Rays pass through unchanged.
+const OpticsRef &virtual_optics();
 
 } // namespace SolTrace::Data
 

@@ -14,10 +14,10 @@
 #ifndef SOLTRACE_PARABOLIC_DISH_H
 #define SOLTRACE_PARABOLIC_DISH_H
 
-#include "composite_element.hpp"
-
 #include <vector>
 
+#include "composite_element.hpp"
+#include "optical_properties.hpp"
 #include "single_element.hpp"
 
 namespace SolTrace::Data {
@@ -32,8 +32,8 @@ public:
     void set_focal_length(double flen);
     void set_gaps(double radial, double angular, double center_radius);
     void set_number_of_panels(int_fast64_t nradial, int_fast64_t nangular);
-    void set_optics(const OpticalPropertySetReference &mirror,
-                    const OpticalPropertySetReference &absorber);
+    void set_optics(const OpticsRef &mirror,
+                    const OpticsRef &absorber);
     void set_receiver_dimensions(double diameter, double distance);
     void set_tracking_limits(double az_lower, double az_upper,
                              double el_lower, double el_upper);
@@ -63,12 +63,12 @@ private:
     double gap_center;
     int_fast64_t num_panels_r;
     int_fast64_t num_panels_a;
-    OpticalPropertySetReference optics_mirror;
+    OpticsRef optics_mirror;
 
     // Receiver Characteristics
     double abs_diameter;
     double abs_distance;
-    OpticalPropertySetReference optics_absorber;
+    OpticsRef optics_absorber;
 
     // Follows solar azimuth, elevation convention:
     // Azimuth is angle clockwise from north (y-axis) in degrees

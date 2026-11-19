@@ -55,12 +55,14 @@ void ElementIdAllocator::reset()
 
 ModelState::ModelState() : identity_(std::make_shared<const ModelIdentity>())
 {
+    this->optics = OpticsRegistry(this->token());
 }
 
 void ModelState::reset()
 {
     this->identity_ = std::make_shared<const ModelIdentity>();
     this->ids.reset();
+    this->optics = OpticsRegistry(this->token());
 }
 
 } // namespace SolTrace::Data

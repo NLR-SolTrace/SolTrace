@@ -14,6 +14,7 @@
 
 #include "element_id.hpp"
 #include "model_identity.hpp"
+#include "optical_properties.hpp"
 
 namespace SolTrace::Data {
 
@@ -54,6 +55,9 @@ public:
 
     ElementIdAllocator ids;
 
+    // Issues references stamped with this model's token
+    OpticsRegistry optics;
+
     // Both are set by the SimulationData that owns this state. An empty
     // `registrar` means the model cannot register elements.
     std::function<element_id(std::shared_ptr<Element>)> registrar;
@@ -61,8 +65,9 @@ public:
 
     ModelToken token() const { return this->identity_; }
 
-    // Gives the model a new identity and resets the ID allocator. Everything
-    // created before this call no longer belongs to the model.
+    // Gives the model a new identity, resets the ID allocator, and replaces
+    // the registries with empty ones. Everything created before this call no
+    // longer belongs to the model.
     void reset();
 
 private:

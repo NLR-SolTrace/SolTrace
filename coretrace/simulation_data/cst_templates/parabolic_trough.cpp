@@ -10,8 +10,11 @@
 #include "composite_element.hpp"
 #include "constants.hpp"
 #include "element.hpp"
-#include "utilities.hpp"
+#include "model_context.hpp"
+#include "optical_properties.hpp"
+#include "single_element.hpp"
 #include "surface.hpp"
+#include "utilities.hpp"
 
 namespace SolTrace::Data {
 
@@ -440,10 +443,10 @@ void ParabolicTrough::set_number_panels(int_fast64_t num_x,
     return;
 }
 
-void ParabolicTrough::set_optics(const OpticalPropertySetReference mirror,
-                                 const OpticalPropertySetReference absorber,
-                                 const OpticalPropertySetReference envelope_inner,
-                                 const OpticalPropertySetReference envelope_outer)
+void ParabolicTrough::set_optics(const OpticsRef mirror,
+                                 const OpticsRef absorber,
+                                 const OpticsRef envelope_inner,
+                                 const OpticsRef envelope_outer)
 {
     this->optics_mirror = mirror;
     this->optics_absorber = absorber;

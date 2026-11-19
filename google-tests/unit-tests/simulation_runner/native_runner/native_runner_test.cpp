@@ -162,6 +162,36 @@ TEST(NativeRunner, ErrorOnUnsupportedOptions)
 }
 
 
+TEST(NativeRunner, SetupReportsOpticsRemovedAfterCommit)
+{
+    SimulationData sd;
+
+    auto sun = SolTrace::Data::make_ray_source<Sun>();
+    sun->set_position(0.0, 0.0, 100.0);
+    sd.add_ray_source(sun);
+
+    SolTrace::Data::OpticalPropertySet mirror_optics(
+        SolTrace::Data::InteractionType::REFLECTION, "Mirror");
+    mirror_optics.set_ideal_one_sided_reflector(SolTrace::Data::OpticalSide::Front);
+    auto optics = sd.add_optical_property_set(mirror_optics);
+
+    auto stage = sd.create_element<StageElement>(0);
+    auto mirror = stage->create_child<SingleElement>();
+    mirror->set_aperture(make_aperture<Rectangle>(10.0, 10.0));
+    mirror->set_surface(make_surface<Flat>());
+    mirror->set_optical_property_set(optics);
+    stage.commit();
+
+    // Removing optics that a registered element uses is allowed, and is
+    // reported when a run is set up
+    ASSERT_TRUE(sd.remove_optical_property_set(optics.id()));
+
+    NativeRunner runner;
+    ASSERT_EQ(runner.initialize(), RunnerStatus::SUCCESS);
+    EXPECT_THROW(runner.setup_simulation(&sd), std::invalid_argument);
+}
+
+
 TEST(NativeRunner, SmokeTest)
 {
     const unsigned NRAYS = 10;

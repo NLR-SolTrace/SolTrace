@@ -20,6 +20,8 @@
 #include <vector>
 
 #include "element.hpp"
+#include "model_context.hpp"
+#include "optical_properties.hpp"
 #include "single_element.hpp"
 
 namespace SolTrace::Data {
@@ -35,10 +37,10 @@ public:
     void set_focused_panels(bool focused);
     void set_gaps(double gap_x, double gap_y, double gap_center);
     void set_number_panels(int_fast64_t num_x, int_fast64_t num_y);
-    void set_optics(const OpticalPropertySetReference mirror,
-                    const OpticalPropertySetReference absorber,
-                    const OpticalPropertySetReference envelop_outer,
-                    const OpticalPropertySetReference envelop_inner);
+    void set_optics(const OpticsRef mirror,
+                    const OpticsRef absorber,
+                    const OpticsRef envelop_outer,
+                    const OpticsRef envelop_inner);
     void set_receiver_height(double height);
     void set_receiver_dimensions(double absorber_diameter,
                                  double envelop_diameter,
@@ -90,16 +92,16 @@ private:
     double gap_x;
     double gap_y;
     double gap_center;
-    OpticalPropertySetReference optics_mirror;
+    OpticsRef optics_mirror;
 
     // Receiver Characteristics
     double abs_diameter;
     double env_diameter;
     double env_thickness;
     // double receiver_length;
-    OpticalPropertySetReference optics_absorber;
-    OpticalPropertySetReference optics_env_out;
-    OpticalPropertySetReference optics_env_in;
+    OpticsRef optics_absorber;
+    OpticsRef optics_env_out;
+    OpticsRef optics_env_in;
 
     // Solar Tracking
     // double tracking_angle;

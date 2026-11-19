@@ -559,45 +559,21 @@ void load_json_file(SimulationData& sd, std::string filename, std::string* upgra
     // Optical properties
     json joptics = root.at("optical_properties");
     for (auto& [key, joptic] : joptics.items()) {
-        optics_id          opt_id = static_cast<optics_id>(std::stoll(key));
-        OpticalPropertySet opt_set(joptic);
-
-        // Check for pre-existing optical property sets
-        const OpticalPropertySet* existing =
-            sd.get_optical_property_set(opt_id);
-        if (existing != nullptr) {
-            // This should be a built in optical property set
-            if (opt_id >= 0)
-                throw std::runtime_error(
-                    "Custom optical property set already exists");
-
-            // Ensure loaded built in matches
-            if (*existing != opt_set) {
-                std::stringstream ss;
-                ss << "Built-in optical property set mismatch for id "
-                   << opt_id;
-                throw std::runtime_error(ss.str());
-            }
-        } else // Insert new optical property set
-        {
-            auto ptr  = std::make_shared<OpticalPropertySet>(opt_set);
-            bool flag = sd.my_optical_property_sets.insert_item(opt_id, ptr);
-            if (!flag) {
-                std::stringstream ss;
-                ss << "Failed to insert optical property set id from JSON: "
-                   << opt_id;
-                throw std::runtime_error(ss.str());
-            }
+        const optics_id opt_id = static_cast<optics_id>(std::stoll(key));
+        // Built-in optics are never written, so every saved ID is 0 or more
+        if (opt_id < 0) {
+            std::stringstream ss;
+            ss << "Invalid optical property set ID in JSON: " << key
+               << ". IDs must be 0 or greater.";
+            throw std::runtime_error(ss.str());
         }
+        sd.restore_optical_property_set(opt_id, OpticalPropertySet(joptic));
     }
-    // Set optical property set next id
-    sd.my_optical_property_sets.recompute_next_id(0);
 
     // Elements
     json jelements      = root["elements"];
     auto resolve_optics = [&sd](const optics_id id) {
-        auto ptr = sd.my_optical_property_sets.get_item(id);
-        return OpticalPropertySetReference { id, ptr };
+        return sd.get_optical_property_set(id);
     };
 
     // Check every saved element ID before creating anything, then move the ID

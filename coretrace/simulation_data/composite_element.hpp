@@ -131,7 +131,7 @@ namespace SolTrace::Data
         /**
          * @brief Set optical propertiy set id (does not apply for composite elements)
          */
-        virtual void set_optical_property_set(const OpticalPropertySetReference&) override 
+        virtual void set_optical_property_set(const OpticsRef&) override 
         {
             assert(false && "CompositeElement does not support optical property sets");
         }

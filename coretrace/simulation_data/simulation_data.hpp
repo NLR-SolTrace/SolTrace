@@ -175,18 +175,57 @@ public:
         // return citer == this->my_elements.end();
     }
 
-    OpticalPropertySetReference add_optical_property_set(const OpticalPropertySet& opt_set);
-    OpticalPropertySetReference find_or_add_optical_property_set(const OpticalPropertySet& opt_set);
+    // Optical property sets are shared resources: many elements can use one
+    // entry, and a change to it affects all of them. IDs start at 0 and are
+    // not reused within the model.
 
+    /// @brief Store a copy of `opt_set` as a new entry, even if an equal one
+    ///        exists
+    OpticsRef add_optical_property_set(const OpticalPropertySet& opt_set);
+
+    /// @brief Return the first entry equal to `opt_set` (including its name),
+    ///        or add one. Elements that share an entry see each other's
+    ///        changes to it; use `add_optical_property_set` to keep entries
+    ///        separate.
+    OpticsRef find_or_add_optical_property_set(const OpticalPropertySet& opt_set);
+
+    /// @brief The entry with ID `id`, or the built-in virtual optics for
+    ///        OPTICS_ID_VIRTUAL. The reference is not valid if there is none.
+    OpticsRef get_optical_property_set(optics_id id) const;
+
+    /// @brief The optics of `el`, or nullptr if it has none or they do not
+    ///        belong to this model
     const OpticalPropertySet* get_optical_property_set(const Element& el) const;
+
+    /// @brief A change affects every element that uses the entry. nullptr if
+    ///        there is no entry with ID `id`. Built-ins cannot be changed.
+    OpticalPropertySet* get_mutable_optical_property_set(optics_id id);
+
+    /// @brief Like the ID overload, for the optics of `el`. nullptr if they
+    ///        are built-in or do not belong to this model.
     OpticalPropertySet* get_mutable_optical_property_set(const Element& el);
+
+    /// @brief Remove the entry with ID `id`. Allowed while elements use it:
+    ///        their references expire, and those elements fail validation the
+    ///        next time they are committed or a runner is set up.
+    /// @return true if an entry was removed
+    bool remove_optical_property_set(optics_id id);
+
+    /// @brief Remove every entry, with the same effect on references as
+    ///        `remove_optical_property_set`. IDs are still not reused.
+    void clear_optical_property_sets();
+
+    uint_fast64_t get_number_of_optical_property_sets() const
+    {
+        return this->model_state->optics.size();
+    }
 
     /// @brief Get an iterator that can be used to access all 
     ///  optical property sets owned by this SimulationData object.
     /// @return iterator
     OpticalPropertySetContainer::iterator get_optics_iterator()
     {
-        return this->my_optical_property_sets.get_iterator();
+        return this->model_state->optics.get_iterator();
     }
 
     /// @brief Tests whether the given iterator is at the end
@@ -194,7 +233,7 @@ public:
     /// @return true if at end, false otherwise
     bool is_optics_at_end(OpticalPropertySetContainer::iterator it)
     {
-        return this->my_optical_property_sets.is_at_end(it);
+        return this->model_state->optics.is_at_end(it);
     }
 
     /// @brief Set the number of rays to trace
@@ -318,7 +357,6 @@ private:
     ElementContainer my_elements;
     RaySourceContainer my_sources;
     SimulationParameters my_parameters;
-    OpticalPropertySetContainer my_optical_property_sets;
 
     // Shared with the contexts, elements, and references made for this model
     std::shared_ptr<ModelState> model_state;
@@ -335,8 +373,9 @@ private:
     void insert_element(const element_ptr &el);
     uint_fast64_t remove_subelements(element_ptr el);
 
-    const OpticalPropertySet* get_optical_property_set(optics_id id) const;
-    OpticalPropertySet* get_optical_property_set(optics_id id);
+    // For loaders: recreates an entry with a saved ID
+    OpticsRef restore_optical_property_set(optics_id id,
+                                           const OpticalPropertySet& opt_set);
 };
 
 } // namespace SolTrace::Data
